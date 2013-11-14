@@ -1,9 +1,10 @@
---------------------------------------------------------------------------------
-                      PIA - Protein Inference Algorithms
---------------------------------------------------------------------------------
+PIA - Protein Inference Algorithms
+===
 
 PIA is a toolbox for MS based protein inference and identification analysis.
 
+PIA in a nutshell
+===
 
 Most search engines for protein identification in MS/MS experiments return
 protein lists, although the actual search yields a set of peptide spectrum
@@ -23,3 +24,6 @@ different experiments and/or search engines, and reports consistent and thus
 comparable results. None of the parameters for the inference, like filtering or
 scoring, are fixed as in prior approaches, but held as flexible as possible, to
 allow for any adjustments needed by the user.
+
+PIA can be called via the command line, via GKN KNIME notes or using the
+JavaServer Faces web-interface.
