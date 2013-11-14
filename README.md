@@ -25,5 +25,6 @@ comparable results. None of the parameters for the inference, like filtering or
 scoring, are fixed as in prior approaches, but held as flexible as possible, to
 allow for any adjustments needed by the user.
 
-PIA can be called via the command line, via GKN KNIME notes or using the
-JavaServer Faces web-interface.
+PIA can be called via the command line, via
+[GenericKnimeNodes](https://github.com/genericworkflownodes/GenericKnimeNodes) in
+KNIME or using the JavaServer Faces web-interface.
