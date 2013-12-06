@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:a4j="http://richfaces.org/a4j"
+		xmlns:rich="http://richfaces.org/rich">
+	
+	<h:outputScript library="scripts" name="raphael-min.js" target="head" />
+	<h:outputScript library="scripts" name="g.raphael-min.js" target="head" />
+	<h:outputScript library="scripts" name="g.bar-min.js" target="head" />
+	<h:outputScript library="scripts" name="g.pie-min.js" target="head" />
+	<h:outputScript library="scripts" name="pia_scripts.js" target="head" />
+	
+	<a4j:outputPanel layout="block"
+			styleClass="wizard_header">
+		<h:outputText value="Step 3/5: Peptides" />
+	</a4j:outputPanel>
+	<a4j:outputPanel layout="block"
+			styleClass="wizard_text">
+		<h:outputText value="#{help.step_peptides_help}"
+				escape="false"/>
+	</a4j:outputPanel>
+	
+	<h:panelGrid columns="3">
+		<h:selectBooleanCheckbox id="consider_modifications"
+				value="#{viewerBean.wizard.considerModifications}" />
+		<h:outputLabel id="consider_modifications_label"
+				for="consider_modifications"
+				value="consider modifications for distinct peptides" />
+		<a4j:outputPanel layout="inline">
+			<h:graphicImage name="help_icon.png"
+					library="images" alt="help"
+					styleClass="help_icon"/>
+			<rich:tooltip showEvent="click"
+					mode="client"
+					styleClass="help_tooltip"
+					layout="block">
+				<h:outputText value="#{help.consider_modifications_help}"
+						escape="false"/>
+			</rich:tooltip>
+		</a4j:outputPanel>
+		
+		<f:facet name="footer">
+			<a4j:commandButton value="Update"
+					action="#{viewerBean.wizard.finishPSMsReviewStep}"
+					execute="consider_modifications"
+					onbegin="#{rich:component('processingPanel')}.show();"
+					oncomplete="#{rich:component('processingPanel')}.hide();"
+					render="step_peptides"/>
+		</f:facet>
+	</h:panelGrid>
+	
+	<h:panelGrid columns="2">
+		<h:panelGroup>
+			<h:outputLabel id="fdr_thr_peptides_label"
+					for="fdr_thr_peptides"
+					value="Selected FDR threshold:" />
+			
+			<a4j:outputPanel layout="inline">
+				<h:graphicImage name="help_icon.png"
+						library="images" alt="help"
+						styleClass="help_icon"/>
+				<rich:tooltip showEvent="click"
+						mode="client"
+						styleClass="help_tooltip"
+						layout="block">
+					<h:outputText value="#{help.fdr_thr_help}"
+							escape="false"/>
+				</rich:tooltip>
+			</a4j:outputPanel>
+		</h:panelGroup>
+		<h:outputText id="fdr_thr_peptides"
+				value="#{viewerBean.wizard.FDRThreshold}" />
+	</h:panelGrid>
+	
+	<rich:panel id="peptides_all_files_panel"
+			name="peptides_all_files_panel"
+			header="Peptides for all files">
+		
+		<h:panelGrid columns="2">
+			<h:panelGrid columns="2">
+				<h:panelGroup>
+					<h:outputLabel id="all_peptides_label"
+							for="all_peptides"
+							value="#peptides:" />
+					<a4j:outputPanel layout="inline">
+						<h:graphicImage name="help_icon.png"
+								library="images" alt="help"
+								styleClass="help_icon"/>
+						<rich:tooltip showEvent="click"
+								mode="client"
+								styleClass="help_tooltip"
+								layout="block">
+							<h:outputText value="#{help.all_peptides_help}"
+									escape="false"/>
+						</rich:tooltip>
+					</a4j:outputPanel>
+				</h:panelGroup>
+				<h:outputText id="all_peptides"
+						value="#{viewerBean.wizard.maximalNrPeptides[0]}"/>
+				
+				<h:panelGroup
+						rendered="#{viewerBean.wizard.modeller.PSMModeller.isCombinedFDRScoreCalculated()}">
+					<h:outputLabel id="fdr_good_peptides_label"
+							for="fdr_good_peptides"
+							value="Number of FDR good peptides:" />
+					
+					<a4j:outputPanel layout="inline">
+						<h:graphicImage name="help_icon.png"
+								library="images" alt="help"
+								styleClass="help_icon"/>
+						<rich:tooltip showEvent="click"
+								mode="client"
+								styleClass="help_tooltip"
+								layout="block">
+							<h:outputText value="#{help.fdr_good_peptides_help}"
+									escape="false"/>
+						</rich:tooltip>
+					</a4j:outputPanel>
+				</h:panelGroup>
+				<h:outputText id="fdr_good_peptides"
+						value="#{viewerBean.wizard.nrPeptides[0]}"
+						rendered="#{viewerBean.wizard.modeller.PSMModeller.isCombinedFDRScoreCalculated()}"/>
+			</h:panelGrid>
+			
+			<a4j:outputPanel id="peptide_identifications_chart_wrapper"
+					layout="block"
+					styleClass="chart_wrapper">
+				<a4j:outputPanel layout="inline"
+						styleClass="chart_header">
+					<h:outputText value="Identifications" />
+					<h:graphicImage name="help_icon.png"
+							library="images" alt="help"
+							styleClass="help_icon"/>
+					<rich:tooltip showEvent="click"
+							mode="client"
+							styleClass="help_tooltip"
+							layout="block">
+						<h:outputText value="#{help.peptide_identifications_help}"
+								escape="false"/>
+					</rich:tooltip>
+				</a4j:outputPanel>
+				<a4j:outputPanel id="peptide_identifications_chart"
+						layout="block"
+						styleClass="chart">
+				</a4j:outputPanel>
+				
+				<script type="text/javascript">
+					drawPeptideIdentificationsChart(<h:outputText value="#{rich:element('peptide_identifications_chart')}"/>,
+							<h:outputText value="#{viewerBean.wizard.nrPeptideIdentifications[0]}"/>,
+							<h:outputText value="#{viewerBean.wizard.nrPeptideIdentificationsLabel[0]}"/>);
+				</script>
+			</a4j:outputPanel>
+		</h:panelGrid>
+	</rich:panel>
+	
+	<rich:panel id="peptides_per_files"
+			name="peptides_per_files"
+			header="Peptides for individual files">
+		<a4j:repeat value="#{viewerBean.peptideViewer.identificationFiles}"
+				var="file"
+				rows="0"
+				id="files_peptides_repeat">
+			<rich:panel header="#{file.name}"
+					rendered="#{file.ID != 0}">
+				
+				<h:panelGrid columns="2">
+					<h:panelGrid columns="2">
+						<h:panelGroup>
+							<h:outputLabel id="all_peptides_label"
+									for="all_peptides"
+									value="#peptides:" />
+							<a4j:outputPanel layout="inline">
+								<h:graphicImage name="help_icon.png"
+										library="images" alt="help"
+										styleClass="help_icon"/>
+								<rich:tooltip showEvent="click"
+										mode="client"
+										styleClass="help_tooltip"
+										layout="block">
+									<h:outputText value="#{help.all_peptides_help}"
+											escape="false"/>
+								</rich:tooltip>
+							</a4j:outputPanel>
+						</h:panelGroup>
+						<h:outputText id="all_peptides"
+								value="#{viewerBean.wizard.maximalNrPeptides[file.ID]}"/>
+						
+						<h:panelGroup 
+								rendered="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[file.ID].nrItems != null}">
+							<h:outputLabel id="fdr_good_peptides_label"
+									for="fdr_good_peptides"
+									value="Number of FDR good peptides:" />
+							
+							<a4j:outputPanel layout="inline">
+								<h:graphicImage name="help_icon.png"
+										library="images" alt="help"
+										styleClass="help_icon"/>
+								<rich:tooltip showEvent="click"
+										mode="client"
+										styleClass="help_tooltip"
+										layout="block">
+									<h:outputText value="#{help.fdr_good_peptides_help}"
+											escape="false"/>
+								</rich:tooltip>
+							</a4j:outputPanel>
+						</h:panelGroup>
+						<h:outputText id="fdr_good_peptides"
+								value="#{viewerBean.wizard.nrPeptides[file.ID]}"
+								rendered="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[file.ID].nrItems != null}"/>
+							
+					</h:panelGrid>
+				
+					<a4j:outputPanel id="peptide_identifications_chart_wrapper"
+							layout="block"
+							styleClass="chart_wrapper">
+						<a4j:outputPanel layout="inline"
+								styleClass="chart_header">
+							<h:outputText value="Identifications" />
+							<h:graphicImage name="help_icon.png"
+									library="images" alt="help"
+									styleClass="help_icon"/>
+							<rich:tooltip showEvent="click"
+									mode="client"
+									styleClass="help_tooltip"
+									layout="block">
+								<h:outputText value="#{help.peptide_identifications_help}"
+										escape="false"/>
+							</rich:tooltip>
+						</a4j:outputPanel>
+						<a4j:outputPanel id="peptide_identifications_chart"
+								layout="block"
+								styleClass="chart">
+						</a4j:outputPanel>
+						
+						<script type="text/javascript">
+							drawPeptideIdentificationsChart(<h:outputText value="#{rich:element('peptide_identifications_chart')}"/>,
+									<h:outputText value="#{viewerBean.wizard.nrPeptideIdentifications[file.ID]}"/>,
+									<h:outputText value="#{viewerBean.wizard.nrPeptideIdentificationsLabel[file.ID]}"/>);
+						</script>
+					</a4j:outputPanel>
+				</h:panelGrid>
+				
+			</rich:panel>
+		</a4j:repeat>
+	</rich:panel>
+	
+	<a4j:outputPanel layout="block">
+		<a4j:commandButton value="&lt;&lt; Back"
+				execute="@none"
+				onbegin="#{rich:component('processingPanel')}.show();"
+				oncomplete="#{rich:component('processingPanel')}.hide();"
+				onclick="#{rich:component('wizard_panel')}.switchToItem('@prev');"
+				render="wizard_panel" />
+		<a4j:commandButton value="Protein inference &gt;&gt;"
+				execute="@this"
+				action="#{viewerBean.wizard.startProteinInferenceStep()}"
+				onbegin="#{rich:component('processingPanel')}.show();"
+				oncomplete="#{rich:component('processingPanel')}.hide();"
+				onclick="#{rich:component('wizard_panel')}.switchToItem('@next');"
+				render="wizard_panel" />
+	</a4j:outputPanel>
+</ui:composition>

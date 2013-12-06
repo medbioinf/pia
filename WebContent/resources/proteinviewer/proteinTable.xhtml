@@ -1,0 +1,154 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:cc="http://java.sun.com/jsf/composite"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+    	xmlns:rich="http://richfaces.org/rich"
+    	xmlns:a4j="http://richfaces.org/a4j"
+    	xmlns:pia="http://java.sun.com/jsf/composite/pia"
+    	xmlns:piacomponents="http://de.mpc.pia/components"
+    	xmlns:peptide="http://java.sun.com/jsf/composite/peptideviewer"
+    	xmlns:protein="http://java.sun.com/jsf/composite/proteinviewer">
+
+<head>
+	<title>Renders a table for a list of Proteins</title>
+</head>
+
+<body>
+	<cc:interface>
+		<cc:attribute name="tableID" shortDescription="id of the dataTable" />
+		<cc:attribute name="proteinList" shortDescription="the list of ReportProteins" />
+		<cc:attribute name="psmViewerBean"/>
+		<cc:attribute name="peptideViewerBean"/>
+		<cc:attribute name="proteinViewerBean"/>
+		<cc:attribute name="showScroller" default="false" />
+		<cc:attribute name="showRank" default="false" />
+		<cc:attribute name="rows" default="0" />
+		<cc:attribute name="sortable" default="false" />
+	</cc:interface>
+	
+	<cc:implementation>
+		
+		<h:panelGrid id="#{cc.attrs.tableID}_wrapper"
+				columns="1"
+				styleClass="result_table_wrapper">
+			
+			<a4j:outputPanel id="page_scroller_top"
+					rendered="#{cc.attrs.showScroller}">
+				<rich:dataScroller id="scroller_top"
+						for="#{cc.attrs.tableID}"
+						maxPages="11"
+						fastStep="10"
+						status="processingPanel"
+						render="page_scroller_top page_scroller_bottom"
+						boundaryControls="auto"
+						stepControls="auto"
+						fastControls="hide"
+						onbegin="#{rich:component('processingPanel')}.show();"
+						oncomplete="#{rich:jQuery('goto_scroller_input')}.val(#{rich:component('scroller_top')}.currentPage); #{rich:component('processingPanel')}.hide();">
+					<f:facet name="first">
+						<h:outputText value="First" />
+					</f:facet>
+					<f:facet name="last">
+						<h:outputText value="Last" />
+					</f:facet>
+					<f:facet name="previous">
+						<h:outputText value="Previous" />
+					</f:facet>
+					<f:facet name="next">
+						<h:outputText value="Next" />
+					</f:facet>
+				</rich:dataScroller>
+				
+				<a4j:outputPanel id="goto_scroller_wrapper" layout="block">
+					<h:outputText value="Page #{rich:findComponent('scroller_top').page} of #{rich:findComponent('scroller_top').pageCount}, showing #{rich:findComponent(cc.attrs.tableID).rows} of #{rich:findComponent('scroller_top').rowCount} entries per page."/>
+					<h:inputText id="goto_scroller_input" />
+					<a4j:commandButton id="goto_scroller_button"
+							value="go to page"
+							render="#{cc.attrs.tableID} page_scroller_top page_scroller_bottom"
+							execute="goto_scroller_wrapper"
+							onclick="#{rich:component('scroller_top')}.switchToPage(#{rich:element('goto_scroller_input')}.value);"/>
+				</a4j:outputPanel>
+			</a4j:outputPanel>
+			
+			<rich:dataTable id="#{cc.attrs.tableID}"
+					rows="#{cc.attrs.rows}"
+					var="proteinRow"
+					value="#{cc.attrs.proteinList}"
+					sortMode="multi"
+					sortPriority="#{cc.attrs.proteinViewerBean.sortHandler.getSortPriorities()}"
+					styleClass="result_table">
+				
+				<ui:decorate template="proteinTableContentTemplate.xhtml">
+					<ui:param name="tableID" value="#{cc.attrs.tableID}"></ui:param>
+					<ui:param name="proteinRow" value="#{proteinRow}"></ui:param>
+					<ui:param name="psmViewerBean" value="#{cc.attrs.psmViewerBean}"></ui:param>
+					<ui:param name="peptideViewerBean" value="#{cc.attrs.peptideViewerBean}"></ui:param>
+					<ui:param name="proteinViewerBean" value="#{cc.attrs.proteinViewerBean}"></ui:param>
+					<ui:param name="showRank" value="#{cc.attrs.showRank}"></ui:param>
+					<ui:param name="showSubsets" value="#{true}"></ui:param>
+					<ui:param name="showInferenceGraph" value="#{true}"></ui:param>
+					<ui:param name="sortable" value="#{cc.attrs.sortable}"></ui:param>
+				</ui:decorate>
+				
+				<rich:column id="sub_proteins"
+						breakRowBefore="true"
+						colspan="#{7 + (cc.attrs.showRank ? 1 : 0)}"
+						rendered="#{(proteinRow.subSets.size() > 0) and cc.attrs.proteinViewerBean.showProteinsSubProteins(proteinRow.ID)}">
+					
+					<h:outputText value="Sub Proteins:"
+							styleClass="sub_proteins_textheader" />
+					
+					<rich:dataTable id="sub_proteins_table"
+							rows="0"
+							var="subProtein"
+							value="#{cc.attrs.proteinViewerBean.getProteinsSubSets(proteinRow.ID)}"
+							styleClass="sub_proteins_wrapper">
+						<ui:decorate template="proteinTableContentTemplate.xhtml">
+							<ui:param name="tableID" value="sub_proteins"></ui:param>
+							<ui:param name="proteinRow" value="#{subProtein}"></ui:param>
+							<ui:param name="psmViewerBean" value="#{cc.attrs.psmViewerBean}"></ui:param>
+							<ui:param name="peptideViewerBean" value="#{cc.attrs.peptideViewerBean}"></ui:param>
+							<ui:param name="proteinViewerBean" value="#{cc.attrs.proteinViewerBean}"></ui:param>
+							<ui:param name="showRank" value="#{false}"></ui:param>
+							<ui:param name="showSubsets" value="#{false}"></ui:param>
+							<ui:param name="showInferenceGraph" value="#{false}"></ui:param>
+							<ui:param name="sortable" value="#{false}"></ui:param>
+						</ui:decorate>
+						
+					</rich:dataTable>
+				</rich:column>
+				
+			</rich:dataTable>
+			
+			<a4j:outputPanel id="page_scroller_bottom"
+					rendered="#{cc.attrs.showScroller}">
+				<rich:dataScroller id="scroller_bottom"
+						for="#{cc.attrs.tableID}"
+						maxPages="11"
+						fastStep="10"
+						status="processingStatus"
+						render="page_scroller_top page_scroller_bottom"
+						boundaryControls="auto"
+						stepControls="auto"
+						fastControls="hide"
+						oncomplete="#{rich:jQuery('goto_scroller_input')}.val(#{rich:component('scroller_top')}.currentPage)">
+					<f:facet name="first">
+						<h:outputText value="First" />
+					</f:facet>
+					<f:facet name="last">
+						<h:outputText value="Last" />
+					</f:facet>
+					<f:facet name="previous">
+						<h:outputText value="Previous" />
+					</f:facet>
+					<f:facet name="next">
+						<h:outputText value="Next" />
+					</f:facet>
+				</rich:dataScroller>
+			</a4j:outputPanel>
+		</h:panelGrid>
+	</cc:implementation>
+</body>
+</html>

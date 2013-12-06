@@ -1,0 +1,69 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:cc="http://java.sun.com/jsf/composite"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j">
+
+<head>
+	<title>The export panel for the PSM Viewer</title>
+</head>
+
+<body>
+	<cc:interface>
+		<cc:attribute name="panelHandler"/>
+	</cc:interface>
+	<cc:implementation>
+		
+		<a4j:outputPanel id="export_outpanel">
+			<rich:panel>
+				<f:facet name="header">
+					<h:outputText value="Export protein data" />
+				</f:facet>
+				
+				<h:panelGrid columns="2">
+					<h:selectBooleanCheckbox id="export_filtered"
+						value="#{cc.attrs.panelHandler.exportFiltered}" />
+					<h:outputLabel id="export_filtered_label"
+						for="export_filtered"
+						value="filter export" />
+					
+					<h:selectBooleanCheckbox id="include_peptides"
+						value="#{cc.attrs.panelHandler.includePeptides}" />
+					<h:outputLabel id="include_peptides_label"
+						for="include_peptides"
+						value="include peptides" />
+					
+					<h:selectBooleanCheckbox id="include_psmsets"
+						value="#{cc.attrs.panelHandler.includePSMSets}" />
+					<h:outputLabel id="include_psmsets_label"
+						for="include_psmsets"
+						value="include PSM-Sets" />
+					
+					<h:selectBooleanCheckbox id="include_psms"
+						value="#{cc.attrs.panelHandler.includePSMs}" />
+					<h:outputLabel id="include_psms_label"
+						for="include_psms"
+						value="include PSMs" />
+					
+					<h:selectBooleanCheckbox id="export_for_sc"
+						value="#{cc.attrs.panelHandler.exportForSC}" />
+					<h:outputLabel id="export_for_sc_label"
+						for="export_for_sc"
+						value="export for Spectral Counting" />
+					
+					<f:facet name="footer">
+						<h:commandButton id="export_mzid"
+								value="Export to mzIdentML"
+								action="#{cc.attrs.panelHandler.exportToMzIdentML}" />
+						<h:commandButton id="export_csv"
+								value="Export to CSV"
+								action="#{cc.attrs.panelHandler.exportToCSV}" />
+					</f:facet>
+				</h:panelGrid>
+			</rich:panel>
+		</a4j:outputPanel>
+
+	</cc:implementation>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<facelet-taglib version="2.5"
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facelettaglibrary_2_5.xsd">
+
+	<namespace>http://de.mpc.pia/components</namespace>
+	
+	<tag>
+		<tag-name>sequenceWithModifications</tag-name>
+		<component>
+			<component-type>de.mpc.pia.webgui.component.SequenceWithModifications</component-type>
+			<renderer-type>de.mpc.pia.webgui.component.SequenceWithModifications</renderer-type>
+			<handler-class>de.mpc.pia.webgui.component.SequenceWithModificationsTagHandler</handler-class>
+		</component>
+	</tag>
+	<tag>
+		<tag-name>proteinSequenceWithCoverage</tag-name>
+		<component>
+			<component-type>de.mpc.pia.webgui.component.ProteinSequenceWithCoverage</component-type>
+			<renderer-type>de.mpc.pia.webgui.component.ProteinSequenceWithCoverage</renderer-type>
+			<handler-class>de.mpc.pia.webgui.component.ProteinSequenceWithCoverageTagHandler</handler-class>
+		</component>
+	</tag>
+</facelet-taglib>

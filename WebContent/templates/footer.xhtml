@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<head>
+	<title>Template for the title line</title>
+</head>
+<body>
+	<ui:composition>
+		<f:loadBundle basename="de.mpc.pia.general" var="pia"/>
+		
+		<h:outputStylesheet name="webpia.ecss" library="css" />
+		
+		<div class="footer">
+			<div>
+				<h:outputText value="PIA - Protein Inference Algorithms, Version #{pia.pia_version}" />
+			</div>
+			<div>
+				<h:outputText value="&copy; 2013 Ruhr-Universit&auml;t Bochum, Medizinisches Proteom-Center, " />
+				<h:outputLink value="http://medizinisches-proteom-center.de/"
+						target="_blank">
+					<h:outputText value="http://medizinisches-proteom-center.de/" />
+				</h:outputLink>
+			</div>
+		</div>
+		
+	</ui:composition>
+</body>
+</html>

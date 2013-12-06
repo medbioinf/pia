@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+	<display-name>PIA - Protein Inference Algorithms</display-name>
+	
+	<welcome-file-list>
+		<welcome-file>index.jsf</welcome-file>
+	</welcome-file-list>
+	
+	<servlet>
+		<servlet-name>Faces Servlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.jsf</url-pattern>
+	</servlet-mapping>
+	
+	<context-param>
+		<param-name>com.sun.faces.enableMissingResourceLibraryDetection</param-name>
+		<param-value>true</param-value>
+	</context-param>
+	
+	<context-param>
+		<!-- with more views, lots of memory gets wasted -->
+		<param-name>com.sun.faces.numberOfViewsInSession</param-name>
+		<param-value>1</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>com.sun.faces.numberOfLogicalViews</param-name>
+		<param-value>5</param-value>
+	</context-param>
+	
+	<session-config>
+		<session-timeout>180</session-timeout> 
+	</session-config>
+	
+	<context-param>
+		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+		<param-value>server</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>javax.faces.PROJECT_STAGE</param-name>
+		<param-value>Development</param-value>
+	</context-param>
+	
+	<!-- Load custom tag into JSF web application -->
+	<context-param>
+		<param-name>javax.faces.FACELETS_LIBRARIES</param-name>
+		<param-value>/WEB-INF/piacomponents.taglib.xml</param-value>
+	</context-param>
+	
+	<!--
+	boolean attribute which defines whether the uploaded files are stored in
+	temporary files or available in the listener directly as byte[] data.
+	-->
+	<context-param>
+		<param-name>org.richfaces.fileUpload.createTempFiles</param-name>
+		<param-value>true</param-value>
+	</context-param>
+	
+	<!-- attribute defines max size in bytes of the uploaded files -->
+	<context-param>
+		<param-name>org.richfaces.fileUpload.maxRequestSize</param-name>
+		<param-value>10000000000</param-value> <!-- these should be about 10GB -->
+	</context-param>
+	
+	<!--  using the PIA skin -->
+	<context-param>
+		<param-name>org.richfaces.skin</param-name>
+		<param-value>pia</param-value>
+	</context-param>
+</web-app>

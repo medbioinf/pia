@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:cc="http://java.sun.com/jsf/composite"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:pia="http://java.sun.com/jsf/composite/pia">
+
+<head>
+	<title>The scoring panel for the Protein Viewer</title>
+</head>
+
+<body>
+	<cc:interface>
+		<cc:attribute name="panelHandler"/>
+	</cc:interface>
+	<cc:implementation>
+		
+		<a4j:outputPanel id="score_settings_outpanel">
+			<rich:panel header="Scoring">
+			
+				<h:panelGrid columns="2">
+					
+					<h:panelGroup>
+						<h:selectOneRadio id="scoring_type"
+								value="#{cc.attrs.panelHandler.formSelectedScoring}"
+								layout="pageDirection">
+							<f:selectItems value="#{cc.attrs.panelHandler.scoringSelectItems}" />
+							<a4j:ajax event="valueChange"
+									render="scoring_settings"
+									execute="@this"
+									onbegin="#{rich:component('processingPanel')}.show();"
+									oncomplete="#{rich:component('processingPanel')}.hide();" />
+						</h:selectOneRadio>
+					</h:panelGroup>
+					
+					<h:panelGroup>
+						<a4j:outputPanel id="scoring_settings">
+							<pia:piaSettingsPanel header="Settings for #{cc.attrs.panelHandler.scoringMethod.name}"
+									settings="#{cc.attrs.panelHandler.scoringMethod.settings}"
+									rendered="#{cc.attrs.panelHandler.scoringMethod != null}"/>
+								
+							<h:outputText value="No scoring selected"
+									rendered="#{cc.attrs.panelHandler.scoringMethod == null}"/>
+						</a4j:outputPanel>
+					</h:panelGroup>
+					
+					<a4j:commandButton id="apply_scoring"
+							value="Apply scoring"
+							execute="score_settings_outpanel"
+							action="#{cc.attrs.panelHandler.applyScoring}"
+							render="score_settings_outpanel fdr_settings_outpanel current_settings_outpanel result_table"
+							onbegin="#{rich:component('processingPanel')}.show();"
+							oncomplete="#{rich:component('processingPanel')}.hide();"/>
+					<h:panelGroup>
+						<h:outputText id="scoring_messages"
+								value="#{cc.attrs.panelHandler.messages}"
+								rendered="#{not empty cc.attrs.panelHandler.messages}"/>
+					</h:panelGroup>
+					
+				</h:panelGrid>
+				
+			</rich:panel>
+		</a4j:outputPanel>
+
+	</cc:implementation>
+</body>
+</html>

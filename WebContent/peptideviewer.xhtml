@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:a4j="http://richfaces.org/a4j"
+    	xmlns:rich="http://richfaces.org/rich"
+    	xmlns:ui="http://java.sun.com/jsf/facelets"
+    	xmlns:pia="http://java.sun.com/jsf/composite/pia"
+    	xmlns:peptide="http://java.sun.com/jsf/composite/peptideviewer">
+
+<f:metadata>
+	<!-- get the filename -->
+	<f:viewParam name="file" value="#{viewerBean.fileName}"/>
+	<!-- check, if loading and redirect, if it is -->
+    <f:event type="preRenderView" listener="#{viewerBean.checkAndRedirect('proteinviewer.jsf')}" />
+</f:metadata>
+
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>PIA Peptide Viewer</title>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" />
+</h:head>
+
+<h:body>
+	<h:outputStylesheet name="skinning.ecss" />
+	<h:outputStylesheet name="webpia.ecss" library="css" />
+	
+	<ui:decorate template="templates/title_line.xhtml">
+		<ui:param name="sitename"
+				value="Peptide Viewer - #{viewerBean.projectName}" />
+	</ui:decorate>
+	
+	<ui:decorate template="templates/processing_overlay.xhtml" />
+	
+	<rich:panel id="project_panel" header="Project: #{viewerBean.projectName}">
+		
+		<h:form id="page_form">
+		
+			<pia:piaGeneralSettings viewerBean="#{viewerBean}"
+					rerender="file_panel"
+					inferenceRunning="#{viewerBean.proteinViewer.inferenceHandler.inferenceRunning}" />
+			
+			<ui:decorate template="templates/in_pia_tree_popup.xhtml">
+				<ui:param name="viewerBean" value="#{viewerBean}" />
+			</ui:decorate>
+			
+			<a4j:outputPanel id="file_tabs" layout="block"
+					styleClass="file_panel file_tabs">
+				<rich:list id="file_tabs_list"
+						value="#{viewerBean.peptideViewer.identificationFiles}"
+						var="file"
+						type="unordered">
+					<a4j:outputPanel layout="block"
+							styleClass="tabDiv #{rich:findComponent('file_panel').activeItem == 'file_'.concat(file.ID) ? 'active' : 'inactive'}">
+	                	<rich:toggleControl event="click" targetPanel="file_panel"
+	                			targetItem="#{'file_'.concat(file.ID)}" />
+	                	<h:outputText value="#{(file.name != null) ? file.name : file.fileName}" />
+	            	</a4j:outputPanel>
+				</rich:list>
+				
+				<a4j:outputPanel id="clearfix" layout="block" styleClass="clearfix"/>
+	        </a4j:outputPanel>
+			
+			<ui:decorate template="templates/navigation_project.xhtml">
+				<ui:param name="viewer" value="peptide" />
+			</ui:decorate>
+			
+			<rich:collapsiblePanel header="Advanced"
+					styleClass="advanced_panel"
+					expanded="false"
+					switchType="client">
+				<h:panelGrid columns="2" id="advanced_panels"
+						styleClass="advanced_panels">
+					<peptide:peptideViewerRankPanel peptideViewerBean="#{viewerBean.peptideViewer}"
+							panelHandler="#{viewerBean.peptideViewer.rankHandler}" />
+					
+					<peptide:peptideViewerExportPanel peptideViewerBean="#{viewerBean.peptideViewer}"
+							panelHandler="#{viewerBean.peptideViewer.exportHandler}" />
+				</h:panelGrid>
+			</rich:collapsiblePanel>
+			
+			<h:panelGrid columns="2" id="filter_and_sorting_panels"
+					styleClass="filter_and_sorting_panels">
+				<peptide:peptideViewerFilterPanel peptideViewerBean="#{viewerBean.peptideViewer}"
+						panelHandler="#{viewerBean.peptideViewer.filterHandler}" />
+				
+				<peptide:peptideViewerSortPanel peptideViewerBean="#{viewerBean.peptideViewer}"
+						panelHandler="#{viewerBean.peptideViewer.sortHandler}" />
+			</h:panelGrid>
+			
+			<rich:togglePanel id="file_panel"
+					switchType="ajax"
+					activeItem="#{viewerBean.peptideViewer.selectedFileTabName}"
+					onbeforeitemchange="#{rich:component('processingPanel')}.show();"
+					styleClass="file_panel">
+				
+				<a4j:ajax event="itemchange"
+						render="rank_settings_outpanel sort_settings_outpanel filter_outpanel export_outpanel file_tabs"
+						execute="@none"
+						oncomplete="#{rich:component('processingPanel')}.hide();" />
+				
+				<c:forEach items="#{viewerBean.peptideViewer.identificationFiles}"
+						var="file">
+					
+					<rich:togglePanelItem id="#{'file_'.concat(file.ID)}"
+							name="#{'file_'.concat(file.ID)}">
+						
+						<rich:panel header="Peptides of #{file.name}"
+								id="report_grid_#{file.ID}">
+							
+							<peptide:peptideTable tableID="result_table_#{file.ID}"
+									peptideList="#{viewerBean.peptideViewer.getReportPeptides(file.ID)}"
+									fileID="#{file.ID}"
+									psmViewerBean="#{viewerBean.psmViewer}"
+									peptideViewerBean="#{viewerBean.peptideViewer}"
+									showRank="#{!empty(viewerBean.peptideViewer.rankHandler.rankingScore)}"
+									showScroller="true"
+									rows="#{viewerBean.getConfigurationProperty('peptideviewer_rows')}"
+									sortable="true" />
+							
+						</rich:panel>
+						
+					</rich:togglePanelItem>
+					
+				</c:forEach>
+				
+			</rich:togglePanel>
+			
+		</h:form>
+		
+	</rich:panel>
+	
+	<!-- this is only for initialisation reasons. the actual tooltips are e.g. in the sequences -->
+	<rich:tooltip rendered="false"/>
+	
+	<ui:decorate template="templates/footer.xhtml" />
+</h:body>
+
+</html>

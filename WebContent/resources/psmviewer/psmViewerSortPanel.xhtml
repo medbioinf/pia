@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:cc="http://java.sun.com/jsf/composite"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j">
+
+<head>
+	<title>The sorting panel for the PSM Viewer</title>
+</head>
+
+<body>
+	<cc:interface>
+		<cc:attribute name="panelHandler"/>
+	</cc:interface>
+	<cc:implementation>
+		
+		<a4j:outputPanel id="sort_settings_outpanel">
+			<rich:panel header="Sorting order for #{cc.attrs.panelHandler.name}">
+			
+				<rich:list id="applied_sortings_list"
+						value="#{cc.attrs.panelHandler.sortingsString}"
+						var="sorting"
+						type="unordered">
+					<h:outputText value="#{sorting}" />
+				</rich:list>
+				
+			</rich:panel>
+		</a4j:outputPanel>
+
+	</cc:implementation>
+</body>
+</html>

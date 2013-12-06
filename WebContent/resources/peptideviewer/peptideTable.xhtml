@@ -1,0 +1,385 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:cc="http://java.sun.com/jsf/composite"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+    	xmlns:rich="http://richfaces.org/rich"
+    	xmlns:a4j="http://richfaces.org/a4j"
+    	xmlns:pia="http://java.sun.com/jsf/composite/pia"
+    	xmlns:piacomponents="http://de.mpc.pia/components"
+    	xmlns:psm="http://java.sun.com/jsf/composite/psmviewer">
+
+<head>
+	<title>Renders a table for a list of Peptides</title>
+</head>
+
+<body>
+	<cc:interface>
+		<cc:attribute name="tableID" shortDescription="id of the dataTable" />
+		<cc:attribute name="peptideList" shortDescription="the list of ReportPeptides" />
+		<cc:attribute name="fileID" shortDescription="the fileID of the peptides' origin"/>
+		<cc:attribute name="psmViewerBean"/>
+		<cc:attribute name="peptideViewerBean"/>
+		<cc:attribute name="showScroller" default="false" />
+		<cc:attribute name="showRank" default="false" />
+		<cc:attribute name="rows" default="0" />
+		<cc:attribute name="sortable" default="false" />
+		<cc:attribute name="showCombinedFDRScore" default="true" />
+	</cc:interface>
+	
+	<cc:implementation>
+		<!-- setting some variables -->
+		<c:set var="psmsHeaderString"
+				value="#{(cc.attrs.fileID > 0) ? 'PSMs' : 'PSM Sets'}" />
+		<c:set var="nrScores"
+				value="#{cc.attrs.peptideViewerBean.getNrScoreFieldShortNames(cc.attrs.fileID)}" />
+		<c:set var="scoreFieldShortnames"
+				value="#{cc.attrs.peptideViewerBean.getScoreFieldShortNames(cc.attrs.fileID)}" />
+		<c:set var="psmsColspan"
+				value="#{6 + (cc.attrs.showRank ? 1 : 0) + scoreFieldShortnames.size()}" />
+		
+		<h:panelGrid id="#{cc.attrs.tableID}_wrapper"
+				columns="1"
+				styleClass="result_table_wrapper">
+			
+			<a4j:outputPanel id="page_scroller_top"
+					rendered="#{cc.attrs.showScroller}">
+				<rich:dataScroller id="scroller_top"
+						for="#{cc.attrs.tableID}"
+						maxPages="11"
+						fastStep="10"
+						render="page_scroller_top page_scroller_bottom"
+						boundaryControls="auto"
+						stepControls="auto"
+						fastControls="hide"
+						onbegin="#{rich:component('processingPanel')}.show();"
+						oncomplete="#{rich:jQuery('goto_scroller_input')}.val(#{rich:component('scroller_top')}.currentPage); #{rich:component('processingPanel')}.hide();">
+					<f:facet name="first">
+						<h:outputText value="First" />
+					</f:facet>
+					<f:facet name="last">
+						<h:outputText value="Last" />
+					</f:facet>
+					<f:facet name="previous">
+						<h:outputText value="Previous" />
+					</f:facet>
+					<f:facet name="next">
+						<h:outputText value="Next" />
+					</f:facet>
+				</rich:dataScroller>
+				
+				<a4j:outputPanel id="goto_scroller_wrapper" layout="block">
+					<h:outputText value="Page #{rich:findComponent('scroller_top').page} of #{rich:findComponent('scroller_top').pageCount}, showing #{cc.attrs.rows} of #{rich:findComponent('scroller_top').rowCount} entries per page."/>
+					<h:inputText id="goto_scroller_input" />
+					<a4j:commandButton id="goto_scroller_button"
+							value="go to page"
+							render="#{cc.attrs.tableID} page_scroller_top page_scroller_bottom"
+							execute="goto_scroller_wrapper"
+							onclick="#{rich:component('scroller_top')}.switchToPage(#{rich:element('goto_scroller_input')}.value);"/>
+				</a4j:outputPanel>
+			</a4j:outputPanel>
+			
+			<rich:dataTable id="#{cc.attrs.tableID}"
+					rows="#{cc.attrs.rows}"
+					var="peptideRow"
+					value="#{cc.attrs.peptideList}"
+					sortMode="multi"
+					sortPriority="#{cc.attrs.peptideViewerBean.sortHandler.getSortPriorities(cc.attrs.fileID)}"
+					styleClass="result_table">
+				
+				<f:facet name="header">
+					<rich:columnGroup>
+						
+						<rich:column id="header_more"
+								rowspan="2">
+						</rich:column>
+						
+						<rich:column id="header_rank"
+								rowspan="2"
+								rendered="#{cc.attrs.showRank}">
+							<pia:piaSortLink name="Rank"
+									sorting="rank"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.peptideViewerBean.sortHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_sequence"
+								rowspan="2">
+							<pia:piaSortLink name="Sequence"
+									sorting="sequence"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.peptideViewerBean.sortHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_accessions"
+								rowspan="2">
+							<h:outputText value="Accessions" />
+						</rich:column>
+						
+						<rich:column id="header_nr_spectra"
+								rowspan="2">
+							<pia:piaSortLink name="#Spectra"
+									sorting="nr_spectra"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.peptideViewerBean.sortHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_nr_psms"
+								rowspan="2">
+							<pia:piaSortLink name="##{psmsHeaderString}"
+									sorting="nr_psms"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.peptideViewerBean.sortHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_missed"
+								rowspan="2"
+								rendered="#{cc.attrs.fileID > 0}">
+							<pia:piaSortLink name="Missed"
+									sorting="missed"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.peptideViewerBean.sortHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_scores"
+								colspan="#{nrScores}">
+							<h:outputText value="Best scores" />
+						</rich:column>
+						
+						<c:forEach items="#{scoreFieldShortnames}"
+								var="scoreName"
+								varStatus="status">
+							<rich:column breakRowBefore="#{status.index == 0}">
+								<pia:piaSortLink name="#{cc.attrs.peptideViewerBean.getScoreName(scoreName)}"
+										sorting="#{cc.attrs.peptideViewerBean.sortHandler.scorePrefix.concat(scoreName)}"
+										fileID="#{cc.attrs.fileID}"
+										bean="#{cc.attrs.peptideViewerBean.sortHandler}"
+										render="#{cc.attrs.tableID} sort_settings_outpanel"
+										active="#{cc.attrs.sortable}" />
+							</rich:column>
+						</c:forEach>
+					</rich:columnGroup>
+				</f:facet>
+				
+				<rich:column id="more">
+					<a4j:commandLink id="toggle_psms"
+							title="show/hide PSM"
+							onclick="jQuery(#{rich:element('psms')}).toggle(); $(this).children('.more_less_icon').toggle(); return false;">
+						<h:graphicImage name="plus_icon.png"
+								library="images"
+								alt="show PSMs"
+								styleClass="more_less_icon plus_icon"/>
+						<h:graphicImage name="minus_icon.png"
+								library="images"
+								alt="hide PSMs"
+								styleClass="more_less_icon minus_icon"
+								style="display: none;"/>
+					</a4j:commandLink>
+					
+					<a4j:commandLink id="show_inference_graph"
+							onclick="updateInTreePopup('peptide', '#{peptideRow.sequence}');"
+							title="show peptide in tree">
+						<h:graphicImage name="tree_icon.png"
+								library="images"
+								alt="show peptide in tree - icon"
+								styleClass="click_icon" />
+						<rich:componentControl target="in_pia_tree_panel"
+								operation="show" />
+					</a4j:commandLink>
+				</rich:column>
+				
+				<rich:column id="rank"
+						sortBy="#{peptideRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.peptideViewerBean.sortHandler.getPeptideComparator('rank')}"
+						sortOrder="#{cc.attrs.peptideViewerBean.sortHandler.getOrder(cc.attrs.fileID,'rank')}"
+						rendered="#{cc.attrs.showRank}">
+					<h:outputText value="#{peptideRow.rank}"/>
+				</rich:column>
+				
+				<rich:column id="sequence"
+						sortBy="#{peptideRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.peptideViewerBean.sortHandler.getPeptideComparator('sequence')}"
+						sortOrder="#{cc.attrs.peptideViewerBean.sortHandler.getOrder(cc.attrs.fileID,'sequence')}">
+					<h:outputText value="#{peptideRow.sequence}"
+							rendered="#{!cc.attrs.peptideViewerBean.considerModifications}"/>
+					<piacomponents:sequenceWithModifications sequence="#{peptideRow.sequence}"
+							modifications="#{peptideRow.modifications}"
+							styleClass="sequence-with-modifications"
+							rendered="#{cc.attrs.peptideViewerBean.considerModifications}"/>
+				</rich:column>
+				
+				<rich:column id="accessions">
+					<rich:collapsiblePanel id="accessions_panel"
+							expanded="false"
+							switchType="client"
+							header="Accessions (#{peptideRow.accessions.size()})"
+							rendered="#{peptideRow.accessions.size() > 1}">
+						<rich:list value="#{peptideRow.accessions}"
+								var="acc"
+								type="unordered"
+								styleClass="accessions">
+							<a4j:outputPanel id="accession_and_description"
+									styleClass="accession_and_description"
+									layout="block">
+								<a4j:outputPanel id="accession"
+										styleClass="accession">
+									<h:outputText value="#{acc.accession}" />
+								</a4j:outputPanel>
+								<h:graphicImage name="plus_icon.png"
+										library="images" alt="show description"
+										styleClass="more_less_icon"
+										onclick="$(this).toggle().parent().children('.description').toggle()"/>
+								<a4j:outputPanel id="description"
+										styleClass="description"
+										style="display:none;"
+										layout="inline">
+									<h:outputText value=": #{acc.getDescription(cc.attrs.fileID)}" />
+									<h:graphicImage name="minus_icon.png"
+											library="images" alt="hide description"
+											styleClass="more_less_icon"
+											onclick="$(this).parent().toggle().parent().children('.more_less_icon').toggle()"/>
+								</a4j:outputPanel>
+							</a4j:outputPanel>
+						</rich:list>
+					</rich:collapsiblePanel>
+					
+					<rich:list value="#{peptideRow.accessions}"
+							var="acc"
+							type="unordered"
+							rendered="#{peptideRow.accessions.size() == 1}"
+							styleClass="accessions">
+						<a4j:outputPanel id="accession_and_description"
+								styleClass="accession_and_description"
+								layout="block">
+							<a4j:outputPanel id="accession"
+									styleClass="accession">
+								<h:outputText value="#{acc.accession}" />
+							</a4j:outputPanel>
+							<h:graphicImage name="plus_icon.png"
+									library="images" alt="show description"
+									styleClass="more_less_icon"
+									onclick="$(this).toggle().parent().children('.description').toggle()"/>
+							<a4j:outputPanel id="description"
+									styleClass="description"
+									style="display:none;"
+									layout="inline">
+								<h:outputText value=": #{acc.getDescription(cc.attrs.fileID)}" />
+								<h:graphicImage name="minus_icon.png"
+										library="images" alt="hide description"
+										styleClass="more_less_icon"
+										onclick="$(this).parent().toggle().parent().children('.more_less_icon').toggle()"/>
+							</a4j:outputPanel>
+						</a4j:outputPanel>
+					</rich:list>
+				</rich:column>
+				
+				<rich:column id="nr_spectra"
+						sortBy="#{peptideRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.peptideViewerBean.sortHandler.getPeptideComparator('nr_spectra')}"
+						sortOrder="#{cc.attrs.peptideViewerBean.sortHandler.getOrder(cc.attrs.fileID,'nr_spectra')}">
+					<h:outputText value="#{peptideRow.nrSpectra}" />
+				</rich:column>
+				
+				<rich:column id="nr_psms"
+						sortBy="#{peptideRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.peptideViewerBean.sortHandler.getPeptideComparator('nr_psms')}"
+						sortOrder="#{cc.attrs.peptideViewerBean.sortHandler.getOrder(cc.attrs.fileID,'nr_psms')}">
+					<h:outputText value="#{peptideRow.nrPSMs}" />
+				</rich:column>
+				
+				<rich:column id="missed"
+						sortBy="#{peptideRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.peptideViewerBean.sortHandler.getPeptideComparator('missed')}"
+						sortOrder="#{cc.attrs.peptideViewerBean.sortHandler.getOrder(cc.attrs.fileID,'missed')}"
+						rendered="#{cc.attrs.fileID > 0}">
+					<h:outputText value="#{peptideRow.missedCleavages}" />
+				</rich:column>
+				
+				
+				<c:forEach items="#{scoreFieldShortnames}"
+						var="scoreName">
+					<rich:column id="#{cc.attrs.peptideViewerBean.sortHandler.scorePrefix.concat(scoreName)}"
+							sortBy="#{peptideRow}"
+							sortType="custom"
+							comparator="#{cc.attrs.peptideViewerBean.sortHandler.getScorePeptideComparator(scoreName)}"
+							sortOrder="#{cc.attrs.peptideViewerBean.sortHandler.getScoreOrder(cc.attrs.fileID,scoreName)}"
+							styleClass="text_right">
+						<h:outputText value="#{cc.attrs.psmViewerBean.convertScore(peptideRow.getBestScore(scoreName))}"/>
+					</rich:column>
+				</c:forEach>
+				
+				<rich:column id="psms"
+						breakRowBefore="true"
+						colspan="#{psmsColspan}"
+						style="display: none;">
+					<h:outputText value="PSMs:"
+							styleClass="psms_textheader" />
+					<psm:psmTablePSMSets tableID="psmsets_table_0"
+							psmList="#{peptideRow.PSMs}"
+							fileID="#{0}"
+							psmViewerBean="#{cc.attrs.psmViewerBean}"
+							showRank="#{false}"
+							showAccessions="#{false}"
+							showScroller="#{false}"
+							rows="0"
+							sortable="#{false}"
+							rendered="#{cc.attrs.fileID == 0}"/>
+					<psm:psmTablePSMs tableID="psms_table_#{cc.attrs.fileID}"
+							psmList="#{peptideRow.PSMs}"
+							fileID="#{cc.attrs.fileID}"
+							psmViewerBean="#{cc.attrs.psmViewerBean}"
+							showRank="#{false}"
+							showScroller="#{false}"
+							rows="0"
+							sortable="#{false}"
+							rendered="#{cc.attrs.fileID != 0}" />
+				</rich:column>
+				
+			</rich:dataTable>
+			
+			<a4j:outputPanel id="page_scroller_bottom"
+					rendered="#{cc.attrs.showScroller}">
+				<rich:dataScroller id="scroller_bottom"
+						for="#{cc.attrs.tableID}"
+						maxPages="11"
+						fastStep="10"
+						render="page_scroller_top page_scroller_bottom"
+						boundaryControls="auto"
+						stepControls="auto"
+						fastControls="hide"
+						onbegin="#{rich:component('processingPanel')}.show();"
+						oncomplete="#{rich:jQuery('goto_scroller_input')}.val(#{rich:component('scroller_top')}.currentPage); #{rich:component('processingPanel')}.hide();">
+					<f:facet name="first">
+						<h:outputText value="First" />
+					</f:facet>
+					<f:facet name="last">
+						<h:outputText value="Last" />
+					</f:facet>
+					<f:facet name="previous">
+						<h:outputText value="Previous" />
+					</f:facet>
+					<f:facet name="next">
+						<h:outputText value="Next" />
+					</f:facet>
+				</rich:dataScroller>
+			</a4j:outputPanel>
+		</h:panelGrid>
+	</cc:implementation>
+</body>
+</html>

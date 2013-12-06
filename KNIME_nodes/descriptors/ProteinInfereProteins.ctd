@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tool category="protein" name="ProteinInfereProteins" version="1.0.0-rc1">
+    <description>Inferes the proteins with the given inference method. Any inference filters should be set before this call with calls of AddInferenceFilter. The scoring method is set with the second argument. The scoring settings can be given by athird argument containing setting=value[;setting=value]* (usual settings are used_score and used_spectra).</description>
+    <executableName>java</executableName>
+    <cli>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="ProteinInfereProteins.vmsettings"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="-cp">
+            <mapping referenceName="ProteinInfereProteins.classpath"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="de.mpc.pia.modeller.PIAModeller"/>
+        <clielement required="true" isList="false" optionIdentifier="-paramFile">
+            <mapping referenceName="ProteinInfereProteins.paramFile"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="-paramOutFile">
+            <mapping referenceName="ProteinInfereProteins.paramOutFile"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="-append"/>
+        <clielement required="true" isList="false" optionIdentifier="ProteinInfereProteins"/>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="ProteinInfereProteins.inference"/>
+        </clielement>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="ProteinInfereProteins.scoring"/>
+        </clielement>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="ProteinInfereProteins.used score"/>
+        </clielement>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="ProteinInfereProteins.used spectra"/>
+        </clielement>
+    </cli>
+    <PARAMETERS version="1.6.2">
+        <NODE description="Inferes the proteins with the given inference method. Any inference filters should be set before this call with calls of AddInferenceFilter. The scoring method is set with the second argument. The scoring settings can be given by athird argument containing setting=value[;setting=value]* (usual settings are used_score and used_spectra)." name="ProteinInfereProteins">
+            <ITEM value="1.0.0-rc1" advanced="true" required="true" restrictions="1.0.0-rc1" description="Version of the tool that generated this parameters file." type="string" name="version"/>
+            <ITEM value="-Xmx8G" advanced="true" required="false" description="Additional Java settings, like giving Java a big enough amount of memory." type="string" name="vmsettings"/>
+            <ITEM value="pia.jar" advanced="true" required="false" description="The actual JAR, in which the PIA classes reside." type="string" name="classpath"/>
+            <ITEM value="" advanced="false" required="true" supported_formats="*.xml" description="Path to the file, which contains the build pipeline until this step." type="input-file" name="paramFile"/>
+            <ITEM value="" advanced="false" required="true" supported_formats="*.xml" description="Path to the file, which will contain the pipeline with added filters." type="output-file" name="paramOutFile"/>
+            <ITEM value="" advanced="false" required="true" restrictions="inference_spectrum_extractor,inference_report_all,inference_occams_razor" description="" type="string" name="inference"/>
+            <ITEM value="" advanced="false" required="true" restrictions="scoring_additive,scoring_multiplicative,geometric_mean_scoring" description="" type="string" name="scoring"/>
+            <ITEM value="" advanced="false" required="true" description="" type="string" name="used score"/>
+            <ITEM value="" advanced="false" required="true" restrictions="best,all" description="" type="string" name="used spectra"/>
+        </NODE>
+    </PARAMETERS>
+</tool>

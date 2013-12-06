@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tool category="PSM" name="PSMCreatePSMSets" version="1.0.0-rc1">
+    <description>Sets whether PSM sets should be built to combine search results from different search engines / runs.</description>
+    <executableName>java</executableName>
+    <cli>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="PSMCreatePSMSets.vmsettings"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="-cp">
+            <mapping referenceName="PSMCreatePSMSets.classpath"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="de.mpc.pia.modeller.PIAModeller"/>
+        <clielement required="true" isList="false" optionIdentifier="-paramFile">
+            <mapping referenceName="PSMCreatePSMSets.paramFile"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="-paramOutFile">
+            <mapping referenceName="PSMCreatePSMSets.paramOutFile"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="-append"/>
+        <clielement required="true" isList="false" optionIdentifier="PSMCreatePSMSets"/>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="PSMCreatePSMSets.create sets"/>
+        </clielement>
+    </cli>
+    <PARAMETERS version="1.6.2">
+        <NODE description="Sets whether PSM sets should be built to combine search results from different search engines / runs." name="PSMCreatePSMSets">
+            <ITEM value="1.0.0-rc1" advanced="true" required="true" restrictions="1.0.0-rc1" description="Version of the tool that generated this parameters file." type="string" name="version"/>
+            <ITEM value="-Xmx8G" advanced="true" required="false" description="Additional Java settings, like giving Java a big enough amount of memory." type="string" name="vmsettings"/>
+            <ITEM value="pia.jar" advanced="true" required="false" description="The actual JAR, in which the PIA classes reside." type="string" name="classpath"/>
+            <ITEM value="" advanced="false" required="true" supported_formats="*.xml" description="Path to the file, which contains the build pipeline until this step." type="input-file" name="paramFile"/>
+            <ITEM value="" advanced="false" required="true" supported_formats="*.xml" description="Path to the file, which will contain the pipeline with added filters." type="output-file" name="paramOutFile"/>
+            <ITEM value="" advanced="false" required="true" restrictions="no,yes" description="" type="string" name="create sets"/>
+        </NODE>
+    </PARAMETERS>
+</tool>

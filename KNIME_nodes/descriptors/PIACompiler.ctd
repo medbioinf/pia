@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="https://raw.github.com/genericworkflownodes/GenericKnimeNodes/develop/com.genericworkflownodes.knime/src/com/genericworkflownodes/knime/schemas/CTD.xsd"
+		name="PIACompiler"
+		version="1.0.0-rc1"
+		category="general"
+		docurl="http://medizinisches-proteom-center.de/index.php/de/software-top/165-protein-inference-algorithms-pia">
+	
+	<description>Compile PIA file from search engine results.</description>
+	<manual>Compile PIA file from raw search engine results into the PIA XML format.</manual>
+	<executableName>java</executableName>
+	<!-- <executablePath></executablePath> -->
+	
+	<cli>
+		<!-- the cli elements will be ordered in this way -->
+		<clielement optionIdentifier="" required="false" isList="false">
+			<mapping referenceName="PIACompiler.vmsettings" />
+		</clielement>
+		
+		<clielement optionIdentifier="-cp" required="true" isList="false">
+			<mapping referenceName="PIACompiler.classpath" />
+		</clielement>
+		
+		<!-- this element gets no binding, it is the called Java class -->
+		<clielement optionIdentifier="de.mpc.pia.intermediate.compiler.PIACompiler"
+				required="true" isList="false"/>
+		
+		<clielement optionIdentifier="-infile" required="true" isList="true">
+			<mapping referenceName="PIACompiler.infile" />
+		</clielement>
+		
+		<clielement optionIdentifier="-outfile" required="true" isList="false">
+			<mapping referenceName="PIACompiler.outfile" />
+		</clielement>
+	</cli>
+	
+	<PARAMETERS version="1.6.2"
+			xsi:noNamespaceSchemaLocation="http://open-ms.sourceforge.net/schemas/Param_1_6_2.xsd"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<NODE name="PIACompiler"
+				description="Compile PIA file from search engine results.">
+			<ITEM name="version"
+					type="string"
+					value="1.0.0-rc1"
+					advanced="true"
+					description="Version of the tool that generated this parameters file."
+					required="true"
+					restrictions="1.0.0-rc1" />
+			
+			<ITEM name="vmsettings"
+					type="string"
+					value="-Xmx8G"
+					advanced="true"
+					description="Additional Java settings, like giving Java a big enough amount of memory."
+					required="true" />
+			
+			<ITEM name="classpath"
+					type="string"
+					value="pia.jar"
+					advanced="true"
+					description="The actual JAR, in which the PIA classes reside."
+					required="true" />
+			
+			<ITEMLIST name="infile"
+					type="input-file"
+					advanced="false"
+					required="true"
+					description="Search engine result files to compile into PIA-XML file."
+					supported_formats="*.dat,*.msf,*.t.xml,*.xml,*.idxml" />
+			
+			<ITEM name="outfile"
+					type="output-file"
+					value=""
+					advanced="false"
+					required="true"
+					description="The generated PIA-XML file."
+					supported_formats="*.pia.xml" />
+		</NODE>
+	</PARAMETERS>
+</tool>

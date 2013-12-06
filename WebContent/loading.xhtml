@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:a4j="http://richfaces.org/a4j"
+    	xmlns:rich="http://richfaces.org/rich"
+    	xmlns:ui="http://java.sun.com/jsf/facelets"
+    	xmlns:pia="http://java.sun.com/jsf/composite/pia"
+    	xmlns:psm="http://java.sun.com/jsf/composite/psmviewer">
+
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>PIA - Loading</title>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" />
+</h:head>
+
+<h:body>
+	<h:outputStylesheet name="skinning.ecss" />
+	<h:outputStylesheet name="webpia.ecss" library="css" />
+	
+	<ui:decorate template="templates/title_line.xhtml">
+		<ui:param name="sitename" value="Loading"></ui:param>
+	</ui:decorate>
+	
+	<h:form id="page_form">
+		<rich:panel header="Loading  #{viewerBean.fileName}...">
+			
+			<rich:progressBar id="progress_bar"
+					mode="ajax"
+					value="#{viewerBean.loadingProgress}"
+					interval="500"
+					minValue="0"
+					maxValue="100"
+					enabled="true"
+					onfinish="document.getElementById('page_form:hidden_psmviewer_link').click(); return false;">
+				<f:facet name="initial">
+					initialising...
+				</f:facet>
+				
+				<f:facet name="finish">
+					<h:panelGrid>
+						<h:outputText value="Loading complete, go to " />
+						<h:outputLink id="psmviewer_link"
+								value="./psmviewer.jsf">
+							<f:param name="file" value="#{viewerBean.fileName}" />
+							<h:outputText value="PSM Viewer" />
+						</h:outputLink>
+					</h:panelGrid>
+				</f:facet>
+				<h:outputText value="#{viewerBean.loadingStatus}" />
+			</rich:progressBar>
+			<p>
+				<h:outputText value="Please wait until this file is loaded, before loading another file." />
+			</p>
+		</rich:panel>
+		
+		<h:outputLink id="hidden_psmviewer_link" value="#{viewerBean.originalURL}"
+				style="display:none;">
+			<f:param name="file" value="#{viewerBean.fileName}" />
+			<h:outputText value="go to loaded file" />
+		</h:outputLink>
+	</h:form>
+	
+	<ui:decorate template="templates/footer.xhtml" />
+</h:body>
+
+</html>

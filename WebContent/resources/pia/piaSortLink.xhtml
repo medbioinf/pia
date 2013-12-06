@@ -1,0 +1,47 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:cc="http://java.sun.com/jsf/composite"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:a4j="http://richfaces.org/a4j"
+		xmlns:rich="http://richfaces.org/rich">
+
+<head>
+	<title>Link for sorting</title>
+</head>
+
+<body>
+	<cc:interface>
+		<cc:attribute name="name"/>
+		<cc:attribute name="sorting"/>
+		<cc:attribute name="fileID"/>
+		<cc:attribute name="bean"/>
+		<cc:attribute name="render"/>
+		<cc:attribute name="active" default="true" shortDescription="if this is false, only render the name"/>
+	</cc:interface>
+	
+	<cc:implementation>
+		<c:choose>
+			<c:when test="#{cc.attrs.active}">
+				<a4j:commandLink id="resort_#{cc.attrs.sorting}_#{cc.attrs.fileID}"
+						execute="@this"
+						onbegin="#{rich:component('processingPanel')}.show();"
+						oncomplete="#{rich:component('processingPanel')}.hide();"
+						action="#{cc.attrs.bean.changeSorting(cc.attrs.fileID, cc.attrs.sorting)}"
+						render="#{cc.attrs.render}"
+						styleClass="sorting">
+					<a4j:outputPanel styleClass="sorttext #{cc.attrs.bean.getOrder(cc.attrs.fileID, cc.attrs.sorting)}"
+							layout="inline">
+						<h:outputText value="#{cc.attrs.name}" />
+					</a4j:outputPanel>
+					<a4j:outputPanel styleClass="sortbutton #{cc.attrs.bean.getOrder(cc.attrs.fileID, cc.attrs.sorting)}"
+							layout="inline" />
+				</a4j:commandLink>
+			</c:when>
+			<c:otherwise>
+				<h:outputText value="#{cc.attrs.name}" />
+			</c:otherwise>
+		</c:choose>
+	</cc:implementation>
+</body>
+</html>

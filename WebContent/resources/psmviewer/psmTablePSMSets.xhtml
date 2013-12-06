@@ -1,0 +1,480 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:cc="http://java.sun.com/jsf/composite"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+    	xmlns:rich="http://richfaces.org/rich"
+    	xmlns:a4j="http://richfaces.org/a4j"
+    	xmlns:pia="http://java.sun.com/jsf/composite/pia"
+    	xmlns:piacomponents="http://de.mpc.pia/components"
+    	xmlns:psm="http://java.sun.com/jsf/composite/psmviewer">
+
+<head>
+	<title>Renders a table for a list of PSMSets</title>
+</head>
+
+<body>
+	<cc:interface>
+		<cc:attribute name="tableID" shortDescription="id of the dataTable" />
+		<cc:attribute name="psmList" shortDescription="the list of PSMs (either ReportPSM or ReportPSMDataModel)" />
+		<cc:attribute name="fileID" shortDescription="the fileID of the PSMs' origin"/>
+		<cc:attribute name="psmViewerBean"/>
+		<cc:attribute name="showRank" default="false" />
+		<cc:attribute name="showAccessions" default="true" />
+		<cc:attribute name="showScroller" default="false" />
+		<cc:attribute name="rows" default="0" />
+		<cc:attribute name="sortable" default="false" />
+		<cc:attribute name="showCombinedFDRScore" default="true" />
+	</cc:interface>
+	
+	<cc:implementation>
+		<c:set var="numberDigitsMZ"
+				value="#{cc.attrs.psmViewerBean.numberDigitsMZ}" />
+		<c:set var="numberDigitsPPM"
+				value="#{cc.attrs.psmViewerBean.numberDigitsPPM}" />
+		<c:set var="numberDigitsRT"
+				value="#{cc.attrs.psmViewerBean.numberDigitsRT}" />
+		<c:set var="isCombinedFDRScoreCalculated"
+				value="#{cc.attrs.showCombinedFDRScore and cc.attrs.psmViewerBean.FDRPanelHandler.isCombinedFDRScoreCalculated}" />
+		
+		<c:set var="nrPSMsColumns"
+				value="#{10 + (cc.attrs.showRank ? 1 : 0) + (cc.attrs.showAccessions ? 1 : 0) + (cc.attrs.psmViewerBean.FDRPanelHandler.isCombinedFDRScoreCalculated ? 1 : 0)}" />
+		
+		<h:panelGrid id="#{cc.attrs.tableID}_wrapper"
+				columns="1"
+				styleClass="result_table_wrapper">
+			
+			<a4j:outputPanel id="page_scroller_top"
+					rendered="#{cc.attrs.showScroller}">
+				<rich:dataScroller id="scroller_top"
+						for="#{cc.attrs.tableID}"
+						maxPages="11"
+						fastStep="10"
+						render="page_scroller_top page_scroller_bottom"
+						boundaryControls="auto"
+						stepControls="auto"
+						fastControls="hide"
+						onbegin="#{rich:component('processingPanel')}.show();"
+						oncomplete="#{rich:jQuery('goto_scroller_input')}.val(#{rich:component('scroller_top')}.currentPage); #{rich:component('processingPanel')}.hide();">
+					<f:facet name="first">
+						<h:outputText value="First" />
+					</f:facet>
+					<f:facet name="last">
+						<h:outputText value="Last" />
+					</f:facet>
+					<f:facet name="previous">
+						<h:outputText value="Previous" />
+					</f:facet>
+					<f:facet name="next">
+						<h:outputText value="Next" />
+					</f:facet>
+				</rich:dataScroller>
+				
+				<a4j:outputPanel id="goto_scroller_wrapper" layout="block">
+					<h:outputText value="Page #{rich:findComponent('scroller_top').page} of #{rich:findComponent('scroller_top').pageCount}, showing #{cc.attrs.rows} of #{rich:findComponent('scroller_top').rowCount} entries per page."/>
+					<h:inputText id="goto_scroller_input" />
+					<a4j:commandButton id="goto_scroller_button"
+							value="go to page"
+							render="#{cc.attrs.tableID} page_scroller_top page_scroller_bottom"
+							execute="goto_scroller_wrapper"
+							onclick="#{rich:component('scroller_top')}.switchToPage(#{rich:element('goto_scroller_input')}.value);"/>
+				</a4j:outputPanel>
+			</a4j:outputPanel>
+			
+			<rich:dataTable id="#{cc.attrs.tableID}"
+					rows="#{cc.attrs.rows}"
+					var="psmRow"
+					value="#{cc.attrs.psmList}"
+					sortMode="multi"
+					sortPriority="#{cc.attrs.psmViewerBean.sortPanelHandler.getSortPriorities(cc.attrs.fileID)}"
+					styleClass="result_table">
+				
+				<f:facet name="header">
+					<rich:columnGroup>
+						<rich:column id="header_more">
+						</rich:column>
+						
+						<rich:column id="header_rank"
+								rendered="#{cc.attrs.showRank}">
+							<pia:piaSortLink name="Rank"
+									sorting="rank"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.psmViewerBean.sortPanelHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}"/>
+						</rich:column>
+						
+						<rich:column id="header_sequence">
+							<pia:piaSortLink name="Sequence"
+									sorting="sequence"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.psmViewerBean.sortPanelHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_accessions"
+								rendered="#{cc.attrs.showAccessions}">
+							<h:outputText value="Accessions" />
+						</rich:column>
+						
+						<rich:column id="header_nr_psms">
+							<pia:piaSortLink name="#Identifications"
+									sorting="nr_psms"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.psmViewerBean.sortPanelHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_charge">
+							<pia:piaSortLink name="Charge"
+									sorting="charge"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.psmViewerBean.sortPanelHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_masstocharge">
+							<pia:piaSortLink name="m/z"
+									sorting="masstocharge"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.psmViewerBean.sortPanelHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_deltamass">
+							<pia:piaSortLink name="dMass (ppm)"
+									sorting="deltamass"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.psmViewerBean.sortPanelHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_retention_time">
+							<pia:piaSortLink name="RT"
+									sorting="retention_time"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.psmViewerBean.sortPanelHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_missed">
+							<pia:piaSortLink name="Missed"
+									sorting="missed"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.psmViewerBean.sortPanelHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_source_id">
+							<pia:piaSortLink name="Source ID"
+									sorting="source_id"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.psmViewerBean.sortPanelHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_spectrum_title">
+							<pia:piaSortLink name="Spectrum Title"
+									sorting="spectrum_title"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.psmViewerBean.sortPanelHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+						
+						<rich:column id="header_combined_fdr_score"
+								rendered="#{cc.attrs.showCombinedFDRScore and cc.attrs.psmViewerBean.FDRPanelHandler.isCombinedFDRScoreCalculated}">
+							<pia:piaSortLink name="Combined FDR Score"
+									sorting="score_psm_combined_fdr_score"
+									fileID="#{cc.attrs.fileID}"
+									bean="#{cc.attrs.psmViewerBean.sortPanelHandler}"
+									render="#{cc.attrs.tableID} sort_settings_outpanel"
+									active="#{cc.attrs.sortable}" />
+						</rich:column>
+					</rich:columnGroup>
+				</f:facet>
+				
+				
+				<rich:column id="more">
+					<a4j:commandLink id="toggle_psms"
+							title="show/hide PSMs"
+							onclick="jQuery(#{rich:element('psms')}).toggle(); $(this).children('.more_less_icon').toggle(); return false;">
+						<h:graphicImage name="plus_icon.png"
+								library="images"
+								alt="show PSMs"
+								styleClass="more_less_icon plus_icon"/>
+						<h:graphicImage name="minus_icon.png"
+								library="images"
+								alt="hide PSMs"
+								styleClass="more_less_icon minus_icon"
+								style="display: none;"/>
+					</a4j:commandLink>
+					<a4j:commandLink id="show_inference_graph"
+							onclick="updateInTreePopup('psm', '#{psmRow.getIdentificationKey(psmRow.notRedundantIdentificationKeySettings)}');"
+							title="show PSMs in tree">
+						<h:graphicImage name="tree_icon.png"
+								library="images"
+								alt="show PSMs in tree - icon"
+								styleClass="click_icon" />
+						<rich:componentControl target="in_pia_tree_panel"
+								operation="show" />
+					</a4j:commandLink>
+				</rich:column>
+				
+				<rich:column id="rank"
+						sortBy="#{psmRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.psmViewerBean.sortPanelHandler.getPSMComparator('rank')}"
+						sortOrder="#{cc.attrs.psmViewerBean.sortPanelHandler.getOrder(cc.attrs.fileID,'rank')}"
+						styleClass="text_right"
+						rendered="#{cc.attrs.showRank}">
+					<h:outputText value="#{psmRow.rank}" />
+				</rich:column>
+				
+				<rich:column id="sequence"
+						sortBy="#{psmRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.psmViewerBean.sortPanelHandler.getPSMComparator('sequence')}"
+						sortOrder="#{cc.attrs.psmViewerBean.sortPanelHandler.getOrder(cc.attrs.fileID,'sequence')}">
+					<piacomponents:sequenceWithModifications sequence="#{psmRow.sequence}"
+							modifications="#{psmRow.modifications}"
+							styleClass="sequence-with-modifications" />
+				</rich:column>
+				
+				<rich:column id="accessions"
+						rendered="#{cc.attrs.showAccessions}">
+					<rich:collapsiblePanel id="accessions_panel"
+							expanded="false"
+							switchType="client"
+							header="Accessions (#{psmRow.accessions.size()})"
+							rendered="#{psmRow.accessions.size() > 1}">
+						<rich:list value="#{psmRow.accessions}"
+								var="acc"
+								type="unordered"
+								styleClass="accessions">
+							<a4j:outputPanel id="accession_and_description"
+									styleClass="accession_and_description"
+									layout="block">
+								<a4j:outputPanel id="accession"
+										styleClass="accession">
+									<h:outputText value="#{acc.accession}" />
+								</a4j:outputPanel>
+								<h:graphicImage name="plus_icon.png"
+										library="images" alt="show description"
+										styleClass="more_less_icon"
+										onclick="$(this).toggle().parent().children('.description').toggle()"/>
+								<a4j:outputPanel id="description"
+										styleClass="description"
+										style="display: none;"
+										layout="inline">
+									<h:outputText value=": #{acc.getDescription(cc.attrs.fileID)}" />
+									<h:graphicImage name="minus_icon.png"
+											library="images" alt="hide description"
+											styleClass="more_less_icon"
+											onclick="$(this).parent().toggle().parent().children('.more_less_icon').toggle()"/>
+								</a4j:outputPanel>
+							</a4j:outputPanel>
+						</rich:list>
+					</rich:collapsiblePanel>
+					
+					<rich:list value="#{psmRow.accessions}"
+							var="acc"
+							type="unordered"
+							rendered="#{psmRow.accessions.size() == 1}"
+							styleClass="accessions">
+						<a4j:outputPanel id="accession_and_description"
+								styleClass="accession_and_description"
+								layout="block">
+							<a4j:outputPanel id="accession"
+									styleClass="accession">
+								<h:outputText value="#{acc.accession}" />
+							</a4j:outputPanel>
+							<h:graphicImage name="plus_icon.png"
+									library="images" alt="show description"
+									styleClass="more_less_icon"
+									onclick="$(this).toggle().parent().children('.description').toggle()"/>
+							<a4j:outputPanel id="description"
+									styleClass="description"
+									style="display:none;"
+									layout="inline">
+								<h:outputText value=": #{acc.getDescription(cc.attrs.fileID)}" />
+								<h:graphicImage name="minus_icon.png"
+										library="images" alt="hide description"
+										styleClass="more_less_icon"
+										onclick="$(this).parent().toggle().parent().children('.more_less_icon').toggle()"/>
+							</a4j:outputPanel>
+						</a4j:outputPanel>
+					</rich:list>
+				</rich:column>
+				
+				<rich:column id="nr_psms"
+						sortBy="#{psmRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.psmViewerBean.sortPanelHandler.getPSMComparator('nr_psms')}"
+						sortOrder="#{cc.attrs.psmViewerBean.sortPanelHandler.getOrder(cc.attrs.fileID,'nr_psms')}"
+						styleClass="text_right">
+					<h:outputText value="#{psmRow.PSMs.size()}" />
+				</rich:column>
+				
+				<rich:column id="charge"
+						sortBy="#{psmRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.psmViewerBean.sortPanelHandler.getPSMComparator('charge')}"
+						sortOrder="#{cc.attrs.psmViewerBean.sortPanelHandler.getOrder(cc.attrs.fileID,'charge')}"
+						styleClass="text_right">
+					<h:outputText value="#{psmRow.charge}" />
+				</rich:column>
+				
+				<rich:column id="masstocharge"
+						sortBy="#{psmRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.psmViewerBean.sortPanelHandler.getPSMComparator('masstocharge')}"
+						sortOrder="#{cc.attrs.psmViewerBean.sortPanelHandler.getOrder(cc.attrs.fileID,'masstocharge')}"
+						styleClass="text_right">
+					<h:outputText value="#{psmRow.massToCharge}">
+						<f:convertNumber type="number"
+								pattern="0.#"
+								minFractionDigits="#{numberDigitsMZ}"
+								maxFractionDigits="#{numberDigitsMZ}"/>
+					</h:outputText>
+				</rich:column>
+				
+				<rich:column id="deltamass"
+						sortBy="#{psmRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.psmViewerBean.sortPanelHandler.getPSMComparator('deltamass')}"
+						sortOrder="#{cc.attrs.psmViewerBean.sortPanelHandler.getOrder(cc.attrs.fileID,'deltamass')}"
+						styleClass="text_right">
+					<h:outputText value="#{psmRow.deltaMass}">
+						<f:convertNumber type="number"
+								pattern="0.#"
+								maxFractionDigits="#{numberDigitsMZ}" />
+					</h:outputText>
+					<h:outputText value="#{psmRow.deltaPPM}">
+						<f:convertNumber type="number"
+								pattern=" (0.#); (-0.#)"
+								maxFractionDigits="#{numberDigitsPPM}" />
+					</h:outputText>
+				</rich:column>
+				
+				<rich:column id="retention_time"
+						sortBy="#{psmRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.psmViewerBean.sortPanelHandler.getPSMComparator('retention_time')}"
+						sortOrder="#{cc.attrs.psmViewerBean.sortPanelHandler.getOrder(cc.attrs.fileID,'retention_time')}"
+						styleClass="text_right">
+					<h:outputText value="#{psmRow.retentionTime}">
+						<f:convertNumber type="number"
+								pattern="0.#"
+								minFractionDigits="#{numberDigitsRT}"
+								maxFractionDigits="#{numberDigitsRT}" />
+					</h:outputText>
+				</rich:column>
+				
+				<rich:column id="missed"
+						sortBy="#{psmRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.psmViewerBean.sortPanelHandler.getPSMComparator('missed')}"
+						sortOrder="#{cc.attrs.psmViewerBean.sortPanelHandler.getOrder(cc.attrs.fileID,'missed')}"
+						styleClass="text_right">
+					<h:outputText value="#{psmRow.missedCleavages}" />
+				</rich:column>
+				
+				<rich:column id="source_id"
+						sortBy="#{psmRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.psmViewerBean.sortPanelHandler.getPSMComparator('source_id')}"
+						sortOrder="#{cc.attrs.psmViewerBean.sortPanelHandler.getOrder(cc.attrs.fileID,'source_id')}">
+					<h:outputText value="#{psmRow.sourceID}" />
+				</rich:column>
+				
+				<rich:column id="spectrum_title">
+					<h:outputText value="#{psmRow.spectrumTitle}" />
+				</rich:column>
+				
+				<rich:column id="score_combined_fdr_score"
+						sortBy="#{psmRow}"
+						sortType="custom"
+						comparator="#{cc.attrs.psmViewerBean.sortPanelHandler.getScorePSMComparator('psm_combined_fdr_score')}"
+						sortOrder="#{cc.attrs.psmViewerBean.sortPanelHandler.getScoreOrder(cc.attrs.fileID,'psm_combined_fdr_score')}"
+						styleClass="text_right"
+						rendered="#{isCombinedFDRScoreCalculated}">
+					<h:outputText value="#{cc.attrs.psmViewerBean.convertScore(psmRow.FDRScore.value)}" />
+				</rich:column>
+				
+				
+				<rich:column id="psms"
+						breakRowBefore="true"
+						colspan="#{nrPSMsColumns}"
+						style="display:none;">
+					
+					<h:outputText value="PSMs:"
+							styleClass="psms_textheader" />
+					
+					<a4j:repeat value="#{psmRow.PSMs}"
+							var="psm">
+							
+						<rich:panel header="#{psm.inputFileName}"
+								styleClass="psms_scores">
+							
+							<rich:dataGrid value="#{psm.scores}"
+									var="score"
+									columns="1"
+									styleClass="psms_scores_grid">
+								<h:outputText value="#{score.name}:" />
+								<h:outputText value="#{cc.attrs.psmViewerBean.convertScore(score.value)} (#{psm.getIdentificationRank(score.shortName)})" />
+							</rich:dataGrid>
+							
+							<h:panelGrid rendered="#{psm.QValue != 'NaN'}"
+									columns="2"
+									styleClass="psms_scores_grid">
+								<h:outputText value="FDR q-Value:" />
+								<h:outputText value="#{psm.QValue}" />
+							</h:panelGrid>
+							
+						</rich:panel>
+					</a4j:repeat>
+					
+				</rich:column>
+			</rich:dataTable>
+			
+			<a4j:outputPanel id="page_scroller_bottom"
+					rendered="#{cc.attrs.showScroller}">
+				<rich:dataScroller id="scroller_bottom"
+						for="#{cc.attrs.tableID}"
+						maxPages="11"
+						fastStep="10"
+						render="page_scroller_top page_scroller_bottom"
+						boundaryControls="auto"
+						stepControls="auto"
+						fastControls="hide"
+						onbegin="#{rich:component('processingPanel')}.show();"
+						oncomplete="#{rich:jQuery('goto_scroller_input')}.val(#{rich:component('scroller_top')}.currentPage); #{rich:component('processingPanel')}.hide();">
+					<f:facet name="first">
+						<h:outputText value="First" />
+					</f:facet>
+					<f:facet name="last">
+						<h:outputText value="Last" />
+					</f:facet>
+					<f:facet name="previous">
+						<h:outputText value="Previous" />
+					</f:facet>
+					<f:facet name="next">
+						<h:outputText value="Next" />
+					</f:facet>
+				</rich:dataScroller>
+			</a4j:outputPanel>
+		</h:panelGrid>
+		
+	</cc:implementation>
+</body>
+</html>

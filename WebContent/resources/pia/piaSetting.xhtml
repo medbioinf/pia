@@ -1,0 +1,35 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:cc="http://java.sun.com/jsf/composite"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:rich="http://richfaces.org/rich">
+
+<head>
+	<title>Renders a Setting</title>
+</head>
+
+<body>
+	<cc:interface>
+		<cc:attribute name="setting"/>
+	</cc:interface>
+	
+	<cc:implementation>
+		<rich:panel header="#{cc.attrs.setting.name}"
+			rendered="#{cc.attrs.setting.type.shortName == 'select_one_radio'}">
+			<h:selectOneRadio
+				value="#{cc.attrs.setting.value}"
+				layout="pageDirection">
+				<f:selectItems value="#{cc.attrs.setting.typedParams}" />
+			</h:selectOneRadio>
+		</rich:panel>
+		
+		<rich:panel header="#{cc.attrs.setting.name}"
+			rendered="#{cc.attrs.setting.type.shortName == 'input'}">
+			<h:inputText value="#{cc.attrs.setting.value}" />
+		</rich:panel>
+		
+		<h:outputText rendered="#{cc.attrs.setting.type.shortName == 'message'}"
+			value="#{cc.attrs.setting.value}"/>
+	</cc:implementation>
+</body>
+</html>

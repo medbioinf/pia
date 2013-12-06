@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:a4j="http://richfaces.org/a4j"
+    	xmlns:rich="http://richfaces.org/rich">
+<head>
+	<title>Template for PSM Tree Popup</title>
+</head>
+<body>
+	<ui:composition>
+		<f:loadBundle basename="de.mpc.pia.webgui.helptexts.helptexts" var="help"/>
+		<h:outputScript library="scripts" name="pia_scripts.js" target="head" />
+		
+		<a4j:jsFunction name="updateInTreePopup"
+				render="in_pia_tree_panel_content"
+				onbegin="#{rich:component('processingPanel')}.show();"
+				oncomplete="jQuery(#{rich:element('psm_in_tree_panel_image')}).svginlineandselactable(); #{rich:component('processingPanel')}.hide();">
+			<a4j:param name="type"
+					assignTo="#{viewerBean.inTreeType}"/>
+			<a4j:param name="ID"
+					assignTo="#{viewerBean.inTreeID}"/>
+		</a4j:jsFunction>
+		
+		<rich:popupPanel id="in_pia_tree_panel"
+				modal="true"
+				resizeable="true"
+				width="800"
+				height="700"
+				onmaskclick="#{rich:component('in_pia_tree_panel')}.hide()"
+				style="z-index: 1000;">
+			<f:facet name="controls">
+				<h:outputLink value="#"
+						onclick="#{rich:component('in_pia_tree_panel')}.hide(); return false;">
+					<h:outputText value="X" />
+				</h:outputLink>
+			</f:facet>
+			
+			<a4j:outputPanel id="in_pia_tree_panel_content"
+					layout="block">
+				<rich:panel>
+					<h:outputText value="#{help.pia_inference_tree}"
+							escape="false"/>
+				</rich:panel>
+				
+				<a4j:mediaOutput id="psm_in_tree_panel_image"
+						element="img"
+						cacheable="false"
+						session="false"
+						createContent="#{viewerBean.paintObjectInTree}"
+						value="#{null}" 
+						mimeType="image/svg+xml"
+						styleClass="in_pia_tree"/>
+			</a4j:outputPanel>
+		</rich:popupPanel>
+	</ui:composition>
+</body>
+</html>

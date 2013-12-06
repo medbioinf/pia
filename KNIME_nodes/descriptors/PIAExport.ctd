@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tool xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="https://raw.github.com/genericworkflownodes/GenericKnimeNodes/develop/com.genericworkflownodes.knime/src/com/genericworkflownodes/knime/schemas/CTD.xsd"
+		name="PIAExport"
+		version="1.0.0-rc1"
+		category="general"
+		docurl="http://medizinisches-proteom-center.de/index.php/de/software-top/165-protein-inference-algorithms-pia">
+	
+	<description>Export PIA results after execution of a PIA pipeline on the PSM, peptide or protein level.</description>
+	<manual>Export PIA results after execution of a PIA pipeline on the PSM, peptide or protein level. The pipeline is mandatory but may execute nothing.</manual>
+	<executableName>java</executableName>
+	<!-- <executablePath></executablePath> -->
+	
+	<cli>
+		<!-- the cli elements will be ordered in this way -->
+		<clielement optionIdentifier="" required="false" isList="false">
+			<mapping referenceName="PIAExport.vmsettings" />
+		</clielement>
+		
+		<clielement optionIdentifier="-cp" required="true" isList="false">
+			<mapping referenceName="PIAExport.classpath" />
+		</clielement>
+		
+		<!-- this element gets no binding, it is the called Java class -->
+		<clielement optionIdentifier="de.mpc.pia.modeller.PIAModeller"
+				required="true" isList="false"/>
+		
+		<clielement optionIdentifier="-infile" required="true" isList="false">
+			<mapping referenceName="PIAExport.infile"/>
+		</clielement>
+		
+		<clielement optionIdentifier="-paramFile" required="true" isList="false">
+			<mapping referenceName="PIAExport.paramFile"/>
+		</clielement>
+		
+		<clielement required="false" isList="false"
+				optionIdentifier="-psmExport">
+			<mapping referenceName="PIAExport.PSMExport.fileNamePSM"/>
+			<mapping referenceName="PIAExport.PSMExport.format"/>
+			<mapping referenceName="PIAExport.PSMExport.fileID"/>
+			<mapping referenceName="PIAExport.PSMExport.spectralCount"/>
+		</clielement>
+		
+		<clielement required="false" isList="false"
+				optionIdentifier="-peptideExport">
+			<mapping referenceName="PIAExport.PeptideExport.fileNamePeptide"/>
+			<mapping referenceName="PIAExport.PeptideExport.format"/>
+			<mapping referenceName="PIAExport.PeptideExport.fileID"/>
+			<mapping referenceName="PIAExport.PeptideExport.exportPSMs"/>
+			<mapping referenceName="PIAExport.PeptideExport.exportPSMSets"/>
+			<mapping referenceName="PIAExport.PeptideExport.oneAccessionPerLine"/>
+		</clielement>
+		
+		<clielement required="false" isList="false"
+				optionIdentifier="-proteinExport">
+			<mapping referenceName="PIAExport.ProteinExport.fileNameProtein"/>
+			<mapping referenceName="PIAExport.ProteinExport.format"/>
+			<mapping referenceName="PIAExport.ProteinExport.exportPSMs"/>
+			<mapping referenceName="PIAExport.ProteinExport.exportPSMSets"/>
+			<mapping referenceName="PIAExport.ProteinExport.exportPeptides"/>
+			<mapping referenceName="PIAExport.ProteinExport.oneAccessionPerLine"/>
+		</clielement>
+    </cli>
+    
+	<PARAMETERS version="1.6.2"
+			xsi:noNamespaceSchemaLocation="http://open-ms.sourceforge.net/schemas/Param_1_6_2.xsd"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<NODE name="PIAExport"
+				description="Export PIA results after execution of a PIA pipeline on the PSM, peptide or protein level.">
+			<ITEM name="version"
+					type="string"
+					value="1.0.0-rc1"
+					advanced="true"
+					description="Version of the tool that generated this parameters file."
+					required="true"
+					restrictions="1.0.0-rc1" />
+			
+			<ITEM name="vmsettings"
+					type="string"
+					value="-Xmx8G"
+					advanced="true"
+					description="Additional Java settings, like giving Java a big enough amount of memory (which is recommended)."
+					required="true" />
+			
+			<ITEM name="classpath"
+					type="string"
+					value="pia.jar"
+					advanced="true"
+					description="The actual JAR, in which the PIA classes reside."
+					required="true"/>
+			
+			<ITEM name="infile"
+					type="input-file"
+					value=""
+					advanced="false"
+					required="true"
+					description="The compiled PIA-XML file."
+					supported_formats="*.pia.xml" />
+			
+			<ITEM name="paramFile"
+					type="input-file"
+					value=""
+					advanced="false"
+					required="true"
+					description="Path to a PIA pipeline file."
+					supported_formats="*.xml" />
+			
+			<NODE name="PSMExport"
+					description="Settings for export on PSM level">
+				<ITEM name="fileNamePSM"
+						type="output-file"
+						value=""
+						advanced="false"
+						required="false"
+						description="file for PSM export"
+						supported_formats="*.csv,*.mzTab,*.mzid"/>
+				<ITEM name="format"
+						type="string"
+						value=""
+						advanced="false"
+						required="false"
+						description="format of the export"
+						restrictions="mzIdentML,mzTab,csv"/>
+				<ITEM name="fileID"
+						type="int"
+						value=""
+						advanced="false"
+						required="false"
+						description="the ID of the exported file's PSMs (0 for overview)"/>
+				<ITEM name="spectralCount"
+						type="string"
+						value=""
+						advanced="false"
+						required="false"
+						description="whether to export for spectral count or not (consider using PeptideExport!)"
+						restrictions="yes,no"/>
+			</NODE>
+			
+			<NODE name="PeptideExport"
+					description="Settings for export on PSM level">
+				<ITEM name="fileNamePeptide"
+						type="output-file"
+						value=""
+						advanced="false"
+						required="false"
+						description="file for peptide export"
+						supported_formats="*.csv"/>
+				<ITEM name="format"
+						type="string"
+						value=""
+						advanced="false"
+						required="false"
+						description="format of the export"
+						restrictions="csv"/>
+				<ITEM name="fileID"
+						type="int"
+						value=""
+						advanced="false"
+						required="false"
+						description="the ID of the exported file's PSMs (0 for overview)"/>
+				<ITEM name="oneAccessionPerLine"
+						type="string"
+						value=""
+						advanced="false"
+						required="false"
+						description="whether one Accession should be exported per line, useful for spectral counting."
+						restrictions="yes,no"/>
+				<ITEM name="exportPSMSets"
+						type="string"
+						value=""
+						advanced="false"
+						required="false"
+						description="also export PSMSet information in the same file"
+						restrictions="yes,no"/>
+				<ITEM name="exportPSMs"
+						type="string"
+						value=""
+						advanced="false"
+						required="false"
+						description="also export PSM information in the same file"
+						restrictions="yes,no"/>
+			</NODE>
+			
+			<NODE name="ProteinExport"
+					description="Settings for export on PSM level">
+				<ITEM name="fileNameProtein"
+						type="output-file"
+						value=""
+						advanced="false"
+						required="false"
+						description="file for protein export"
+						supported_formats="*.csv,*.mzid"/>
+				<ITEM name="format"
+						type="string"
+						value=""
+						advanced="false"
+						required="false"
+						description="format of the export"
+						restrictions="mzIdentML,csv"/>
+				<ITEM name="oneAccessionPerLine"
+						type="string"
+						value=""
+						advanced="false"
+						required="false"
+						description="exports one line for each protein instead of protein groups (for CSV export)."
+						restrictions="yes,no"/>
+				<ITEM name="exportPeptides"
+						type="string"
+						value=""
+						advanced="false"
+						required="false"
+						description="also export peptide information in the same file"
+						restrictions="yes,no"/>
+				<ITEM name="exportPSMSets"
+						type="string"
+						value=""
+						advanced="false"
+						required="false"
+						description="also export PSMSet information in the same file"
+						restrictions="yes,no"/>
+				<ITEM name="exportPSMs"
+						type="string"
+						value=""
+						advanced="false"
+						required="false"
+						description="also export PSM information in the same file"
+						restrictions="yes,no"/>
+			</NODE>
+		</NODE>
+	</PARAMETERS>
+</tool>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:cc="http://java.sun.com/jsf/composite"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j">
+
+<head>
+	<title>The export panel for the Peptide Viewer</title>
+</head>
+
+<body>
+	<cc:interface>
+		<cc:attribute name="peptideViewerBean"/>
+		<cc:attribute name="panelHandler"/>
+	</cc:interface>
+	<cc:implementation>
+		
+		<a4j:outputPanel id="export_outpanel">
+			<rich:panel header="Export data of #{cc.attrs.panelHandler.name}">
+				
+				<h:panelGrid columns="2">
+					<h:selectBooleanCheckbox id="filter_export"
+							value="#{cc.attrs.panelHandler.exportFiltered}" />
+					<h:outputLabel id="filter_export_label"
+							for="filter_export"
+							value="filter export" />
+						
+					<h:selectBooleanCheckbox id="one_accession_per_line"
+							value="#{cc.attrs.panelHandler.oneAccessionPerLine}" />
+					<h:outputLabel id="one_accession_per_line_label"
+							for="one_accession_per_line"
+							value="one accession per line" />
+					
+					<h:selectBooleanCheckbox id="inclue_psm_sets"
+							value="#{cc.attrs.panelHandler.includePSMSets}" />
+					<h:outputLabel id="inclue_psm_sets_label"
+							for="inclue_psm_sets"
+							value="include PSM sets" />
+					
+					<h:selectBooleanCheckbox id="include_psms"
+							value="#{cc.attrs.panelHandler.includePSMs}" />
+					<h:outputLabel id="include_psms_label"
+							for="include_psms"
+							value="include PSMs" />
+					
+					<f:facet name="footer">
+						<h:commandButton id="export_csv"
+								value="Export to CSV"
+								action="#{cc.attrs.panelHandler.exportToCSV}" />
+					</f:facet>
+				</h:panelGrid>
+				
+			</rich:panel>
+		</a4j:outputPanel>
+
+	</cc:implementation>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tool category="protein" name="ProteinAddInferenceFilter" version="1.0.0-rc1">
+    <description>Adds a filter used by the protein inference. A filter is added by its name, an abbreviation for the comparison, the compared value and (optional), whether the comparison should be negatede.g. &quot;AddInferenceFilter=charge_filter,EQ,2,no&quot;</description>
+    <executableName>java</executableName>
+    <cli>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="ProteinAddInferenceFilter.vmsettings"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="-cp">
+            <mapping referenceName="ProteinAddInferenceFilter.classpath"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="de.mpc.pia.modeller.PIAModeller"/>
+        <clielement required="true" isList="false" optionIdentifier="-paramFile">
+            <mapping referenceName="ProteinAddInferenceFilter.paramFile"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="-paramOutFile">
+            <mapping referenceName="ProteinAddInferenceFilter.paramOutFile"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="-append"/>
+        <clielement required="true" isList="false" optionIdentifier="ProteinAddInferenceFilter"/>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="ProteinAddInferenceFilter.filtername"/>
+        </clielement>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="ProteinAddInferenceFilter.comparison"/>
+        </clielement>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="ProteinAddInferenceFilter.value"/>
+        </clielement>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="ProteinAddInferenceFilter.negate"/>
+        </clielement>
+    </cli>
+    <PARAMETERS version="1.6.2">
+        <NODE description="Adds a filter used by the protein inference. A filter is added by its name, an abbreviation for the comparison, the compared value and (optional), whether the comparison should be negatede.g. &quot;AddInferenceFilter=charge_filter,EQ,2,no&quot;" name="ProteinAddInferenceFilter">
+            <ITEM value="1.0.0-rc1" advanced="true" required="true" restrictions="1.0.0-rc1" description="Version of the tool that generated this parameters file." type="string" name="version"/>
+            <ITEM value="-Xmx8G" advanced="true" required="false" description="Additional Java settings, like giving Java a big enough amount of memory." type="string" name="vmsettings"/>
+            <ITEM value="pia.jar" advanced="true" required="false" description="The actual JAR, in which the PIA classes reside." type="string" name="classpath"/>
+            <ITEM value="" advanced="false" required="true" supported_formats="*.xml" description="Path to the file, which contains the build pipeline until this step." type="input-file" name="paramFile"/>
+            <ITEM value="" advanced="false" required="true" supported_formats="*.xml" description="Path to the file, which will contain the pipeline with added filters." type="output-file" name="paramOutFile"/>
+            <ITEM value="" advanced="false" required="true" description="" type="string" name="filtername"/>
+            <ITEM value="" advanced="false" required="true" restrictions="LT,LEQ,EQ,GEQ,GT,CON,COO,REG,RXO,HAM,MAS,DEC,RES" description="" type="string" name="comparison"/>
+            <ITEM value="" advanced="false" required="true" description="" type="string" name="value"/>
+            <ITEM value="" advanced="false" required="true" restrictions="no,yes" description="" type="string" name="negate"/>
+        </NODE>
+    </PARAMETERS>
+</tool>

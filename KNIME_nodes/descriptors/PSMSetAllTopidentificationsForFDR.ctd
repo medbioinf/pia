@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tool category="PSM" name="PSMSetAllTopidentificationsForFDR" version="1.0.0-rc1">
+    <description>Sets the number of top identifications per spectrum used for all further FDR calculations, 0 meaning all identifications are used.</description>
+    <executableName>java</executableName>
+    <cli>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="PSMSetAllTopidentificationsForFDR.vmsettings"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="-cp">
+            <mapping referenceName="PSMSetAllTopidentificationsForFDR.classpath"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="de.mpc.pia.modeller.PIAModeller"/>
+        <clielement required="true" isList="false" optionIdentifier="-paramFile">
+            <mapping referenceName="PSMSetAllTopidentificationsForFDR.paramFile"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="-paramOutFile">
+            <mapping referenceName="PSMSetAllTopidentificationsForFDR.paramOutFile"/>
+        </clielement>
+        <clielement required="true" isList="false" optionIdentifier="-append"/>
+        <clielement required="true" isList="false" optionIdentifier="PSMSetAllTopidentificationsForFDR"/>
+        <clielement required="false" isList="false" optionIdentifier="">
+            <mapping referenceName="PSMSetAllTopidentificationsForFDR.number of top identifications"/>
+        </clielement>
+    </cli>
+    <PARAMETERS version="1.6.2">
+        <NODE description="Sets the number of top identifications per spectrum used for all further FDR calculations, 0 meaning all identifications are used." name="PSMSetAllTopidentificationsForFDR">
+            <ITEM value="1.0.0-rc1" advanced="true" required="true" restrictions="1.0.0-rc1" description="Version of the tool that generated this parameters file." type="string" name="version"/>
+            <ITEM value="-Xmx8G" advanced="true" required="false" description="Additional Java settings, like giving Java a big enough amount of memory." type="string" name="vmsettings"/>
+            <ITEM value="pia.jar" advanced="true" required="false" description="The actual JAR, in which the PIA classes reside." type="string" name="classpath"/>
+            <ITEM value="" advanced="false" required="true" supported_formats="*.xml" description="Path to the file, which contains the build pipeline until this step." type="input-file" name="paramFile"/>
+            <ITEM value="" advanced="false" required="true" supported_formats="*.xml" description="Path to the file, which will contain the pipeline with added filters." type="output-file" name="paramOutFile"/>
+            <ITEM value="" advanced="false" required="true" description="" type="string" name="number of top identifications"/>
+        </NODE>
+    </PARAMETERS>
+</tool>

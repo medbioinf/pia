@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:cc="http://java.sun.com/jsf/composite"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:pia="http://java.sun.com/jsf/composite/pia">
+
+<head>
+	<title>Settings Panel Template</title>
+</head>
+
+<body>
+	<cc:interface>
+		<cc:attribute name="header" />
+		<cc:attribute name="settings" />
+	</cc:interface>
+	<cc:implementation>
+		
+		<rich:panel header="#{cc.attrs.header}">
+			<a4j:repeat value="#{cc.attrs.settings}"
+				var="setting">
+				<pia:piaSetting setting="#{setting}" />
+			</a4j:repeat>
+		</rich:panel>
+		
+	</cc:implementation>
+</body>
+</html>

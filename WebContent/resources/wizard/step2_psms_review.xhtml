@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:a4j="http://richfaces.org/a4j"
+		xmlns:rich="http://richfaces.org/rich">
+	
+	<h:outputScript library="scripts" name="raphael-min.js" target="head" />
+	<h:outputScript library="scripts" name="g.raphael-min.js" target="head" />
+	<h:outputScript library="scripts" name="g.bar-min.js" target="head" />
+	<h:outputScript library="scripts" name="g.pie-min.js" target="head" />
+	<h:outputScript library="scripts" name="pia_scripts.js" target="head" />
+	
+	<a4j:outputPanel layout="block"
+			styleClass="wizard_header">
+		<h:outputText value="Step 2/5: Review PSM data" />
+	</a4j:outputPanel>
+	<a4j:outputPanel layout="block"
+			styleClass="wizard_text">
+		<h:outputText value="#{help.step_psms_review_help}"
+				escape="false"/>
+	</a4j:outputPanel>
+	
+	<h:panelGrid columns="2">
+		<h:panelGroup>
+			<h:outputLabel id="fdr_thr_psms_label"
+					for="fdr_thr_psms"
+					value="Selected FDR threshold:" />
+			
+			<a4j:outputPanel layout="inline">
+				<h:graphicImage name="help_icon.png"
+						library="images" alt="help"
+						styleClass="help_icon"/>
+				<rich:tooltip showEvent="click"
+						mode="client"
+						styleClass="help_tooltip"
+						layout="block">
+					<h:outputText value="#{help.fdr_thr_help}"
+							escape="false"/>
+				</rich:tooltip>
+			</a4j:outputPanel>
+		</h:panelGroup>
+		<h:outputText id="fdr_thr_psms"
+				value="#{viewerBean.wizard.FDRThreshold}" />
+	</h:panelGrid>
+	
+	<rich:panel id="psms_review_all_files_panel"
+			name="psms_review_all_files_panel"
+			header="FDR for PSM sets / all files">
+		
+		<h:panelGrid columns="#{viewerBean.wizard.createPSMSets ? 3 : 2}">
+			<h:panelGrid columns="2"
+					columnClasses=", text_right"
+					rendered="#{viewerBean.wizard.modeller.PSMModeller.isCombinedFDRScoreCalculated()}">
+				<h:panelGroup>
+					<h:outputLabel id="all_psms_label"
+							for="all_psms"
+							value="#PSM sets:" />
+					
+					<a4j:outputPanel layout="inline">
+						<h:graphicImage name="help_icon.png"
+								library="images" alt="help"
+								styleClass="help_icon"/>
+						<rich:tooltip showEvent="click"
+								mode="client"
+								styleClass="help_tooltip"
+								layout="block">
+							<h:outputText value="#{help.all_psms_help}"
+									escape="false"/>
+						</rich:tooltip>
+					</a4j:outputPanel>
+				</h:panelGroup>
+				<h:outputText id="all_psms"
+						value="#{viewerBean.wizard.modeller.PSMModeller.getNrReportPSMs(0)}"/>
+				
+				<h:panelGroup>
+					<h:outputLabel id="fdr_items_label"
+							for="fdr_items"
+							value="#PSM sets with FDR:" />
+					
+					<a4j:outputPanel layout="inline">
+						<h:graphicImage name="help_icon.png"
+								library="images" alt="help"
+								styleClass="help_icon"/>
+						<rich:tooltip showEvent="click"
+								mode="client"
+								styleClass="help_tooltip"
+								layout="block">
+							<h:outputText value="#{help.fdr_items_help}"
+									escape="false"/>
+						</rich:tooltip>
+					</a4j:outputPanel>
+				</h:panelGroup>
+				<h:outputText id="fdr_items"
+						value="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[0].nrItems}"/>
+				
+				<h:panelGroup>
+					<h:outputLabel id="fdr_targets_label"
+							for="fdr_targets"
+							value="#targets:" />
+					
+					<a4j:outputPanel layout="inline">
+						<h:graphicImage name="help_icon.png"
+								library="images" alt="help"
+								styleClass="help_icon"/>
+						<rich:tooltip showEvent="click"
+								mode="client"
+								styleClass="help_tooltip"
+								layout="block">
+							<h:outputText value="#{help.fdr_targets_help}"
+									escape="false"/>
+						</rich:tooltip>
+					</a4j:outputPanel>
+				</h:panelGroup>
+				<h:outputText id="fdr_targets"
+						value="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[0].nrTargets}" />
+				
+				<h:panelGroup>
+					<h:outputLabel id="fdr_decoys_label"
+							for="fdr_decoys"
+							value="#decoys:" />
+					
+					<a4j:outputPanel layout="inline">
+						<h:graphicImage name="help_icon.png"
+								library="images" alt="help"
+								styleClass="help_icon"/>
+						<rich:tooltip showEvent="click"
+								mode="client"
+								styleClass="help_tooltip"
+								layout="block">
+							<h:outputText value="#{help.fdr_decoys_help}"
+									escape="false"/>
+						</rich:tooltip>
+					</a4j:outputPanel>
+				</h:panelGroup>
+				<h:outputText id="fdr_decoys"
+						value="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[0].nrDecoys}" />
+				
+				<h:panelGroup>
+					<h:outputLabel id="fdr_good_targets_label"
+							for="fdr_good_targets"
+							value="#targets below threshold:" />
+					
+					<a4j:outputPanel layout="inline">
+						<h:graphicImage name="help_icon.png"
+								library="images" alt="help"
+								styleClass="help_icon"/>
+						<rich:tooltip showEvent="click"
+								mode="client"
+								styleClass="help_tooltip"
+								layout="block">
+							<h:outputText value="#{help.fdr_good_help}"
+									escape="false"/>
+						</rich:tooltip>
+					</a4j:outputPanel>
+				</h:panelGroup>
+				<h:outputText id="fdr_good_targets"
+						value="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[0].nrFDRGoodTargets}" />
+				
+				<h:panelGroup>
+					<h:outputLabel id="fdr_good_decoys_label"
+							for="fdr_good_decoys"
+							value="#decoys below threshold:" />
+					
+					<a4j:outputPanel layout="inline">
+						<h:graphicImage name="help_icon.png"
+								library="images" alt="help"
+								styleClass="help_icon"/>
+						<rich:tooltip showEvent="click"
+								mode="client"
+								styleClass="help_tooltip"
+								layout="block">
+							<h:outputText value="#{help.fdr_good_help}"
+									escape="false"/>
+						</rich:tooltip>
+					</a4j:outputPanel>
+				</h:panelGroup>
+				<h:outputText id="fdr_good_decoys"
+						value="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[0].nrFDRGoodDecoys}" />
+			</h:panelGrid>
+			<h:outputText value="Combined FDR score was not calculated."
+					rendered="#{viewerBean.wizard.modeller.PSMModeller.isCombinedFDRScoreCalculated() == false}" />
+			
+			<a4j:outputPanel id="ppm_chart_wrapper"
+					layout="block"
+					styleClass="chart_wrapper">
+				<a4j:outputPanel layout="inline"
+						styleClass="chart_header">
+					<h:outputText value="PPM" />
+					<h:graphicImage name="help_icon.png"
+							library="images" alt="help"
+							styleClass="help_icon"/>
+					<rich:tooltip showEvent="click"
+							mode="client"
+							styleClass="help_tooltip"
+							layout="block">
+						<h:outputText value="#{help.fdr_ppm_help}"
+								escape="false"/>
+					</rich:tooltip>
+				</a4j:outputPanel>
+				<a4j:outputPanel id="fdr_ppm_chart"
+						layout="block"
+						styleClass="chart">
+				</a4j:outputPanel>
+				
+				<script type="text/javascript">
+					drawPPMChart(<h:outputText value="#{rich:element('fdr_ppm_chart')}"/>,
+							<h:outputText value="#{viewerBean.wizard.modeller.PSMModeller.getPPMs(0, viewerBean.wizard.modeller.PSMModeller.isCombinedFDRScoreCalculated())}"/>,
+							true);
+				</script>
+			</a4j:outputPanel>
+			
+			<a4j:outputPanel id="psm_identifications_chart_wrapper"
+					layout="block"
+					styleClass="chart_wrapper"
+					rendered="#{viewerBean.wizard.createPSMSets}">
+				<a4j:outputPanel layout="inline"
+						styleClass="chart_header">
+					<h:outputText value="Identifications" />
+					<h:graphicImage name="help_icon.png"
+							library="images" alt="help"
+							styleClass="help_icon"/>
+					<rich:tooltip showEvent="click"
+							mode="client"
+							styleClass="help_tooltip"
+							layout="block">
+						<h:outputText value="#{help.fdr_identifications_help}"
+								escape="false"/>
+					</rich:tooltip>
+				</a4j:outputPanel>
+				<a4j:outputPanel id="psm_identifications_chart"
+						layout="block"
+						styleClass="chart">
+				</a4j:outputPanel>
+				
+				<script type="text/javascript">
+					drawIdentificationsChart(<h:outputText value="#{rich:element('psm_identifications_chart')}"/>,
+							<h:outputText value="#{viewerBean.wizard.modeller.PSMModeller.getNrIdentifications(viewerBean.wizard.modeller.PSMModeller.isCombinedFDRScoreCalculated())}"/>);
+				</script>
+				
+			</a4j:outputPanel>
+		</h:panelGrid>
+		
+	</rich:panel>
+	
+	<rich:panel id="psms_review_per_files"
+			name="psms_review_per_files"
+			header="FDR for files">
+		<a4j:repeat value="#{viewerBean.psmViewer.identificationFiles}"
+				var="file"
+				rows="0"
+				id="files_psms_fdr_review_repeat">
+			<rich:panel header="#{file.name}"
+					rendered="#{file.ID != 0}">
+				<h:panelGrid columns="2">
+					<h:panelGrid columns="2"
+							columnClasses=", text_right"
+							rendered="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[file.ID].nrItems != null}">
+						<h:panelGroup>
+							<h:outputLabel id="all_psms_label"
+									for="all_psms"
+									value="#PSMs:" />
+							
+							<a4j:outputPanel layout="inline">
+								<h:graphicImage name="help_icon.png"
+										library="images" alt="help"
+										styleClass="help_icon"/>
+								<rich:tooltip showEvent="click"
+										mode="client"
+										styleClass="help_tooltip"
+										layout="block">
+									<h:outputText value="#{help.all_psms_help}"
+											escape="false"/>
+								</rich:tooltip>
+							</a4j:outputPanel>
+						</h:panelGroup>
+						<h:outputText id="all_psms"
+								value="#{viewerBean.wizard.modeller.PSMModeller.getNrReportPSMs(file.ID)}"/>
+						
+						<h:panelGroup>
+							<h:outputLabel id="fdr_used_score_label"
+									for="fdr_used_score"
+									value="score used for FDR estimation:" />
+							
+							<a4j:outputPanel layout="inline">
+								<h:graphicImage name="help_icon.png"
+										library="images" alt="help"
+										styleClass="help_icon"/>
+								<rich:tooltip showEvent="click"
+										mode="client"
+										styleClass="help_tooltip"
+										layout="block">
+									<h:outputText value="#{help.fdr_used_score_help}"
+											escape="false"/>
+								</rich:tooltip>
+							</a4j:outputPanel>
+						</h:panelGroup>
+						<h:outputText id="fdr_used_score"
+								value="#{viewerBean.wizard.modeller.PSMModeller.getScoreName(file.ID,
+										viewerBean.wizard.modeller.PSMModeller.fileFDRData[file.ID].scoreShortName)}"/>
+						
+						<h:panelGroup>
+							<h:outputLabel id="fdr_items_label"
+									for="fdr_items"
+									value="#PSMs with FDR:" />
+							
+							<a4j:outputPanel layout="inline">
+								<h:graphicImage name="help_icon.png"
+										library="images" alt="help"
+										styleClass="help_icon"/>
+								<rich:tooltip showEvent="click"
+										mode="client"
+										styleClass="help_tooltip"
+										layout="block">
+									<h:outputText value="#{help.fdr_items_help}"
+											escape="false"/>
+								</rich:tooltip>
+							</a4j:outputPanel>
+						</h:panelGroup>
+						<h:outputText id="fdr_items"
+								value="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[file.ID].nrItems}"/>
+						
+						<h:panelGroup>
+							<h:outputLabel id="fdr_targets_label"
+									for="fdr_targets"
+									value="#targets:" />
+							
+							<a4j:outputPanel layout="inline">
+								<h:graphicImage name="help_icon.png"
+										library="images" alt="help"
+										styleClass="help_icon"/>
+								<rich:tooltip showEvent="click"
+										mode="client"
+										styleClass="help_tooltip"
+										layout="block">
+									<h:outputText value="#{help.fdr_targets_help}"
+											escape="false"/>
+								</rich:tooltip>
+							</a4j:outputPanel>
+						</h:panelGroup>
+						<h:outputText id="fdr_targets"
+								value="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[file.ID].nrTargets}" />
+						
+						<h:panelGroup>
+							<h:outputLabel id="fdr_decoys_label"
+									for="fdr_decoys"
+									value="#decoys:" />
+							
+							<a4j:outputPanel layout="inline">
+								<h:graphicImage name="help_icon.png"
+										library="images" alt="help"
+										styleClass="help_icon"/>
+								<rich:tooltip showEvent="click"
+										mode="client"
+										styleClass="help_tooltip"
+										layout="block">
+									<h:outputText value="#{help.fdr_decoys_help}"
+											escape="false"/>
+								</rich:tooltip>
+							</a4j:outputPanel>
+						</h:panelGroup>
+						<h:outputText id="fdr_decoys"
+								value="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[file.ID].nrDecoys}" />
+						
+						<h:panelGroup>
+							<h:outputLabel id="fdr_good_targets_label"
+									for="fdr_good_targets"
+									value="#targets below threshold:" />
+							
+							<a4j:outputPanel layout="inline">
+								<h:graphicImage name="help_icon.png"
+										library="images" alt="help"
+										styleClass="help_icon"/>
+								<rich:tooltip showEvent="click"
+										mode="client"
+										styleClass="help_tooltip"
+										layout="block">
+									<h:outputText value="#{help.fdr_good_help}"
+											escape="false"/>
+								</rich:tooltip>
+							</a4j:outputPanel>
+						</h:panelGroup>
+						<h:outputText id="fdr_good_targets"
+								value="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[file.ID].nrFDRGoodTargets}" />
+						
+						<h:panelGroup>
+							<h:outputLabel id="fdr_good_decoys_label"
+									for="fdr_good_decoys"
+									value="#decoys below threshold:" />
+							
+							<a4j:outputPanel layout="inline">
+								<h:graphicImage name="help_icon.png"
+										library="images" alt="help"
+										styleClass="help_icon"/>
+								<rich:tooltip showEvent="click"
+										mode="client"
+										styleClass="help_tooltip"
+										layout="block">
+									<h:outputText value="#{help.fdr_good_help}"
+											escape="false"/>
+								</rich:tooltip>
+							</a4j:outputPanel>
+						</h:panelGroup>
+						<h:outputText id="fdr_good_decoys"
+								value="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[file.ID].nrFDRGoodDecoys}" />
+						
+					</h:panelGrid>
+					<h:outputText value="FDR score was not calculated."
+							rendered="#{viewerBean.wizard.modeller.PSMModeller.fileFDRData[file.ID].nrItems == null}"/>
+					
+					<a4j:outputPanel id="ppm_chart_wrapper"
+							layout="block"
+							styleClass="chart_wrapper">
+						
+						<a4j:outputPanel layout="inline"
+								styleClass="chart_header">
+							<h:outputText value="PPM" />
+							<h:graphicImage name="help_icon.png"
+									library="images" alt="help"
+									styleClass="help_icon"/>
+							<rich:tooltip showEvent="click"
+									mode="client"
+									styleClass="help_tooltip"
+									layout="block">
+								<h:outputText value="#{help.fdr_ppm_help}"
+										escape="false"/>
+							</rich:tooltip>
+						</a4j:outputPanel>
+						<a4j:outputPanel id="fdr_ppm_chart"
+								layout="block"
+								styleClass="chart">
+						</a4j:outputPanel>
+						
+						<script type="text/javascript">
+							drawPPMChart(<h:outputText value="#{rich:element('fdr_ppm_chart')}"/>,
+									<h:outputText value="#{viewerBean.wizard.modeller.PSMModeller.getPPMs(file.ID, viewerBean.wizard.modeller.PSMModeller.fileFDRData[file.ID].nrItems != null)}"/>,
+									true);
+						</script>
+					</a4j:outputPanel>
+				</h:panelGrid>
+			</rich:panel>
+		</a4j:repeat>
+	</rich:panel>
+	
+	
+	<a4j:outputPanel layout="block">
+		<a4j:commandButton value="&lt;&lt; Back"
+				execute="@none"
+				onbegin="#{rich:component('processingPanel')}.show();"
+				oncomplete="#{rich:component('processingPanel')}.hide();"
+				onclick="#{rich:component('wizard_panel')}.switchToItem('@prev');"
+				render="wizard_panel" />
+		<a4j:commandButton value="Show peptides &gt;&gt;"
+				execute="@this"
+				action="#{viewerBean.wizard.finishPSMsReviewStep}"
+				onbegin="#{rich:component('processingPanel')}.show();"
+				oncomplete="#{rich:component('processingPanel')}.hide();"
+				onclick="#{rich:component('wizard_panel')}.switchToItem('@next');"
+				render="wizard_panel" />
+	</a4j:outputPanel>
+</ui:composition>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:a4j="http://richfaces.org/a4j"
+		xmlns:rich="http://richfaces.org/rich"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:piacomp="http://de.mpc.pia/components"
+		xmlns:pia="http://java.sun.com/jsf/composite/pia"
+		xmlns:protein="http://java.sun.com/jsf/composite/proteinviewer">
+
+<f:metadata>
+	<!-- get the filename -->
+	<f:viewParam name="file" value="#{viewerBean.fileName}"/>
+	<!-- check, if loading and redirect, if it is -->
+    <f:event type="preRenderView" listener="#{viewerBean.checkAndRedirect('proteinviewer.jsf')}" />
+	<!-- if no inference was set, set the default now -->
+	<f:event type="preRenderView"
+			listener="#{viewerBean.checkForInference}" />
+</f:metadata>
+
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>PIA Protein Viewer</title>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" />
+</h:head>
+
+<h:body>
+	<h:outputStylesheet name="skinning.ecss" />
+	<h:outputStylesheet name="webpia.ecss" library="css" />
+	
+	<ui:decorate template="templates/title_line.xhtml">
+		<ui:param name="sitename"
+				value="Protein Viewer - #{viewerBean.projectName}" />
+	</ui:decorate>
+	
+	<ui:decorate template="templates/processing_overlay.xhtml" />
+	
+	<rich:panel id="project_panel" header="Project: #{viewerBean.projectName}">
+		
+		<h:form id="page_form">
+			
+			<a4j:outputPanel id="protein_all_wrap"
+					layout="block">
+				
+				<c:set var="isRunning"
+						value="#{viewerBean.proteinViewer.inferenceHandler.inferenceRunning}" />
+				
+				<a4j:poll id="poll_all_protein"
+					render="protein_all_wrap"
+					interval="5000"
+					rendered="#{isRunning}"/>
+				
+				<pia:piaGeneralSettings viewerBean="#{viewerBean}"
+						rerender="protein_all_wrap"
+						inferenceRunning="#{isRunning}" />
+				
+				<ui:decorate template="templates/in_pia_tree_popup.xhtml">
+					<ui:param name="viewerBean" value="#{viewerBean}" />
+				</ui:decorate>
+				
+				<ui:decorate template="templates/navigation_project.xhtml">
+					<ui:param name="viewer" value="protein" />
+				</ui:decorate>
+				
+				<rich:collapsiblePanel header="Advanced"
+						styleClass="advanced_panel"
+						expanded="false"
+						switchType="client"
+						rendered="#{!isRunning}">
+					<h:panelGrid columns="3" id="advanced_panels"
+							styleClass="advanced_panels">
+						<protein:proteinViewerFDRPanel panelHandler="#{viewerBean.proteinViewer.FDRHandler}" />
+						
+						<protein:proteinViewerRankPanel panelHandler="#{viewerBean.proteinViewer.rankingHandler}" />
+						
+						<protein:proteinViewerExportPanel panelHandler="#{viewerBean.proteinViewer.exportHandler}" />
+					</h:panelGrid>
+				</rich:collapsiblePanel>
+				
+				<rich:panel header="Protein Inference"
+						styleClass="inference_panel">
+					<h:panelGrid columns="2" id="inference_panels"
+							styleClass="inference_panels">
+						
+						<f:facet name="header">
+							<h:outputText value="#{viewerBean.proteinViewer.inferenceHandler.appliedInference.name}..."
+									rendered="#{isRunning}"/>
+						</f:facet>
+						
+						<protein:proteinViewerInferencePanel panelHandler="#{viewerBean.proteinViewer.inferenceHandler}" 
+								inferenceRunning="#{isRunning}" />
+						
+						<protein:proteinViewerScorePanel panelHandler="#{viewerBean.proteinViewer.scoringHandler}"
+								rendered="#{!isRunning}" />
+						
+						<f:facet name="footer">
+							<rich:panel header="Current settings:"
+									id="current_settings_outpanel"
+									styleClass="current_settings_outpanel"
+									rendered="#{!isRunning}">
+								<h:panelGrid columns="2">
+									<h:outputText value="Scoring:" />
+									<h:outputText
+											value="#{viewerBean.proteinViewer.scoringHandler.scoringMethod.descriptiveSettings}" />
+					
+									<h:outputText value="Inference:" />
+									<h:panelGrid columns="2">
+										<h:outputText value="Method:" />
+										<h:outputText value="#{viewerBean.proteinViewer.inferenceHandler.appliedInference.name}" />
+										
+										<h:outputText value="Filters:" />
+										<rich:list value="#{viewerBean.proteinViewer.inferenceHandler.appliedInference.filters}"
+												var="filter"
+												type="unordered"
+												rendered="#{not empty viewerBean.proteinViewer.inferenceHandler.appliedInference.filters}">
+											<h:outputText value="#{filter.filteringName} " />
+											<h:outputText value="not" rendered="#{filter.filterNegate}" />
+											<h:outputText value=" #{filter.filterComparator.label} #{filter.filterValue} " />
+										</rich:list>
+										<h:outputText value="none" 
+												rendered="#{empty viewerBean.proteinViewer.inferenceHandler.appliedInference.filters}"/>
+										
+										<h:outputText value="Scoring:" />
+										<h:outputText value="#{viewerBean.proteinViewer.inferenceHandler.appliedInference.scoring.descriptiveSettings}" />
+										
+									</h:panelGrid>
+								</h:panelGrid>
+							</rich:panel>
+						</f:facet>
+					</h:panelGrid>
+				</rich:panel>
+				
+				<h:panelGrid columns="2" id="filter_and_sorting_panels"
+						styleClass="filter_and_sorting_panels"
+						rendered="#{!isRunning}">
+					<protein:proteinViewerFilterPanel id="protein_filter_panel"
+							panelHandler="#{viewerBean.proteinViewer.filterHandler}" />
+					
+					<protein:proteinViewerSortPanel panelHandler="#{viewerBean.proteinViewer.sortHandler}"/>
+				</h:panelGrid>
+				
+				<rich:panel header="Proteins"
+						id="report_grid"
+						rendered="#{!isRunning}">
+					<a4j:outputPanel id="protein_report_output_panel">
+						<protein:proteinTable tableID="result_table"
+								proteinList="#{viewerBean.proteinViewer.reportProteins}"
+								psmViewerBean="#{viewerBean.psmViewer}"
+								peptideViewerBean="#{viewerBean.peptideViewer}"
+								proteinViewerBean="#{viewerBean.proteinViewer}"
+								showScroller="#{true}"
+								showRank="#{viewerBean.proteinViewer.rankingHandler.areProteinsRanked}"
+								rows="#{viewerBean.getConfigurationProperty('proteinviewer_rows')}"
+								sortable="#{true}" />
+					</a4j:outputPanel>
+				</rich:panel>
+				
+			</a4j:outputPanel>
+			
+		</h:form>
+		
+	</rich:panel>
+	
+	<ui:decorate template="templates/footer.xhtml" />
+	
+	<!-- this is only for initialisation reasons. the actual tooltips are e.g. in the sequences -->
+	<rich:tooltip rendered="false"/>
+</h:body>
+
+</html>
