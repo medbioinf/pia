@@ -53,12 +53,14 @@
 						value="export for Spectral Counting" />
 					
 					<f:facet name="footer">
-						<h:commandButton id="export_mzid"
-								value="Export to mzIdentML"
-								action="#{cc.attrs.panelHandler.exportToMzIdentML}" />
-						<h:commandButton id="export_csv"
-								value="Export to CSV"
-								action="#{cc.attrs.panelHandler.exportToCSV}" />
+						<h:panelGrid columns="2">
+							<h:commandButton id="export_mzid"
+									value="Export to mzIdentML"
+									action="#{cc.attrs.panelHandler.exportToMzIdentML}" />
+							<h:commandButton id="export_csv"
+									value="Export to CSV"
+									action="#{cc.attrs.panelHandler.exportToCSV}" />
+						</h:panelGrid>
 					</f:facet>
 				</h:panelGrid>
 			</rich:panel>
