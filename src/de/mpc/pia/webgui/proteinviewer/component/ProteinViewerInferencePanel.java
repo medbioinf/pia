@@ -124,7 +124,7 @@ public class ProteinViewerInferencePanel {
 			} else {
 				// return Occam's Razor as default inference
 				return ProteinInferenceFactory.ProteinInferenceMethod.
-						REPORT_SPECTRUM_EXTRACTOR.getShortName();
+						REPORT_OCCAMS_RAZOR.getShortName();
 			}
 		}
 	}
