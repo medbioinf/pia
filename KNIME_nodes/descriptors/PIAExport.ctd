@@ -158,12 +158,12 @@
 						advanced="false"
 						required="false"
 						description="the ID of the exported file's PSMs (0 for overview)"/>
-				<ITEM name="oneAccessionPerLine"
+				<ITEM name="exportPSMs"
 						type="string"
 						value=""
 						advanced="false"
 						required="false"
-						description="whether one Accession should be exported per line, useful for spectral counting."
+						description="also export PSM information in the same file"
 						restrictions="yes,no"/>
 				<ITEM name="exportPSMSets"
 						type="string"
@@ -172,12 +172,12 @@
 						required="false"
 						description="also export PSMSet information in the same file"
 						restrictions="yes,no"/>
-				<ITEM name="exportPSMs"
+				<ITEM name="oneAccessionPerLine"
 						type="string"
 						value=""
 						advanced="false"
 						required="false"
-						description="also export PSM information in the same file"
+						description="whether one Accession should be exported per line, useful for spectral counting."
 						restrictions="yes,no"/>
 			</NODE>
 			

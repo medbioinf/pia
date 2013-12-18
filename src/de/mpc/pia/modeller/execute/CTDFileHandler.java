@@ -55,7 +55,7 @@ public class CTDFileHandler {
 			
 			initializeForJavaCommand(executor,
 					PIAModeller.class.getCanonicalName(), "pia.jar",
-					"-Xmx8G", toolName, command.describe());
+					"-Xmx1G", toolName, command.describe());
 			
 			CliType cli = executor.getCli();
 			CliElementType cliElement;
