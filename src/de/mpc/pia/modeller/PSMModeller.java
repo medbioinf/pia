@@ -30,6 +30,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvList;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.DBSequence;
+import uk.ac.ebi.jmzidml.model.mzidml.FileFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.InputSpectra;
 import uk.ac.ebi.jmzidml.model.mzidml.Inputs;
 import uk.ac.ebi.jmzidml.model.mzidml.ModificationParams;
@@ -1975,7 +1976,7 @@ public class PSMModeller {
 		psiCV.setUri("http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
 		psiCV.setId("PSI-MS");
 		// this is the version used for programming the exporter
-		psiCV.setVersion("3.54.0");
+		psiCV.setVersion("3.57.0");
 		psiCV.setFullName("PSI-MS");
         cvList.getCv().add(psiCV);
         
@@ -2018,9 +2019,7 @@ public class PSMModeller {
 		m.marshal(analysisSoftwareList, writer);
 		writer.write("\n");
 		
-		
-		
-		// TODO: why is this mandatory? the documentation does not state it so!
+		// TODO: why is the provider/audit collection mandatory? the documentation does not state it so!
 		Provider provider = new Provider();
 		provider.setId("PROVIDER");
 		ContactRole contactRole = new ContactRole();
@@ -2074,10 +2073,14 @@ public class PSMModeller {
 		sourceFile.setLocation(fileName);
 		sourceFile.setName("PIA-XML-file");
 		sourceFile.setExternalFormatDocumentation(
-				"http://medizinisches-proteom-center.de/index.php/software-top/165-protein-inference-algorithms-pia");
-		// TODO: create the file format (needs CV entry)
-		//FileFormat fileFormat = new FileFormat();
-		//piaFile.setFileFormat(fileFormat);
+				PIAConstants.PIA_REPOSITORY_LOCATION);
+		FileFormat fileFormat = new FileFormat();
+		tempCvParam = new CvParam();
+		tempCvParam.setAccession(PIAConstants.CV_PIA_XML_FILE_ACCESSION);
+		tempCvParam.setCv(psiCV);
+		tempCvParam.setAccession(PIAConstants.CV_PIA_XML_FILE_NAME);
+		fileFormat.setCvParam(tempCvParam);
+		sourceFile.setFileFormat(fileFormat);
 		inputs.getSourceFile().add(sourceFile);
 		
 		
@@ -2188,6 +2191,10 @@ public class PSMModeller {
 						// no enzymes given, sad, but possible
 						specIdProt.setEnzymes(null);
 					}
+					if (specIdProt.getAdditionalSearchParams() == null) {
+						specIdProt.setAdditionalSearchParams(new ParamList());
+					}
+					
 					
 					for (SearchModification mod
 							: specIdProt.getModificationParams().getSearchModification()) {
@@ -2230,9 +2237,29 @@ public class PSMModeller {
 						specIdProt.getAdditionalSearchParams()
 								.getCvParam().add(tempCvParam);
 						
-						// TODO: also use topidentification-info (needs CV values)
+						tempCvParam = new CvParam();
+						tempCvParam.setAccession(
+								PIAConstants.CV_PIA_USED_TOP_IDENTIFICATIONS_ACCESSION);
+						tempCvParam.setCv(psiCV);
+						tempCvParam.setName(
+								PIAConstants.CV_PIA_USED_TOP_IDENTIFICATIONS_ACCESSION);
+						tempCvParam.setValue(
+								fileTopIdentifications.get(file.getID()).toString());
+						
+						specIdProt.getAdditionalSearchParams().getCvParam().add(
+								tempCvParam);
 					}
 					
+					tempCvParam = new CvParam();
+					tempCvParam.setAccession(
+							PIAConstants.CV_PIA_FDRSCORE_CALCULATED_ACCESSION);
+					tempCvParam.setCv(psiCV);
+					tempCvParam.setName(
+							PIAConstants.CV_PIA_FDRSCORE_CALCULATED_NAME);
+					tempCvParam.setValue(
+							isFDRCalculated(file.getID()).toString());
+					specIdProt.getAdditionalSearchParams().getCvParam().add(
+							tempCvParam);
 					
 					if (fileID.equals(file.getID()) && filterPSMs) {
 						// add the filters
@@ -2270,11 +2297,15 @@ public class PSMModeller {
 								}
 							} else {
 								// all other report filters are AdditionalSearchParams
-								UserParam userParam = new UserParam();
-								userParam.setName("PIA:filter");
-								userParam.setValue(filter.toString());
+								tempCvParam = new CvParam();
+								tempCvParam.setAccession(
+										PIAConstants.CV_PIA_FILTER_ACCESSION);
+								tempCvParam.setCv(psiCV);
+								tempCvParam.setName(
+										PIAConstants.CV_PIA_FILTER_NAME);
+								tempCvParam.setValue(filter.toString());
 								specIdProt.getAdditionalSearchParams()
-										.getUserParam().add(userParam);
+										.getCvParam().add(tempCvParam);
 							}
 						}
 					}
@@ -2315,6 +2346,7 @@ public class PSMModeller {
 			
 			combiningProtocol.setId("psm_combination_protocol");
 			combiningProtocol.setAnalysisSoftware(piaAnalysisSoftware);
+			combiningProtocol.setAdditionalSearchParams(new ParamList());
 			
 			tempParam = new Param();
 			tempCvParam = new CvParam();
@@ -2325,10 +2357,27 @@ public class PSMModeller {
 			tempParam.setParam(tempCvParam);
 			combiningProtocol.setSearchType(tempParam);
 			
-			// TODO: CV value for "create PSM sets"
-			if (isCombinedFDRScoreCalculated()) {
-				// TODO: CV value for "calculate FDR score"
-			}
+			tempParam = new Param();
+			tempCvParam = new CvParam();
+			tempCvParam.setAccession(
+					PIAConstants.CV_PIA_PSM_SETS_CREATED_ACCESSION);
+			tempCvParam.setCv(psiCV);
+			tempCvParam.setName(PIAConstants.CV_PIA_PSM_SETS_CREATED_NAME);
+			tempCvParam.setValue(Boolean.toString(createPSMSets));
+			combiningProtocol.getAdditionalSearchParams().getCvParam().add(
+					tempCvParam);
+			
+			tempParam = new Param();
+			tempCvParam = new CvParam();
+			tempCvParam.setAccession(
+					PIAConstants.CV_PIA_COMBINED_FDRSCORE_CALCULATED_ACCESSION);
+			tempCvParam.setCv(psiCV);
+			tempCvParam.setName(
+					PIAConstants.CV_PIA_COMBINED_FDRSCORE_CALCULATED_NAME);
+			tempCvParam.setValue(
+					Boolean.toString(isCombinedFDRScoreCalculated()));
+			combiningProtocol.getAdditionalSearchParams().getCvParam().add(
+					tempCvParam);
 			
 			if (filterPSMs) {
 				// add the filters
@@ -2366,11 +2415,15 @@ public class PSMModeller {
 						}
 					} else {
 						// all other report filters are AdditionalSearchParams
-						UserParam userParam = new UserParam();
-						userParam.setName("PIA:filter");
-						userParam.setValue(filter.toString());
+						tempParam = new Param();
+						tempCvParam = new CvParam();
+						tempCvParam.setAccession(
+								PIAConstants.CV_PIA_FILTER_ACCESSION);
+						tempCvParam.setCv(psiCV);
+						tempCvParam.setName(PIAConstants.CV_PIA_FILTER_NAME);
+						tempCvParam.setValue(filter.toString());
 						combiningProtocol.getAdditionalSearchParams()
-								.getUserParam().add(userParam);
+								.getCvParam().add(tempCvParam);
 					}
 				}
 			}

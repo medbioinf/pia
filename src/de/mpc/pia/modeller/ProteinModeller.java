@@ -1005,76 +1005,91 @@ public class ProteinModeller {
 		// TODO: use CVs for all the userParams below
 		
 		// the used inference method
-		UserParam userParam = new UserParam();
-		userParam.setName("PIA:protein inference");
-		userParam.setValue(getAppliedProteinInference().getShortName());
-		proteinDetectionProtocol.getAnalysisParams()
-				.getUserParam().add(userParam);
+		CvParam cvParam = new CvParam();
+		cvParam.setAccession(PIAConstants.CV_PIA_PROTEIN_INFERENCE_ACCESSION);
+		cvParam.setCv(psiCV);
+		cvParam.setName(PIAConstants.CV_PIA_PROTEIN_INFERENCE_NAME);
+		cvParam.setValue(getAppliedProteinInference().getShortName());
+		proteinDetectionProtocol.getAnalysisParams().getCvParam().add(cvParam);
 		
 		// inference filters
 		for (AbstractFilter filter 
 				: getAppliedProteinInference().getFilters()) {
-			userParam = new UserParam();
-			userParam.setName("PIA:protein inference filter");
-			userParam.setValue(filter.toString());
-			proteinDetectionProtocol.getAnalysisParams()
-					.getUserParam().add(userParam);
+			cvParam = new CvParam();
+			cvParam.setAccession(
+					PIAConstants.CV_PIA_PROTEIN_INFERENCE_FILTER_ACCESSION);
+			cvParam.setCv(psiCV);
+			cvParam.setName(PIAConstants.CV_PIA_PROTEIN_INFERENCE_FILTER_NAME);
+			cvParam.setValue(filter.toString());
+			proteinDetectionProtocol.getAnalysisParams().getCvParam().add(
+					cvParam);
 		}
 		
 		// scoring method
-		userParam = new UserParam();
-		userParam.setName("PIA:protein inference scoring");
-		userParam.setValue(
+		cvParam = new CvParam();
+		cvParam.setAccession(
+				PIAConstants.CV_PIA_PROTEIN_INFERENCE_SCORING_ACCESSION);
+		cvParam.setCv(psiCV);
+		cvParam.setName(PIAConstants.CV_PIA_PROTEIN_INFERENCE_SCORING_NAME);
+		cvParam.setValue(
 				getAppliedProteinInference().getScoring().getShortName());
-		proteinDetectionProtocol.getAnalysisParams()
-				.getUserParam().add(userParam);
+		proteinDetectionProtocol.getAnalysisParams().getCvParam().add(cvParam);
 		
 		// score used for scoring
-		userParam = new UserParam();
-		userParam.setName("PIA:protein inference used score");
-		userParam.setValue(
-				getAppliedProteinInference().getScoring().getScoreSetting().getValue());
-		proteinDetectionProtocol.getAnalysisParams()
-				.getUserParam().add(userParam);
+		cvParam = new CvParam();
+		cvParam.setAccession(
+				PIAConstants.CV_PIA_PROTEIN_INFERENCE_USED_SCORE_ACCESSION);
+		cvParam.setCv(psiCV);
+		cvParam.setName(PIAConstants.CV_PIA_PROTEIN_INFERENCE_USED_SCORE_NAME);
+		cvParam.setValue(
+				getAppliedProteinInference().getScoring().getScoreSetting()
+				.getValue());
+		proteinDetectionProtocol.getAnalysisParams().getCvParam().add(cvParam);
 		
 		// PSMs used for scoring
-		userParam = new UserParam();
-		userParam.setName("PIA:protein inference used PSMs");
-		userParam.setValue(
-				getAppliedProteinInference().getScoring().getPSMForScoringSetting().getValue());
-		proteinDetectionProtocol.getAnalysisParams()
-				.getUserParam().add(userParam);
+		cvParam = new CvParam();
+		cvParam.setAccession(
+				PIAConstants.CV_PIA_PROTEIN_INFERENCE_USED_PSMS_ACCESSION);
+		cvParam.setCv(psiCV);
+		cvParam.setName(PIAConstants.CV_PIA_PROTEIN_INFERENCE_USED_PSMS_NAME);
+		cvParam.setValue(getAppliedProteinInference().getScoring()
+						.getPSMForScoringSetting().getValue());
+		proteinDetectionProtocol.getAnalysisParams().getCvParam().add(cvParam);
 		
 		proteinDetectionProtocol.setThreshold(new ParamList());
 		if (filterExport && (getReportFilters().size() > 0)) {
 			for (AbstractFilter filter : getReportFilters()) {
 				if (ProteinScoreFilter.shortName().equals(filter.getShortName())) {
 					// if score filters are set, they are the threshold
-					userParam = new UserParam();
-					userParam.setName("PIA:protein score");
-					userParam.setValue(filter.getFilterValue().toString());
+					cvParam = new CvParam();
+					cvParam.setAccession(
+							PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION);
+					cvParam.setCv(psiCV);
+					cvParam.setName(PIAConstants.CV_PIA_PROTEIN_SCORE_NAME);
+					cvParam.setValue(filter.getFilterValue().toString());
 					proteinDetectionProtocol.getThreshold()
-							.getUserParam().add(userParam);
+							.getCvParam().add(cvParam);
 				} else {
 					// all other report filters are AnalysisParams
-					userParam = new UserParam();
-					userParam.setName("PIA:filter");
-					userParam.setValue(filter.toString());
-					proteinDetectionProtocol.getAnalysisParams()
-							.getUserParam().add(userParam);
+					
+					cvParam = new CvParam();
+					cvParam.setAccession(PIAConstants.CV_PIA_FILTER_ACCESSION);
+					cvParam.setCv(psiCV);
+					cvParam.setName(PIAConstants.CV_PIA_FILTER_NAME);
+					cvParam.setValue(filter.toString());
+					proteinDetectionProtocol.getAnalysisParams().getCvParam()
+							.add(cvParam);
 				}
 			}
 		}
 		if ((proteinDetectionProtocol.getThreshold().getCvParam().size() < 1) && 
 				(proteinDetectionProtocol.getThreshold().getUserParam().size() < 1)) {
-			CvParam tempCvParam = new CvParam();
-			tempCvParam.setAccession("MS:1001494");
-			tempCvParam.setCv(psiCV);
-			tempCvParam.setName("no threshold");
-			proteinDetectionProtocol.getThreshold()
-					.getCvParam().add(tempCvParam);
+			cvParam = new CvParam();
+			cvParam.setAccession("MS:1001494");
+			cvParam.setCv(psiCV);
+			cvParam.setName("no threshold");
+			proteinDetectionProtocol.getThreshold().getCvParam().add(cvParam);
 		}
-		
 		
 		// create the proteinDetectionList
 		ProteinDetectionList proteinDetectionList = new ProteinDetectionList();
@@ -1104,17 +1119,17 @@ public class ProteinModeller {
 					// TODO: for now the anchor is non-selectable the first accession
 					anchorId = pdh.getId();
 					
-					CvParam tempCvParam = new CvParam();
-					tempCvParam.setAccession("MS:1001591");
-					tempCvParam.setCv(psiCV);
-					tempCvParam.setName("anchor protein");
-					pdh.getCvParam().add(tempCvParam);
+					cvParam = new CvParam();
+					cvParam.setAccession("MS:1001591");
+					cvParam.setCv(psiCV);
+					cvParam.setName("anchor protein");
+					pdh.getCvParam().add(cvParam);
 				} else {
-					CvParam tempCvParam = new CvParam();
-					tempCvParam.setAccession("MS:1001594");
-					tempCvParam.setCv(psiCV);
-					tempCvParam.setName("sequence same-set protein");
-					pdh.getCvParam().add(tempCvParam);
+					cvParam = new CvParam();
+					cvParam.setAccession("MS:1001594");
+					cvParam.setCv(psiCV);
+					cvParam.setName("sequence same-set protein");
+					pdh.getCvParam().add(cvParam);
 				}
 				
 				DBSequence dbSequence = sequenceMap.get(acc.getAccession());
@@ -1194,12 +1209,15 @@ public class ProteinModeller {
 					}
 				}
 				
-				userParam = new UserParam();
-				userParam.setName("PIA:protein score");
-				userParam.setValue(protein.getScore().toString());
-				pdh.getUserParam().add(userParam);
+				cvParam = new CvParam();
+				cvParam.setAccession(PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION);
+				cvParam.setName(PIAConstants.CV_PIA_PROTEIN_SCORE_NAME);
+				cvParam.setValue(protein.getScore().toString());
+				pdh.getCvParam().add(cvParam);
 			}
 			
+			
+			// TODO:
 			// all the subProteins do not pass the threshold (if there is a filter)
 			//pdh.setPassThreshold(false);
 			

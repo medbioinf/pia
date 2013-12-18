@@ -63,11 +63,14 @@ public class PIAConstants {
 	}
 	
 	
+	/** the location of the PIA source */
+	public static final String PIA_REPOSITORY_LOCATION = "https://github.com/julianu/pia";
 	
 	
 	// some information for the used CVs
 	/** the label for the PSI-MS CV */
 	public static final String CV_PSI_MS_LABEL = "MS";
+	
 	
 	/** PIAs accession in the PSI-CV*/
 	public static final String CV_PIA_ACCESSION = "MS:1002387";
@@ -87,7 +90,7 @@ public class PIAConstants {
 	/** accession for the "PIA:FDRScore calculated" in PSI-MS */
 	public static final String CV_PIA_FDRSCORE_CALCULATED_ACCESSION = "MS:1002390";
 	/** name for the "PIA:FDRScore calculated" in PSI-MS */
-	public static final String CV_PIA_FDRSCORE_CALCULATEDNAME = "PIA:FDRScore calculated";
+	public static final String CV_PIA_FDRSCORE_CALCULATED_NAME = "PIA:FDRScore calculated";
 	
 	/** accession for the "PIA:Combined FDRScore calculated" in PSI-MS */
 	public static final String CV_PIA_COMBINED_FDRSCORE_CALCULATED_ACCESSION = "MS:1002391";
@@ -97,7 +100,7 @@ public class PIAConstants {
 	/** accession for the "PIA:PSM sets created" in PSI-MS */
 	public static final String CV_PIA_PSM_SETS_CREATED_ACCESSION = "MS:1002392";
 	/** name for the "PIA:PSM sets created" in PSI-MS */
-	public static final String CV_PIA_PSM_SETS_CREATED_DNAME = "PIA:PSM sets created";
+	public static final String CV_PIA_PSM_SETS_CREATED_NAME = "PIA:PSM sets created";
 	
 	/** accession for the "PIA:used top identifications for FDR" in PSI-MS */
 	public static final String CV_PIA_USED_TOP_IDENTIFICATIONS_ACCESSION = "MS:1002393";
