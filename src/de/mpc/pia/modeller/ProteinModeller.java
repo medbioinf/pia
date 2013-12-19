@@ -1095,9 +1095,9 @@ public class ProteinModeller {
 		ProteinDetectionList proteinDetectionList = new ProteinDetectionList();
 		proteinDetectionList.setId("protein_report");
 		
+		Integer thresholdPassingPAGcount = 0;
 		for (ReportProtein protein : reportProteins) {
 			ProteinAmbiguityGroup pag = new ProteinAmbiguityGroup();
-			String anchorId = null;
 			
 			pag.setId("PAG_" + protein.getID());
 			proteinDetectionList.getProteinAmbiguityGroup().add(pag);
@@ -1108,125 +1108,134 @@ public class ProteinModeller {
 						protein, 0L, reportFilters);
 			}
 			
+			if (passThreshold) {
+				thresholdPassingPAGcount++;
+			}
+			
+			cvParam = new CvParam();
+			cvParam.setAccession(PIAConstants.CV_PROTEIN_GROUP_PASSES_THRESHOLD_ACCESSION);
+			cvParam.setCv(psiCV);
+			cvParam.setName(PIAConstants.CV_PROTEIN_GROUP_PASSES_THRESHOLD_NAME);
+			cvParam.setValue(passThreshold.toString());
+			pag.getCvParam().add(cvParam);
+			
+			cvParam = new CvParam();
+			cvParam.setAccession(PIAConstants.CV_CLUSTER_IDENTIFIER_ACCESSION);
+			cvParam.setCv(psiCV);
+			cvParam.setName(PIAConstants.CV_CLUSTER_IDENTIFIER_NAME);
+			cvParam.setValue(
+					Long.toString(
+							protein.getAccessions().get(0).getGroup().getTreeID()));
+			pag.getCvParam().add(cvParam);
+			
+			StringBuilder leadingPDHids = new StringBuilder();
 			// the reported proteins/accessions are the "main" proteins
 			for (Accession acc : protein.getAccessions()) {
 				ProteinDetectionHypothesis pdh =
-						new ProteinDetectionHypothesis();
-				pag.getProteinDetectionHypothesis().add(pdh);
-				
-				pdh.setId("PDH_" + acc.getAccession());
-				if (anchorId == null) {
-					// TODO: for now the anchor is non-selectable the first accession
-					anchorId = pdh.getId();
-					
-					cvParam = new CvParam();
-					cvParam.setAccession("MS:1001591");
-					cvParam.setCv(psiCV);
-					cvParam.setName("anchor protein");
-					pdh.getCvParam().add(cvParam);
-				} else {
-					cvParam = new CvParam();
-					cvParam.setAccession("MS:1001594");
-					cvParam.setCv(psiCV);
-					cvParam.setName("sequence same-set protein");
-					pdh.getCvParam().add(cvParam);
-				}
-				
-				DBSequence dbSequence = sequenceMap.get(acc.getAccession());
-				if (dbSequence != null) {
-					pdh.setDBSequence(dbSequence);
-				}
-				
-				pdh.setPassThreshold(passThreshold);
-				
-				Map<String, PeptideHypothesis> peptideHypotheses =
-						new HashMap<String, PeptideHypothesis>();
-				
-				for (ReportPeptide pep : protein.getPeptides()) {
-					for (PSMReportItem psmItem : pep.getPSMs()) {
-						// sort the PSMs' SpectrumIdentificationItems into the PeptideHypotheses
-						
-						Set<String> peptideEvidenceIDs = new HashSet<String>();
-						
-						for (Accession accession : psmItem.getAccessions()) {
-							boolean foundOccurrence = false;
-							
-							for (AccessionOccurrence occurrence 
-									: psmItem.getPeptide().getAccessionOccurrences()) {
-								if (accession.getAccession().equals(
-										occurrence.getAccession().getAccession())) {
-									peptideEvidenceIDs.add(
-											psmModeller.createPeptideEvidenceID(
-													psmItem.getPeptideStringID(true),
-													occurrence.getStart(),
-													occurrence.getEnd(),
-													accession));
-									
-									foundOccurrence = true;
-								}
-							}
-							
-							if (!foundOccurrence) {
-								peptideEvidenceIDs.add(
-										psmModeller.createPeptideEvidenceID(
-												psmItem.getPeptideStringID(true),
-												null, null, accession));
-							}
-						}
-						
-						for (String evidenceID : peptideEvidenceIDs) {
-							PeptideHypothesis ph =
-									peptideHypotheses.get(evidenceID);
-							if (ph == null) {
-								ph = new PeptideHypothesis();
-								ph.setPeptideEvidence(
-										pepEvidenceMap.get(evidenceID));
-								peptideHypotheses.put(evidenceID, ph);
-								pdh.getPeptideHypothesis().add(ph);
-							}
-							
-							String spectrumItemID;
-							if (!psmModeller.getCreatePSMSets()) {
-								spectrumItemID =
-										psmModeller.getSpectrumIdentificationItemID(
-												psmItem,
-												((ReportPSMSet) psmItem).getPSMs().get(0).getFileID());
-								spectrumItemID += ":set";
-							} else {
-								spectrumItemID =
-										psmModeller.getSpectrumIdentificationItemID(
-												psmItem, 0L);
-							}
-							
-							SpectrumIdentificationItem psmSetItem = 
-									combinedSiiMap.get(spectrumItemID);
-							
-							SpectrumIdentificationItemRef ref =
-									new SpectrumIdentificationItemRef();
-							ref.setSpectrumIdentificationItem(psmSetItem);
-							ph.getSpectrumIdentificationItemRef().add(ref);
-						}
-					}
-				}
+						createPDH(acc, protein, passThreshold, pag.getId(),
+								sequenceMap, pepEvidenceMap, combinedSiiMap);
 				
 				cvParam = new CvParam();
-				cvParam.setAccession(PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION);
-				cvParam.setName(PIAConstants.CV_PIA_PROTEIN_SCORE_NAME);
-				cvParam.setValue(protein.getScore().toString());
+				cvParam.setAccession(PIAConstants.CV_LEADING_PROTEIN_ACCESSION);
+				cvParam.setCv(psiCV);
+				cvParam.setName(PIAConstants.CV_LEADING_PROTEIN_NAME);
 				pdh.getCvParam().add(cvParam);
+				
+				leadingPDHids.append(pdh.getId());
+				leadingPDHids.append(" ");
+				
+				pag.getProteinDetectionHypothesis().add(pdh);
 			}
 			
+			if (pag.getProteinDetectionHypothesis().size() > 1) {
+				for (ProteinDetectionHypothesis pdh
+						: pag.getProteinDetectionHypothesis()) {
+					StringBuilder otherPDHs =
+							new StringBuilder(leadingPDHids.length());
+					
+					for (ProteinDetectionHypothesis others
+							: pag.getProteinDetectionHypothesis()) {
+						if (!others.equals(pdh)) {
+							otherPDHs.append(others.getId());
+							otherPDHs.append(" ");
+						}
+					}
+					
+					cvParam = new CvParam();
+					cvParam.setAccession(
+							PIAConstants.CV_SEQUENCE_SAME_SET_PROTEIN_ACCESSION);
+					cvParam.setCv(psiCV);
+					cvParam.setName(
+							PIAConstants.CV_SEQUENCE_SAME_SET_PROTEIN_NAME);
+					cvParam.setValue(otherPDHs.toString().trim());
+					pdh.getCvParam().add(cvParam);
+				}
+			}
 			
-			// TODO:
-			// all the subProteins do not pass the threshold (if there is a filter)
-			//pdh.setPassThreshold(false);
-			
-			//id: MS:1001596
-			//name: sequence sub-set protein
-			
-			//id: MS:1001597
-			//name: spectrum sub-set protein
+			// now add the sub-proteins
+			for (ReportProtein subProtein : protein.getSubSets()) {
+				List<ProteinDetectionHypothesis> samePDHs =
+						new ArrayList<ProteinDetectionHypothesis>();
+				
+				for (Accession subAcc : subProtein.getAccessions()) {
+					ProteinDetectionHypothesis pdh =
+							createPDH(subAcc, subProtein,
+									false, pag.getId(),
+									sequenceMap, pepEvidenceMap,
+									combinedSiiMap);
+					
+					cvParam = new CvParam();
+					cvParam.setAccession(
+							PIAConstants.CV_NON_LEADING_PROTEIN_ACCESSION);
+					cvParam.setCv(psiCV);
+					cvParam.setName(PIAConstants.CV_NON_LEADING_PROTEIN_NAME);
+					pdh.getCvParam().add(cvParam);
+					
+					cvParam = new CvParam();
+					cvParam.setAccession(
+							PIAConstants.CV_SEQUENCE_SUB_SET_PROTEIN_ACCESSION);
+					cvParam.setCv(psiCV);
+					cvParam.setName(
+							PIAConstants.CV_SEQUENCE_SUB_SET_PROTEIN_NAME);
+					cvParam.setValue(leadingPDHids.toString().trim());
+					pdh.getCvParam().add(cvParam);
+					
+					pag.getProteinDetectionHypothesis().add(pdh);
+					samePDHs.add(pdh);
+				}
+				
+				if (samePDHs.size() > 1) {
+					for (ProteinDetectionHypothesis pdh
+							: samePDHs) {
+						StringBuilder otherPDHs =
+								new StringBuilder(leadingPDHids.length());
+						
+						for (ProteinDetectionHypothesis others
+								: samePDHs) {
+							if (!others.equals(pdh)) {
+								otherPDHs.append(others.getId());
+								otherPDHs.append(" ");
+							}
+						}
+						
+						cvParam = new CvParam();
+						cvParam.setAccession(
+								PIAConstants.CV_SEQUENCE_SAME_SET_PROTEIN_ACCESSION);
+						cvParam.setCv(psiCV);
+						cvParam.setName(
+								PIAConstants.CV_SEQUENCE_SAME_SET_PROTEIN_NAME);
+						cvParam.setValue(otherPDHs.toString().trim());
+						pdh.getCvParam().add(cvParam);
+					}
+				}
+			}
 		}
+		
+		cvParam = new CvParam();
+		cvParam.setAccession(PIAConstants.CV_COUNT_OF_IDENTIFIED_PROTEINS_ACCESSION);
+		cvParam.setName(PIAConstants.CV_COUNT_OF_IDENTIFIED_PROTEINS_NAME);
+		cvParam.setValue(thresholdPassingPAGcount.toString());
+		proteinDetectionList.getCvParam().add(cvParam);
 		
 		// create the ProteinDetection for PIAs protein inference
 		ProteinDetection proteinDetection = new ProteinDetection();
@@ -1269,6 +1278,121 @@ public class ProteinModeller {
 		
 		writer.flush();
 		logger.info("writing of mzIdentML done");
+	}
+	
+	
+	/**
+	 * Creates a {@link ProteinDetectionHypothesis} (PDH) from the given
+	 * information.
+	 * 
+	 * @param acc the accession for this PDH of the associated protein
+	 * @param protein the actual {@link ReportProtein}, which can have multiple
+	 * {@link Accession}s 
+	 * @param passThreshold whether the PDH's passThreshold value is true or
+	 * false
+	 * @param PAGid the ID of the associated {@link ProteinAmbiguityGroup},
+	 * needed to cunstruct a scope-valid ID
+	 * @param sequenceMap a map holding the DBSequences, mapping from their IDs
+	 * @param pepEvidenceMap a map holding the PeptideEvidences, mapping from
+	 * their IDs
+	 * @param combinedSiiMap
+	 * @return
+	 */
+	private ProteinDetectionHypothesis createPDH(Accession acc,
+			ReportProtein protein, Boolean passThreshold,
+			String PAGid,
+			Map<String, DBSequence> sequenceMap,
+			Map<String, PeptideEvidence> pepEvidenceMap,
+			Map<String, SpectrumIdentificationItem> combinedSiiMap) {
+		ProteinDetectionHypothesis pdh =
+				new ProteinDetectionHypothesis();
+		
+		pdh.setId("PDH_" + acc.getAccession() + "_" + PAGid);
+		
+		DBSequence dbSequence = sequenceMap.get(acc.getAccession());
+		if (dbSequence != null) {
+			pdh.setDBSequence(dbSequence);
+		}
+		
+		pdh.setPassThreshold(passThreshold);
+		
+		Map<String, PeptideHypothesis> peptideHypotheses =
+				new HashMap<String, PeptideHypothesis>();
+		
+		for (ReportPeptide pep : protein.getPeptides()) {
+			for (PSMReportItem psmItem : pep.getPSMs()) {
+				// sort the PSMs' SpectrumIdentificationItems into the PeptideHypotheses
+				
+				Set<String> peptideEvidenceIDs = new HashSet<String>();
+				
+				boolean foundOccurrence = false;
+				
+				for (AccessionOccurrence occurrence 
+						: psmItem.getPeptide().getAccessionOccurrences()) {
+					if (acc.getAccession().equals(
+							occurrence.getAccession().getAccession())) {
+						peptideEvidenceIDs.add(
+								psmModeller.createPeptideEvidenceID(
+										psmItem.getPeptideStringID(true),
+										occurrence.getStart(),
+										occurrence.getEnd(),
+										acc));
+						
+						foundOccurrence = true;
+						
+						// there might be multiple occurrences per accession, so no loop-break here
+					}
+				}
+				
+				if (!foundOccurrence) {
+					peptideEvidenceIDs.add(
+							psmModeller.createPeptideEvidenceID(
+									psmItem.getPeptideStringID(true),
+									null, null, acc));
+				}
+				
+				for (String evidenceID : peptideEvidenceIDs) {
+					PeptideHypothesis ph =
+							peptideHypotheses.get(evidenceID);
+					if (ph == null) {
+						ph = new PeptideHypothesis();
+						ph.setPeptideEvidence(
+								pepEvidenceMap.get(evidenceID));
+						peptideHypotheses.put(evidenceID, ph);
+						pdh.getPeptideHypothesis().add(ph);
+					}
+					
+					String spectrumItemID;
+					if (!psmModeller.getCreatePSMSets()) {
+						spectrumItemID =
+								psmModeller.getSpectrumIdentificationItemID(
+										psmItem,
+										((ReportPSMSet) psmItem).getPSMs().get(0).getFileID());
+						spectrumItemID += ":set";
+					} else {
+						spectrumItemID =
+								psmModeller.getSpectrumIdentificationItemID(
+										psmItem, 0L);
+					}
+					
+					SpectrumIdentificationItem psmSetItem = 
+							combinedSiiMap.get(spectrumItemID);
+					
+					SpectrumIdentificationItemRef ref =
+							new SpectrumIdentificationItemRef();
+					ref.setSpectrumIdentificationItem(psmSetItem);
+					ph.getSpectrumIdentificationItemRef().add(ref);
+				}
+			}
+		}
+		
+		CvParam cvParam = new CvParam();
+		cvParam.setAccession(PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION);
+		cvParam.setName(PIAConstants.CV_PIA_PROTEIN_SCORE_NAME);
+		cvParam.setValue(protein.getScore().toString());
+		pdh.getCvParam().add(cvParam);
+		
+		return pdh;
 	}
 	
 	

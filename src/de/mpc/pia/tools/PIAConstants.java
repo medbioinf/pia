@@ -143,6 +143,16 @@ public class PIAConstants {
 	public static final String CV_PIA_FILTER_NAME = "PIA:filter";
 	
 	
+	/** accession for "sequence same-set protein" in PSI-MS */
+	public static final String CV_SEQUENCE_SAME_SET_PROTEIN_ACCESSION = "MS:1001594";
+	/** name for "sequence same-set protein" in PSI-MS */
+	public static final String CV_SEQUENCE_SAME_SET_PROTEIN_NAME = "sequence same-set protein";
+	
+	/** accession for "sequence sub-set protein" in PSI-MS */
+	public static final String CV_SEQUENCE_SUB_SET_PROTEIN_ACCESSION = "MS:1001596";
+	/** name for "sequence sub-set protein" in PSI-MS */
+	public static final String CV_SEQUENCE_SUB_SET_PROTEIN_NAME = "sequence sub-set protein";
+	
 	/** accession for "PSM-level FDRScore" in PSI-MS */
 	public static final String CV_PSM_LEVEL_FDRSCORE_ACCESSION = "MS:1002355";
 	/** name for "PSM-level FDRScore" in PSI-MS */
@@ -152,6 +162,36 @@ public class PIAConstants {
 	public static final String CV_PSM_LEVEL_COMBINED_FDRSCORE_ACCESSION = "MS:1002356";
 	/** name for "PSM-level combined FDRScore" in PSI-MS */
 	public static final String CV_PSM_LEVEL_COMBINED_FDRSCORE_NAME = "PSM-level combined FDRScore";
+	
+	/** accession for "leading protein" in PSI-MS */
+	public static final String CV_LEADING_PROTEIN_ACCESSION = "MS:1002401";
+	/** name for "leading protein" in PSI-MS */
+	public static final String CV_LEADING_PROTEIN_NAME = "leading protein";
+	
+	/** accession for "non-leading protein" in PSI-MS */
+	public static final String CV_NON_LEADING_PROTEIN_ACCESSION = "MS:1002402";
+	/** name for "non-leading protein" in PSI-MS */
+	public static final String CV_NON_LEADING_PROTEIN_NAME = "non-leading protein";
+	
+	/** accession for "group representative" in PSI-MS */
+	public static final String CV_GROUP_REPRESENTATIVE_ACCESSION = "MS:1002403";
+	/** name for "non-leading protein" in PSI-MS */
+	public static final String CV_GROUP_REPRESENTATIVE_NAME = "group representative";
+	
+	/** accession for "count of identified proteins" in PSI-MS */
+	public static final String CV_COUNT_OF_IDENTIFIED_PROTEINS_ACCESSION = "MS:1002404";
+	/** name for "count of identified proteins" in PSI-MS */
+	public static final String CV_COUNT_OF_IDENTIFIED_PROTEINS_NAME = "count of identified proteins";
+	
+	/** accession for "cluster identifier" in PSI-MS */
+	public static final String CV_CLUSTER_IDENTIFIER_ACCESSION = "MS:1002407";
+	/** name for "cluster identifier" in PSI-MS */
+	public static final String CV_CLUSTER_IDENTIFIER_NAME = "cluster identifier";
+	
+	/** accession for "protein group passes threshold" in PSI-MS */
+	public static final String CV_PROTEIN_GROUP_PASSES_THRESHOLD_ACCESSION = "MS:1002415";
+	/** name for "protein group passes thresholde" in PSI-MS */
+	public static final String CV_PROTEIN_GROUP_PASSES_THRESHOLD_NAME = "protein group passes threshold";
 
 	
 	/**
