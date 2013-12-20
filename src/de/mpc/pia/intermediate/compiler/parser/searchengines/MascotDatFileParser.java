@@ -28,6 +28,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
+import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
 import uk.ac.ebi.jmzidml.model.mzidml.FileFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.InputSpectra;
@@ -91,8 +92,12 @@ public class MascotDatFileParser {
 		// need to parse through the file, as mascotdatfile (3.2.11) does not support
 		//   - the "index" variable of the queries
 		//   - the "fastafile"
+		//   - no good information for enzyme
 		Map<String, String> queryIndexMap = new HashMap<String, String>();
 		String fastaFile = null;
+		
+		String enzymeCleavage = null;
+		String enzymeRestrict = null;
 		
 		try {
 			BufferedReader rd;
@@ -100,13 +105,14 @@ public class MascotDatFileParser {
 			String line;
 			
 			boolean inQuery = false;
+			boolean inEnzyme = false;
 			String queryName = null;
 			
 			while ((line = rd.readLine()) != null) {
 				if (!inQuery) {
 					if (line.startsWith("Content-Type: application/x-Mascot; name=\"query")) {
-					queryName = line.substring(42, line.length()-1);
-					inQuery = true;
+						queryName = line.substring(42, line.length()-1);
+						inQuery = true;
 					} else if ((fastaFile == null) &&
 							line.startsWith("fastafile")) {
 						fastaFile = line.substring(10);
@@ -115,6 +121,21 @@ public class MascotDatFileParser {
 						line.startsWith("index=")) {
 					queryIndexMap.put(queryName, line);
 					inQuery = false;
+				}
+				
+				if (!inEnzyme) {
+					if (((enzymeCleavage == null) || (enzymeRestrict == null)) &&
+							line.startsWith("Content-Type: application/x-Mascot; name=\"enzyme\"")) {
+						inEnzyme = true;
+					}
+				} else {
+					if (line.startsWith("Cleavage:")) {
+						enzymeCleavage = line.substring(9).trim();
+					} else if (line.startsWith("Restrict:")) {
+						enzymeRestrict = line.substring(9).trim();
+					} else if (line.startsWith("Content-Type:")) {
+						inEnzyme = false;
+					}
 				}
 			}
 			
@@ -242,7 +263,8 @@ public class MascotDatFileParser {
 			abstractParam.setName("ms-ms search");
 			param.setParam(abstractParam);
 		}
-		// TODO: add PMF and sequence query
+		// TODO: add error on PMF query (not usable for PIA)
+		// TODO: and sequence query
 		spectrumIDProtocol.setSearchType(param);
 		
 		ParamList paramList = new ParamList();
@@ -346,13 +368,32 @@ public class MascotDatFileParser {
 		}
 		spectrumIDProtocol.setModificationParams(modParams);
 		
-		
 		Enzymes enzymes = new Enzymes();
-		// TODO: add the enzyme information
-		// mascotFile.getParametersSection().getCleavage()
 		spectrumIDProtocol.setEnzymes(enzymes);
-		
-		
+		if (enzymeCleavage != null) {
+			Enzyme enzyme = new Enzyme();
+			
+			enzyme.setId("enzyme");
+			enzyme.setMissedCleavages(
+					Integer.parseInt(
+							mascotFile.getParametersSection().getPFA()));
+			
+			StringBuilder regExp = new StringBuilder();
+			if (enzymeRestrict == null) {
+				regExp.append("(?=[");
+				regExp.append(enzymeCleavage);
+				regExp.append("])");
+			} else {
+				regExp.append("(?<=[");
+				regExp.append(enzymeCleavage);
+				regExp.append("])(?!");
+				regExp.append(enzymeRestrict);
+				regExp.append(")");
+			}
+			enzyme.setSiteRegexp(regExp.toString());
+			
+			enzymes.getEnzyme().add(enzyme);
+		}
 		
 		Tolerance tolerance = new Tolerance();
 		
