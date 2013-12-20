@@ -142,7 +142,16 @@ public class PIAConstants {
 	/** name for the "PIA:protein inference used PSMs" in PSI-MS */
 	public static final String CV_PIA_FILTER_NAME = "PIA:filter";
 	
+	/** accession for "modification specificity N-term" in PSI-MS */
+	public static final String CV_MODIFICATION_SPECIFICITY_C_TERM_ACCESSION = "MS:1001189";
+	/** name for "modification specificity N-term" in PSI-MS */
+	public static final String CV_MODIFICATION_SPECIFICITY_C_TERM_NAME = "modification specificity N-term";
 	
+	/** accession for "modification specificity N-term" in PSI-MS */
+	public static final String CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION = "MS:1001190";
+	/** name for "modification specificity N-term" in PSI-MS */
+	public static final String CV_MODIFICATION_SPECIFICITY_N_TERM_NAME = "modification specificity C-term";
+
 	/** accession for "sequence same-set protein" in PSI-MS */
 	public static final String CV_SEQUENCE_SAME_SET_PROTEIN_ACCESSION = "MS:1001594";
 	/** name for "sequence same-set protein" in PSI-MS */
