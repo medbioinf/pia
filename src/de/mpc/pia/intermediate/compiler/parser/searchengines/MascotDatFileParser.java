@@ -38,6 +38,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.ParamList;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabaseRef;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchModification;
+import uk.ac.ebi.jmzidml.model.mzidml.SpecificityRules;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
@@ -55,6 +56,7 @@ import de.mpc.pia.intermediate.compiler.parser.FastaHeaderInfos;
 import de.mpc.pia.intermediate.compiler.parser.InputFileParserFactory;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
+import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.unimod.UnimodParser;
 import de.mpc.pia.tools.unimod.jaxb.ModT;
 
@@ -318,8 +320,28 @@ public class MascotDatFileParser {
 				
 				searchMod = new SearchModification();
 				searchMod.setFixedMod(false);
-				for (Character residue : mod.getLocation().toCharArray()) {
-					searchMod.getResidues().add(residue.toString());
+				
+				if (mod.getLocation().equalsIgnoreCase("N-Term") ||
+						mod.getLocation().equalsIgnoreCase("C-Term")) {
+					CvParam  specificity = new CvParam();
+					specificity.setCv(psiMS);
+					if (mod.getLocation().equalsIgnoreCase("N-Term")) {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_NAME);
+					} else {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_NAME);
+					}
+					
+					SpecificityRules specRules = new SpecificityRules();
+					specRules.getCvParam().add(specificity);
+					searchMod.getSpecificityRules().add(specRules);
+					
+					searchMod.getResidues().add(".");
+				} else {
+					for (Character residue : mod.getLocation().toCharArray()) {
+						searchMod.getResidues().add(residue.toString());
+					}
 				}
 				searchMod.setMassDelta((float)mod.getMass());
 				
@@ -345,8 +367,27 @@ public class MascotDatFileParser {
 				
 				searchMod = new SearchModification();
 				searchMod.setFixedMod(true);
-				for (Character residue : mod.getLocation().toCharArray()) {
-					searchMod.getResidues().add(residue.toString());
+				
+				if (mod.getLocation().equalsIgnoreCase("N-Term")) {
+					CvParam  specificity = new CvParam();
+					specificity.setCv(psiMS);
+					if (mod.getLocation().equalsIgnoreCase("N-Term")) {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_NAME);
+					} else {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_NAME);
+					}
+					
+					SpecificityRules specRules = new SpecificityRules();
+					specRules.getCvParam().add(specificity);
+					searchMod.getSpecificityRules().add(specRules);
+					
+					searchMod.getResidues().add(".");
+				} else {
+					for (Character residue : mod.getLocation().toCharArray()) {
+						searchMod.getResidues().add(residue.toString());
+					}
 				}
 				searchMod.setMassDelta((float)mod.getMass());
 				
