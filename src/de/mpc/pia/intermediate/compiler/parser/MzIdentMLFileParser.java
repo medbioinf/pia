@@ -90,7 +90,8 @@ public class MzIdentMLFileParser {
 		
 		PIAInputFile file = compiler.insertNewFile(name, fileName,
 				InputFileParserFactory.InputFileTypes.MZIDENTML_INPUT.getFileSuffix());
-		// TODO: make one file per input file
+		
+		// TODO: make one PIAInpitFile per SIL (and look out for consensus lists!)
 		
 		MzIdentMLUnmarshaller unmarshaller = new MzIdentMLUnmarshaller(mzidFile);
 		
@@ -186,40 +187,46 @@ public class MzIdentMLFileParser {
 				neededAnalysisSoftwares.add(idProtocol.getAnalysisSoftwareRef());
 				
 				// look through the enzymes and get regexes, when not given
-				for (Enzyme enzyme : idProtocol.getEnzymes().getEnzyme()) {
-					ParamList enzymeName = enzyme.getEnzymeName();
-					if ((enzyme.getSiteRegexp() == null) && 
-							(enzymeName != null)) {
-						// no siteRegexp given, so look for it in the obo file
-						List<AbstractParam> paramList = enzymeName.getParamGroup();
-						if (paramList.size() > 0) {
-							
-							if (paramList.get(0) instanceof CvParam) {
-								String oboID = ((CvParam)(paramList.get(0))).getAccession();
+				if ((idProtocol.getEnzymes() != null) &&
+						(idProtocol.getEnzymes().getEnzyme() != null)) {
+					for (Enzyme enzyme : idProtocol.getEnzymes().getEnzyme()) {
+						ParamList enzymeName = enzyme.getEnzymeName();
+						if ((enzyme.getSiteRegexp() == null) && 
+								(enzymeName != null)) {
+							// no siteRegexp given, so look for it in the obo file
+							List<AbstractParam> paramList = enzymeName.getParamGroup();
+							if (paramList.size() > 0) {
 								
-								if (enzymesToRegexes.get(oboID) == null) {
-									// we still need the regExp for this enzyme
-									IdentifiedObject obj =
-											compiler.getOBOMapper().getObject(oboID);
+								if (paramList.get(0) instanceof CvParam) {
+									String oboID = ((CvParam)(paramList.get(0))).getAccession();
 									
-									if (obj instanceof OBOClassImpl) {
-										Collection<Link> links = ((OBOClassImpl) obj).getParents();
-										for (Link link : links) {
-											if ((link instanceof OBORestrictionImpl) &&
-													(link.getType().getID().equals(OBOMapper.has_regexp_relation))) {
-												// this is the regExp, put it into the map
-												enzymesToRegexes.put(oboID, link.getParent().getName());
+									if (enzymesToRegexes.get(oboID) == null) {
+										// we still need the regExp for this enzyme
+										IdentifiedObject obj =
+												compiler.getOBOMapper().getObject(oboID);
+										
+										if (obj instanceof OBOClassImpl) {
+											Collection<Link> links = ((OBOClassImpl) obj).getParents();
+											for (Link link : links) {
+												if ((link instanceof OBORestrictionImpl) &&
+														(link.getType().getID().equals(OBOMapper.has_regexp_relation))) {
+													// this is the regExp, put it into the map
+													enzymesToRegexes.put(oboID, link.getParent().getName());
+												}
 											}
 										}
 									}
+									
+								} else if (paramList.get(0) instanceof UserParam) {
+									// userParam is given, no use here
 								}
-								
-							} else if (paramList.get(0) instanceof UserParam) {
-								// userParam is given, no use here
 							}
 						}
 					}
+				} else {
+					logger.warn("No enzymes in mzIdentML, this should not happen!");
 				}
+				
 			}
 		}
 		neededSpectrumIdentificationProtocols = null;
@@ -326,9 +333,14 @@ public class MzIdentMLFileParser {
 				
 				for (SpectrumIdentificationItem specIdItem
 						: specIdResult.getSpectrumIdentificationItem()) {
-					double deltaMass = ((specIdItem.getExperimentalMassToCharge() -
-									specIdItem.getCalculatedMassToCharge()) * 
-									specIdItem.getChargeState());
+					double deltaMass;
+					if (specIdItem.getCalculatedMassToCharge() != null) {
+						deltaMass = ((specIdItem.getExperimentalMassToCharge() -
+								specIdItem.getCalculatedMassToCharge()) * 
+								specIdItem.getChargeState());
+					} else {
+						deltaMass = -1;
+					}
 					String sequence = null;
 					Peptide pep = null;
 					uk.ac.ebi.jmzidml.model.mzidml.Peptide peptide =
@@ -468,8 +480,6 @@ public class MzIdentMLFileParser {
 					int missed = 0;
 					if (specIDListsEnzymes != null) {
 						for (Enzyme enzyme : specIDListsEnzymes.getEnzyme()) {
-							
-							
 							String regExp = enzyme.getSiteRegexp();
 							
 							ParamList enzymeName = enzyme.getEnzymeName();
