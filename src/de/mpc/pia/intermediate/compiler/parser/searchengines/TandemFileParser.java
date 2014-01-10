@@ -28,6 +28,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.ParamList;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabaseRef;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchModification;
+import uk.ac.ebi.jmzidml.model.mzidml.SpecificityRules;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
@@ -384,32 +385,13 @@ public class TandemFileParser {
 		
 		
 		ModificationParams modParams = new ModificationParams();
-		SearchModification searchMod;
-		
-		strParam = inputParams.getResiduePotModMass();
-		if (strParam != null) {
-			// variable modifications (w/o refinement)
-			String varMods[] = strParam.split(",");
-			
-			for(String varMod : varMods) {
-				if (!varMod.equalsIgnoreCase("None")) {
-					
-		            String[] values = varMod.split("@");
-		            
-					searchMod = new SearchModification();
-					searchMod.setFixedMod(false);
-					searchMod.setMassDelta((float)Float.parseFloat(values[0]));
-					searchMod.getResidues().add(values[1]);
-					
-					// TODO: add the cvParam for the modification
-					
-					modParams.getSearchModification().add(searchMod);
-				}
-			}
-		}
-		// TODO: add fixed modifications
+		addSearchModifications(inputParams.getResidueModMass(), true, modParams,
+				psiMS);
+		addSearchModifications(inputParams.getResiduePotModMass(), false,
+				modParams, psiMS);
 		spectrumIDProtocol.setModificationParams(modParams);
 		
+		// TODO: add the modifications given by tandem's "quick acetyl" and "quick pyrolidone"
 		
 		Enzymes enzymes = new Enzymes();
 		// TODO: add semi-cleavage behaviour
@@ -638,17 +620,17 @@ public class TandemFileParser {
 					// variable mods
 					modifications.putAll(createModifications(
 							xtandemFile.getModificationMap().getVariableModifications(domain.getDomainKey()),
-							sequence, domain.getDomainStart()));
+							sequence, domain.getDomainStart(), modParams));
 					
 					// fixed mods
 					modifications.putAll(createModifications(
 							xtandemFile.getModificationMap().getFixedModifications(domain.getDomainKey()),
-							sequence, domain.getDomainStart()));
+							sequence, domain.getDomainStart(), modParams));
 					
 					String psmKey = PeptideSpectrumMatch.getIdentificationKey(
 							psmSetSettings,
 							sequence,
-							PeptideSpectrumMatch.getModificationString(modifications),	// no differrent rounding in the same file, so this should be safe
+							PeptideSpectrumMatch.getModificationString(modifications),	// no different rounding in the same file, so this should be safe
 							charge,
 							null,
 							null,
@@ -807,17 +789,76 @@ public class TandemFileParser {
 	
 	
 	/**
+	 * Adds the modififcations in the tandem encoded strParam to the
+	 * {@link ModificationParams}.
+	 * 
+	 * @param strParam modifications encoded as specified by the X!Tandem API
+	 * @param isFixed whether these are fixed or potential modifications
+	 * @param modParams the list of {@link SearchModification}s
+	 * @param psiMS reference to the PSI-MS CV
+	 */
+	private static void addSearchModifications(String strParam, boolean isFixed,
+			ModificationParams modParams, Cv psiMS) {
+		if (modParams == null) {
+			logger.error("modParams is nt initialised, cannot add any modifications!");
+			return;
+		}
+		
+		if (strParam != null) {
+			// these are modifications (w/o refinement)
+			String varMods[] = strParam.split(",");
+			
+			for(String varMod : varMods) {
+				if (!varMod.equalsIgnoreCase("None")) {
+					
+		            String[] values = varMod.split("@");
+		            
+		            SearchModification searchMod = new SearchModification();
+					searchMod.setFixedMod(isFixed);
+					searchMod.setMassDelta((float)Float.parseFloat(values[0]));
+					
+					if (values[1].equals("[") || values[1].equals("]")) {
+						searchMod.getResidues().add(".");
+						
+						CvParam  specificity = new CvParam();
+						specificity.setCv(psiMS);
+						if (values[1].equals("[")) {
+							specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION);
+							specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_NAME);
+						} else {
+							specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_ACCESSION);
+							specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_NAME);
+						}
+						SpecificityRules specRules = new SpecificityRules();
+						specRules.getCvParam().add(specificity);
+						searchMod.getSpecificityRules().add(specRules);
+					} else {
+						searchMod.getResidues().add(values[1]);
+					}
+					
+					modParams.getSearchModification().add(searchMod);
+				}
+			}
+		}
+	}
+	
+	
+	/**
 	 * Create a List of {@link Modification}s with the given data from the
 	 * tandem file
 	 * 
 	 * @param mods
 	 * @param peptideSequence
 	 * @param domainStart
+	 * @param modParams these are the (user given) modification parameters for
+	 * the search, they are used for cross-checking against N- and C-terminal
+	 * modifications, as they are ambiguously encoded in the tandem XML file
 	 * @return
 	 */
 	private static Map<Integer, Modification> createModifications(
 			List<de.proteinms.xtandemparser.interfaces.Modification> mods,
-			String peptideSequence, int domainStart) {
+			String peptideSequence, int domainStart,
+			ModificationParams modParams) {
 		
 		Map<Integer, Modification> modifications =
 				new HashMap<Integer, Modification>(mods.size());
@@ -831,6 +872,45 @@ public class TandemFileParser {
 				logger.error("weird location for modification: '" + mod.getLocation() + "' in " + peptideSequence + ", domainStart: " + domainStart);
 			}
 			
+			if (loc == 1) {
+				// this might be a N-terminal modification
+				//  => check against suitable settings
+				for (SearchModification searchMod
+						: modParams.getSearchModification()) {
+					if ((searchMod.getSpecificityRules() != null) &&
+							(searchMod.getSpecificityRules().size() > 0)) {
+						for (SpecificityRules rule
+								: searchMod.getSpecificityRules()) {
+							for (CvParam cvParam : rule.getCvParam()) {
+								if (cvParam.getAccession().equals(
+										PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION)) {
+									loc = 0;
+									break;
+								}
+							}
+						}
+					}
+				}
+			} else if (loc == peptideSequence.length()) {
+				// this might be a C-terminal modification
+				//  => check against suitable settings
+				for (SearchModification searchMod
+						: modParams.getSearchModification()) {
+					if ((searchMod.getSpecificityRules() != null) &&
+							(searchMod.getSpecificityRules().size() > 0)) {
+						for (SpecificityRules rule
+								: searchMod.getSpecificityRules()) {
+							for (CvParam cvParam : rule.getCvParam()) {
+								if (cvParam.getAccession().equals(
+										PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_ACCESSION)) {
+									loc = peptideSequence.length()+1;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
 			
 			Character residue = null;
 			if ((loc == 0) || (loc > peptideSequence.length())) {
