@@ -46,6 +46,10 @@
 				<ui:param name="viewerBean" value="#{viewerBean}" />
 			</ui:decorate>
 			
+			<ui:decorate template="templates/navigation_project.xhtml">
+				<ui:param name="viewer" value="peptide" />
+			</ui:decorate>
+			
 			<a4j:outputPanel id="file_tabs" layout="block"
 					styleClass="file_panel file_tabs">
 				<rich:list id="file_tabs_list"
@@ -62,10 +66,6 @@
 				
 				<a4j:outputPanel id="clearfix" layout="block" styleClass="clearfix"/>
 	        </a4j:outputPanel>
-			
-			<ui:decorate template="templates/navigation_project.xhtml">
-				<ui:param name="viewer" value="peptide" />
-			</ui:decorate>
 			
 			<rich:collapsiblePanel header="Advanced"
 					styleClass="advanced_panel"
