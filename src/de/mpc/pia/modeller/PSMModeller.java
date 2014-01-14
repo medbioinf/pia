@@ -1879,17 +1879,40 @@ public class PSMModeller {
 				new AnalysisProtocolCollection();
 		AnalysisCollection analysisCollection = new AnalysisCollection();
 		
-		
+		// write common tags
 		writeCommonMzIdentMLTags(writer, m, unimodParser,
 				psiCV, unimodCV, unitCV,
 				sequenceMap, peptideMap, pepEvidenceMap, silMap,
-				new HashMap<String, SpectrumIdentificationItem>() /* not further needed here */,
 				piaAnalysisSoftware, inputs,
 				analysisProtocolCollection, analysisCollection,
 				fileID, filterExport);
 		
+		// if the export is for the overview, export the PSM sets
+		Map<String, SpectrumIdentificationItem> combinedSiiMap =
+				new HashMap<String, SpectrumIdentificationItem>();
+		if (fileID < 1) {
+			// create the spectrumIdentificationList for PSM sets
+			SpectrumIdentificationList combinedSil = 
+					createSpectrumIdentificationListForOverview(
+							sequenceMap, peptideMap, pepEvidenceMap, combinedSiiMap,
+							psiCV, unitCV, filterExport);
+			silMap.put(0L, combinedSil);
+			
+			// create the protocol and SpectrumIdentification
+			SpectrumIdentification combiningId =
+					createCombinedSpectrumIdentification(
+							psiCV,
+							piaAnalysisSoftware,
+							filterExport ? getFilters(0L) : null );
+			
+			analysisCollection.getSpectrumIdentification().add(combiningId);
+			combiningId.setSpectrumIdentificationList(combinedSil);
+			
+			analysisProtocolCollection.getSpectrumIdentificationProtocol()
+					.add(combiningId.getSpectrumIdentificationProtocol());
+		}		
 		
-		
+		// now write out the mzIdentML tags
 		m.marshal(analysisCollection, writer);
 		writer.write("\n");
 		
@@ -1962,7 +1985,6 @@ public class PSMModeller {
 			Map<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide> peptideMap,
 			Map<String, PeptideEvidence> pepEvidenceMap,
 			Map<Long, SpectrumIdentificationList> silMap,
-			Map<String, SpectrumIdentificationItem> combinedSiiMap,
 			AnalysisSoftware piaAnalysisSoftware,
 			Inputs inputs,
 			AnalysisProtocolCollection analysisProtocolCollection,
@@ -2329,143 +2351,6 @@ public class PSMModeller {
 				}
 			}
 		}
-		
-		
-		if (fileID < 1) {
-			// create the spectrumIdentificationList for PSM sets
-			SpectrumIdentificationList combinedSil = 
-					createSpectrumIdentificationListForOverview(
-							sequenceMap, peptideMap, pepEvidenceMap, combinedSiiMap,
-							psiCV, unitCV, filterPSMs);
-			silMap.put(0L, combinedSil);
-			
-			
-			// create the SpectrumIdentificationProtocol for the PSM sets
-			SpectrumIdentificationProtocol combiningProtocol =
-					new SpectrumIdentificationProtocol();
-			
-			combiningProtocol.setId("psm_combination_protocol");
-			combiningProtocol.setAnalysisSoftware(piaAnalysisSoftware);
-			combiningProtocol.setAdditionalSearchParams(new ParamList());
-			
-			tempParam = new Param();
-			tempCvParam = new CvParam();
-			tempCvParam.setAccession("MS:1001083");
-			tempCvParam.setCv(psiCV);
-			tempCvParam.setName("ms-ms search");
-			// this may change in the future, but now we only use ms/ms search
-			tempParam.setParam(tempCvParam);
-			combiningProtocol.setSearchType(tempParam);
-			
-			tempParam = new Param();
-			tempCvParam = new CvParam();
-			tempCvParam.setAccession(
-					PIAConstants.CV_PIA_PSM_SETS_CREATED_ACCESSION);
-			tempCvParam.setCv(psiCV);
-			tempCvParam.setName(PIAConstants.CV_PIA_PSM_SETS_CREATED_NAME);
-			tempCvParam.setValue(Boolean.toString(createPSMSets));
-			combiningProtocol.getAdditionalSearchParams().getCvParam().add(
-					tempCvParam);
-			
-			tempParam = new Param();
-			tempCvParam = new CvParam();
-			tempCvParam.setAccession(
-					PIAConstants.CV_PIA_COMBINED_FDRSCORE_CALCULATED_ACCESSION);
-			tempCvParam.setCv(psiCV);
-			tempCvParam.setName(
-					PIAConstants.CV_PIA_COMBINED_FDRSCORE_CALCULATED_NAME);
-			tempCvParam.setValue(
-					Boolean.toString(isCombinedFDRScoreCalculated()));
-			combiningProtocol.getAdditionalSearchParams().getCvParam().add(
-					tempCvParam);
-			
-			if (filterPSMs) {
-				// add the filters
-				for (AbstractFilter filter : getFilters(0L)) {
-					if (filter instanceof PSMScoreFilter) {
-						// if score filters are set, they are the threshold
-						
-						ScoreModelEnum scoreModel =
-								ScoreModelEnum.getModelByDescription(
-										((PSMScoreFilter) filter).getScoreShortName());
-						
-						if (combiningProtocol.getThreshold() == null) {
-							combiningProtocol.setThreshold(new ParamList());
-						}
-						
-						if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
-							
-							tempCvParam = new CvParam();
-							tempCvParam.setAccession(scoreModel.getCvAccession());
-							tempCvParam.setCv(psiCV);
-							tempCvParam.setName(scoreModel.getCvName());
-							tempCvParam.setValue(filter.getFilterValue().toString());
-							
-							combiningProtocol.getThreshold()
-									.getCvParam().add(tempCvParam);
-						} else {
-							// TODO: also make scores from OBO available
-							
-							UserParam userParam = new UserParam();
-							userParam.setName(((PSMScoreFilter) filter).getModelName());
-							userParam.setValue(filter.getFilterValue().toString());
-							
-							combiningProtocol.getThreshold()
-									.getUserParam().add(userParam);
-						}
-					} else {
-						// all other report filters are AdditionalSearchParams
-						tempParam = new Param();
-						tempCvParam = new CvParam();
-						tempCvParam.setAccession(
-								PIAConstants.CV_PIA_FILTER_ACCESSION);
-						tempCvParam.setCv(psiCV);
-						tempCvParam.setName(PIAConstants.CV_PIA_FILTER_NAME);
-						tempCvParam.setValue(filter.toString());
-						combiningProtocol.getAdditionalSearchParams()
-								.getCvParam().add(tempCvParam);
-					}
-				}
-			}
-			
-			// check, if the threshold is set by now
-			if ((combiningProtocol.getThreshold() == null) ||
-					(combiningProtocol.getThreshold().getParamGroup().size() < 1)) {
-				if (combiningProtocol.getThreshold() == null) {
-					combiningProtocol.setThreshold(new ParamList());
-				}
-				
-				tempCvParam = new CvParam();
-				tempCvParam.setAccession("MS:1001494");
-				tempCvParam.setCv(psiCV);
-				tempCvParam.setName("no threshold");
-				combiningProtocol.getThreshold().getCvParam().add(tempCvParam);
-			}
-			
-			analysisProtocolCollection.getSpectrumIdentificationProtocol()
-					.add(combiningProtocol);
-			
-			SpectrumIdentification combiningId =
-					new SpectrumIdentification();
-			
-			combiningId.setId("psm_combination");
-			combiningId.setSpectrumIdentificationList(combinedSil);
-			combiningId.setSpectrumIdentificationProtocol(combiningProtocol);
-			
-			for (SpectraData specData : spectraData.values()) {
-				InputSpectra spectra = new InputSpectra();
-				spectra.setSpectraData(specData);
-				combiningId.getInputSpectra().add(spectra);
-			}
-			
-			for (SearchDatabase searchDB : searchDatabases.values()) {
-				SearchDatabaseRef ref = new SearchDatabaseRef();
-				ref.setSearchDatabase(searchDB);
-				combiningId.getSearchDatabaseRef().add(ref);
-			}
-			
-			analysisCollection.getSpectrumIdentification().add(combiningId);
-		}
 	}
 	
 	
@@ -2660,6 +2545,23 @@ public class PSMModeller {
 							psiCV, unitCV, null, filterPSMs);
 			
 			specIDMap.put(sii.getId(), sii);
+			
+			if (isCombinedFDRScoreCalculated()) {
+				ScoreModel fdrScore = psmSet.getFDRScore();
+				
+				CvParam tempCvParam = new CvParam();
+				tempCvParam.setAccession(
+						ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getCvAccession());
+				tempCvParam.setCv(psiCV);
+				tempCvParam.setName(
+						ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getCvName());
+				if (fdrScore != null) {
+					tempCvParam.setValue(fdrScore.getValue().toString());
+				} else {
+					tempCvParam.setValue(Double.toString(Double.NaN));
+				}
+				sii.getCvParam().add(tempCvParam);
+			}
 		}
 		
 		sil.getSpectrumIdentificationResult().addAll(specIdResMap.values());
@@ -2799,7 +2701,7 @@ public class PSMModeller {
 	 * @param rankScoreShort
 	 * @return
 	 */
-	private SpectrumIdentificationItem putPsmInSpectrumIdentificationResultMap(
+	public SpectrumIdentificationItem putPsmInSpectrumIdentificationResultMap(
 			PSMReportItem psm,
 			Map<String, SpectrumIdentificationResult> specIdResMap,
 			Map<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide> peptideMap,
@@ -2823,24 +2725,7 @@ public class PSMModeller {
 			
 			specIdRes.setId(psmIdentificationKey);
 			specIdRes.setSpectrumID(psm.getSourceID());
-			
-			List<ReportPSM> psmList = null;
-			if (psm instanceof ReportPSM) {
-				psmList = new ArrayList<ReportPSM>(1);
-				psmList.add((ReportPSM)psm);
-			} else if (psm instanceof ReportPSMSet) {
-				psmList = ((ReportPSMSet) psm).getPSMs();
-			}
-			for (ReportPSM repPSM : psmList) {
-				if ((repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra() != null) &&
-						(repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra().size() > 0)) {
-					specIdRes.setSpectraData(
-							spectraData.get(
-									repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra().get(0).getSpectraDataRef()));
-					// TODO: make the choice of spectrumID and spectraData more sophisticated 
-					break;
-				}
-			}
+			specIdRes.setSpectraData(getRepresentingSpectraData(psm));
 			
 			specIdResMap.put(psmIdentificationKey, specIdRes);
 		} else {
@@ -2851,23 +2736,10 @@ public class PSMModeller {
 			}
 			
 			// enhance with spectraData, if available
-			if  (specIdRes.getSpectraData() == null) {
-				List<ReportPSM> psmList = null;
-				if (psm instanceof ReportPSM) {
-					psmList = new ArrayList<ReportPSM>(1);
-					psmList.add((ReportPSM)psm);
-				} else if (psm instanceof ReportPSMSet) {
-					psmList = ((ReportPSMSet) psm).getPSMs();
-				}
-				for (ReportPSM repPSM : psmList) {
-					if ((repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra() != null) &&
-							(repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra().size() > 0)) {
-						specIdRes.setSpectraData(
-								spectraData.get(
-										repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra().get(0).getSpectraDataRef()));
-						// TODO: make the choice of spectrumID and spectraData more sophisticated
-						break;
-					}
+			if (specIdRes.getSpectraData() == null) {
+				SpectraData specData = getRepresentingSpectraData(psm);
+				if (specData != null) {
+					specIdRes.setSpectraData(specData);
 				}
 			}
 		}
@@ -2966,23 +2838,6 @@ public class PSMModeller {
 				}
 			}
 		} else if (psm instanceof ReportPSMSet) {
-			if (isCombinedFDRScoreCalculated()) {
-				ScoreModel fdrScore = psm.getFDRScore();
-				
-				CvParam tempCvParam = new CvParam();
-				tempCvParam.setAccession(
-						ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getCvAccession());
-				tempCvParam.setCv(psiCV);
-				tempCvParam.setName(
-						ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getCvName());
-				if (fdrScore != null) {
-					tempCvParam.setValue(fdrScore.getValue().toString());
-				} else {
-					tempCvParam.setValue(Double.toString(Double.NaN));
-				}
-				sii.getCvParam().add(tempCvParam);
-			}
-			
 			// mark as consensus result
 			CvParam tempCvParam = new CvParam();
 			tempCvParam.setAccession("MS:1002315");
@@ -3030,6 +2885,38 @@ public class PSMModeller {
 		}
 		
 		return sii;
+	}
+	
+	
+	/**
+	 * Gets a representative of the {@link SpectraData} for the given
+	 * {@link PSMReportItem}.
+	 * 
+	 * @param psm
+	 * @return
+	 */
+	public SpectraData getRepresentingSpectraData(PSMReportItem psm) {
+		List<ReportPSM> psmList = null;
+		if (psm instanceof ReportPSM) {
+			psmList = new ArrayList<ReportPSM>(1);
+			psmList.add((ReportPSM)psm);
+		} else if (psm instanceof ReportPSMSet) {
+			psmList = ((ReportPSMSet) psm).getPSMs();
+		}
+		for (ReportPSM repPSM : psmList) {
+			if ((repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra() != null) &&
+					(repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra().size() > 0)) {
+				SpectraData specData = 
+						spectraData.get(
+								repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra().get(0).getSpectraDataRef());
+				// TODO: make the choice of spectrumID and spectraData more sophisticated 
+				if (specData != null) {
+					return specData;
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	
@@ -3101,9 +2988,142 @@ public class PSMModeller {
 	}
 	
 	
-	
-	
-	
+	/**
+	 * Create the {@link SpectrumIdentification} (and the
+	 * {@link SpectrumIdentificationProtocol}) for the combination of PSMs.
+	 * 
+	 * @param psiCV
+	 * @param pia
+	 * @param appliedFilters
+	 * @return
+	 */
+	public SpectrumIdentification createCombinedSpectrumIdentification(
+			Cv psiCV,
+			AnalysisSoftware pia,
+			List<AbstractFilter> appliedFilters) {
+
+		// create the SpectrumIdentificationProtocol for the PSM sets
+		SpectrumIdentificationProtocol combiningProtocol =
+				new SpectrumIdentificationProtocol();
+		
+		combiningProtocol.setId("psm_combination_protocol");
+		combiningProtocol.setAnalysisSoftware(pia);
+		combiningProtocol.setAdditionalSearchParams(new ParamList());
+		
+		Param tempParam = new Param();
+		CvParam tempCvParam = new CvParam();
+		tempCvParam.setAccession("MS:1001083");
+		tempCvParam.setCv(psiCV);
+		tempCvParam.setName("ms-ms search");
+		// this may change in the future, but now we only use ms/ms search
+		tempParam.setParam(tempCvParam);
+		combiningProtocol.setSearchType(tempParam);
+		
+		tempParam = new Param();
+		tempCvParam = new CvParam();
+		tempCvParam.setAccession(
+				PIAConstants.CV_PIA_PSM_SETS_CREATED_ACCESSION);
+		tempCvParam.setCv(psiCV);
+		tempCvParam.setName(PIAConstants.CV_PIA_PSM_SETS_CREATED_NAME);
+		tempCvParam.setValue(Boolean.toString(createPSMSets));
+		combiningProtocol.getAdditionalSearchParams().getCvParam().add(
+				tempCvParam);
+		
+		tempParam = new Param();
+		tempCvParam = new CvParam();
+		tempCvParam.setAccession(
+				PIAConstants.CV_PIA_COMBINED_FDRSCORE_CALCULATED_ACCESSION);
+		tempCvParam.setCv(psiCV);
+		tempCvParam.setName(
+				PIAConstants.CV_PIA_COMBINED_FDRSCORE_CALCULATED_NAME);
+		tempCvParam.setValue(
+				Boolean.toString(isCombinedFDRScoreCalculated()));
+		combiningProtocol.getAdditionalSearchParams().getCvParam().add(
+				tempCvParam);
+		
+		if ((appliedFilters != null) && (appliedFilters.size() > 0)) {
+			// add the filters
+			for (AbstractFilter filter : appliedFilters) {
+				if (filter instanceof PSMScoreFilter) {
+					// if score filters are set, they are the threshold
+					
+					ScoreModelEnum scoreModel =
+							ScoreModelEnum.getModelByDescription(
+									((PSMScoreFilter) filter).getScoreShortName());
+					
+					if (combiningProtocol.getThreshold() == null) {
+						combiningProtocol.setThreshold(new ParamList());
+					}
+					
+					if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+						
+						tempCvParam = new CvParam();
+						tempCvParam.setAccession(scoreModel.getCvAccession());
+						tempCvParam.setCv(psiCV);
+						tempCvParam.setName(scoreModel.getCvName());
+						tempCvParam.setValue(filter.getFilterValue().toString());
+						
+						combiningProtocol.getThreshold()
+								.getCvParam().add(tempCvParam);
+					} else {
+						// TODO: also make scores from OBO available
+						
+						UserParam userParam = new UserParam();
+						userParam.setName(((PSMScoreFilter) filter).getModelName());
+						userParam.setValue(filter.getFilterValue().toString());
+						
+						combiningProtocol.getThreshold()
+								.getUserParam().add(userParam);
+					}
+				} else {
+					// all other report filters are AdditionalSearchParams
+					tempParam = new Param();
+					tempCvParam = new CvParam();
+					tempCvParam.setAccession(
+							PIAConstants.CV_PIA_FILTER_ACCESSION);
+					tempCvParam.setCv(psiCV);
+					tempCvParam.setName(PIAConstants.CV_PIA_FILTER_NAME);
+					tempCvParam.setValue(filter.toString());
+					combiningProtocol.getAdditionalSearchParams()
+							.getCvParam().add(tempCvParam);
+				}
+			}
+		}
+		
+		// check, if the threshold is set by now
+		if ((combiningProtocol.getThreshold() == null) ||
+				(combiningProtocol.getThreshold().getParamGroup().size() < 1)) {
+			if (combiningProtocol.getThreshold() == null) {
+				combiningProtocol.setThreshold(new ParamList());
+			}
+			
+			tempCvParam = new CvParam();
+			tempCvParam.setAccession("MS:1001494");
+			tempCvParam.setCv(psiCV);
+			tempCvParam.setName("no threshold");
+			combiningProtocol.getThreshold().getCvParam().add(tempCvParam);
+		}
+		
+		SpectrumIdentification combiningId =
+				new SpectrumIdentification();
+		
+		combiningId.setId("psm_combination");
+		combiningId.setSpectrumIdentificationProtocol(combiningProtocol);
+		
+		for (SpectraData specData : spectraData.values()) {
+			InputSpectra spectra = new InputSpectra();
+			spectra.setSpectraData(specData);
+			combiningId.getInputSpectra().add(spectra);
+		}
+		
+		for (SearchDatabase searchDB : searchDatabases.values()) {
+			SearchDatabaseRef ref = new SearchDatabaseRef();
+			ref.setSearchDatabase(searchDB);
+			combiningId.getSearchDatabaseRef().add(ref);
+		}
+		
+		return combiningId;
+	}
 	
 	
 	/**

@@ -35,9 +35,12 @@ import uk.ac.ebi.jmzidml.model.mzidml.ProteinDetectionHypothesis;
 import uk.ac.ebi.jmzidml.model.mzidml.ProteinDetectionList;
 import uk.ac.ebi.jmzidml.model.mzidml.ProteinDetectionProtocol;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationItem;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationItemRef;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationList;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationResult;
 import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 import uk.ac.ebi.jmzidml.xml.io.MzIdentMLMarshaller;
 import uk.ac.ebi.pride.jmztab.model.CVParam;
@@ -972,8 +975,6 @@ public class ProteinModeller {
 				new HashMap<String, PeptideEvidence>();
 		Map<Long, SpectrumIdentificationList> silMap =
 				new HashMap<Long, SpectrumIdentificationList>();
-		Map<String, SpectrumIdentificationItem> combinedSiiMap =
-				new HashMap<String, SpectrumIdentificationItem>();
 		AnalysisSoftware piaAnalysisSoftware = new AnalysisSoftware();
 		Inputs inputs = new Inputs();
 		AnalysisProtocolCollection analysisProtocolCollection =
@@ -982,7 +983,7 @@ public class ProteinModeller {
 		
 		psmModeller.writeCommonMzIdentMLTags(writer, m, unimodParser,
 				psiCV, unimodCV, unitCV,
-				sequenceMap, peptideMap, pepEvidenceMap, silMap, combinedSiiMap,
+				sequenceMap, peptideMap, pepEvidenceMap, silMap,
 				piaAnalysisSoftware, inputs,
 				analysisProtocolCollection, analysisCollection,
 				0L, false);
@@ -1095,6 +1096,12 @@ public class ProteinModeller {
 		ProteinDetectionList proteinDetectionList = new ProteinDetectionList();
 		proteinDetectionList.setId("protein_report");
 		
+		Map<String, SpectrumIdentificationItem> combinedSpecIdItemMap =
+				new HashMap<String, SpectrumIdentificationItem>();
+		
+		Map<String, SpectrumIdentificationResult> combinedSpecIdResMap =
+				new HashMap<String, SpectrumIdentificationResult>();
+		
 		Integer thresholdPassingPAGcount = 0;
 		for (ReportProtein protein : reportProteins) {
 			ProteinAmbiguityGroup pag = new ProteinAmbiguityGroup();
@@ -1133,7 +1140,9 @@ public class ProteinModeller {
 			for (Accession acc : protein.getAccessions()) {
 				ProteinDetectionHypothesis pdh =
 						createPDH(acc, protein, passThreshold, pag.getId(),
-								sequenceMap, pepEvidenceMap, combinedSiiMap);
+								sequenceMap, peptideMap, pepEvidenceMap,
+								combinedSpecIdItemMap, combinedSpecIdResMap,
+								psiCV, unitCV);
 				
 				cvParam = new CvParam();
 				cvParam.setAccession(PIAConstants.CV_LEADING_PROTEIN_ACCESSION);
@@ -1181,8 +1190,9 @@ public class ProteinModeller {
 					ProteinDetectionHypothesis pdh =
 							createPDH(subAcc, subProtein,
 									false, pag.getId(),
-									sequenceMap, pepEvidenceMap,
-									combinedSiiMap);
+									sequenceMap, peptideMap, pepEvidenceMap,
+									combinedSpecIdItemMap, combinedSpecIdResMap,
+									psiCV, unitCV);
 					
 					cvParam = new CvParam();
 					cvParam.setAccession(
@@ -1237,6 +1247,29 @@ public class ProteinModeller {
 		cvParam.setValue(thresholdPassingPAGcount.toString());
 		proteinDetectionList.getCvParam().add(cvParam);
 		
+		// create the combinedSil
+		SpectrumIdentificationList combinedSil = new SpectrumIdentificationList();
+		combinedSil.setId("combined_inference_PSMs");
+		for (SpectrumIdentificationResult idResult
+				: combinedSpecIdResMap.values()) {
+			combinedSil.getSpectrumIdentificationResult().add(idResult);
+		}
+		silMap.put(0L, combinedSil);
+		combinedSpecIdItemMap = null;
+		combinedSpecIdResMap = null;
+		
+		// create the protocol and SpectrumIdentification for combined PSMs
+		SpectrumIdentification combiningId =
+				psmModeller.createCombinedSpectrumIdentification(
+						psiCV, piaAnalysisSoftware,
+						getAppliedProteinInference().getFilters());
+		
+		analysisCollection.getSpectrumIdentification().add(combiningId);
+		combiningId.setSpectrumIdentificationList(combinedSil);
+		
+		analysisProtocolCollection.getSpectrumIdentificationProtocol()
+				.add(combiningId.getSpectrumIdentificationProtocol());
+					
 		// create the ProteinDetection for PIAs protein inference
 		ProteinDetection proteinDetection = new ProteinDetection();
 		analysisCollection.setProteinDetection(proteinDetection);
@@ -1262,6 +1295,7 @@ public class ProteinModeller {
 		
 		writer.write(m.createAnalysisDataStartTag() + "\n");
 		
+		// write out the spectrumIdentificationLists
 		for (SpectrumIdentificationList siList : silMap.values()) {
 			m.marshal(siList, writer);
 			writer.write("\n");
@@ -1299,11 +1333,16 @@ public class ProteinModeller {
 	 * @return
 	 */
 	private ProteinDetectionHypothesis createPDH(Accession acc,
-			ReportProtein protein, Boolean passThreshold,
+			ReportProtein protein,
+			Boolean passThreshold,
 			String PAGid,
 			Map<String, DBSequence> sequenceMap,
+			Map<String, Peptide> peptideMap,
 			Map<String, PeptideEvidence> pepEvidenceMap,
-			Map<String, SpectrumIdentificationItem> combinedSiiMap) {
+			Map<String, SpectrumIdentificationItem> combinedSpecIdItemMap,
+			Map<String, SpectrumIdentificationResult> combinedSpecIdResMap,
+			Cv psiCV,
+			Cv unitCV) {
 		ProteinDetectionHypothesis pdh =
 				new ProteinDetectionHypothesis();
 		
@@ -1315,6 +1354,9 @@ public class ProteinModeller {
 		}
 		
 		pdh.setPassThreshold(passThreshold);
+		
+		String scoreShort =
+				appliedProteinInference.getScoring().getScoreSetting().getValue();
 		
 		Map<String, PeptideHypothesis> peptideHypotheses =
 				new HashMap<String, PeptideHypothesis>();
@@ -1375,12 +1417,45 @@ public class ProteinModeller {
 										psmItem, 0L);
 					}
 					
-					SpectrumIdentificationItem psmSetItem = 
-							combinedSiiMap.get(spectrumItemID);
+					SpectrumIdentificationItem specIdItem =
+							combinedSpecIdItemMap.get(spectrumItemID);
+					if (specIdItem == null) {
+						// if the spectrumIdentificationItem is not yet set,
+						// create it (and put it into the SpectrumIdentificationResult)
+						specIdItem =
+								psmModeller.putPsmInSpectrumIdentificationResultMap(
+										psmItem,
+										combinedSpecIdResMap,
+										peptideMap,
+										pepEvidenceMap,
+										psiCV,
+										unitCV,
+										null,
+										false);
+						
+						ScoreModel compareScore =
+								psmItem.getCompareScore(scoreShort);
+						if (compareScore != null) {
+							if (!compareScore.getType().
+									equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+								CvParam tempCvParam = new CvParam();
+								tempCvParam.setAccession(compareScore.getAccession());
+								tempCvParam.setCv(psiCV);
+								tempCvParam.setName(compareScore.getName());
+								tempCvParam.setValue(compareScore.getValue().toString());
+								
+								specIdItem.getCvParam().add(tempCvParam);
+							} else {
+								// TODO: add unknown scores...
+							}
+						}
+						
+						combinedSpecIdItemMap.put(spectrumItemID, specIdItem);
+					}
 					
 					SpectrumIdentificationItemRef ref =
 							new SpectrumIdentificationItemRef();
-					ref.setSpectrumIdentificationItem(psmSetItem);
+					ref.setSpectrumIdentificationItem(specIdItem);
 					ph.getSpectrumIdentificationItemRef().add(ref);
 				}
 			}
