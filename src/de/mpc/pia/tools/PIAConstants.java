@@ -80,7 +80,7 @@ public class PIAConstants {
 	/** accession for the "PIA XML file" in PSI-MS */
 	public static final String CV_PIA_XML_FILE_ACCESSION = "MS:1002388";
 	/** name for the "PIA XML file" in PSI-MS */
-	public static final String CV_PIA_XML_FILE_NAME = "PIA XML file";
+	public static final String CV_PIA_XML_FILE_NAME = "PIA XML format";
 	
 	/** accession for the "PIA workflow parameter" in PSI-MS */
 	public static final String CV_PIA_WORKFLOW_PARAMETER_ACCESSION = "MS:1002389";
