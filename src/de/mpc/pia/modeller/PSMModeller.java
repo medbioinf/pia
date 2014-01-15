@@ -2100,7 +2100,7 @@ public class PSMModeller {
 		tempCvParam = new CvParam();
 		tempCvParam.setAccession(PIAConstants.CV_PIA_XML_FILE_ACCESSION);
 		tempCvParam.setCv(psiCV);
-		tempCvParam.setAccession(PIAConstants.CV_PIA_XML_FILE_NAME);
+		tempCvParam.setName(PIAConstants.CV_PIA_XML_FILE_NAME);
 		fileFormat.setCvParam(tempCvParam);
 		sourceFile.setFileFormat(fileFormat);
 		inputs.getSourceFile().add(sourceFile);
@@ -2439,6 +2439,11 @@ public class PSMModeller {
 						tempCvParam.setCv(psiCV);
 						tempCvParam.setName("unknown modification");
 						mod.getCvParam().add(tempCvParam);
+					}
+					
+					if (mod.getResidues().contains(".")) {
+						// this is an N- or C-terminal modification -> give no residue
+						mod.getResidues().clear();
 					}
 					
 					peptide.getModification().add(mod);
@@ -2829,7 +2834,7 @@ public class PSMModeller {
 					CvParam tempCvParam = new CvParam();
 					tempCvParam.setAccession(score.getAccession());
 					tempCvParam.setCv(psiCV);
-					tempCvParam.setName(score.getName());
+					tempCvParam.setName(score.getType().getCvName());
 					tempCvParam.setValue(score.getValue().toString());
 					
 					sii.getCvParam().add(tempCvParam);
@@ -3749,7 +3754,7 @@ public class PSMModeller {
 					scoreParam = new CVParam(
 							PIAConstants.CV_PSI_MS_LABEL,
 							scoreModel.getAccession(),
-							scoreModel.getName(),
+							scoreModel.getType().getCvName(),
 							scoreModel.getValue().toString());
 					
 					if (reliabilityCol &&

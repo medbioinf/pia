@@ -1242,6 +1242,7 @@ public class ProteinModeller {
 		
 		cvParam = new CvParam();
 		cvParam.setAccession(PIAConstants.CV_COUNT_OF_IDENTIFIED_PROTEINS_ACCESSION);
+		cvParam.setCv(psiCV);
 		cvParam.setName(PIAConstants.CV_COUNT_OF_IDENTIFIED_PROTEINS_NAME);
 		cvParam.setValue(thresholdPassingPAGcount.toString());
 		proteinDetectionList.getCvParam().add(cvParam);
@@ -1440,7 +1441,7 @@ public class ProteinModeller {
 								CvParam tempCvParam = new CvParam();
 								tempCvParam.setAccession(compareScore.getAccession());
 								tempCvParam.setCv(psiCV);
-								tempCvParam.setName(compareScore.getName());
+								tempCvParam.setName(compareScore.getType().getCvName());
 								tempCvParam.setValue(compareScore.getValue().toString());
 								
 								specIdItem.getCvParam().add(tempCvParam);
@@ -1462,6 +1463,7 @@ public class ProteinModeller {
 		
 		CvParam cvParam = new CvParam();
 		cvParam.setAccession(PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION);
+		cvParam.setCv(psiCV);
 		cvParam.setName(PIAConstants.CV_PIA_PROTEIN_SCORE_NAME);
 		cvParam.setValue(protein.getScore().toString());
 		pdh.getCvParam().add(cvParam);
