@@ -227,12 +227,12 @@ public enum ScoreModelEnum {
 		
 		@Override
 		public String getCvAccession() {
-			return "MS:1001172";
+			return PIAConstants.CV_MASCOT_EXPECTATION_VALUE_ACCESSION;
 		}
 		
 		@Override
 		public String getCvName() {
-			return "Mascot:expectation value";
+			return PIAConstants.CV_MASCOT_EXPECTATION_VALUE_NAME;
 		}
 		
 		@Override
@@ -276,12 +276,12 @@ public enum ScoreModelEnum {
 		
 		@Override
 		public String getCvAccession() {
-			return "MS:1001171";
+			return PIAConstants.CV_MASCOT_SCORE_ACCESSION;
 		}
 		
 		@Override
 		public String getCvName() {
-			return "Mascot:score";
+			return PIAConstants.CV_MASCOT_SCORE_NAME;
 		}
 		
 		@Override
@@ -333,12 +333,12 @@ public enum ScoreModelEnum {
 		
 		@Override
 		public String getCvAccession() {
-			return "MS:1001154";
+			return PIAConstants.CV_SEQUEST_PROBABILITY_ACCESSION;
 		}
 		
 		@Override
 		public String getCvName() {
-			return "Sequest:probability";
+			return PIAConstants.CV_SEQUEST_PROBABILITY_NAME;
 		}
 		
 		@Override
@@ -383,12 +383,12 @@ public enum ScoreModelEnum {
 		
 		@Override
 		public String getCvAccession() {
-			return "MS:1001157";
+			return PIAConstants.CV_SEQUEST_SP_ACCESSION;
 		}
 		
 		@Override
 		public String getCvName() {
-			return "Sequest:sp";
+			return PIAConstants.CV_SEQUEST_SP_NAME;
 		}
 		
 		@Override
@@ -433,12 +433,12 @@ public enum ScoreModelEnum {
 		
 		@Override
 		public String getCvAccession() {
-			return "MS:1001155";
+			return PIAConstants.CV_SEQUEST_XCORR_ACCESSION;
 		}
 		
 		@Override
 		public String getCvName() {
-			return "Sequest:xcorr";
+			return PIAConstants.CV_SEQUEST_XCORR_NAME;
 		}
 		
 		@Override
@@ -488,12 +488,12 @@ public enum ScoreModelEnum {
 		
 		@Override
 		public String getCvAccession() {
-			return "MS:1001330";
+			return PIAConstants.CV_XTANDEM_EXPECT_ACCESSION;
 		}
 		
 		@Override
 		public String getCvName() {
-			return "X!Tandem:expect";
+			return PIAConstants.CV_XTANDEM_EXPECT_NAME;
 		}
 		
 		@Override
@@ -544,12 +544,12 @@ public enum ScoreModelEnum {
 		
 		@Override
 		public String getCvAccession() {
-			return "MS:1001331";
+			return PIAConstants.CV_XTANDEM_HYPERSCORE_ACCESSION;
 		}
 		
 		@Override
 		public String getCvName() {
-			return "X!Tandem:hyperscore";
+			return PIAConstants.CV_XTANDEM_HYPERSCORE_NAME;
 		}
 		
 		@Override

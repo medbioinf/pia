@@ -142,6 +142,42 @@ public class PIAConstants {
 	/** name for the "PIA:protein inference used PSMs" in PSI-MS */
 	public static final String CV_PIA_FILTER_NAME = "PIA:filter";
 	
+	
+	/** accession for "SEQUEST:probability" in PSI-MS */
+	public static final String CV_SEQUEST_PROBABILITY_ACCESSION = "MS:1001154";
+	/** name for "SEQUEST:probability" in PSI-MS */
+	public static final String CV_SEQUEST_PROBABILITY_NAME = "SEQUEST:probability";
+	
+	/** accession for "SEQUEST:xcorr" in PSI-MS */
+	public static final String CV_SEQUEST_XCORR_ACCESSION = "MS:1001155";
+	/** name for "SEQUEST:xcorr" in PSI-MS */
+	public static final String CV_SEQUEST_XCORR_NAME = "SEQUEST:xcorr";
+	
+	/** accession for "SEQUEST:sp" in PSI-MS */
+	public static final String CV_SEQUEST_SP_ACCESSION = "MS:1001157";
+	/** name for "SEQUEST:sp" in PSI-MS */
+	public static final String CV_SEQUEST_SP_NAME = "SEQUEST:sp";
+
+	/** accession for "Mascot:score" in PSI-MS */
+	public static final String CV_MASCOT_SCORE_ACCESSION = "MS:1001171";
+	/** name for "Mascot:score" in PSI-MS */
+	public static final String CV_MASCOT_SCORE_NAME = "Mascot:score";
+	
+	/** accession for "Mascot:expectation value" in PSI-MS */
+	public static final String CV_MASCOT_EXPECTATION_VALUE_ACCESSION = "MS:1001172";
+	/** name for "Mascot:expectation value" in PSI-MS */
+	public static final String CV_MASCOT_EXPECTATION_VALUE_NAME = "Mascot:expectation value";
+	
+	/** accession for "X!Tandem:expect" in PSI-MS */
+	public static final String CV_XTANDEM_EXPECT_ACCESSION = "MS:1001330";
+	/** name for "X!Tandem:expect" in PSI-MS */
+	public static final String CV_XTANDEM_EXPECT_NAME = "X!Tandem:expect";
+	
+	/** accession for "X!Tandem:hyperscore" in PSI-MS */
+	public static final String CV_XTANDEM_HYPERSCORE_ACCESSION = "MS:1001331";
+	/** name for "X!Tandem:hyperscore" in PSI-MS */
+	public static final String CV_XTANDEM_HYPERSCORE_NAME = "X!Tandem:hyperscore";
+	
 	/** accession for "modification specificity N-term" in PSI-MS */
 	public static final String CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION = "MS:1001189";
 	/** name for "modification specificity N-term" in PSI-MS */
