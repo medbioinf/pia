@@ -1400,6 +1400,10 @@ public class ProteinModeller {
 						ph = new PeptideHypothesis();
 						ph.setPeptideEvidence(
 								pepEvidenceMap.get(evidenceID));
+						
+						
+						
+						
 						peptideHypotheses.put(evidenceID, ph);
 						pdh.getPeptideHypothesis().add(ph);
 					}

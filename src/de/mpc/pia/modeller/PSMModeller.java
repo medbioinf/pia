@@ -19,13 +19,10 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.log4j.Logger;
 
-import uk.ac.ebi.jmzidml.model.mzidml.Affiliation;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisProtocolCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftwareList;
-import uk.ac.ebi.jmzidml.model.mzidml.AuditCollection;
-import uk.ac.ebi.jmzidml.model.mzidml.ContactRole;
 import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvList;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
@@ -34,14 +31,10 @@ import uk.ac.ebi.jmzidml.model.mzidml.FileFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.InputSpectra;
 import uk.ac.ebi.jmzidml.model.mzidml.Inputs;
 import uk.ac.ebi.jmzidml.model.mzidml.ModificationParams;
-import uk.ac.ebi.jmzidml.model.mzidml.Organization;
 import uk.ac.ebi.jmzidml.model.mzidml.Param;
 import uk.ac.ebi.jmzidml.model.mzidml.ParamList;
 import uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence;
 import uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidenceRef;
-import uk.ac.ebi.jmzidml.model.mzidml.Person;
-import uk.ac.ebi.jmzidml.model.mzidml.Provider;
-import uk.ac.ebi.jmzidml.model.mzidml.Role;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabaseRef;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchModification;
@@ -2041,7 +2034,8 @@ public class PSMModeller {
 		m.marshal(analysisSoftwareList, writer);
 		writer.write("\n");
 		
-		// TODO: why is the provider/audit collection mandatory? the documentation does not state it so!
+		/*
+		// provider is not necessary... maybe add it later
 		Provider provider = new Provider();
 		provider.setId("PROVIDER");
 		ContactRole contactRole = new ContactRole();
@@ -2080,6 +2074,7 @@ public class PSMModeller {
 		
 		m.marshal(auditCollection, writer);
 		writer.write("\n");
+		*/
 		
 		// get the information from PIA XML file
 		if (fileID > 0) {
@@ -2749,8 +2744,7 @@ public class PSMModeller {
 			}
 		}
 		
-		SpectrumIdentificationItem sii = new SpectrumIdentificationItem();
-		specIdRes.getSpectrumIdentificationItem().add(sii);
+		
 		if (!createPSMSets && (psm instanceof ReportPSMSet)) {
 			psmIdentificationKey =
 					getSpectrumIdentificationItemID(psm, ((ReportPSMSet) psm).getPSMs().get(0).getFileID());
@@ -2758,6 +2752,17 @@ public class PSMModeller {
 		} else {
 			psmIdentificationKey = getSpectrumIdentificationItemID(psm, fileID);
 		}
+		
+		for (SpectrumIdentificationItem itemIt
+				: specIdRes.getSpectrumIdentificationItem()) {
+			if (itemIt.getId().equals(psmIdentificationKey)) {
+				// SII already created, return it
+				return itemIt;
+			}
+		}
+		
+		SpectrumIdentificationItem sii = new SpectrumIdentificationItem();
+		specIdRes.getSpectrumIdentificationItem().add(sii);
 		sii.setId(psmIdentificationKey);
 		
 		sii.setChargeState(psm.getCharge());
@@ -2786,7 +2791,6 @@ public class PSMModeller {
 				sii.setRank(0);
 			}
 		}
-		
 		
 		// add the peptideEvidences 
 		for (Accession accession : psm.getAccessions()) {
