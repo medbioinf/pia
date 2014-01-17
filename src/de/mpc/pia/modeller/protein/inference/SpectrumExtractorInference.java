@@ -510,16 +510,17 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 									boolean subSetAlreadyThere = false;
 									// check, if the protein is a sameSet of another subSet
 									for (ReportProtein subSet : reportProtein.getSubSets()) {
-										
 										reportProteinsSpectra = new HashSet<String>();
+										reportProteinsPeptides = new HashSet<String>();
 										for (ReportPeptide peptide : subSet.getPeptides()) {
 											reportProteinsSpectra.addAll(
 													peptide.getSpectraIdentificationKeys());
+											reportProteinsPeptides.add(
+													peptide.getStringID());
 										}
 										
-										if ((proteinsSpectra.size() == 
-												reportProteinsSpectra.size()) &&
-												(reportProteinsSpectra.containsAll(proteinsSpectra))) {
+										if (proteinsPeptides.equals(reportProteinsPeptides) &&
+												proteinsSpectra.equals(reportProteinsSpectra)) {
 											// protein is same as subSet, add the accessions
 											for (Accession acc : protein.getAccessions()) {
 												subSet.addAccession(acc);
