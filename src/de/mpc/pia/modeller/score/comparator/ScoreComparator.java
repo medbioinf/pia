@@ -46,8 +46,17 @@ public class ScoreComparator<T extends ScoreComparable> implements Comparator<T>
 	public int compare(T o1, T o2) {
 		ScoreModel score1, score2;
 		
-		score1 = o1.getCompareScore(scoreModelName);
-		score2 = o2.getCompareScore(scoreModelName);
+		if (o1 != null) {
+			score1 = o1.getCompareScore(scoreModelName);
+		} else {
+			score1 = null;
+		}
+		
+		if (o2 != null) {
+			score2 = o2.getCompareScore(scoreModelName);
+		} else {
+			score2 = null;
+		}
 		
 		if ((score1 == null) && 
 				(score2 == null)) {

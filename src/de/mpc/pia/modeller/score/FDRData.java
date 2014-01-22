@@ -461,9 +461,10 @@ public class FDRData {
 		}
 		
 		nrItems = new Integer(reportItems.size());
-		scoreAtThreshold =
-				new Double(lastGoodScoreItem.getScore(scoreShortName));
-		
+		if (lastGoodScoreItem != null) {
+			scoreAtThreshold =
+					new Double(lastGoodScoreItem.getScore(scoreShortName));
+		}
 		
 		// at last calculate the q-values
 		// for this, iterate backwards through the list
