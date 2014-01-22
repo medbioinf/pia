@@ -21,6 +21,7 @@ public class OBOMapper {
 	public static final String cleavageAgentNameID = "MS:1001045";
 	public static final String is_a_relation = "OBO_REL:is_a";
 	public static final String has_regexp_relation = "has_regexp";
+	public static final String has_order_relation = "OBO_REL:has_order";
 	public static final String spectrumTitleID = "MS:1000796";
 	public static final String peptideScoreID = "MS:1001143";
 	

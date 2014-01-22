@@ -3,6 +3,7 @@ package de.mpc.pia.modeller.score;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -327,7 +328,8 @@ public class FDRData {
 	 * @param reportItems
 	 */
 	public <T extends FDRComputable> void calculateFDR(List<T> reportItems) {
-		calculateFDR(reportItems, null);
+		calculateFDR(reportItems,
+				new ScoreComparator<T>(scoreShortName));
 	}
 	
 	
@@ -338,6 +340,28 @@ public class FDRData {
 	 */
 	public <T extends FDRComputable> void calculateFDR(List<T> reportItems,
 			Boolean higherScoreBetter) {
+		
+		Comparator<T> comp;
+		
+		if (higherScoreBetter == null) {
+			comp = new ScoreComparator<T>(scoreShortName);
+		} else {
+			comp = new ScoreComparator<T>(scoreShortName,
+					higherScoreBetter);
+		}
+		
+		calculateFDR(reportItems, comp);
+	}
+	
+	
+	/**
+	 * Calculate the FDR on the given List of comparable objects, with the
+	 * given comparator.
+	 * 
+	 * @param reportItems
+	 */
+	public <T extends FDRComputable> void calculateFDR(List<T> reportItems,
+			Comparator<T> comparator) {
 		if (scoreShortName == null) {
 			// if we don't have a score, abort here
 			// TODO: warn at least
@@ -351,27 +375,22 @@ public class FDRData {
 				"\n\tfdrThreshold " + fdrThreshold);
 		
 		double fdr;
-		double lastGoodScore;
+		T lastGoodScoreItem;
 		
 		Double rankScore;
-		List<FDRComputable> rankItems;
+		List<T> rankItems;
 		
-		if (higherScoreBetter != null) {
-			Collections.sort(reportItems,
-					new ScoreComparator<FDRComputable>(scoreShortName, higherScoreBetter));
-		} else {
-			Collections.sort(reportItems,
-					new ScoreComparator<FDRComputable>(scoreShortName));
-		}
+		// sort the items with the given comparator
+		Collections.sort(reportItems, comparator);
 		
 		nrTargets = 0;
 		nrDecoys = 0;
 		
 		rankScore = Double.NaN;
-		lastGoodScore = Double.NaN;
-		rankItems = new ArrayList<FDRComputable>();
+		lastGoodScoreItem = null;
+		rankItems = new ArrayList<T>();
 		
-		for (FDRComputable item : reportItems) {
+		for (T item : reportItems) {
 			if (!rankScore.equals(item.getScore(scoreShortName))) {
 				// this is a new rank, calculate FDR
 				if (!rankScore.equals(Double.NaN) && (nrTargets < 1)) {
@@ -382,7 +401,7 @@ public class FDRData {
 				}
 				
 				if (fdr <= fdrThreshold) {
-					lastGoodScore = rankScore;
+					lastGoodScoreItem = item;
 				}
 				
 				for (FDRComputable rankItem : rankItems) {
@@ -390,7 +409,7 @@ public class FDRData {
 				}
 				
 				rankScore = item.getScore(scoreShortName);
-				rankItems = new ArrayList<FDRComputable>();
+				rankItems = new ArrayList<T>();
 			}
 			
 			// check for decoy
@@ -413,7 +432,7 @@ public class FDRData {
 			artificialDecoyFDR = (double)(nrDecoys + 1) / nrTargets;
 		}
 		if (fdr <= fdrThreshold) {
-			lastGoodScore = rankScore;
+			lastGoodScoreItem = reportItems.get(reportItems.size()-1);
 		}
 		
 		for (FDRComputable rankItem : rankItems) {
@@ -423,18 +442,10 @@ public class FDRData {
 		// iterate again to set FDR-good flags
 		nrFDRGoodTargets = new Integer(0);
 		nrFDRGoodDecoys = new Integer(0);
-		for (FDRComputable item : reportItems) {
+		for (T item : reportItems) {
 			Integer comp;
 			
-			if (higherScoreBetter != null) {
-				comp = item.getScore(scoreShortName).compareTo(lastGoodScore);
-				if (higherScoreBetter) {
-					comp *= -1;
-				}
-			} else {
-				comp = ScoreModel.compareScoreModels(item.getScore(scoreShortName),
-						lastGoodScore, scoreShortName);
-			}
+			comp = comparator.compare(item, lastGoodScoreItem);
 			
 			if (comp <= 0) {
 				item.setIsFDRGood(true);
@@ -450,7 +461,8 @@ public class FDRData {
 		}
 		
 		nrItems = new Integer(reportItems.size());
-		scoreAtThreshold = new Double(lastGoodScore);
+		scoreAtThreshold =
+				new Double(lastGoodScoreItem.getScore(scoreShortName));
 		
 		
 		// at last calculate the q-values

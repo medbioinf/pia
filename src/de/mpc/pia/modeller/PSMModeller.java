@@ -18,6 +18,9 @@ import java.util.regex.Pattern;
 import javax.xml.bind.JAXBException;
 
 import org.apache.log4j.Logger;
+import org.obo.datamodel.IdentifiedObject;
+import org.obo.datamodel.Link;
+import org.obo.datamodel.impl.OBOClassImpl;
 
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisProtocolCollection;
@@ -69,6 +72,7 @@ import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
+import de.mpc.pia.intermediate.compiler.parser.OBOMapper;
 import de.mpc.pia.intermediate.xmlhandler.PIAIntermediateJAXBHandler;
 import de.mpc.pia.modeller.psm.PSMExecuteCommands;
 import de.mpc.pia.modeller.psm.PSMReportItem;
@@ -168,6 +172,13 @@ public class PSMModeller {
 	
 	/** a list of score shortnames, representing the preferred score for the FDR calulation (if it is not manually set) */
 	private List<String> preferredFDRScores;
+	
+	
+	/** the OBO mapper, to get additional data */
+	private OBOMapper oboMapper;
+	
+	/** maps from the scoreShort to the comparator */
+	private Map<String, Comparator<PSMReportItem>> scoreShortToComparator;
 	
 	
 	/** default decoy pattern */
@@ -381,14 +392,17 @@ public class PSMModeller {
 			}
 		}
 		
+		scoreShortToComparator =
+				new HashMap<String, Comparator<PSMReportItem>>();
 		
 		// map to create the PSMSets
 		Map<String, List<ReportPSM>> psmSetsMap =
 				new HashMap<String, List<ReportPSM>>();
 		
 		// this map is used, to get the identification ranking for each score of a PSMs
-		Map<Long, Map<String, Map<String, ArrayList<Double>>>> fileToRankings =
-				new HashMap<Long, Map<String,Map<String, ArrayList<Double>>>>(); 
+		//  fileID    spectrumID  scoreShort        psm   
+		Map<Long, Map<String, Map<String, ArrayList<ReportPSM>>>> fileToRankings =
+				new HashMap<Long, Map<String,Map<String, ArrayList<ReportPSM>>>>(); 
 		
 		
 		// iterate through the groups
@@ -456,18 +470,21 @@ public class PSMModeller {
 							
 							
 							// record everything needed for the identification ranking
-							Map<String, Map<String, ArrayList<Double>>> keysToScores = fileToRankings.get(fileID);
-							if (keysToScores == null) {
-								keysToScores = new HashMap<String, Map<String, ArrayList<Double>>>(psmsPerFile);
-								fileToRankings.put(fileID, keysToScores);
+							Map<String, Map<String, ArrayList<ReportPSM>>> spectraToPSMs =
+									fileToRankings.get(fileID);
+							if (spectraToPSMs == null) {
+								spectraToPSMs = new HashMap<String, Map<String, ArrayList<ReportPSM>>>(psmsPerFile);
+								fileToRankings.put(fileID, spectraToPSMs);
 							}
 							
 							
-							String scoreKey = createPSMScoreKey(psm);
-							Map<String, ArrayList<Double>> scoreshortsToValues = keysToScores.get(scoreKey);
-							if (scoreshortsToValues == null) {
-								scoreshortsToValues = new HashMap<String, ArrayList<Double>>();
-								keysToScores.put(scoreKey, scoreshortsToValues);
+							String psmScoreRankKey = createPSMKeyForScoreRanking(psm);
+							Map<String, ArrayList<ReportPSM>> scoreshortsToPSMs =
+									spectraToPSMs.get(psmScoreRankKey);
+							if (scoreshortsToPSMs == null) {
+								scoreshortsToPSMs =
+										new HashMap<String, ArrayList<ReportPSM>>();
+								spectraToPSMs.put(psmScoreRankKey, scoreshortsToPSMs);
 							}
 							
 							for (ScoreModel score : psm.getScores()) {
@@ -485,13 +502,59 @@ public class PSMModeller {
 									}
 								}
 								
-								ArrayList<Double> scoreValues =  scoreshortsToValues.get(score.getShortName());
-								if (scoreValues == null) {
-									scoreValues = new ArrayList<Double>(3);
-									scoreshortsToValues.put(score.getShortName(), scoreValues);
+								// get comparators for all the PSM scores
+								if (!scoreShortToComparator.containsKey(
+										score.getShortName())) {
+									
+									String scoreSortName =
+											PSMReportItemComparator.getScoreSortName(score.getShortName());
+									Comparator<PSMReportItem> comp = null;
+									if (scoreSortName != null) {
+										comp = PSMReportItemComparator.getComparatorByName(
+												scoreSortName,
+												SortOrder.ascending);
+									} else {
+										Boolean higherscorebetter = null;
+										
+										IdentifiedObject obj =
+												getOBOMapper().getObject(score.getAccession());
+										if ((obj != null) && (obj instanceof OBOClassImpl)) {
+											
+											for (Link link : ((OBOClassImpl) obj).getParents()) {
+												if (link.getType().getID().equals(OBOMapper.is_a_relation)) {
+													
+													if (link.getParent().getID().equals("1001868") || // MS:1001868 ! distinct peptide-level q-value
+															link.getParent().getID().equals("MS:1001870") || // MS:1001870 ! distinct peptide-level p-value
+															link.getParent().getID().equals("MS:1001872")) { // MS:1001872 ! distinct peptide-level e-value
+														higherscorebetter = false;
+													}
+												}
+												
+												// TODO: use the "has_order" setting
+											}
+										}
+										
+										if (higherscorebetter != null) {
+											comp = new ScoreComparator<PSMReportItem>(
+													score.getShortName(),
+													higherscorebetter);
+										}
+									}
+									
+									logger.debug("adding score comparator for " + score.getShortName() + ": " + comp);
+									
+									scoreShortToComparator.put(
+											score.getShortName(), comp);
 								}
 								
-								scoreValues.add(score.getValue());
+								ArrayList<ReportPSM> psmsOfSpectrum =
+										scoreshortsToPSMs.get(score.getShortName());
+								if (psmsOfSpectrum == null) {
+									psmsOfSpectrum = new ArrayList<ReportPSM>(10);
+									scoreshortsToPSMs.put(score.getShortName(),
+											psmsOfSpectrum);
+								}
+								psmsOfSpectrum.add(psm);
 							}
 							
 							
@@ -511,51 +574,64 @@ public class PSMModeller {
 			}
 		}
 		
-		
-		
-		// create and fill the ReportPSMSets for the overview
-		createReportPSMSets(psmSetsMap);
-		
-		// now sort all the PSMs' scores for ranking extraction
-		for (Map<String, Map<String, ArrayList<Double>>> keysToScores
+		// now set ranks to PSMs which have a known ranking
+		for (Map<String, Map<String, ArrayList<ReportPSM>>> spectraToPSM
 				: fileToRankings.values()) {
-			for (Map<String, ArrayList<Double>> scoreshortsToValues
-					: keysToScores.values()) {
-				for (Map.Entry<String, ArrayList<Double>> score
-						: scoreshortsToValues.entrySet()) {
-					ScoreModelEnum model = ScoreModelEnum.getModelByDescription(score.getKey());
+			
+			for (Map<String, ArrayList<ReportPSM>> scoreshortsToPSMs
+					: spectraToPSM.values()) {
+				
+				for (Map.Entry<String, ArrayList<ReportPSM>> scoreToPSMsIt
+						: scoreshortsToPSMs.entrySet()) {
+					String scoreShort = scoreToPSMsIt.getKey();
+					Comparator<PSMReportItem> comp = 
+							scoreShortToComparator.get(scoreShort);
 					
-					// only sort, if we know how
-					if (!model.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
-						Collections.sort(score.getValue());
+					// only sort and rank, if we know how
+					if (comp != null) {
+						Collections.sort(scoreToPSMsIt.getValue(), comp);
 						
-						if (model.higherScoreBetter()) {
-							Collections.reverse(score.getValue());
+						// give the ranks to the PSMs
+						Double lastScore = null;
+						int rank = 0;
+						for (ReportPSM psm : scoreToPSMsIt.getValue()) {
+							Double thisScore = 
+									psm.getScore(scoreShort);
+							
+							if (!thisScore.equals(lastScore)) {
+								rank++;
+							}
+							
+							psm.setIdentificationRank(scoreShort, rank);
+							
+							lastScore = thisScore;
+						}
+					} else {
+						// unrankable get all ranked as -1
+						for (ReportPSM psm : scoreToPSMsIt.getValue()) {
+							psm.setIdentificationRank(scoreShort, -1);
 						}
 					}
 				}
 			}
 		}
 		
-		// now go through the PSMs again and get their score rankings
-		for (ReportPSM psm : spectraPSMs.values()) {
-			String scoreKey = createPSMScoreKey(psm);
-			
-			Map<String, ArrayList<Double>> scores =
-					fileToRankings.get(psm.getFileID()).get(scoreKey);
-			
-			for (ScoreModel model : psm.getScores()) {
-				if (!model.getType().equals(ScoreModelEnum.UNKNOWN_SCORE)) {
-					psm.setIdentificationRank(model.getShortName(),
-							scores.get(model.getShortName()).indexOf(model.getValue()) + 1);
-				} else {
-					// unsortable score gets -1 as rank
-					psm.setIdentificationRank(model.getShortName(), -1);
-				}
-			}
-		}
+		// create and fill the ReportPSMSets for the overview
+		createReportPSMSets(psmSetsMap);
 		
 		logger.info("createReportPSMsFromGroups done.");
+	}
+	
+	
+	/**
+	 * Getter for the oboMapper. Initializes the OBOMapper on the first call.
+	 * @return
+	 */
+	private OBOMapper getOBOMapper() {
+		if (oboMapper == null) {
+			oboMapper = new OBOMapper(null);
+		}
+		return oboMapper;
 	}
 	
 	
@@ -590,7 +666,7 @@ public class PSMModeller {
 	 * @param psm
 	 * @return
 	 */
-	private String createPSMScoreKey(ReportPSM psm) {
+	private String createPSMKeyForScoreRanking(ReportPSM psm) {
 		return psm.getSourceID() + ":" + psm.getSpectrum().getSpectrumTitle() +
 				":" + psm.getMassToCharge() + ":" + psm.getSpectrum().getRetentionTime();
 	}
@@ -749,6 +825,23 @@ public class PSMModeller {
 		
 		return null;
 	}
+	
+	
+	
+	public Comparator<PSMReportItem> getScoreComparator(String scoreShort) {
+		
+		
+		if (scoreShortToComparator.containsKey(scoreShort)) {
+			logger.debug("getting comparator for " + scoreShort + " = " + scoreShortToComparator.get(scoreShort));
+			
+			return scoreShortToComparator.get(scoreShort);
+		}
+		
+		logger.debug("no comparator found for " + scoreShort);
+		
+		return null;
+	}
+	
 	
 	
 	/**
@@ -1086,14 +1179,15 @@ public class PSMModeller {
 			// recalculate the decoy status (especially important, if decoy pattern was changed)
 			updateDecoyStates(fileID);
 			
-			// get a List of the ReportPSMs for FDR calculation
-			List<ReportPSM> listForFDR = fileReportPSMs.get(fileID);
 			
-			if (listForFDR == null) {
+			if (fileReportPSMs.get(fileID) == null) {
 				logger.error("No PSMs found for the file with ID=" + fileID);
 				// TODO: throw an exception
 				return;
 			}
+			
+			// get a List of the ReportPSMs for FDR calculation
+			List<PSMReportItem> listForFDR = new ArrayList<PSMReportItem>(fileReportPSMs.get(fileID));
 			
 			if ((fileTopIdentifications.get(fileID) != null) &&
 					(fileTopIdentifications.get(fileID) > 0)) {
@@ -1102,7 +1196,7 @@ public class PSMModeller {
 						fileTopIdentifications.get(fileID) + " for " +
 						fdrData.getScoreShortName());
 				
-				for (ReportPSM psm : listForFDR) {
+				for (PSMReportItem psm : listForFDR) {
 					// as the used ReportPSMs may change with the filter, clear all prior FDR information
 					psm.dumpFDRCalculation();
 				}
@@ -1116,7 +1210,7 @@ public class PSMModeller {
 						false,
 						fdrData.getScoreShortName()));
 				
-				List<ReportPSM> filteredList = FilterFactory.applyFilters(
+				List<PSMReportItem> filteredList = FilterFactory.applyFilters(
 						listForFDR,
 						topRankFilter,
 						fileID);
@@ -1125,7 +1219,8 @@ public class PSMModeller {
 			}
 			
 			// calculate the FDR values
-			fdrData.calculateFDR(listForFDR);
+			fdrData.calculateFDR(listForFDR,
+					scoreShortToComparator.get(fdrData.getScoreShortName()));
 			
 			// and also calculate the FDR score
 			FDRScore.calculateFDRScore(listForFDR, fdrData);
@@ -1312,9 +1407,15 @@ public class PSMModeller {
 				new ArrayList<Comparator<PSMReportItem>>();
 		
 		for (String sortKey : sortOrders) {
-			Comparator<PSMReportItem> comp = PSMReportItemComparator.getComparatorByName(
-					sortKey,
-					sortables.get(sortKey));
+			Comparator<PSMReportItem> comp = getScoreComparator(sortKey);
+			
+			if (comp == null) {
+				comp = PSMReportItemComparator.getComparatorByName(
+						sortKey,
+						sortables.get(sortKey));
+			} else if (sortables.get(sortKey).equals(SortOrder.descending)){
+				comp = PSMReportItemComparator.descending(comp);
+			}
 			
 			if (comp != null) {
 				compares.add( comp);

@@ -183,9 +183,13 @@ public class PSMViewerSortingPanel {
 	 * @return
 	 */
 	public Comparator<PSMReportItem> getPSMComparator(String property) {
-		Comparator<PSMReportItem> comparator =
-				PSMReportItemComparator.getComparatorByName(property,
-						SortOrder.ascending);
+		Comparator<PSMReportItem> comparator = psmModeller.getScoreComparator(
+				property.substring(score_prefix.length()));
+		
+		if (comparator == null) {
+			comparator = PSMReportItemComparator.getComparatorByName(property,
+					SortOrder.ascending);
+		}
 		
 		return comparator;
     }

@@ -76,4 +76,9 @@ public class ScoreComparator<T extends ScoreComparable> implements Comparator<T>
 				Double.compare(score1.getValue(), score2.getValue());
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return scoreModelName + ":" + higherScoreBetter;
+	}
 }

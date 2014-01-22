@@ -39,7 +39,7 @@ public enum ScoreModelEnum {
 
 		@Override
 		public Double transformScoreForFDRScore(Double value) {
-			return null;
+			return value;
 		}
 		
 		@Override

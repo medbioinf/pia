@@ -73,7 +73,12 @@ public class ScoreModel implements Comparable<ScoreModel> {
 		if (!type.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
 			return type.getShortName();
 		} else {
-			return cvAccession;
+			if (cvAccession.contains(":")) {
+				String[] splitted = cvAccession.split(":");
+				return splitted[splitted.length-1];
+			} else {
+				return cvAccession;
+			}
 		}
 	}
 	

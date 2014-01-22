@@ -1,7 +1,5 @@
 package de.mpc.pia.webgui.psmviewer.component;
 
-import java.io.OutputStream;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -382,74 +380,5 @@ public class PSMViewerFDRPanel {
 	 */
 	public void gotCachedDataForFile(Long fileID) {
 		fileNeedsRecaching.put(fileID, false);
-	}
-
-	
-	
-	
-	
-	
-	
-
-	// ----------------------------------------------------
-	// all below is kept for later re-usage only
-	// ----------------------------------------------------
-	
-	
-	
-	/**
-	 * returns a little description, with current date for updating
-	 * @return
-	 */
-	public String getGraphDescription() {
-		return "PSM distribution for " + getName() + ", " + Calendar.getInstance().getTime().toString();
-	}
-	
-	
-	/**
-	 * Creates the chart of the PSM distribution among targets and decoys
-	 * 
-	 * @param out
-	 * @param data
-	 */
-	public void psmDistributionChart(OutputStream out, Object data) {
-		// TODO: reactivate sometime...
-		/*
-		System.out.println("\t>>>>> psmDistributionChart "+fileNumber);
-		
-		DefaultCategoryDataset dataSet = new DefaultCategoryDataset();
-
-		dataSet.addValue(fdrData.getNrPSMs(), "all PSMs", fileName);
-		dataSet.addValue(fdrData.getNrTargets(), "targets", fileName);
-		dataSet.addValue(fdrData.getNrDecoys(), "decoys", fileName);
-		dataSet.addValue(fdrData.getNrFDRGoodItems(), "PSMs below FDR threshold", fileName);
-		dataSet.addValue(fdrData.getNrFDRGoodTargets(), "targets below FDR threshold", fileName);
-		dataSet.addValue(fdrData.getNrFDRGoodDecoys(), "decoys below FDR threshold", fileName);
-		
-		
-		JFreeChart chart = ChartFactory.createBarChart(
-	            null,                     // chart title
-	            null,                     // domain axis label
-	            "number",                 // range axis label
-	            dataSet,                  // data
-	            PlotOrientation.VERTICAL, // the plot orientation
-	            true,                     // include legend
-	            true,
-	            false
-	        );
-		
-		BufferedImage buffImg = chart.createBufferedImage(
-				600, //width
-				450, //height,
-				BufferedImage.TYPE_INT_RGB, //image type
-				null);
-		
-		try {
-			ImageIO.write(buffImg, "png", out);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
 	}
 }
