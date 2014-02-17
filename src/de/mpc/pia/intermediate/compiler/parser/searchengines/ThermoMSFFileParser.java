@@ -12,9 +12,13 @@ import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
+import uk.ac.ebi.jmzidml.model.mzidml.FileFormat;
+import uk.ac.ebi.jmzidml.model.mzidml.InputSpectra;
 import uk.ac.ebi.jmzidml.model.mzidml.Param;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabaseRef;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 
@@ -437,6 +441,13 @@ public class ThermoMSFFileParser {
 		// TODO: add heaps of other settings...
 		*/
 		
+		// mapping from file name to input spectra
+		Map<String, SpectraData> spectraDataMap =
+				new HashMap<String, SpectraData>();
+		
+		// mapping from the ID of SpectrumIdentification to IDs of used inputSpectra
+		Map<String, Set<String>> spectrumIdToSpectraData =
+				new HashMap<String, Set<String>>();
 		
 		// now go through the spectra
 		for (Spectrum spec: thermoParser.getSpectra()) {
@@ -461,6 +472,59 @@ public class ThermoMSFFileParser {
 					logger.warn("PSM (" + sourceID + ", " + pep.getSequence() +
 							") does not come from a search.");
 					continue;
+				} else {
+					String rawFileName =
+							thermoParser.getRawfileNameByFileId(spec.getFileId());
+					
+					SpectraData spectraData =
+							spectraDataMap.get(rawFileName);
+					
+					if ((spectraData == null) &&
+							(rawFileName.endsWith(".mgf") ||
+									rawFileName.endsWith(".MGF"))) {
+						spectraData = new SpectraData();
+						
+						spectraData.setId("inputfile_" + rawFileName);
+						spectraData.setLocation(rawFileName);
+						
+						FileFormat fileFormat = new FileFormat();
+						
+						abstractParam = new CvParam();
+						((CvParam)abstractParam).setAccession("MS:1001062");
+						((CvParam)abstractParam).setCv(psiMS);
+						abstractParam.setName("Mascot MGF file");
+						fileFormat.setCvParam((CvParam)abstractParam);
+						spectraData.setFileFormat(fileFormat);
+						
+						SpectrumIDFormat idFormat = new SpectrumIDFormat();
+						abstractParam = new CvParam();
+						((CvParam)abstractParam).setAccession("MS:1000774");
+						((CvParam)abstractParam).setCv(psiMS);
+						abstractParam.setName("multiple peak list nativeID format");
+						idFormat.setCvParam((CvParam)abstractParam);
+						spectraData.setSpectrumIDFormat(idFormat);
+						
+						spectraData =
+								compiler.putIntoSpectraDataMap(spectraData);
+						
+						spectraDataMap.put(rawFileName, spectraData);
+					}
+					
+					// look, if spectrumID has the needed spectraDaza, if not, add it
+					Set<String> spectraDataIDs =
+							spectrumIdToSpectraData.get(spectrumID.getId());
+					if (spectraDataIDs == null) {
+						spectraDataIDs = new HashSet<String>();
+						spectrumIdToSpectraData.put(spectrumID.getId(),
+								spectraDataIDs);
+					}
+					if (!spectraDataIDs.contains(spectraData.getId())) {
+						InputSpectra inputSpectra = new InputSpectra();
+						inputSpectra.setSpectraData(spectraData);
+						
+						spectrumID.getInputSpectra().add(inputSpectra);
+						spectraDataIDs.add(spectraData.getId());
+					}
 				}
 				
 				PIAInputFile file = nodeNumbersToInputFiles.get(
