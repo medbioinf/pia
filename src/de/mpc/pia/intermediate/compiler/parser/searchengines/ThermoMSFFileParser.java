@@ -12,14 +12,22 @@ import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
+import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
+import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
 import uk.ac.ebi.jmzidml.model.mzidml.FileFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.InputSpectra;
+import uk.ac.ebi.jmzidml.model.mzidml.ModificationParams;
 import uk.ac.ebi.jmzidml.model.mzidml.Param;
+import uk.ac.ebi.jmzidml.model.mzidml.ParamList;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabaseRef;
+import uk.ac.ebi.jmzidml.model.mzidml.SearchModification;
+import uk.ac.ebi.jmzidml.model.mzidml.SpecificityRules;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
+import uk.ac.ebi.jmzidml.model.mzidml.Tolerance;
 import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 
 import com.compomics.thermo_msf_parser.Parser;
@@ -99,12 +107,14 @@ public class ThermoMSFFileParser {
 		
 		Map<Integer, SpectrumIdentification> nodeNumbersToIdentifications =
 				new HashMap<Integer, SpectrumIdentification>();
+		Map<Integer, SpectrumIdentificationProtocol> nodeNumbersToProtocols =
+				new HashMap<Integer, SpectrumIdentificationProtocol>();
 		Map<Integer, AnalysisSoftware> nodeNumbersToSoftwares =
 				new HashMap<Integer, AnalysisSoftware>();
 		
 		for (ProcessingNode node : thermoParser.getProcessingNodes()) {
 			AnalysisSoftware software = createAnalysisSoftware(
-					node.getFriendlyName(), psiMS);
+					node, psiMS);
 			
 			if (software != null) {
 				// add the software
@@ -113,11 +123,20 @@ public class ThermoMSFFileParser {
 				
 				// get all additional data
 				SearchDatabase searchDatabase = null;
+				Enzyme enzyme = null;
+				Integer maxMissedCleavages = null;
+				ParamList additionalSearchParams = new ParamList();
+				Tolerance fragmentTolerance = null;
+				Tolerance peptideTolerance = null;
+				ModificationParams modificationParameters =
+						new ModificationParams();
 				
 				for (ProcessingNodeParameter processingParam
 						: node.getProcessingNodeParameters()) {
 					
-					if (processingParam.getFriendlyName().equals("Protein Database")) {
+					if (processingParam.getParameterName().equals("Database") ||
+							processingParam.getParameterName().equals("FastaDatabase")) {
+						// database used
 						searchDatabase = new SearchDatabase();
 						
 						searchDatabase.setId(software.getName() +  "DB" +
@@ -139,23 +158,261 @@ public class ThermoMSFFileParser {
 						
 						// add searchDB to the compiler
 						searchDatabase = compiler.putIntoSearchDatabasesMap(searchDatabase);
+					} else if (processingParam.getParameterName().
+							equals("Enzyme")) {
+						
+						enzyme = new Enzyme();
+						enzyme.setId("enzyme_" +
+								node.getProcessingNodeNumber());
+						
+						ParamList enzymeName = new ParamList();
+						
+						if (processingParam.getParameterValue().equalsIgnoreCase("Trypsin") ||
+								processingParam.getValueDisplayString().equalsIgnoreCase("Trypsin (Full)")) {
+							// this is trypsin
+							enzyme.setSiteRegexp("(?<=[KR])(?!P)");
+							
+							abstractParam = new CvParam();
+							((CvParam)abstractParam).setAccession(
+									PIAConstants.CV_TRYPSIN_ACCESSION);
+							((CvParam)abstractParam).setCv(psiMS);
+							((CvParam)abstractParam).setName(
+									PIAConstants.CV_TRYPSIN_NAME);
+							
+							enzymeName.getCvParam().add((CvParam)abstractParam);
+						} else {
+							abstractParam = new UserParam();
+							((UserParam)abstractParam).setName(
+									processingParam.getValueDisplayString());
+							enzymeName.getCvParam().add((CvParam)abstractParam);
+						}
+						enzyme.setEnzymeName(enzymeName);
+					} else if (processingParam.getParameterName().equals("MaxMissedCleavages") ||
+							processingParam.getParameterName().equals("MissedCleavages")) {
+						// the allowed missed cleavages
+						maxMissedCleavages = 
+								Integer.parseInt(processingParam.getParameterValue());
+					} else if (processingParam.getParameterName().
+							equals("UseAveragePrecursorMass")) {
+						// precursor mass monoisotopic or average
+						abstractParam = new CvParam();
+						if (processingParam.getParameterValue().equals("False")) {
+				    		((CvParam)abstractParam).setAccession("MS:1001211");
+				    		((CvParam)abstractParam).setCv(psiMS);
+				    		abstractParam.setName("parent mass type mono");
+						} else {
+				    		((CvParam)abstractParam).setAccession("MS:1001212");
+				    		((CvParam)abstractParam).setCv(psiMS);
+				    		abstractParam.setName("parent mass type average");
+						}
+			    		additionalSearchParams.getCvParam().add(
+			    				(CvParam)abstractParam);
+					} else if (processingParam.getParameterName().
+							equals("UseAverageFragmentMass")) {
+						// fragment mass monoisotopic or average
+						abstractParam = new CvParam();
+						if (processingParam.getParameterValue().equals("False")) {
+				    		((CvParam)abstractParam).setAccession("MS:1001256");
+				    		((CvParam)abstractParam).setCv(psiMS);
+				    		abstractParam.setName("fragment mass type mono");
+						} else {
+				    		((CvParam)abstractParam).setAccession("MS:1001255");
+				    		((CvParam)abstractParam).setCv(psiMS);
+				    		abstractParam.setName("fragment mass type average");
+						}
+			    		additionalSearchParams.getCvParam().add(
+			    				(CvParam)abstractParam);
+					} else if (processingParam.getParameterName().
+							equals("FragmentTolerance")) {
+						fragmentTolerance = new Tolerance();
+						
+						String split[] =
+								processingParam.getParameterValue().split(" ");
+						
+						abstractParam = new CvParam();
+						((CvParam)abstractParam).setAccession("MS:1001412");
+						((CvParam)abstractParam).setCv(psiMS);
+						abstractParam.setName("search tolerance plus value");
+						abstractParam.setValue(split[0]);
+						if (split.length > 1) {
+							abstractParam.setUnitName(split[1]);
+						}
+						fragmentTolerance.getCvParam().add((CvParam)abstractParam);
+						
+						abstractParam = new CvParam();
+						((CvParam)abstractParam).setAccession("MS:1001413");
+						((CvParam)abstractParam).setCv(psiMS);
+						abstractParam.setName("search tolerance minus value");
+						abstractParam.setValue(split[0]);
+						if (split.length > 1) {
+							abstractParam.setUnitName(split[1]);
+						}
+						fragmentTolerance.getCvParam().add((CvParam)abstractParam);
+					} else if (processingParam.getParameterName().
+							equals("PeptideTolerance")) {
+						peptideTolerance = new Tolerance();
+						
+						String split[] =
+								processingParam.getParameterValue().split(" ");
+						
+						abstractParam = new CvParam();
+						((CvParam)abstractParam).setAccession("MS:1001412");
+						((CvParam)abstractParam).setCv(psiMS);
+						abstractParam.setName("search tolerance plus value");
+						abstractParam.setValue(split[0]);
+						if (split.length > 1) {
+							abstractParam.setUnitName(split[1]);
+						}
+						peptideTolerance.getCvParam().add(
+								(CvParam)abstractParam);
+						
+						abstractParam = new CvParam();
+						((CvParam)abstractParam).setAccession("MS:1001413");
+						((CvParam)abstractParam).setCv(psiMS);
+						abstractParam.setName("search tolerance minus value");
+						abstractParam.setValue(split[0]);
+						if (split.length > 1) {
+							abstractParam.setUnitName(split[1]);
+						}
+						peptideTolerance.getCvParam().add(
+								(CvParam)abstractParam);
+					} else {
+						// check software specific values
+						if (node.getNodeName().equals("Mascot")) {
+							if (processingParam.getParameterName().equals("Instrument")) {
+								// mascot instrument
+								abstractParam = new CvParam();
+								((CvParam)abstractParam).setAccession(
+										"MS:1001656");
+								((CvParam)abstractParam).setCv(psiMS);
+								abstractParam.setName("Mascot:Instrument");
+								abstractParam.setValue(
+										processingParam.getParameterValue());
+								additionalSearchParams.getCvParam().add(
+										(CvParam)abstractParam);
+							} else if (processingParam.getParameterName().
+									startsWith("DynModification_")) {
+								// dynamic sequest modification
+								SearchModification searchMod = 
+										createModification(
+												processingParam.getValueDisplayString(),
+												false, psiMS);
+								
+								if (searchMod != null) {
+									modificationParameters
+										.getSearchModification().add(searchMod);
+								}
+							} else if (processingParam.getParameterName().
+									startsWith("Static_") &&
+									!processingParam.getParameterName().equals("Static_X")) {
+								// static sequest modification
+								SearchModification searchMod = 
+										createModification(
+												processingParam.getValueDisplayString(),
+												true, psiMS);
+								
+								if (searchMod != null) {
+									modificationParameters
+										.getSearchModification().add(searchMod);
+								}
+							}
+							
+							
+						} else if (node.getNodeName().equals("SequestNode")) {
+							
+							if (processingParam.getParameterName().startsWith("DynMod_") ||
+									processingParam.getParameterName().startsWith("DynNTermMod") ||
+									processingParam.getParameterName().startsWith("DynCTermMod")) {
+								// dynamic sequest modification
+								SearchModification searchMod = 
+										createModification(
+												processingParam.getValueDisplayString(),
+												false, psiMS);
+								
+								if (searchMod != null) {
+									modificationParameters
+										.getSearchModification().add(searchMod);
+								}
+							} else if (processingParam.getParameterName().startsWith("StatMod_") ||
+									processingParam.getParameterName().startsWith("StatNTermMod") ||
+									processingParam.getParameterName().startsWith("StatCTermMod")) {
+								// static sequest modification
+								SearchModification searchMod = 
+										createModification(
+												processingParam.getValueDisplayString(),
+												true, psiMS);
+								
+								if (searchMod != null) {
+									modificationParameters
+										.getSearchModification().add(searchMod);
+								}
+							}
+							
+						}
+					}
+				}
+				
+				// create the spectrumIDProtocol
+				SpectrumIdentificationProtocol spectrumIDProtocol =
+						new SpectrumIdentificationProtocol();
+				
+				spectrumIDProtocol.setId(
+						"pdAnalysis_" + node.getProcessingNodeId());
+				spectrumIDProtocol.setAnalysisSoftware(software);
+				
+				// only MS/MS searches are usable for PIA
+				param = new Param();
+				abstractParam = new CvParam();
+				((CvParam)abstractParam).setAccession("MS:1001083");
+				((CvParam)abstractParam).setCv(psiMS);
+				abstractParam.setName("ms-ms search");
+				param.setParam(abstractParam);
+				
+				spectrumIDProtocol.setSearchType(param);
+				
+				if (additionalSearchParams.getCvParam().size() > 0) {
+					spectrumIDProtocol.setAdditionalSearchParams(
+							additionalSearchParams);
+				}
+				
+				spectrumIDProtocol.setModificationParams(modificationParameters);
+				
+				if (enzyme != null) {
+					if (maxMissedCleavages != null) {
+						enzyme.setMissedCleavages(maxMissedCleavages);
 					}
 					
+					Enzymes enzymes = new Enzymes();
+					spectrumIDProtocol.setEnzymes(enzymes);
+					enzymes.getEnzyme().add(enzyme);
 				}
+				
+				if (fragmentTolerance != null) {
+					spectrumIDProtocol.setFragmentTolerance(fragmentTolerance);
+				}
+				
+				if (peptideTolerance != null) {
+					spectrumIDProtocol.setParentTolerance(peptideTolerance);
+				}
+				
+				// no threshold set, take all PSMs from the dat file
+				ParamList paramList = new ParamList();
+				abstractParam = new CvParam();
+				((CvParam)abstractParam).setAccession("MS:1001494");
+				((CvParam)abstractParam).setCv(psiMS);
+				abstractParam.setName("no threshold");
+				paramList.getCvParam().add((CvParam)abstractParam);
+				spectrumIDProtocol.setThreshold(paramList);
+				
+				nodeNumbersToProtocols.put(node.getProcessingNodeNumber(),
+						spectrumIDProtocol);
+				
 				
 				// add the spectrum identification
 				SpectrumIdentification spectrumID = new SpectrumIdentification();
 				spectrumID.setId("node" + node.getProcessingNodeNumber() + "Identification");
-				/*
-				TODO: add these information!
-				
 				spectrumID.setSpectrumIdentificationList(null);
-				spectrumID.setSpectrumIdentificationProtocol(spectrumIDProtocol);
 				
-				InputSpectra inputSpectra = new InputSpectra();
-				inputSpectra.setSpectraData(spectraData);
-				spectrumID.getInputSpectra().add(inputSpectra);
-				*/
 				if (searchDatabase != null) {
 					SearchDatabaseRef searchDBRef = new SearchDatabaseRef();
 					searchDBRef.setSearchDatabase(searchDatabase);
@@ -192,254 +449,17 @@ public class ThermoMSFFileParser {
 						InputFileParserFactory.InputFileTypes.THERMO_MSF_INPUT.getFileSuffix());
 			}
 			
+			SpectrumIdentificationProtocol protocol = 
+					nodeNumbersToProtocols.get(idIt.getKey());
+			SpectrumIdentification id = idIt.getValue();
 			
-			file.addSpectrumIdentification(idIt.getValue());
+			file.addSpectrumIdentificationProtocol(protocol);
+			
+			id.setSpectrumIdentificationProtocol(protocol);
+			file.addSpectrumIdentification(id);
 			
 			nodeNumbersToInputFiles.put(idIt.getKey(), file);
 		}
-	
-		/*
-
-		// TODO: add refinement (modifications and all other stuff
-		
-		InputParams inputParams = xtandemFile.getInputParameters();
-		
-		// add the spectraData (input file)
-		SpectraData spectraData = new SpectraData();
-		
-		spectraData.setId("tandemInputMGF");
-		spectraData.setLocation(inputParams.getSpectrumPath());
-		// TODO: for now write MGF, though it could be mzML as well
-		fileFormat = new FileFormat();
-		abstractParam = new CvParam();
-		((CvParam)abstractParam).setAccession("MS:1001062");
-		((CvParam)abstractParam).setCv(psiMS);
-		abstractParam.setName("Mascot MGF file");
-		fileFormat.setCvParam((CvParam)abstractParam);
-		spectraData.setFileFormat(fileFormat);
-		SpectrumIDFormat idFormat = new SpectrumIDFormat();
-		abstractParam = new CvParam();
-		((CvParam)abstractParam).setAccession("MS:1000774");
-		((CvParam)abstractParam).setCv(psiMS);
-		abstractParam.setName("multiple peak list nativeID format");
-		idFormat.setCvParam((CvParam)abstractParam);
-		spectraData.setSpectrumIDFormat(idFormat);
-		
-		spectraData = compiler.putIntoSpectraDataMap(spectraData);
-		
-		
-		// define the spectrumIdentificationProtocol
-		SpectrumIdentificationProtocol spectrumIDProtocol =
-				new SpectrumIdentificationProtocol();
-		
-		spectrumIDProtocol.setId("tandemAnalysis");
-		spectrumIDProtocol.setAnalysisSoftware(tandem);
-		
-		param = new Param();
-		// TODO: check, whether tandem can anything else than ms/ms (guess not... hence the name)
-		abstractParam = new CvParam();
-		((CvParam)abstractParam).setAccession("MS:1001083");
-		((CvParam)abstractParam).setCv(psiMS);
-		abstractParam.setName("ms-ms search");
-		param.setParam(abstractParam);
-		spectrumIDProtocol.setSearchType(param);
-		
-		ParamList paramList = new ParamList();
-		abstractParam = new CvParam();
-        // does not appear to be a way in Tandem of specifying parent mass is average
-		((CvParam)abstractParam).setAccession("MS:1001211");
-		((CvParam)abstractParam).setCv(psiMS);
-		abstractParam.setName("parent mass type mono");
-		paramList.getCvParam().add((CvParam)abstractParam);
-		
-		abstractParam = new CvParam();
-		boolean fragmentMonoisotopic;
-		if (inputParams.getSpectrumFragMassType().
-				equals("monoisotopic")) {
-    		((CvParam)abstractParam).setAccession("MS:1001256");
-    		((CvParam)abstractParam).setCv(psiMS);
-    		abstractParam.setName("fragment mass type mono");
-    		fragmentMonoisotopic = true;
-        } else {
-    		((CvParam)abstractParam).setAccession("MS:1001255");
-    		((CvParam)abstractParam).setCv(psiMS);
-    		abstractParam.setName("fragment mass type average");
-    		fragmentMonoisotopic = false;
-        }
-		paramList.getCvParam().add((CvParam)abstractParam);
-		
-		spectrumIDProtocol.setAdditionalSearchParams(paramList);
-		
-		
-		ModificationParams modParams = new ModificationParams();
-		SearchModification searchMod;
-		
-		strParam = inputParams.getResiduePotModMass();
-		if (strParam != null) {
-			// variable modifications (w/o refinement)
-			String varMods[] = strParam.split(",");
-			
-			for(String varMod : varMods) {
-				if (!varMod.equalsIgnoreCase("None")) {
-					
-		            String[] values = varMod.split("@");
-		            
-					searchMod = new SearchModification();
-					searchMod.setFixedMod(false);
-					searchMod.setMassDelta((float)Float.parseFloat(values[0]));
-					searchMod.getResidues().add(values[1]);
-					
-					// TODO: add the cvParam for the modification
-					
-					modParams.getSearchModification().add(searchMod);
-				}
-			}
-		}
-		// TODO: add fixed modifications
-		spectrumIDProtocol.setModificationParams(modParams);
-		
-		
-		Enzymes enzymes = new Enzymes();
-		Enzyme enzyme = new Enzyme();
-		
-		enzyme.setId("enzyme");
-		enzyme.setMissedCleavages(inputParams.getScoringMissCleavageSites());
-		
-		strParam = inputParams.getProteinCleavageSite();
-		if (strParam != null) {
-			enzyme.setSiteRegexp(strParam);
-			
-			String cleavages[] = strParam.split(",");
-			
-			if (cleavages.length > 1) {
-				logger.warn("Only one enzyme (cleavage site) implemented yet.");
-			}
-			
-			if (cleavages.length > 0) {
-				strParam = cleavages[0];
-				
-				
-				String values[] = strParam.split("\\|");
-				String pre = values[0].substring(1, values[0].length() - 1);
-				if (pre.equalsIgnoreCase("X")) {
-					// X stands for any, make it \S in PCRE for "not whitespace"
-					pre = "\\S";
-				}
-				if (values[0].startsWith("[") && values[0].endsWith("]")) {
-					pre = "(?<=" + pre + ")";
-				} else if (values[0].startsWith("{") && values[0].endsWith("}")) {
-					pre = "(?<!" + pre + ")";
-				}
-				
-				String post = values[1].substring(1, values[1].length() - 1);
-				if (post.equalsIgnoreCase("X")) {
-					// X stands for any, make it \S in PCRE for "not whitespace"
-					post = "\\S";
-				}
-				if (values[1].startsWith("[") && values[1].endsWith("]")) {
-					post = "(?=" + post + ")";
-				} else if (values[1].startsWith("{") && values[1].endsWith("}")) {
-					post = "(?!" + post + ")";
-				}
-				
-				enzyme.setSiteRegexp(pre + post);
-			} else {
-				logger.error("No cleavage site found!");
-			}
-		}
-		
-		enzymes.getEnzyme().add(enzyme);
-		spectrumIDProtocol.setEnzymes(enzymes);
-		
-		
-		Tolerance tolerance = new Tolerance();
-		
-		Double error;
-		String units;
-		if (fragmentMonoisotopic) {
-			error = inputParams.getSpectrumMonoIsoMassError();
-			units = inputParams.getSpectrumMonoIsoMassErrorUnits();
-		} else {
-			// TODO: implement average fragment mass
-			error = null;
-			units = null;
-		}
-		
-		abstractParam = new CvParam();
-		((CvParam)abstractParam).setAccession("MS:1001412");
-		((CvParam)abstractParam).setCv(psiMS);
-		abstractParam.setName("search tolerance plus value");
-		abstractParam.setValue(error.toString());
-		abstractParam.setUnitName(units);
-		tolerance.getCvParam().add((CvParam)abstractParam);
-		
-		abstractParam = new CvParam();
-		((CvParam)abstractParam).setAccession("MS:1001413");
-		((CvParam)abstractParam).setCv(psiMS);
-		abstractParam.setName("search tolerance minus value");
-		abstractParam.setValue(error.toString());
-		abstractParam.setUnitName(units);
-		tolerance.getCvParam().add((CvParam)abstractParam);
-		
-		spectrumIDProtocol.setFragmentTolerance(tolerance);
-		
-		
-		tolerance = new Tolerance();
-		
-		abstractParam = new CvParam();
-		((CvParam)abstractParam).setAccession("MS:1001412");
-		((CvParam)abstractParam).setCv(psiMS);
-		abstractParam.setName("search tolerance plus value");
-		abstractParam.setValue(
-				String.valueOf(inputParams.getSpectrumParentMonoIsoMassErrorPlus()));
-		abstractParam.setUnitName(inputParams.getSpectrumParentMonoIsoMassErrorUnits());
-		tolerance.getCvParam().add((CvParam)abstractParam);
-		
-		abstractParam = new CvParam();
-		((CvParam)abstractParam).setAccession("MS:1001413");
-		((CvParam)abstractParam).setCv(psiMS);
-		abstractParam.setName("search tolerance minus value");
-		abstractParam.setValue(
-				String.valueOf(inputParams.getSpectrumParentMonoIsoMassErrorMinus()));
-		abstractParam.setUnitName(inputParams.getSpectrumParentMonoIsoMassErrorUnits());
-		tolerance.getCvParam().add((CvParam)abstractParam);
-		
-		spectrumIDProtocol.setParentTolerance(tolerance);
-		
-		// no threshold set, take all PSMs from the dat file
-		paramList = new ParamList();
-		abstractParam = new CvParam();
-		((CvParam)abstractParam).setAccession("MS:1001494");
-		((CvParam)abstractParam).setCv(psiMS);
-		abstractParam.setName("no threshold");
-		paramList.getCvParam().add((CvParam)abstractParam);
-		spectrumIDProtocol.setThreshold(paramList);
-		
-		
-		file.addSpectrumIdentificationProtocol(spectrumIDProtocol);
-		
-		
-		// add the spectrum identification
-		SpectrumIdentification spectrumID = new SpectrumIdentification();
-		spectrumID.setId("mascotIdentification");
-		spectrumID.setSpectrumIdentificationList(null);
-		spectrumID.setSpectrumIdentificationProtocol(spectrumIDProtocol);
-		
-		InputSpectra inputSpectra = new InputSpectra();
-		inputSpectra.setSpectraData(spectraData);
-		spectrumID.getInputSpectra().add(inputSpectra);
-		
-		SearchDatabaseRef searchDBRef;
-		for (SearchDatabase sDB : searchDatabaseMap.values()) {
-			searchDBRef = new SearchDatabaseRef();
-			searchDBRef.setSearchDatabase(sDB);
-			spectrumID.getSearchDatabaseRef().add(searchDBRef);
-		}
-		
-		file.addSpectrumIdentification(spectrumID);
-		
-		// TODO: add heaps of other settings...
-		*/
 		
 		// mapping from file name to input spectra
 		Map<String, SpectraData> spectraDataMap =
@@ -723,11 +743,12 @@ public class ThermoMSFFileParser {
 	 * @param psiMS
 	 * @return
 	 */
-	static AnalysisSoftware createAnalysisSoftware(String friendlyName, Cv psiMS) {
+	private static AnalysisSoftware createAnalysisSoftware(ProcessingNode node,
+			Cv psiMS) {
 		AnalysisSoftware software = new AnalysisSoftware();
 		
 		// TODO: add more software
-		if (friendlyName.equals("SEQUEST")) {
+		if (node.getNodeName().equals("SequestNode")) {
 			software.setId("sequest");
 			software.setName("SEQUEST");
 			
@@ -742,7 +763,7 @@ public class ThermoMSFFileParser {
 			software.setSoftwareName(param);
 			
 			logger.debug("added Sequest as software");
-		} else if (friendlyName.equals("Mascot")) {
+		} else if (node.getNodeName().equals("Mascot")) {
 			software.setId("mascot");
 			software.setName("mascot");
 			software.setUri("http://www.matrixscience.com/");
@@ -764,5 +785,80 @@ public class ThermoMSFFileParser {
 		}
 		
 		return software;
+	}
+	
+	
+	
+	private static SearchModification createModification(String modString,
+			boolean isFixed, Cv psiMS) {
+		String split[] = modString.split("/");
+		if (split.length < 2) {
+			logger.warn("Modification could not be parsed: "
+					+ modString);
+			return null;
+		}
+		
+		split = split[1].split("Da");
+		
+		Float massShift = null;
+		try {
+			massShift = Float.parseFloat(split[0]);
+		} catch (NumberFormatException e) {
+			logger.warn("Could not parse massShift " + split[0] + " in " +
+					modString);
+			return null;
+		}
+		
+		SearchModification searchMod = new SearchModification();
+		searchMod.setFixedMod(isFixed);
+		searchMod.setMassDelta(massShift);
+		
+		split = split[1].
+				substring(split[1].indexOf("(")+1, split[1].indexOf(")")).
+				split(",");
+		
+		for (String res : split) {
+			if (res.contains("N-Term") || res.contains("C-Term")) {
+				searchMod.getResidues().add(".");
+				
+				CvParam  specificity = new CvParam();
+				specificity.setCv(psiMS);
+				if (res.contains("N-Term")) {
+					specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION);
+					specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_NAME);
+				} else {
+					specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_ACCESSION);
+					specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_NAME);
+				}
+				SpecificityRules specRules = new SpecificityRules();
+				specRules.getCvParam().add(specificity);
+				searchMod.getSpecificityRules().add(specRules);
+			} else {
+				searchMod.getResidues().add(res);
+			}
+		}
+		
+		/*
+		if (values[1].equals("[") || values[1].equals("]")) {
+			searchMod.getResidues().add(".");
+			
+			CvParam  specificity = new CvParam();
+			specificity.setCv(psiMS);
+			if (values[1].equals("[")) {
+				specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION);
+				specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_NAME);
+			} else {
+				specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_ACCESSION);
+				specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_NAME);
+			}
+			SpecificityRules specRules = new SpecificityRules();
+			specRules.getCvParam().add(specificity);
+			searchMod.getSpecificityRules().add(specRules);
+		} else {
+			searchMod.getResidues().add(values[1]);
+		}
+		*/
+		
+		return searchMod;
 	}
 }

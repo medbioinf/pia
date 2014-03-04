@@ -33,6 +33,7 @@ public class PIAConstants {
 	public static String spectrum_identification_prefix = "specIdent_";
 	public static String databases_prefix = "searchDB_";
 	public static String spectra_data_prefix = "spectraData_";
+	public static String enzyme_prefix = "enzyme_";
 	
 	
 	// prefixes for mzTab export
@@ -167,6 +168,11 @@ public class PIAConstants {
 	public static final String CV_MASCOT_EXPECTATION_VALUE_ACCESSION = "MS:1001172";
 	/** name for "Mascot:expectation value" in PSI-MS */
 	public static final String CV_MASCOT_EXPECTATION_VALUE_NAME = "Mascot:expectation value";
+	
+	/** accession for "Trypsin" in PSI-MS */
+	public static final String CV_TRYPSIN_ACCESSION = "MS:1001251";
+	/** name for "Trypsin" in PSI-MS */
+	public static final String CV_TRYPSIN_NAME = "Trypsin";
 	
 	/** accession for "X!Tandem:expect" in PSI-MS */
 	public static final String CV_XTANDEM_EXPECT_ACCESSION = "MS:1001330";

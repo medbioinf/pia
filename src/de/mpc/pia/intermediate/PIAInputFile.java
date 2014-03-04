@@ -10,6 +10,7 @@ import de.mpc.pia.tools.PIAConstants;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisProtocolCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
+import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 import uk.ac.ebi.jmzidml.model.mzidml.InputSpectra;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabaseRef;
@@ -183,6 +184,13 @@ public class PIAInputFile implements Serializable {
 			if (spectrumId.getSpectrumIdentificationProtocolRef().equals(ref)) {
 				spectrumId.setSpectrumIdentificationProtocol(sip);
 			}
+		}
+		
+		// uniquify the enzymes' IDs in the SpectrumIdentificationProtocol
+		int idx = 1;
+		for (Enzyme enzyme : sip.getEnzymes().getEnzyme()) {
+			enzyme.setId(PIAConstants.enzyme_prefix + this.ID + "_" + idx);
+			idx++;
 		}
 		
 		return strID;

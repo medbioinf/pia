@@ -2318,20 +2318,20 @@ public class PSMModeller {
 							: specIdProt.getModificationParams().getSearchModification()) {
 						if (mod.getCvParam().size() < 1) {
 							// the cvParam of the modification is not set, try to do so
-							ModT modification = unimodParser.
+							ModT unimod = unimodParser.
 									getModificationByMass(
 											Float.valueOf(mod.getMassDelta()).doubleValue(),
 											mod.getResidues());
 							
-							if (modification != null) {
+							if (unimod != null) {
 								tempCvParam = new CvParam();
 								tempCvParam.setAccession(
-										modification.getTitle());
+										"UNIMOD:" + unimod.getRecordId());
 								tempCvParam.setCv(unimodCV);
-								tempCvParam.setName(modification.getTitle());
+								tempCvParam.setName(unimod.getTitle());
 								mod.getCvParam().add(tempCvParam);
 								mod.setMassDelta(
-										modification.getDelta().getMonoMass().floatValue());
+										unimod.getDelta().getMonoMass().floatValue());
 							}
 						}
 					}
