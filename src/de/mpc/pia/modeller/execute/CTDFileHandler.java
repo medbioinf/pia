@@ -296,8 +296,7 @@ public class CTDFileHandler {
 					value="0.1.22"
 					advanced="true"
 					description="Version of the tool that generated this parameters file."
-					required="true"
-					restrictions="0.1.22" />
+					required="true" />
 			 */
 			item = new ITEMType();
 			item.setName("version");
@@ -306,7 +305,6 @@ public class CTDFileHandler {
 			item.setAdvanced(true);
 			item.setDescription("Version of the tool that generated this parameters file.");
 			item.setRequired(true);
-			item.setRestrictions(PIAConstants.version);
 			node.getITEMOrITEMLISTOrNODE().add(item);
 			
 			/*

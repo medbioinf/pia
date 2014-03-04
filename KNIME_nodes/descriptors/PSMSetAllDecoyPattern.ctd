@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<tool category="PSM" name="PSMSetAllDecoyPattern" version="1.0.0-rc1">
+<tool category="PSM" name="PSMSetAllDecoyPattern" version="1.0.0-rc2">
     <description>Sets the regular expression used for decoy detection or if 'searchengine' is given as pattern, assumes a decoy search directly performed by the search engine.</description>
     <executableName>java</executableName>
     <cli>
@@ -24,7 +24,7 @@
     </cli>
     <PARAMETERS version="1.6.2">
         <NODE description="Sets the regular expression used for decoy detection or if 'searchengine' is given as pattern, assumes a decoy search directly performed by the search engine." name="PSMSetAllDecoyPattern">
-            <ITEM value="1.0.0-rc1" advanced="true" required="true" restrictions="1.0.0-rc1" description="Version of the tool that generated this parameters file." type="string" name="version"/>
+            <ITEM value="1.0.0-rc2" advanced="true" required="true" description="Version of the tool that generated this parameters file." type="string" name="version"/>
             <ITEM value="-Xmx1G" advanced="true" required="false" description="Additional Java settings, like giving Java a big enough amount of memory." type="string" name="vmsettings"/>
             <ITEM value="pia.jar" advanced="true" required="false" description="The actual JAR, in which the PIA classes reside." type="string" name="classpath"/>
             <ITEM value="" advanced="false" required="true" supported_formats="*.xml" description="Path to the file, which contains the build pipeline until this step." type="input-file" name="paramFile"/>

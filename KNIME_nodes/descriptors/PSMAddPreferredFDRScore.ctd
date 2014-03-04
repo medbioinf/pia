@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<tool category="PSM" name="PSMAddPreferredFDRScore" version="1.0.0-rc1">
+<tool category="PSM" name="PSMAddPreferredFDRScore" version="1.0.0-rc2">
     <description>Adds the given score name to the list of preferred scores for FDR calculation.</description>
     <executableName>java</executableName>
     <cli>
@@ -24,7 +24,7 @@
     </cli>
     <PARAMETERS version="1.6.2">
         <NODE description="Adds the given score name to the list of preferred scores for FDR calculation." name="PSMAddPreferredFDRScore">
-            <ITEM value="1.0.0-rc1" advanced="true" required="true" restrictions="1.0.0-rc1" description="Version of the tool that generated this parameters file." type="string" name="version"/>
+            <ITEM value="1.0.0-rc2" advanced="true" required="true" description="Version of the tool that generated this parameters file." type="string" name="version"/>
             <ITEM value="-Xmx1G" advanced="true" required="false" description="Additional Java settings, like giving Java a big enough amount of memory." type="string" name="vmsettings"/>
             <ITEM value="pia.jar" advanced="true" required="false" description="The actual JAR, in which the PIA classes reside." type="string" name="classpath"/>
             <ITEM value="" advanced="false" required="true" supported_formats="*.xml" description="Path to the file, which contains the build pipeline until this step." type="input-file" name="paramFile"/>

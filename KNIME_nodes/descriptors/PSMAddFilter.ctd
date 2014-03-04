@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<tool category="PSM" name="PSMAddFilter" version="1.0.0-rc1">
+<tool category="PSM" name="PSMAddFilter" version="1.0.0-rc2">
     <description>Adds a PSM level filter to a specified file. The file is given by the first parameter, which has to be the file id. Filters are added by their name, an abbreviation for the camparison, the compared value and (optional), whether the comparison should be negated e.g. &quot;AddFilter=1,charge_filter,EQ,2,no&quot;. 
 Registered PSM filters are: [source_id_filter, psm_unique_filter, delta_ppm_filter, delta_mass_filter, psm_accessions_filter, mz_filter, psm_missed_cleavages_filter, psm_score_filter_[scoreShort], psm_top_identification_filter_[scoreShort], psm_modifications_filter, psm_description_filter, psm_rank_filter, nr_accessions_per_psm_filter, psm_sequence_filter, psm_file_list_filter, charge_filter, nr_psms_per_psm_set_filter]</description>
     <executableName>java</executableName>
@@ -37,7 +37,7 @@ Registered PSM filters are: [source_id_filter, psm_unique_filter, delta_ppm_filt
     </cli>
     <PARAMETERS version="1.6.2">
         <NODE description="Adds a PSM level filter to a specified file. The file is given by the first parameter, which has to be the file id. Filters are added by their name, an abbreviation for the camparison, the compared value and (optional), whether the comparison should be negated e.g. &quot;AddFilter=1,charge_filter,EQ,2,no&quot;. &#xA;Registered PSM filters are: [source_id_filter, psm_unique_filter, delta_ppm_filter, delta_mass_filter, psm_accessions_filter, mz_filter, psm_missed_cleavages_filter, psm_score_filter_[scoreShort], psm_top_identification_filter_[scoreShort], psm_modifications_filter, psm_description_filter, psm_rank_filter, nr_accessions_per_psm_filter, psm_sequence_filter, psm_file_list_filter, charge_filter, nr_psms_per_psm_set_filter]" name="PSMAddFilter">
-            <ITEM value="1.0.0-rc1" advanced="true" required="true" restrictions="1.0.0-rc1" description="Version of the tool that generated this parameters file." type="string" name="version"/>
+            <ITEM value="1.0.0-rc2" advanced="true" required="true" description="Version of the tool that generated this parameters file." type="string" name="version"/>
             <ITEM value="-Xmx1G" advanced="true" required="false" description="Additional Java settings, like giving Java a big enough amount of memory." type="string" name="vmsettings"/>
             <ITEM value="pia.jar" advanced="true" required="false" description="The actual JAR, in which the PIA classes reside." type="string" name="classpath"/>
             <ITEM value="" advanced="false" required="true" supported_formats="*.xml" description="Path to the file, which contains the build pipeline until this step." type="input-file" name="paramFile"/>
