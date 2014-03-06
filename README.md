@@ -8,6 +8,7 @@ identification search engines, combine them and conduct statistical analyses.
 The main focus of PIA lays on the integrated inference algorithms, i.e.
 concluding the proteins from a set of identified spectra.
 
+![PIA - Logo](https://raw.github.com/wiki/mpc-bioinformatics/pia/pia_logo.png)
 
 PIA in a nutshell
 ===
