@@ -38,3 +38,9 @@ allow for any adjustments needed by the user.
 PIA can be called via the command line, via
 [GenericKnimeNodes](https://github.com/genericworkflownodes/GenericKnimeNodes) in
 KNIME or using the JavaServer Faces web-interface.
+
+
+Documentation
+===
+
+For documentation please refer to the Wiki (https://github.com/mpc-bioinformatics/pia/wiki) on github.
