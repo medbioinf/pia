@@ -3708,7 +3708,7 @@ public class PSMModeller {
 			PSM mztabPsm = new PSM(columnFactory, metadata);
 			
 			mztabPsm.setSequence(psmItem.getSequence());
-			String specIdRef = null;
+			Set<String> specIdRefs = new HashSet<String>();
 			
 			Set<String> softwareRefs = new HashSet<String>();
 			
@@ -3718,8 +3718,8 @@ public class PSMModeller {
 			if (psmItem instanceof ReportPSM) {
 				psmID = ((ReportPSM) psmItem).getId().intValue();
 				
-				specIdRef = ((ReportPSM) psmItem).getSpectrum().
-						getSpectrumIdentification().getId();
+				specIdRefs.add(((ReportPSM) psmItem).getSpectrum().
+						getSpectrumIdentification().getId());
 				
 				softwareRefs.add(((ReportPSM) psmItem).getFile().
 						getAnalysisProtocolCollection().
@@ -3734,9 +3734,10 @@ public class PSMModeller {
 				
 				Set<String> scoreShorts = new HashSet<String>();
 				for (ReportPSM reportPSM : ((ReportPSMSet) psmItem).getPSMs()) {
-					if (specIdRef != null) {
-						specIdRef = reportPSM.getSpectrum().
-								getSpectrumIdentification().getId();
+					if (reportPSM.getSpectrum().
+							getSpectrumIdentification().getId() != null) {
+						specIdRefs.add(reportPSM.getSpectrum().
+								getSpectrumIdentification().getId());
 					}
 					
 					softwareRefs.add(reportPSM.getFile().
@@ -3812,12 +3813,14 @@ public class PSMModeller {
 			// mztabPsm.setURI("http://www.ebi.ac.uk/pride/link/to/peptide");
 			
 			if (psmItem.getSourceID() != null) {
-				List<MsRun> runList = specIDRefToMsRuns.get(specIdRef);
-				
-				if ((runList != null) && (runList.size() == 1)) {
-					SpectraRef specRef = new SpectraRef(runList.get(0),
-							psmItem.getSourceID());
-					mztabPsm.addSpectraRef(specRef);
+				for (String specIdRef : specIdRefs) {
+					List<MsRun> runList = specIDRefToMsRuns.get(specIdRef);
+					if ((runList != null) && (runList.size() == 1)) {
+						// TODO: what, if there is more than one msRun per file?
+						SpectraRef specRef = new SpectraRef(runList.get(0),
+								psmItem.getSourceID());
+						mztabPsm.addSpectraRef(specRef);
+					}
 				}
 			}
 			
