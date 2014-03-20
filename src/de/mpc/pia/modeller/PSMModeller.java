@@ -2,6 +2,7 @@ package de.mpc.pia.modeller;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,7 +65,6 @@ import uk.ac.ebi.pride.jmztab.model.Reliability;
 import uk.ac.ebi.pride.jmztab.model.Section;
 import uk.ac.ebi.pride.jmztab.model.SpectraRef;
 import uk.ac.ebi.pride.jmztab.model.VariableMod;
-
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.AccessionOccurrence;
 import de.mpc.pia.intermediate.Group;
@@ -3460,7 +3460,14 @@ public class PSMModeller {
 			
 			MsRun msRun = new MsRun(spectraIt.getValue());
 			
-			msRun.setLocation(new URL("file://" + sd.getLocation()));
+			// there are sometimes errors in the URl enocdinig of the files...
+			URL locationUrl = null;
+			try {
+				locationUrl = new URL(sd.getLocation());
+			} catch (MalformedURLException ex) {
+				locationUrl = new URL("file", "//", sd.getLocation());
+			}
+			msRun.setLocation(locationUrl);
 			
 			if ((sd.getFileFormat() != null) &&
 					(sd.getFileFormat().getCvParam() != null)) {
