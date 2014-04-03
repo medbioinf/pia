@@ -190,87 +190,26 @@ public class IdXMLFileParser {
 			ModificationParams modParams = new ModificationParams();
 			for (VariableModification variableMod
 					: searchParameters.getVariableModification()) {
-				Pattern pattern = Pattern.compile("^(.+)\\(([^)]+)\\)$");
-				Matcher matcher = pattern.matcher(variableMod.getName());
+				SearchModification variableSearchMod = createSearchModification(
+						variableMod.getName(), false, compiler);
 				
-				if (matcher.matches()) {
-					SearchModification searchMod = new SearchModification();
-					searchMod.setFixedMod(false);
-					// add the residues
-					for (String res : matcher.group(2).split(" ")) {
-						if (res.length() > 1) {
-							if (!searchMod.getResidues().contains(".")) {
-								searchMod.getResidues().add(".");
-							}
-						} else {
-							if (!searchMod.getResidues().contains(res)) {
-								searchMod.getResidues().add(res);
-							}
-						}
-					}
-					
-					ModT unimod =
-							compiler.getUnimodParser().getModificationByName(
-									matcher.group(1).trim(),
-									searchMod.getResidues());
-					
-					if (unimod != null) {
-						CvParam cvParam = new CvParam();
-						cvParam.setAccession("UNIMOD:" + unimod.getRecordId());
-						cvParam.setCv(UnimodParser.getCv());
-						cvParam.setName(unimod.getTitle());
-						searchMod.getCvParam().add(cvParam);
-						
-						searchMod.setMassDelta(
-								unimod.getDelta().getMonoMass().floatValue());
-						
-						modParams.getSearchModification().add(searchMod);
-					}
+				if (variableSearchMod != null) {
+					modParams.getSearchModification().add(variableSearchMod);
 				} else {
-					logger.error("Could not parse modification: " +
+					logger.error("Could not parse variable modification: " +
 							variableMod.getName());
 				}
 			}
+			
 			for (FixedModification fixedMod
 					: searchParameters.getFixedModification()) {
-				Pattern pattern = Pattern.compile("^(.+)\\(([^)]+)\\)$");
-				Matcher matcher = pattern.matcher(fixedMod.getName());
+				SearchModification fixedSearchMod = createSearchModification(
+						fixedMod.getName(), true, compiler);
 				
-				if (matcher.matches()) {
-					SearchModification searchMod = new SearchModification();
-					searchMod.setFixedMod(true);
-					// add the residues
-					for (String res : matcher.group(2).split(" ")) {
-						if (res.length() > 1) {
-							if (!searchMod.getResidues().contains(".")) {
-								searchMod.getResidues().add(".");
-							}
-						} else {
-							if (!searchMod.getResidues().contains(res)) {
-								searchMod.getResidues().add(res);
-							}
-						}
-					}
-					
-					ModT unimod =
-							compiler.getUnimodParser().getModificationByName(
-									matcher.group(1).trim(),
-									searchMod.getResidues());
-					
-					if (unimod != null) {
-						CvParam cvParam = new CvParam();
-						cvParam.setAccession("UNIMOD:" + unimod.getRecordId());
-						cvParam.setCv(UnimodParser.getCv());
-						cvParam.setName(unimod.getTitle());
-						searchMod.getCvParam().add(cvParam);
-						
-						searchMod.setMassDelta(
-								unimod.getDelta().getMonoMass().floatValue());
-						
-						modParams.getSearchModification().add(searchMod);
-					}
+				if (fixedSearchMod != null) {
+					modParams.getSearchModification().add(fixedSearchMod);
 				} else {
-					logger.error("Could not parse modification: " +
+					logger.error("Could not parse fixed modification: " +
 							fixedMod.getName());
 				}
 			}
@@ -319,6 +258,9 @@ public class IdXMLFileParser {
 					break;
 				
 				case PROTEINASE_K:
+					logger.warn("Unknown enzyme specification: " +
+							searchParameters.getEnzyme());
+					
 				case UNKNOWN_ENZYME:
 				default:
 					break;
@@ -406,7 +348,7 @@ public class IdXMLFileParser {
 				Double massToCharge = Double.valueOf(pepID.getMZ());
 				Double retentionTime = Double.valueOf(pepID.getRT());
 				
-				// TODO: spectrum reference (not set inIdXML files) => sourceID
+				// TODO: spectrum reference (not set in IdXML files) => sourceID
 				//pepID.getSpectrumReference();
 				
 				for (PeptideHit pepHit : pepID.getPeptideHit()) {
@@ -423,53 +365,10 @@ public class IdXMLFileParser {
 					
 					Map<Integer, Modification> modifications =
 							new HashMap<Integer, Modification>(5);
+					
 					if (sequence.contains("(")) {
-						// get the modifications from the string
-						Matcher matcher;
-						Pattern pattern = Pattern.compile("\\(([^)]*)\\)");
-						StringBuilder extractedSeq = new StringBuilder();
-						int start = 0;
-						
-						matcher = pattern.matcher(sequence);
-						
-						while (matcher.find()) {
-							// found a modification
-							extractedSeq.append(sequence.substring(start, matcher.start()));
-							start = matcher.end();
-							
-							String modName = matcher.group(1);
-							
-							String residue = null;
-							// TODO: how are C-terminal modifications encoded in idXML!
-							if (matcher.start() == 0) {
-								// N-terminal modification
-								residue = ".";
-							} else {
-								residue = sequence.substring(matcher.start()-1,
-										matcher.start());
-							}
-							
-							ModT unimod =
-									compiler.getUnimodParser().getModificationByName(
-											modName, residue);
-							if (unimod != null) {
-								Modification modification = new Modification(
-										residue.charAt(0),
-										unimod.getDelta().getMonoMass(),
-										modName,
-										"UNIMOD:" + unimod.getRecordId());
-								
-								modifications.put(extractedSeq.length(),
-										modification);
-							} else {
-								logger.error("Could not get information for " +
-										"modification " + modName + " in " +
-										sequence);
-							}
-						}
-						
-						extractedSeq.append(sequence.substring(start));
-						sequence = extractedSeq.toString();
+						sequence = extractModifications(
+								sequence, modifications, compiler);
 					}
 					
 					// TODO: implement the delta mass, but not set in idXML
@@ -510,22 +409,39 @@ public class IdXMLFileParser {
 					
 					// the first score is the "main" score
 					ScoreModel score;
-					ScoreModelEnum scoreModel =
+					ScoreModelEnum scoreModel = 
 							ScoreModelEnum.getModelByDescription(
 									pepID.getScoreType() + "_openmsmainscore");
 					
 					if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
 						score = new ScoreModel(
-								// looks weird, but so i don't get borked decimals
+								// looks weird, but so the decimals are correct
 								Double.parseDouble(
 										String.valueOf(pepHit.getScore())),
 								scoreModel);
 						psm.addScore(score);
 					} else {
-						score = new ScoreModel(
-								Double.parseDouble(String.valueOf(pepHit.getScore())),
-								pepID.getScoreType() + "_openmsmainscore",
+						
+						// try another alternative
+						scoreModel = ScoreModelEnum.getModelByDescription(
+								idRun.getSearchEngine() + " " +
 								pepID.getScoreType());
+						
+						if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+							score = new ScoreModel(
+									// looks weird, but so the decimals are correct
+									Double.parseDouble(
+											String.valueOf(pepHit.getScore())),
+									scoreModel);
+							psm.addScore(score);
+						}
+						else {
+							score = new ScoreModel(
+									Double.parseDouble(String.valueOf(pepHit.getScore())),
+									pepID.getScoreType() + "_openmsmainscore",
+									pepID.getScoreType());
+							psm.addScore(score);
+						}
 					}
 					
 					// add additional userParams
@@ -606,8 +522,6 @@ public class IdXMLFileParser {
 						StringBuilder fragSeq =
 								new StringBuilder(sequence.length()+2);
 						
-						logger.error(pepHit.getSequence() + " aa before" + pepHit.getAaBefore());
-						
 						if ((pepHit.getAaBefore() != null) &&
 								(!(pepHit.getAaBefore().equals("[") ||
 										pepHit.getAaBefore().equals("-") ||
@@ -676,4 +590,152 @@ public class IdXMLFileParser {
 		return true;
 	}
 	
+	
+	
+	/**
+	 * Creates a {@link SearchModification} from the given encoded modification.
+	 * The correct unimod-modification will be searched and used.
+	 * 
+	 * @param encodedModification the encoded modification, either in the form
+	 * "Carbamidomethyl (C)" or "C+57.0215"
+	 * @param isFixed
+	 * @return
+	 */
+	private static SearchModification createSearchModification(
+			String encodedModification, boolean isFixed, PIACompiler compiler) {
+		ModT unimod = null;
+		
+		SearchModification searchMod = new SearchModification();
+		searchMod.setFixedMod(isFixed);
+		
+		Pattern pattern = Pattern.compile("^(.+)\\(([^)]+)\\)$");
+		Matcher matcher = pattern.matcher(encodedModification);
+		if (matcher.matches()) {
+			// the modification is encoded as e.g. "Carbamidomethyl (C)"
+			
+			// add the residues
+			for (String res : matcher.group(2).split(" ")) {
+				if (res.length() > 1) {
+					if (!searchMod.getResidues().contains(".")) {
+						searchMod.getResidues().add(".");
+					}
+				} else {
+					if (!searchMod.getResidues().contains(res)) {
+						searchMod.getResidues().add(res);
+					}
+				}
+			}
+			
+			unimod = compiler.getUnimodParser().getModificationByName(
+							matcher.group(1).trim(), searchMod.getResidues());
+		} else {
+			// the modification is encoded as e.g. "C+57.0215"
+			pattern = Pattern.compile("^(.*)([+-]\\d*\\.\\d*)$");
+			matcher = pattern.matcher(encodedModification);
+			
+			if (matcher.matches()) {
+				Double massShift = Double.parseDouble(matcher.group(2));
+				String residue = matcher.group(1);
+				if (residue.length() < 1) {
+					residue = ".";
+				}
+				searchMod.getResidues().add(residue);
+				
+				unimod = compiler.getUnimodParser().getModificationByMass(
+						massShift, residue);
+			}
+		}
+		
+		if (unimod != null) {
+			CvParam cvParam = new CvParam();
+			cvParam.setAccession("UNIMOD:" + unimod.getRecordId());
+			cvParam.setCv(UnimodParser.getCv());
+			cvParam.setName(unimod.getTitle());
+			searchMod.getCvParam().add(cvParam);
+			
+			searchMod.getResidues();
+			
+			searchMod.setMassDelta(
+					unimod.getDelta().getMonoMass().floatValue());
+			
+			return searchMod;
+		} else {
+			return null;
+		}
+	}
+	
+	
+	/**
+	 * Given a sequence with encoded modifications in the style
+	 * "LDC(Carbamidomethyl)SHA", the modifications will be extracted and put
+	 * into the given map and the raw sequence is returned.
+	 * 
+	 * @param modificationsSequence the sequence with encoded modifications
+	 * @param modifications mapping for the modifications (position to mod)
+	 * @param compiler
+	 * @return
+	 */
+	private static String extractModifications(String modificationsSequence,
+			Map<Integer, Modification> modifications,
+			PIACompiler compiler) {
+		if (modifications == null) {
+			logger.error("Modifications map not initialized!");
+			return null;
+		}
+		
+		StringBuilder sequence =
+				new StringBuilder(modificationsSequence.length());
+		
+		int pos = 0;
+		while ( -1 < (pos = modificationsSequence.indexOf('('))) {
+			sequence.append(modificationsSequence.substring(0, pos));
+			modificationsSequence = modificationsSequence.substring(pos);
+			
+			String residue = null;
+			if (sequence.length() == 0) {
+				// TODO: how are C-terminal modifications encoded in idXML!
+				// N-terminal modification
+				residue = ".";
+			} else {
+				residue = sequence.substring(sequence.length()-1);
+			}
+			
+			int openBr = 0;
+			StringBuilder modName = new StringBuilder();
+			for (int p=1; p < modificationsSequence.length(); p++) {
+				char c = modificationsSequence.charAt(p);
+				if (c == '(') {
+					openBr++;
+				} else if (c == ')') {
+					openBr--;
+					if (openBr < 0) {
+						break;
+					}
+				}
+				
+				modName.append(c);
+			}
+			
+			ModT unimod = compiler.getUnimodParser().getModificationByName(
+							modName.toString(), residue);
+			if (unimod != null) {
+				Modification mod = new Modification(
+						residue.charAt(0),
+						unimod.getDelta().getMonoMass(),
+						modName.toString(),
+						"UNIMOD:" + unimod.getRecordId());
+				
+				modifications.put(sequence.length(), mod);
+			} else {
+				logger.error("Could not get information for " +
+						"modification " + modName + " in " +
+						sequence);
+			}
+			
+			modificationsSequence =
+					modificationsSequence.substring(modName.length() + 2);
+		}
+		sequence.append(modificationsSequence);
+		return sequence.toString();
+	}
 }

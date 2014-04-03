@@ -255,6 +255,7 @@ public enum ScoreModelEnum {
 			descs.add(getShortName());
 			descs.add(getCvAccession());
 			descs.add(getCvName());
+			descs.add("Mascot expect");
 			descs.add("Mascot_EValue");
 			
 			return descs;
@@ -309,6 +310,7 @@ public enum ScoreModelEnum {
 			descs.add("IonScore");
 			descs.add("Mascot Score");
 			descs.add("mascot score");
+			descs.add("Mascot score");
 			descs.add("Mascot_openmsmainscore");
 			descs.add(getShortName());
 			descs.add(getCvAccession());
@@ -518,6 +520,7 @@ public enum ScoreModelEnum {
 			
 			descs.add(getName());
 			descs.add(getName().toLowerCase());
+			descs.add("X! Tandem expect");
 			descs.add("Tandem Expect");
 			descs.add("tandem expect");
 			descs.add("XTandem_E-Value");
@@ -569,6 +572,7 @@ public enum ScoreModelEnum {
 			
 			descs.add(getName());
 			descs.add(getName().toLowerCase());
+			descs.add("X! Tandem hyperscore");
 			descs.add("Tandem Hyperscore");
 			descs.add("tandem hyperscore");
 			descs.add("Hyperscore");
