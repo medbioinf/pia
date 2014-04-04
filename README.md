@@ -44,3 +44,11 @@ Documentation
 ===
 
 For documentation please refer to the Wiki (https://github.com/mpc-bioinformatics/pia/wiki) on github.
+
+
+Test Server
+===
+
+We provide a test installation of the web interface on http://134.147.84.213:8080/pia/
+
+In your own interest, don't sent any sensible data to this server!
