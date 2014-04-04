@@ -140,9 +140,6 @@ public class PSMModeller {
 	private Map<String, ReportPSMSet> reportPSMSetMap;
 	
 	
-	/** maps from the fileID to List of long names of the scores. Actually only a reference to the same field in the {@link PIAModeller}. */
-	private Map<Long, List<String>> fileScoreNames;
-	
 	/** maps from the fileID to List of short names  of the scores. Actually only a reference to the same field in the {@link PIAModeller}. */
 	private Map<Long, List<String>> fileScoreShortNames;
 	
@@ -177,8 +174,17 @@ public class PSMModeller {
 	/** the OBO mapper, to get additional data */
 	private OBOMapper oboMapper;
 	
+	/** maps from the scoreShort to the scoreName */
+	private Map<String, String> scoreShortToScoreName;
+	
 	/** maps from the scoreShort to the comparator */
 	private Map<String, Comparator<PSMReportItem>> scoreShortToComparator;
+	
+	/** maps from the score short to whether the higher score is better (probably current setting) */
+	private Map<String, Boolean> scoreShortToHigherScoreBetter;
+	
+	/** maps from the score short to whether the higher score better is changeable, because it was not hard coded or found in a CV */
+	private Map<String, Boolean> scoreShortToHigherScoreBetterChangeable;
 	
 	
 	/** default decoy pattern */
@@ -233,6 +239,8 @@ public class PSMModeller {
 		this.spectraData = spectraData;
 		this.analysisSoftware = software;
 		this.fileName = fileName;
+		
+		this.scoreShortToScoreName = new HashMap<String, String>();
 		
 		// TODO: get defaults from ini-file (or something like that)
 		defaultDecoyPattern = "s.*";
@@ -365,7 +373,6 @@ public class PSMModeller {
 		fileReportPSMs = new HashMap<Long, List<ReportPSM>>();
 		
 		// reset the scores
-		fileScoreNames = new HashMap<Long, List<String>>();
 		fileScoreShortNames = new HashMap<Long, List<String>>();
 		
 		// reset the available sortings
@@ -394,6 +401,10 @@ public class PSMModeller {
 		
 		scoreShortToComparator =
 				new HashMap<String, Comparator<PSMReportItem>>();
+		
+		scoreShortToHigherScoreBetter = new HashMap<String, Boolean>();
+		
+		scoreShortToHigherScoreBetterChangeable = new HashMap<String, Boolean>();
 		
 		// map to create the PSMSets
 		Map<String, List<ReportPSM>> psmSetsMap =
@@ -442,7 +453,6 @@ public class PSMModeller {
 								fileReportPSMs.put(fileID, filesPSMList);
 								
 								// this file is new, so also add the scoreName-Maps and sorting maps
-								fileScoreNames.put(fileID, new ArrayList<String>());
 								fileScoreShortNames.put(fileID, new ArrayList<String>());
 								
 								fileSortables.put(fileID, new HashSet<String>());
@@ -492,7 +502,13 @@ public class PSMModeller {
 								List<String> scoreShortNames = fileScoreShortNames.get(fileID);
 								if (!scoreShortNames.contains(score.getShortName())) {
 									scoreShortNames.add(score.getShortName());
-									fileScoreNames.get(fileID).add(score.getName());
+									
+									if (!scoreShortToScoreName.containsKey(score.getShortName())) {
+										scoreShortToScoreName.put(score.getShortName(),
+												score.getName());
+										
+										logger.debug("Added to scoremap: " + score.getShortName() + " -> " + score.getName());
+									}
 									
 									// add score to the available sortings
 									String scoreSortName =
@@ -521,9 +537,10 @@ public class PSMModeller {
 										if ((obj != null) && (obj instanceof OBOClassImpl)) {
 											
 											for (Link link : ((OBOClassImpl) obj).getParents()) {
+												
 												if (link.getType().getID().equals(OBOMapper.is_a_relation)) {
 													
-													if (link.getParent().getID().equals("1001868") || // MS:1001868 ! distinct peptide-level q-value
+													if (link.getParent().getID().equals("MS:1001868") || // MS:1001868 ! distinct peptide-level q-value
 															link.getParent().getID().equals("MS:1001870") || // MS:1001870 ! distinct peptide-level p-value
 															link.getParent().getID().equals("MS:1001872")) { // MS:1001872 ! distinct peptide-level e-value
 														higherscorebetter = false;
@@ -535,10 +552,21 @@ public class PSMModeller {
 										}
 										
 										if (higherscorebetter != null) {
-											comp = new ScoreComparator<PSMReportItem>(
-													score.getShortName(),
-													higherscorebetter);
+											// the status of higherScoreBetter is not to be changed by the user
+											scoreShortToHigherScoreBetterChangeable.put(
+													score.getShortName(), false);
+										} else {
+											// the status of higherScoreBetter may be changed by the user
+											scoreShortToHigherScoreBetterChangeable.put(
+													score.getShortName(), true);
+											higherscorebetter = true;
 										}
+										scoreShortToHigherScoreBetter.put(
+												score.getShortName(),
+												higherscorebetter);
+										comp = new ScoreComparator<PSMReportItem>(
+												score.getShortName(),
+												higherscorebetter);
 									}
 									
 									logger.debug("adding score comparator for " + score.getShortName() + ": " + comp);
@@ -805,43 +833,82 @@ public class PSMModeller {
 	 * @param shortName
 	 * @return
 	 */
-	public String getScoreName(Long fileID, String shortName) {
-		
-		// the indizes of the scoreShortName and scoreName should be equal
-		int index = -1;
-		if (fileScoreShortNames.containsKey(fileID)) {
-			List<String> scoreShorts = fileScoreShortNames.get(fileID);
-			for (int i = 0; i < scoreShorts.size(); i++) {
-				if (shortName.equals(scoreShorts.get(i))) {
-					index = i;
-					break;
-				}
-			}
-		}
-		
-		if ((index >= 0) && (fileScoreNames.containsKey(fileID))) {
-			return fileScoreNames.get(fileID).get(index);
-		}
-		
-		return null;
+	public String getScoreName(String shortName) {
+		return scoreShortToScoreName.get(shortName);
 	}
 	
 	
+	/**
+	 * Returns, whether the "higherscorebetter" can be changed by the user for
+	 * this score.
+	 * 
+	 * @param shortName
+	 * @return
+	 */
+	public Boolean getHigherScoreBetterChangeable(String scoreShort) {
+		return scoreShortToHigherScoreBetterChangeable.get(scoreShort);
+	}
 	
-	public Comparator<PSMReportItem> getScoreComparator(String scoreShort) {
-		
-		
-		if (scoreShortToComparator.containsKey(scoreShort)) {
-			logger.debug("getting comparator for " + scoreShort + " = " + scoreShortToComparator.get(scoreShort));
+	
+	/**
+	 * Gets whether the higherScoreBetter is true or false for the score.
+	 * 
+	 * @param scoreShort
+	 * @return
+	 */
+	public Boolean getHigherScoreBetter(String scoreShort) {
+		return scoreShortToHigherScoreBetter.get(scoreShort);
+	}
+	
+	
+	/**
+	 * Sets whether the higherScoreBetter is true or false for the score.
+	 * 
+	 * @param scoreShort
+	 */
+	public void setHigherScoreBetter(String scoreShort,
+			Boolean higherScoreBetter) {
+		if (scoreShortToHigherScoreBetterChangeable.get(scoreShort)) {
+			scoreShortToHigherScoreBetter.put(scoreShort, higherScoreBetter);
 			
+			scoreShortToComparator.put(scoreShort,
+					new ScoreComparator<PSMReportItem>(
+							scoreShort, higherScoreBetter));
+			
+			logger.debug("setHigherScoreBetter: " + scoreShortToComparator.get(scoreShort));
+		} else {
+			logger.warn("The comparator for " + scoreShort + "(" +
+					scoreShortToScoreName.get(scoreShort) +
+					") may not be changed!");
+		}
+	}
+	
+	
+	/**
+	 * Returns the comparator for the given short.
+	 * 
+	 * @param scoreShort
+	 * @return
+	 */
+	public Comparator<PSMReportItem> getScoreComparator(String scoreShort) {
+		if (scoreShortToComparator.containsKey(scoreShort)) {
 			return scoreShortToComparator.get(scoreShort);
 		}
 		
-		logger.debug("no comparator found for " + scoreShort);
-		
+		logger.warn("no comparator found for " + scoreShort);
 		return null;
 	}
 	
+	
+	/**
+	 * Returns for the given score, whether a higher score is better.
+	 * 
+	 * @param scoreShort
+	 * @return
+	 */
+	public Boolean getHigherScoreBetterForScore(String scoreShort) {
+		return scoreShortToHigherScoreBetter.get(scoreShort);
+	}
 	
 	
 	/**
@@ -856,6 +923,16 @@ public class PSMModeller {
 		} else {
 			return new ArrayList<String>(1);
 		}
+	}
+	
+	
+	/**
+	 * Returns the mapping from the shortNames to the nicely readable names.
+	 * 
+	 * @return
+	 */
+	public Map<String, String> getScoreShortsToScoreNames() {
+		return scoreShortToScoreName;
 	}
 	
 	
@@ -1218,6 +1295,13 @@ public class PSMModeller {
 				listForFDR = filteredList;
 			}
 			
+			
+			if (scoreShortToComparator.get(fdrData.getScoreShortName()) == null) {
+				logger.warn("No comparator for FDR calculation, "
+						+ "aborted calculateFDR!");
+				return;
+			}
+			
 			// calculate the FDR values
 			fdrData.calculateFDR(listForFDR,
 					scoreShortToComparator.get(fdrData.getScoreShortName()));
@@ -1230,7 +1314,19 @@ public class PSMModeller {
 			if (!scoreShorts.contains(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName())) {
 				// add the FDR score to scores of this file
 				scoreShorts.add(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
-				fileScoreNames.get(fileID).add(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getName());
+				scoreShortToScoreName.put(
+						ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
+						ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getName());
+				scoreShortToComparator.put(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
+						new ScoreComparator<PSMReportItem>(
+								ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
+								false));
+				scoreShortToHigherScoreBetter.put(
+						ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
+						false);
+				scoreShortToHigherScoreBetterChangeable.put(
+						ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
+						false);
 				
 				// and also to the sortable fields
 				fileSortables.get(fileID).add(
@@ -1360,9 +1456,19 @@ public class PSMModeller {
 		// and add to the score fields
 		fileScoreShortNames.put(0L, new ArrayList<String>(1));
 		fileScoreShortNames.get(0L).add(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName());
-		fileScoreNames.put(0L, new ArrayList<String>(1));
-		fileScoreNames.get(0L).add(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getName());
-		
+		scoreShortToScoreName.put(
+				ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName(),
+				ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getName());
+		scoreShortToComparator.put(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName(),
+				new ScoreComparator<PSMReportItem>(
+						ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName(),
+						false));
+		scoreShortToHigherScoreBetter.put(
+				ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName(),
+				false);
+		scoreShortToHigherScoreBetterChangeable.put(
+				ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName(),
+				false);
 		
 		// correct the numbers of decoys etc.
 		int nrDecoys = 0;

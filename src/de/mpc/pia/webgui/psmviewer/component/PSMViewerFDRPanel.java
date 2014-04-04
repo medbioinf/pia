@@ -381,4 +381,19 @@ public class PSMViewerFDRPanel {
 	public void gotCachedDataForFile(Long fileID) {
 		fileNeedsRecaching.put(fileID, false);
 	}
+	
+	
+	
+	public Boolean getHigherScoreBetterChangeable(String scoreShort) {
+		return psmModeller.getHigherScoreBetterChangeable(scoreShort);
+	}
+	
+	public Boolean getHigherScoreBetter(String scoreShort) {
+		return psmModeller.getHigherScoreBetter(scoreShort);
+	}
+	
+	public void setHigherScoreBetter(String scoreShort, Boolean higherScoreBetter) {
+		psmModeller.setHigherScoreBetter(scoreShort, higherScoreBetter);
+	}
+	
 }

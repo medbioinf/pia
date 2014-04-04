@@ -37,8 +37,8 @@ public abstract class AbstractProteinInference {
 	/** list of the settings. */
 	protected List<AbstractFilter> filters;
 	
-	/** the available scores for the inference */
-	private List<String> availableScoreShorts;
+	/** the available scores for the inference, maps from the scoreShort to the shown name */
+	private Map<String, String> availableScoreShorts;
 	
 	/** the currently set scoring */
 	private AbstractScoring currentScoring;
@@ -133,7 +133,7 @@ public abstract class AbstractProteinInference {
 	 * 
 	 * @param scores
 	 */
-	public void setAvailableScoreShorts(List<String> scores) {
+	public void setAvailableScoreShorts(Map<String, String> scores) {
 		availableScoreShorts = scores;
 	}
 	
@@ -142,7 +142,7 @@ public abstract class AbstractProteinInference {
 	 * Getter for the available {@link ScoreModel}s.
 	 * @return
 	 */
-	public List<String> getAvailableScoreShorts() {
+	public Map<String, String> getAvailableScoreShorts() {
 		return availableScoreShorts;
 	}
 	

@@ -53,7 +53,7 @@
 												var="filter"
 												type="unordered"
 												iterationStatusVar="iterState" >
-											<h:outputText value="#{filter.filteringName} " />
+											<h:outputText value="#{cc.attrs.panelHandler.getNiceInferenceFilteringName(filter)} " />
 											<h:outputText value="not" rendered="#{filter.filterNegate}" />
 											<h:outputText value=" #{filter.filterComparator.label} #{filter.filterValue} " />
 											

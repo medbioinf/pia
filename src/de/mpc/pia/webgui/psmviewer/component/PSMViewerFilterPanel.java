@@ -231,6 +231,46 @@ public class PSMViewerFilterPanel {
 	
 	
 	/**
+	 * Looks, whether there is a nice name for the filter. This is especially
+	 * needed for scores, which are not hard coded into the
+	 * {@link ScoreModelEnum}.
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	public String getNiceFilteringName(AbstractFilter filter) {
+		String niceName = null;
+		
+		if (filter instanceof PSMScoreFilter) {
+			String scoreShort = ((PSMScoreFilter) filter).getScoreShortName();
+			String[] shortAndFiltername =
+					PSMScoreFilter.getShortAndFilteringName(scoreShort,
+							psmModeller.getScoreName(scoreShort));
+			if (shortAndFiltername != null) {
+				niceName = shortAndFiltername[1];
+			}
+		} else if (filter instanceof PSMTopIdentificationFilter) {
+			String scoreShort =
+					((PSMTopIdentificationFilter) filter).getScoreShortName();
+			
+			String[] shortAndFiltername =
+					PSMTopIdentificationFilter.getShortAndFilteringName(
+							scoreShort,
+							psmModeller.getScoreName(scoreShort));
+			if (shortAndFiltername != null) {
+				niceName = shortAndFiltername[1];
+			}
+		}
+		
+		if (niceName != null) {
+			return niceName;
+		} else {
+			return filter.getFilteringName();
+		}
+	}
+	
+	
+	/**
 	 * Getter for the filters of the file given by the fileID
 	 * @return
 	 */
@@ -292,7 +332,9 @@ public class PSMViewerFilterPanel {
 		if (fileID > 0) {
 			for (String scoreShort : psmModeller.getScoreShortNames(fileID)) {
 				// add the score filter
-				String[] filterNames = PSMScoreFilter.getShortAndFilteringName(scoreShort);
+				String[] filterNames = PSMScoreFilter.getShortAndFilteringName(
+						scoreShort, psmModeller.getScoreName(scoreShort));
+				
 				if (filterNames != null) {
 					filters.add(new SelectItem(filterNames[0], filterNames[1]));
 				}
@@ -301,7 +343,11 @@ public class PSMViewerFilterPanel {
 				if (!scoreShort.equals(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName()) &&
 						!scoreShort.equals(ScoreModelEnum.AVERAGE_FDR_SCORE.getShortName()) &&
 						!scoreShort.equals(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName())) {
-					filterNames = PSMTopIdentificationFilter.getShortAndFilteringName(scoreShort);
+					filterNames =
+							PSMTopIdentificationFilter.getShortAndFilteringName(
+									scoreShort,
+									psmModeller.getScoreName(scoreShort));
+					
 					if (filterNames != null) {
 						filters.add(new SelectItem(filterNames[0], filterNames[1]));
 					}

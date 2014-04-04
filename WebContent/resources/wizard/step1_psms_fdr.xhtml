@@ -179,9 +179,8 @@
 						listHeight="100px">
 					<f:selectItems value="#{viewerBean.wizard.allFilesPossibleFDRScores}"
 							var="score"
-							itemValue="#{score}"
+							itemValue="#{score.shortName}"
 							itemLabel="#{score.name}" />
-					<f:converter converterId="ScoreModelConverter" />
 				</rich:pickList>
 				
 			</h:panelGrid>

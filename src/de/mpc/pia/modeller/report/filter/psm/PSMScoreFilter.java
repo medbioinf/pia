@@ -56,10 +56,18 @@ public class PSMScoreFilter extends AbstractFilter {
 	 * {@link ScoreModel} given by the scoreShort.
 	 * 
 	 * @param scoreShort
+	 * @param defaultName the default name of the score, if it is not hard
+	 * programmed in the {@link ScoreModelEnum}
 	 * @return an array of two Strings, containing the short and filtering name, or null, if scoreShort is invalid
 	 */
-	static public String[] getShortAndFilteringName(String scoreShort) {
+	static public String[] getShortAndFilteringName(String scoreShort,
+			String defaultName) {
 		String modelName = ScoreModelEnum.getName(scoreShort);
+		
+		if (scoreShort.equals(modelName)) {
+			// there was no good name of the score, so the shortName was returned
+			modelName = defaultName;
+		}
 		
 		if (modelName != null) {
 			String[] shortAndName = new String[2];

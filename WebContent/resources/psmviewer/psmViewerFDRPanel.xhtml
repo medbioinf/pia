@@ -74,7 +74,7 @@
 									<c:forEach items="#{cc.attrs.panelHandler.FDRScoreShortNames}"
 											var="score">
 										<f:selectItem itemValue="#{score}"
-												itemLabel="#{cc.attrs.psmViewerBean.getScoreName(score)}"/>
+												itemLabel="#{cc.attrs.psmViewerBean.getScoreName(score)} #{cc.attrs.panelHandler.getHigherScoreBetterChangeable(score) ? '(ordering automatically set!)' : ''}"/>
 									</c:forEach>
 								</h:selectOneRadio>
 								

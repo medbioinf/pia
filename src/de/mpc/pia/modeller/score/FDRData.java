@@ -362,10 +362,15 @@ public class FDRData {
 	 */
 	public <T extends FDRComputable> void calculateFDR(List<T> reportItems,
 			Comparator<T> comparator) {
-		if (scoreShortName == null) {
+		if (scoreShortName == null)  {
 			// if we don't have a score, abort here
 			// TODO: warn at least
 			logger.warn("No score set for FDR calculation!");
+			return;
+		}
+		
+		if (comparator == null)  {
+			logger.warn("No comparator for FDR calculation!");
 			return;
 		}
 		

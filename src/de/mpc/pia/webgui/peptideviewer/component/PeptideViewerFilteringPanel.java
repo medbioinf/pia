@@ -26,6 +26,7 @@ import de.mpc.pia.modeller.report.filter.peptide.PeptideSourceIDListFilter;
 import de.mpc.pia.modeller.report.filter.peptide.PeptideSpectrumTitleListFilter;
 import de.mpc.pia.modeller.report.filter.peptide.PeptideUniqueFilter;
 import de.mpc.pia.modeller.report.filter.psm.PSMScoreFilter;
+import de.mpc.pia.modeller.report.filter.psm.PSMTopIdentificationFilter;
 import de.mpc.pia.webgui.peptideviewer.PeptideViewer;
 
 
@@ -169,12 +170,14 @@ public class PeptideViewerFilteringPanel {
 		}
 		
 		for (String scoreShort : peptideModeller.getScoreShortNames(fileID)) {
-			String[] filterNames = PeptideScoreFilter.getShortAndFilteringName(scoreShort);
+			String[] filterNames = PeptideScoreFilter.getShortAndFilteringName(
+					scoreShort, peptideModeller.getScoreName(scoreShort));
 			if (filterNames != null) {
 				filters.add(new SelectItem(filterNames[0], filterNames[1]));
 			}
 			
-			filterNames = PSMScoreFilter.getShortAndFilteringName(scoreShort);
+			filterNames = PSMScoreFilter.getShortAndFilteringName(scoreShort,
+					peptideModeller.getScoreName(scoreShort));
 			if (filterNames != null) {
 				filters.add(new SelectItem(filterNames[0], filterNames[1]));
 			}
@@ -308,6 +311,57 @@ public class PeptideViewerFilteringPanel {
 	 */
 	public List<AbstractFilter> getFilters(Long fileID) {
 		return peptideModeller.getFilters(fileID);
+	}
+	
+	
+	/**
+	 * Looks, whether there is a nice name for the filter. This is especially
+	 * needed for scores, which are not hard coded into the
+	 * {@link ScoreModelEnum}.
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	public String getNiceFilteringName(AbstractFilter filter) {
+		String niceName = null;
+		
+		if (filter instanceof PSMScoreFilter) {
+			String scoreShort = ((PSMScoreFilter) filter).getScoreShortName();
+			String[] shortAndFiltername =
+					PSMScoreFilter.getShortAndFilteringName(scoreShort,
+							peptideModeller.getScoreName(scoreShort));
+			if (shortAndFiltername != null) {
+				niceName = shortAndFiltername[1];
+			}
+		} else if (filter instanceof PSMTopIdentificationFilter) {
+			String scoreShort =
+					((PSMTopIdentificationFilter) filter).getScoreShortName();
+			
+			String[] shortAndFiltername =
+					PSMTopIdentificationFilter.getShortAndFilteringName(
+							scoreShort,
+							peptideModeller.getScoreName(scoreShort));
+			if (shortAndFiltername != null) {
+				niceName = shortAndFiltername[1];
+			}
+		} else if (filter instanceof PeptideScoreFilter) {
+			String scoreShort =
+					((PeptideScoreFilter) filter).getScoreShortName();
+			
+			String[] shortAndFiltername =
+					PeptideScoreFilter.getShortAndFilteringName(
+							scoreShort,
+							peptideModeller.getScoreName(scoreShort));
+			if (shortAndFiltername != null) {
+				niceName = shortAndFiltername[1];
+			}
+		}
+		
+		if (niceName != null) {
+			return niceName;
+		} else {
+			return filter.getFilteringName();
+		}
 	}
 	
 	

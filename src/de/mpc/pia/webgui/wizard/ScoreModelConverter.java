@@ -22,12 +22,17 @@ public class ScoreModelConverter implements Converter {
 			model = new ScoreModel(0.0, modelType);
 		}
 		
+		System.err.println("getAsObject: " + model);
+		
 		return model;
 	}
 	
 	
 	public String getAsString(FacesContext facesContext, UIComponent component,
 			Object o) {
+		
+		System.err.println("getAsString: " + o);
+		
 		if (o == null) {
 			return null;
 		}

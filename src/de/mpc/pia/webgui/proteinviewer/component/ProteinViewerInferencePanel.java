@@ -15,6 +15,9 @@ import de.mpc.pia.modeller.protein.inference.ProteinInferenceFactory.ProteinInfe
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.FilterFactory;
+import de.mpc.pia.modeller.report.filter.peptide.PeptideScoreFilter;
+import de.mpc.pia.modeller.report.filter.psm.PSMScoreFilter;
+import de.mpc.pia.modeller.report.filter.psm.PSMTopIdentificationFilter;
 import de.mpc.pia.tools.LabelValueContainer;
 import de.mpc.pia.tools.PIAConfigurationProperties;
 import de.mpc.pia.webgui.proteinviewer.ProteinViewer;
@@ -199,7 +202,7 @@ public class ProteinViewerInferencePanel {
 			
 			// update the scores...
 			inference.setAvailableScoreShorts(
-					proteinModeller.getAllScoreShortNames());
+					proteinModeller.getScoreShortsToScoreNames());
 			
 			// set the scoring
 			inference.setScoring(scoringPanel.getScoringMethod());
@@ -456,6 +459,57 @@ public class ProteinViewerInferencePanel {
 	 */
 	public List<AbstractFilter> getInferenceFilters() {
 		return getInferenceMethod().getFilters();
+	}
+	
+	
+	/**
+	 * Looks, whether there is a nice name for the filter. This is especially
+	 * needed for scores, which are not hard coded into the
+	 * {@link ScoreModelEnum}.
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	public String getNiceInferenceFilteringName(AbstractFilter filter) {
+		String niceName = null;
+		
+		if (filter instanceof PSMScoreFilter) {
+			String scoreShort = ((PSMScoreFilter) filter).getScoreShortName();
+			String[] shortAndFiltername =
+					PSMScoreFilter.getShortAndFilteringName(scoreShort,
+							proteinModeller.getScoreName(scoreShort));
+			if (shortAndFiltername != null) {
+				niceName = shortAndFiltername[1];
+			}
+		} else if (filter instanceof PSMTopIdentificationFilter) {
+			String scoreShort =
+					((PSMTopIdentificationFilter) filter).getScoreShortName();
+			
+			String[] shortAndFiltername =
+					PSMTopIdentificationFilter.getShortAndFilteringName(
+							scoreShort,
+							proteinModeller.getScoreName(scoreShort));
+			if (shortAndFiltername != null) {
+				niceName = shortAndFiltername[1];
+			}
+		} else if (filter instanceof PeptideScoreFilter) {
+			String scoreShort =
+					((PeptideScoreFilter) filter).getScoreShortName();
+			
+			String[] shortAndFiltername =
+					PeptideScoreFilter.getShortAndFilteringName(
+							scoreShort,
+							proteinModeller.getScoreName(scoreShort));
+			if (shortAndFiltername != null) {
+				niceName = shortAndFiltername[1];
+			}
+		}
+		
+		if (niceName != null) {
+			return niceName;
+		} else {
+			return filter.getFilteringName();
+		}
 	}
 	
 	

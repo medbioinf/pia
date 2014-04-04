@@ -8,7 +8,6 @@ import java.util.Map;
 import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.modeller.PeptideModeller;
 import de.mpc.pia.modeller.peptide.ReportPeptide;
-import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.webgui.peptideviewer.component.PeptideViewerExportingPanel;
 import de.mpc.pia.webgui.peptideviewer.component.PeptideViewerFilteringPanel;
 import de.mpc.pia.webgui.peptideviewer.component.PeptideViewerRankingPanel;
@@ -236,7 +235,7 @@ public class PeptideViewer {
 	 * @return
 	 */
 	public String getScoreName(String shortName) {
-		return ScoreModelEnum.getName(shortName);
+		return peptideModeller.getScoreName(shortName);
 	}
 	
 	

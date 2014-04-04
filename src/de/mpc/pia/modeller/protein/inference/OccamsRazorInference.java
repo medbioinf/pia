@@ -82,10 +82,13 @@ public class OccamsRazorInference extends AbstractProteinInference {
 		
 		// PSM filters
 		filters.add(new LabelValueContainer<String>(null, "--- PSM ---"));
-		for (String scoreShort : getAvailableScoreShorts()) {
-			String[] filterNames = PSMScoreFilter.getShortAndFilteringName(scoreShort);
+		for (Map.Entry<String, String>  scoreIt
+				: getAvailableScoreShorts().entrySet()) {
+			String[] filterNames = PSMScoreFilter.getShortAndFilteringName(
+					scoreIt.getKey(), scoreIt.getValue());
 			if (filterNames != null) {
-				filters.add(new LabelValueContainer<String>(filterNames[0], filterNames[1]));
+				filters.add(new LabelValueContainer<String>(
+						filterNames[0], filterNames[1]));
 			}
 		}
 		filters.add(new LabelValueContainer<String>(NrPSMsPerPSMSetFilter.shortName(),
@@ -101,8 +104,7 @@ public class OccamsRazorInference extends AbstractProteinInference {
 		filters.add(new LabelValueContainer<String>(PSMModificationsFilter.shortName(),
 				PSMModificationsFilter.filteringName()));
 		
-		//gehen denn jetzt die filter oder nicht?
-		//accessions und scores testen!!!!
+		//TODO: accessions filter testen!!!!
 		
 		
 		// peptide filters
@@ -114,10 +116,13 @@ public class OccamsRazorInference extends AbstractProteinInference {
 		filters.add(new LabelValueContainer<String>(PeptideFileListFilter.shortName(),
 				PeptideFileListFilter.filteringName()));
 		
-		for (String scoreShort : getAvailableScoreShorts()) {
-			String[] filterNames = PeptideScoreFilter.getShortAndFilteringName(scoreShort);
+		for (Map.Entry<String, String> scoreIt
+				: getAvailableScoreShorts().entrySet()) {
+			String[] filterNames = PeptideScoreFilter.getShortAndFilteringName(
+					scoreIt.getKey(), scoreIt.getValue());
 			if (filterNames != null) {
-				filters.add(new LabelValueContainer<String>(filterNames[0], filterNames[1]));
+				filters.add(new LabelValueContainer<String>(
+						filterNames[0], filterNames[1]));
 			}
 		}
 		

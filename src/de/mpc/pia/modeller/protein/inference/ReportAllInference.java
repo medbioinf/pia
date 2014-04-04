@@ -48,8 +48,10 @@ public class ReportAllInference extends AbstractProteinInference {
 		List<LabelValueContainer<String>> filters = new ArrayList<LabelValueContainer<String>>();
 		
 		filters.add(new LabelValueContainer<String>(null, "--- PSM ---"));
-		for (String scoreShort : getAvailableScoreShorts()) {
-			String[] filterNames = PSMScoreFilter.getShortAndFilteringName(scoreShort);
+		for (Map.Entry<String, String>  scoreIt
+				: getAvailableScoreShorts().entrySet()) {
+			String[] filterNames = PSMScoreFilter.getShortAndFilteringName(
+					scoreIt.getKey(), scoreIt.getValue());
 			
 			if (filterNames != null) {
 				filters.add(new LabelValueContainer<String>(filterNames[0], filterNames[1]));

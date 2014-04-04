@@ -217,7 +217,7 @@ public class PSMViewer {
 	 * @return
 	 */
 	public String getScoreName(String shortName) {
-		return psmModeller.getScoreName(selectedFileTabNumber, shortName);
+		return psmModeller.getScoreName(shortName);
 	}
 	
 	

@@ -83,9 +83,9 @@
 			<h:selectOneListbox id="inference_score"
 					value="#{viewerBean.wizard.inferenceScore}">
 				<f:selectItems value="#{viewerBean.wizard.possibleInferenceScores}"
-						var="score"
-						itemLabel="#{score.name}"
-						itemValue="#{score.shortName}" />
+						var="scoreShort"
+						itemLabel="#{viewerBean.wizard.getScoreName(scoreShort)}"
+						itemValue="#{scoreShort}" />
 			</h:selectOneListbox>
 		</h:panelGrid>
 		

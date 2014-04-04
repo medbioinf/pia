@@ -51,7 +51,7 @@ public class Wizard {
 	private Map<Long, List<ScoreModel>> possibleFDRScores;
 	
 	/** the ordered list of preferred FDR scores for all files settings */
-	private List<ScoreModel> preferredFDRScores;
+	private List<String> preferredFDRScores;
 	
 	/** the chosen scores for FDR calculation for individual file settings */
 	private Map<Long, String> selectedFDRScores;
@@ -143,7 +143,7 @@ public class Wizard {
 				
 				List<ScoreModel> possible = new ArrayList<ScoreModel>();
 				possibleFDRScores.put(0L, possible);
-				preferredFDRScores = new ArrayList<ScoreModel>();
+				preferredFDRScores = new ArrayList<String>();
 				for (Long fileID : modeller.getFiles().keySet()) {
 					for (String scoreShort : 
 						modeller.getPSMModeller().getFilesAvailableScoreShortsForFDR(fileID)) {
@@ -154,7 +154,7 @@ public class Wizard {
 						
 						if (modelType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
 							model = new ScoreModel(0.0, scoreShort,
-									modeller.getPSMModeller().getScoreName(fileID, scoreShort));
+									modeller.getPSMModeller().getScoreName(scoreShort));
 						} else {
 							model = new ScoreModel(0.0, modelType);
 						}
@@ -162,7 +162,7 @@ public class Wizard {
 						if (!possible.contains(model)) {
 							possible.add(model);
 							if (modelType.isSearchengineMainScore()) {
-								preferredFDRScores.add(model);
+								preferredFDRScores.add(model.getShortName());
 							}
 						}
 					}
@@ -187,7 +187,7 @@ public class Wizard {
 					
 					if (modelType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
 						model = new ScoreModel(0.0, scoreShort,
-								modeller.getPSMModeller().getScoreName(file.getID(), scoreShort));
+								modeller.getPSMModeller().getScoreName(scoreShort));
 					} else {
 						model = new ScoreModel(0.0, modelType);
 					}
@@ -364,7 +364,10 @@ public class Wizard {
 	 * Getter for the preferred scores for FDR calculation for all files
 	 * @return
 	 */
-	public List<ScoreModel> getAllFilesPreferredFDRScores() {
+	public List<String> getAllFilesPreferredFDRScores() {
+		
+		logger.debug("getAllFilesPreferredFDRScores " + preferredFDRScores);
+		
 		return preferredFDRScores;
 	}
 	
@@ -373,8 +376,10 @@ public class Wizard {
 	 * Setter for the preferred scores for FDR calculation for all files
 	 * @return
 	 */
-	public void setAllFilesPreferredFDRScores(List<ScoreModel> scores) {
+	public void setAllFilesPreferredFDRScores(List<String> scores) {
 		preferredFDRScores = scores;
+		
+		logger.debug("setAllFilesPreferredFDRScores " + preferredFDRScores);
 	}
 	
 	
@@ -487,9 +492,10 @@ public class Wizard {
 			
 			// set the prefered scores for FDR calculation
 			modeller.getPSMModeller().resetPreferredFDRScores();
-			for (ScoreModel model : getAllFilesPreferredFDRScores()) {
+			
+			for (String scoreShort : getAllFilesPreferredFDRScores()) {
 				modeller.getPSMModeller().addPreferredFDRScore(
-						model.getShortName());
+						scoreShort);
 			}
 		} else if (activePSMFDRAccordionTab.equals("per_file")) {
 			for (Long fileID : modeller.getFiles().keySet()) {
@@ -741,17 +747,19 @@ public class Wizard {
 	 * Getter for the possible inference scores
 	 * @return
 	 */
-	public List<ScoreModelEnum> getPossibleInferenceScores() {
-		List<ScoreModelEnum> scores = new ArrayList<ScoreModelEnum>();
-		
-		for (String scoreShort
-				: modeller.getProteinModeller().getAllScoreShortNames()) {
-			scores.add(ScoreModelEnum.getModelByDescription(scoreShort));
-		}
-		
-		return scores;
+	public List<String> getPossibleInferenceScores() {
+		return modeller.getProteinModeller().getAllScoreShortNames();
 	}
 	
+	
+	/**
+	 * Getter for the scoreName, given the scoreShort.
+	 * @param scoreShort
+	 * @return
+	 */
+	public String getScoreName(String scoreShort) {
+		return modeller.getPSMModeller().getScoreName(scoreShort);
+	}
 	
 	
 	/**
@@ -783,10 +791,10 @@ public class Wizard {
 		
 		// set the scoring
 		AbstractScoring scoring;
-		ScoreModelEnum scoreModel =
-				ScoreModelEnum.getModelByDescription(inferenceScore);
+		/*ScoreModelEnum scoreModel =
+				ScoreModelEnum.getModelByDescription(inferenceScore);*/
 		
-		if (scoreModel.higherScoreBetter()) {
+		if (modeller.getPSMModeller().getHigherScoreBetterForScore(inferenceScore)) {
 			scoring = ProteinScoringFactory.getNewInstanceByName(
 					ProteinScoringFactory.ScoringType.ADDITIVE_SCORING.getShortName(),
 					new HashMap<String, String>());

@@ -122,6 +122,17 @@ public class PeptideModeller {
 	
 	
 	/**
+	 * Returns the Score name, given the scoreShortName.
+	 * @param fileID
+	 * @param shortName
+	 * @return
+	 */
+	public String getScoreName(String shortName) {
+		return psmModeller.getScoreName(shortName);
+	}
+	
+	
+	/**
 	 * Infere the peptides for the file given by its ID with the PSMs taken
 	 * from the {@link PSMModeller}. This takes any given filtering into
 	 * account.

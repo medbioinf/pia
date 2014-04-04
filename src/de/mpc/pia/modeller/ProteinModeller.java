@@ -52,7 +52,6 @@ import uk.ac.ebi.pride.jmztab.model.Param;
 import uk.ac.ebi.pride.jmztab.model.Protein;
 import uk.ac.ebi.pride.jmztab.model.ProteinColumn;
 import uk.ac.ebi.pride.jmztab.model.Section;
-
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.AccessionOccurrence;
 import de.mpc.pia.intermediate.Group;
@@ -218,6 +217,27 @@ public class ProteinModeller {
 		}
 		
 		return scoreShortNames;
+	}
+	
+	
+	/**
+	 * Returns the Score name, given the scoreShortName.
+	 * @param fileID
+	 * @param shortName
+	 * @return
+	 */
+	public String getScoreName(String shortName) {
+		return psmModeller.getScoreName(shortName);
+	}
+	
+	
+	/**
+	 * Returns the mapping from the shortNames to the nicely readable names.
+	 * 
+	 * @return
+	 */
+	public Map<String, String> getScoreShortsToScoreNames() {
+		return psmModeller.getScoreShortsToScoreNames();
 	}
 	
 	

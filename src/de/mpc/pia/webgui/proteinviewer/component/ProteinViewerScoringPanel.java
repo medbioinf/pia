@@ -12,7 +12,6 @@ import de.mpc.pia.modeller.ProteinModeller;
 import de.mpc.pia.modeller.protein.ReportProtein;
 import de.mpc.pia.modeller.protein.scoring.AbstractScoring;
 import de.mpc.pia.modeller.protein.scoring.ProteinScoringFactory;
-import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.webgui.proteinviewer.ProteinViewer;
 
 
@@ -113,8 +112,8 @@ public class ProteinViewerScoringPanel {
 	public List<SelectItem> getScoringSelectItems() {
 		List<SelectItem> items = new ArrayList<SelectItem>();
 		
-		for (Map.Entry<String, String> scoringIt :
-			ProteinScoringFactory.getAllScoringNames().entrySet()) {
+		for (Map.Entry<String, String> scoringIt
+				: ProteinScoringFactory.getAllScoringNames().entrySet()) {
 			items.add( new SelectItem(scoringIt.getKey(),
 					scoringIt.getValue()) );
 		}
@@ -133,8 +132,10 @@ public class ProteinViewerScoringPanel {
 		scoring = scoringMethods.get(getFormSelectedScoring());
 		
 		Map<String, String> scoreNameMap = new HashMap<String, String>();
-		for (String scoreShort : proteinModeller.getAllScoreShortNames()) {
-			scoreNameMap.put(scoreShort, ScoreModelEnum.getName(scoreShort));
+		
+		for (Map.Entry<String, String> scoringIt 
+				: proteinModeller.getScoreShortsToScoreNames().entrySet()) {
+			scoreNameMap.put(scoringIt.getKey(), scoringIt.getValue());
 		}
 		
 		if (scoring == null) {
