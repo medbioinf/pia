@@ -526,9 +526,17 @@ public class PSMModeller {
 											PSMReportItemComparator.getScoreSortName(score.getShortName());
 									Comparator<PSMReportItem> comp = null;
 									if (scoreSortName != null) {
+										// this score is hard coded
 										comp = PSMReportItemComparator.getComparatorByName(
 												scoreSortName,
 												SortOrder.ascending);
+										
+										scoreShortToHigherScoreBetterChangeable.put(
+												score.getShortName(), false);
+										
+										scoreShortToHigherScoreBetter.put(
+												score.getShortName(),
+												ScoreModelEnum.getModelByDescription(score.getShortName()).higherScoreBetter());
 									} else {
 										Boolean higherscorebetter = null;
 										
@@ -1307,7 +1315,8 @@ public class PSMModeller {
 					scoreShortToComparator.get(fdrData.getScoreShortName()));
 			
 			// and also calculate the FDR score
-			FDRScore.calculateFDRScore(listForFDR, fdrData);
+			FDRScore.calculateFDRScore(listForFDR, fdrData,
+					scoreShortToHigherScoreBetter.get(fdrData.getScoreShortName()));
 			
 			
 			List<String> scoreShorts = fileScoreShortNames.get(fileID);
@@ -1403,39 +1412,47 @@ public class PSMModeller {
 		for (ReportPSMSet set : reportPSMSets) {
 			set.calculateAverageFDRScore();
 			
-			// put the PSM set into the List, which holds the sets identified in the same files
-			if (set.getPSMs().size() > 1) {
-				
-				Set<Long> files = new TreeSet<Long>();
-				for (ReportPSM psm : set.getPSMs()) {
-					files.add(psm.getFileID());
-				}
-				
-				StringBuffer sbKey = new StringBuffer("");
-				
-				for (Long file : files) {
-					if (sbKey.length() > 0) {
-						sbKey.append(":");
+			if (!set.getAverageFDRScore().getValue().equals(Double.NaN)) {
+				// put the PSM set into the List, which holds the sets identified in the same files
+				if (set.getPSMs().size() > 1) {
+					
+					Set<Long> files = new TreeSet<Long>();
+					for (ReportPSM psm : set.getPSMs()) {
+						if ((psm.getFDRScore() != null) &&
+								!psm.getFDRScore().getValue().equals(Double.NaN)) {
+							// the psm has a valid FDR for this file
+							files.add(psm.getFileID());
+						}
 					}
-					sbKey.append(file);
+					
+					StringBuffer sbKey = new StringBuffer("");
+					
+					for (Long file : files) {
+						if (sbKey.length() > 0) {
+							sbKey.append(":");
+						}
+						sbKey.append(file);
+					}
+					key = sbKey.toString();
+				} else {
+					key = set.getPSMs().get(0).getFileID().toString();
 				}
-				key = sbKey.toString();
+				
+				if (!fileLists.containsKey(key)) {
+					fileLists.put(key, new ArrayList<ReportPSMSet>());
+				}
+				
+				fileLists.get(key).add(set);
 			} else {
-				key = set.getPSMs().get(0).getFileID().toString();
+				// this PSM set gets no Combined FDR Score
+				set.setFDRScore(Double.NaN);
 			}
-			
-			if (!fileLists.containsKey(key)) {
-				fileLists.put(key, new ArrayList<ReportPSMSet>());
-			}
-			
-			fileLists.get(key).add(set);
 		}
-		
 		
 		
 		// go through the search-engine-sets, sort by AFS and calculate combined FDR Score
 		for (Map.Entry<String, List<ReportPSMSet>> seSetIt : fileLists.entrySet()) {
-			logger.info("Calculation of Average FDR Score for " + seSetIt.getKey());
+			logger.info("Calculation of Combined FDR Score for " + seSetIt.getKey());
 			
 			Collections.sort(seSetIt.getValue(),
 					new ScoreComparator<ReportPSMSet>(ScoreModelEnum.AVERAGE_FDR_SCORE.getShortName()));
@@ -1445,7 +1462,14 @@ public class PSMModeller {
 			fdrData.setScoreShortName(ScoreModelEnum.AVERAGE_FDR_SCORE.getShortName());
 			fdrData.calculateFDR(seSetIt.getValue());
 			
-			FDRScore.calculateFDRScore(seSetIt.getValue(), fdrData);
+			if (seSetIt.getValue().size() > 2) {
+				FDRScore.calculateFDRScore(seSetIt.getValue(), fdrData,
+						ScoreModelEnum.AVERAGE_FDR_SCORE.higherScoreBetter());
+			} else {
+				for (ReportPSMSet set : seSetIt.getValue()) {
+					set.setFDRScore(set.getAverageFDRScore().getValue());
+				}
+			}
 		}
 		
 		
@@ -1479,6 +1503,13 @@ public class PSMModeller {
 		double thr = fileFDRData.get(0L).getFDRThreshold();
 		
 		for (ReportPSMSet set : reportPSMSets) {
+			/*
+			if (set.getFDRScore() == null) {
+				logger.warn("FDRScore == null " + set.getSequence() + " " + set.getSourceID());
+				set.setFDRScore(Double.NaN);
+			}
+			*/
+			
 			if (!set.getFDRScore().getValue().equals(Double.NaN)) {
 				nrItems++;
 				if (set.getIsDecoy()) {

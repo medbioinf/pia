@@ -19,7 +19,12 @@ public class FDRScore {
 	 * end of the list
 	 */
 	public static <T extends FDRScoreComputable> void calculateFDRScore(
-			List<T> reportItems, FDRData fdrData) {
+			List<T> reportItems, FDRData fdrData, boolean higherScoreBetter) {
+		if (reportItems.size() < 2) {
+			// no calculation for empty list
+			return;
+		}
+		
 		// set the stepPoints
 		ListIterator<T> it;
 		FDRScoreComputable item;
@@ -50,23 +55,27 @@ public class FDRScore {
 		ListIterator<Integer> stepIterator = stepPoints.listIterator();
 		Integer nextStep;
 		
-		sLast = 0;
+		if (higherScoreBetter) {
+			// get the score of the first entry + (difference between first and first decoy) / (index of first decoy)  (to avoid FDRScore = 0)
+			sLast = reportItems.get(0).getScore(scoreShortName) +
+					(reportItems.get(0).getScore(scoreShortName) -
+							reportItems.get(stepPoints.get(0)).getScore(scoreShortName)) / stepPoints.get(0);
+		} else {
+			// or 0, if not higherscorebetter
+			sLast = 0;
+		}
 		qLast = 0;
 		
 		if (stepIterator.hasNext()) {
 			nextStep = stepIterator.next();
 			
-			sNext = ScoreModelEnum.transformScoreForFDRScore(
-					reportItems.get(nextStep).getScore(scoreShortName),
-					scoreShortName);
+			sNext = reportItems.get(nextStep).getScore(scoreShortName);
 			qNext = reportItems.get(nextStep).getQValue();
 		} else {
 			// we add an artificial decoy to the end...
 			nextStep = reportItems.size();
 			
-			sNext = ScoreModelEnum.transformScoreForFDRScore(
-					reportItems.get(reportItems.size()-1).getScore(scoreShortName),
-					scoreShortName);
+			sNext = reportItems.get(reportItems.size()-1).getScore(scoreShortName);
 			qNext = fdrData.getArtificialDecoyFDR();
 		}
 		
@@ -84,20 +93,15 @@ public class FDRScore {
 					
 					nextStep = stepIterator.next();
 					
-					sNext = ScoreModelEnum.transformScoreForFDRScore(
-							reportItems.get(nextStep).getScore(scoreShortName),
-							scoreShortName);
+					sNext = reportItems.get(nextStep).getScore(scoreShortName);
 					qNext = reportItems.get(nextStep).getQValue();
+					
 				}
 				
 				g = (qNext-qLast) / (sNext-sLast);
 			}
 			
-			item.setFDRScore(
-					(ScoreModelEnum.transformScoreForFDRScore(item.getScore(scoreShortName), scoreShortName)
-							-sLast)*g + qLast
-				);
-			
+			item.setFDRScore((item.getScore(scoreShortName)-sLast)*g + qLast);
 		}
 	}
 	

@@ -36,11 +36,6 @@ public enum ScoreModelEnum {
 		public String getCvName() {
 			return null;
 		}
-
-		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			return value;
-		}
 		
 		@Override
 		public Boolean higherScoreBetter() {
@@ -74,12 +69,6 @@ public enum ScoreModelEnum {
 		@Override
 		public String getCvName() {
 			return "(cvName not set for average_fdr_score)";
-		}
-		
-		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			// no transformation needed
-			return value;
 		}
 
 		@Override
@@ -132,13 +121,6 @@ public enum ScoreModelEnum {
 		}
 		
 		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			System.err.println(getName() + 
-					" should not be used for FDR calculation of PSMs!");
-			return null;
-		}
-		
-		@Override
 		public Boolean higherScoreBetter() {
 			return false;
 		}
@@ -184,14 +166,6 @@ public enum ScoreModelEnum {
 		public String getCvName() {
 			return PIAConstants.CV_PSM_LEVEL_FDRSCORE_NAME;
 		}
-		
-		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			// this score SHOULD NOT be used for FDR calculation... it is the FDR score!
-			System.err.println(getName() + 
-					" should not be used for FDR calculation of PSMs!");
-			return null;
-		}
 
 		@Override
 		public Boolean higherScoreBetter() {
@@ -236,12 +210,6 @@ public enum ScoreModelEnum {
 		}
 		
 		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			// no transformation needed
-			return value;
-		}
-		
-		@Override
 		public Boolean higherScoreBetter() {
 			return false;
 		}
@@ -283,12 +251,6 @@ public enum ScoreModelEnum {
 		@Override
 		public String getCvName() {
 			return PIAConstants.CV_MASCOT_SCORE_NAME;
-		}
-		
-		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			// transform to 10^(-value/10) (the mascot probability value)
-			return Math.pow(10, -value/10.0);
 		}
 
 		@Override
@@ -342,11 +304,6 @@ public enum ScoreModelEnum {
 		public String getCvName() {
 			return PIAConstants.CV_SEQUEST_PROBABILITY_NAME;
 		}
-		
-		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			return -value;
-		}
 
 		@Override
 		public Boolean higherScoreBetter() {
@@ -392,12 +349,6 @@ public enum ScoreModelEnum {
 		public String getCvName() {
 			return PIAConstants.CV_SEQUEST_SP_NAME;
 		}
-		
-		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			// transform to exp(-value/10)
-			return Math.exp(-value/10.0);
-		}
 
 		@Override
 		public Boolean higherScoreBetter() {
@@ -441,12 +392,6 @@ public enum ScoreModelEnum {
 		@Override
 		public String getCvName() {
 			return PIAConstants.CV_SEQUEST_XCORR_NAME;
-		}
-		
-		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			// transform to exp(-value/10)
-			return Math.exp(-value/10.0);
 		}
 		
 		@Override
@@ -499,12 +444,6 @@ public enum ScoreModelEnum {
 		}
 		
 		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			// no transformation needed
-			return value;
-		}
-		
-		@Override
 		public Boolean higherScoreBetter() {
 			return false;
 		}
@@ -554,12 +493,6 @@ public enum ScoreModelEnum {
 		public String getCvName() {
 			return PIAConstants.CV_XTANDEM_HYPERSCORE_NAME;
 		}
-		
-		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			// transform to exp(-value/10)
-			return Math.exp(-value/10.0);
-		}
 
 		@Override
 		public Boolean higherScoreBetter() {
@@ -608,12 +541,6 @@ public enum ScoreModelEnum {
 		public String getCvName() {
 			return "(cvName not set for fasta_sequence_count)";
 		}
-		
-		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			// transform to exp(-value/10)
-			return Math.exp(-value/10.0);
-		}
 
 		@Override
 		public Boolean higherScoreBetter() {
@@ -655,12 +582,6 @@ public enum ScoreModelEnum {
 		@Override
 		public String getCvName() {
 			return "(cvName not set for fasta_accession_count)";
-		}
-		
-		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			// transform to exp(-value/10)
-			return Math.exp(-value/10.0);
 		}
 
 		@Override
@@ -707,13 +628,6 @@ public enum ScoreModelEnum {
 		@Override
 		public String getCvName() {
 			return PIAConstants.CV_PIA_PROTEIN_SCORE_NAME;
-		}
-		
-		@Override
-		public Double transformScoreForFDRScore(Double value) {
-			System.err.println(getName() + 
-					"cannot be used for FDR calculation of PSMs!");
-			return null;
 		}
 		
 		@Override
@@ -793,29 +707,6 @@ public enum ScoreModelEnum {
 	 * @return
 	 */
 	public abstract String getCvName();
-	
-	
-	/**
-	 * For scores which represent no E-Value style, the score is transformed to
-	 * a meta-score, which is better the smaller the value.
-	 * 
-	 * @param value
-	 * @return
-	 */
-	public abstract Double transformScoreForFDRScore(Double value);
-	
-	
-	/**
-	 * Performs {@link ScoreModelEnum#transformScoreForFDRScore(Double)} for the
-	 * model given by the scoreModelDescriptor.
-	 * 
-	 * @return
-	 */
-	public final static Double transformScoreForFDRScore(Double value,
-			String scoreModelDescriptor) {
-		ScoreModelEnum model = getModelByDescription(scoreModelDescriptor);
-		return model.transformScoreForFDRScore(value);
-	}
 	
 	
 	/**
