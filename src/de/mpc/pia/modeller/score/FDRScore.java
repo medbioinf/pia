@@ -57,9 +57,16 @@ public class FDRScore {
 		
 		if (higherScoreBetter) {
 			// get the score of the first entry + (difference between first and first decoy) / (index of first decoy)  (to avoid FDRScore = 0)
-			sLast = reportItems.get(0).getScore(scoreShortName) +
-					(reportItems.get(0).getScore(scoreShortName) -
-							reportItems.get(stepPoints.get(0)).getScore(scoreShortName)) / stepPoints.get(0);
+			if (stepPoints.size() > 0) {
+				sLast = reportItems.get(0).getScore(scoreShortName) +
+						(reportItems.get(0).getScore(scoreShortName) -
+								reportItems.get(stepPoints.get(0)).getScore(scoreShortName)) / stepPoints.get(0);
+				
+			} else {
+				sLast = reportItems.get(0).getScore(scoreShortName) + 
+						(reportItems.get(0).getScore(scoreShortName) -
+								reportItems.get(reportItems.size()-1).getScore(scoreShortName)) / reportItems.size()-1;
+			}
 		} else {
 			// or 0, if not higherscorebetter
 			sLast = 0;
