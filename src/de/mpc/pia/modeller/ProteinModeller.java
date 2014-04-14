@@ -1007,6 +1007,15 @@ public class ProteinModeller {
 				analysisProtocolCollection, analysisCollection,
 				0L, false);
 		
+		for (SpectrumIdentificationList sil : silMap.values()) {
+			// the "intermediate PSM list" flag, the combined list below is always the final
+			CvParam tempCvParam = new CvParam();
+			tempCvParam.setAccession(PIAConstants.CV_INTERMEDIATE_PSM_LIST_ACCESSION);
+			tempCvParam.setCv(psiCV);
+			tempCvParam.setName(PIAConstants.CV_INTERMEDIATE_PSM_LIST_NAME);
+			sil.getCvParam().add(tempCvParam);
+		}
+		
 		// create the ProteinDetectionProtocol for PIAs protein inference
 		ProteinDetectionProtocol proteinDetectionProtocol =
 				new ProteinDetectionProtocol();
@@ -1274,6 +1283,14 @@ public class ProteinModeller {
 				: combinedSpecIdResMap.values()) {
 			combinedSil.getSpectrumIdentificationResult().add(idResult);
 		}
+		
+		// the "final PSM list" flag
+		CvParam tempCvParam = new CvParam();
+		tempCvParam.setAccession(PIAConstants.CV_FINAL_PSM_LIST_ACCESSION);
+		tempCvParam.setCv(psiCV);
+		tempCvParam.setName(PIAConstants.CV_FINAL_PSM_LIST_NAME);
+		combinedSil.getCvParam().add(tempCvParam);
+		
 		silMap.put(0L, combinedSil);
 		combinedSpecIdItemMap = null;
 		combinedSpecIdResMap = null;

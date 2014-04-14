@@ -143,6 +143,16 @@ public class PIAConstants {
 	/** name for the "PIA:protein inference used PSMs" in PSI-MS */
 	public static final String CV_PIA_FILTER_NAME = "PIA:filter";
 	
+	/** accession for the "final PSM list" in PSI-MS */
+	public static final String CV_FINAL_PSM_LIST_ACCESSION = "MS:1002439";
+	/** name for the "final PSM list" in PSI-MS */
+	public static final String CV_FINAL_PSM_LIST_NAME = "final PSM list";
+	
+	/** accession for the "intermediate PSM list" in PSI-MS */
+	public static final String CV_INTERMEDIATE_PSM_LIST_ACCESSION = "MS:1002440";
+	/** name for the "intermediate PSM list" in PSI-MS */
+	public static final String CV_INTERMEDIATE_PSM_LIST_NAME = "intermediate PSM list";
+	
 	
 	/** accession for "SEQUEST:probability" in PSI-MS */
 	public static final String CV_SEQUEST_PROBABILITY_ACCESSION = "MS:1001154";

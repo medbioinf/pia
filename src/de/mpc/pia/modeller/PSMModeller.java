@@ -2118,6 +2118,26 @@ public class PSMModeller {
 				analysisProtocolCollection, analysisCollection,
 				fileID, filterExport);
 		
+		for (SpectrumIdentificationList sil : silMap.values()) {
+			if (fileID > 0) {
+				// the "final PSM list" flag, if only this PSM list is exported
+				CvParam tempCvParam = new CvParam();
+				tempCvParam.setAccession(PIAConstants.CV_FINAL_PSM_LIST_ACCESSION);
+				tempCvParam.setCv(psiCV);
+				tempCvParam.setName(PIAConstants.CV_FINAL_PSM_LIST_NAME);
+				sil.getCvParam().add(tempCvParam);
+			} else {
+				// the "intermediate PSM list" flag, if also the overview is exported
+				CvParam tempCvParam = new CvParam();
+				tempCvParam.setAccession(
+						PIAConstants.CV_INTERMEDIATE_PSM_LIST_ACCESSION);
+				tempCvParam.setCv(psiCV);
+				tempCvParam.setName(
+						PIAConstants.CV_INTERMEDIATE_PSM_LIST_NAME);
+				sil.getCvParam().add(tempCvParam);
+			}
+		}
+		
 		// if the export is for the overview, export the PSM sets
 		Map<String, SpectrumIdentificationItem> combinedSiiMap =
 				new HashMap<String, SpectrumIdentificationItem>();
@@ -2803,6 +2823,13 @@ public class PSMModeller {
 		}
 		
 		sil.getSpectrumIdentificationResult().addAll(specIdResMap.values());
+		
+		// the "final PSM list" flag, because the overview is always the final (on PSM level)
+		CvParam tempCvParam = new CvParam();
+		tempCvParam.setAccession(PIAConstants.CV_FINAL_PSM_LIST_ACCESSION);
+		tempCvParam.setCv(psiCV);
+		tempCvParam.setName(PIAConstants.CV_FINAL_PSM_LIST_NAME);
+		sil.getCvParam().add(tempCvParam);
 		
 		return sil;
 	}
