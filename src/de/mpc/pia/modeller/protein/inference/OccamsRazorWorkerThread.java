@@ -295,9 +295,6 @@ public class OccamsRazorWorkerThread extends Thread {
 					// TODO: for now, the proteins which "explain" no more peptides are not reported (this happens sometimes)
 					reportProteins.add(protein);
 					reportedPeptides.addAll(peptideKeysMap.get(protID));
-					
-				} else {
-					logger.debug("protein has no more peptides: " + protein.getAccessions().get(0).getAccession());
 				}
 				unreportedProteins.remove(protID);
 				

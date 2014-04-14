@@ -127,6 +127,12 @@
 							<h:outputText value="Accessions" />
 						</rich:column>
 						
+						<rich:column id="header_is_decoy"
+								rowspan="#{nrHeaderScoreCols}"
+								rendered="#{isFDRCalculated}">
+							<h:outputText value="Decoy" />
+						</rich:column>
+						
 						<rich:column id="header_charge"
 								rowspan="#{nrHeaderRows}">
 							<pia:piaSortLink name="Charge"
@@ -323,6 +329,11 @@
 					</rich:list>
 				</rich:column>
 				
+				<rich:column id="isDecoy"
+						rendered="#{isFDRCalculated}">
+					<h:outputText value="D" rendered="#{psmRow.isDecoy}" />
+				</rich:column>
+								
 				<rich:column id="charge"
 						sortBy="#{psmRow}"
 						sortType="custom"

@@ -119,6 +119,11 @@
 							<h:outputText value="Accessions" />
 						</rich:column>
 						
+						<rich:column id="header_is_decoy"
+								rendered="#{isCombinedFDRScoreCalculated}">
+							<h:outputText value="Decoy" />
+						</rich:column>
+						
 						<rich:column id="header_nr_psms">
 							<pia:piaSortLink name="#Identifications"
 									sorting="nr_psms"
@@ -314,6 +319,11 @@
 							</a4j:outputPanel>
 						</a4j:outputPanel>
 					</rich:list>
+				</rich:column>
+				
+				<rich:column id="is_decoy"
+						rendered="#{isCombinedFDRScoreCalculated}">
+					<h:outputText value="D" rendered="#{psmRow.isDecoy}" />
 				</rich:column>
 				
 				<rich:column id="nr_psms"
