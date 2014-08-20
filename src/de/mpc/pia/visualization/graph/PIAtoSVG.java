@@ -137,7 +137,7 @@ public class PIAtoSVG {
 				
 				nodes.append(" label=\"" +
 						acc.getAccession() +
-						"\" width=.5 height=.2 margin=.05,.05];\n");
+						"\" width=.5 height=.2 margin=.05];\n");
 				
 				edges.append("acc" + acc.getID() + " -> " +
 						"grp" + group.getID() + ";\n");
@@ -167,7 +167,7 @@ public class PIAtoSVG {
 				
 				nodes.append(" label=\"" +
 						pep.getSequence() +
-						"\" width=.5 height=.2 margin=.05,.05];\n");
+						"\" width=.5 height=.2 margin=.05];\n");
 				
 				edges.append("grp" + group.getID() + " -> " +
 						"pep" + pep.getID() + ";\n");
@@ -210,7 +210,7 @@ public class PIAtoSVG {
 					
 					nodes.append(" label=\"" + 
 							label +
-							"\" width=.3 height=.1 margin=.025,.025 fontsize=7];\n");
+							"\" width=.3 height=.1 margin=.025 fontsize=7];\n");
 					
 					edges.append("pep" + pep.getID() + " -> " +
 							"psm" + psm.getID() + ";\n");
