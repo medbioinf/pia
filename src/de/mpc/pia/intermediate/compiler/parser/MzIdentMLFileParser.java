@@ -41,13 +41,13 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationResult;
 import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 import uk.ac.ebi.jmzidml.xml.io.MzIdentMLUnmarshaller;
-
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
+import de.mpc.pia.tools.obo.OBOMapper;
 
 
 /**

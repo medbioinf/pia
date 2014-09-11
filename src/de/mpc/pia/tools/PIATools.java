@@ -1,5 +1,9 @@
 package de.mpc.pia.tools;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.CodeSource;
+
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
@@ -66,6 +70,30 @@ public class PIATools {
 				return o1.compareTo(o2);
 			}
 		}
+	}
+	
+	
+	/**
+	 * This method return the full path of specified subPath.
+	 */
+	public static URL getFullPath(Class cs, String subPath)
+		throws MalformedURLException {
+		if (cs == null) {
+			throw new IllegalArgumentException("Input class cannot be NULL");
+		}
+		
+		URL fullPath = null;
+		
+		CodeSource src = cs.getProtectionDomain().getCodeSource();
+		if (src != null) {
+			if (subPath == null) {
+				fullPath = src.getLocation();
+			} else {
+				fullPath = new URL(src.getLocation(), subPath);
+			}
+		}
+		
+		return fullPath;
 	}
 	
 	

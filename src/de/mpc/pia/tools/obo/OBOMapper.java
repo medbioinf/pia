@@ -1,6 +1,7 @@
-package de.mpc.pia.intermediate.compiler.parser;
+package de.mpc.pia.tools.obo;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
@@ -26,17 +27,42 @@ public class OBOMapper {
 	public static final String peptideScoreID = "MS:1001143";
 	
 	/**
-	 * Constructor for the OBOMapper. Uses the given file. If this is null,
-	 * tries to get the PSI-MS obo file from SourceForge.
+	 * Constructor for the OBOMapper. Uses the online OBO file (if accessible)
+	 * or a local file.
 	 * 
 	 * @param pathToFile
 	 */
-	public OBOMapper(String pathToFile) {
-		if (pathToFile == null) {
-			pathToFile = "http://psidev.cvs.sourceforge.net/viewvc/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo";
-		}
+	public OBOMapper() {
+		String pathToFile;
 		
-		logger.info("OBO file: "+pathToFile);
+		pathToFile = "http://psidev.cvs.sourceforge.net/viewvc/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo";
+		
+		// TODO: read properties (in the pia properties class) and get the path to the obo-file from there
+		
+		/*
+		// properties reader
+        Properties props = new Properties();
+
+        InputStream inputStream = null;
+        try {
+            URL pathURL = IOUtilities.getFullPath(PrideInspectorBootstrap.class, "config/config.props");
+            File file = IOUtilities.convertURLToFile(pathURL);
+            // input stream of the property file
+            inputStream = new FileInputStream(file);
+            props.load(inputStream);
+        } catch (IOException e) {
+            logger.error("Failed to load config/config.props file", e);
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    logger.error("Failed to close InputStream while reading config.props file", e);
+                }
+            }
+        }
+        // done reader
+        */
 		
         try {
 			openSession(pathToFile);
@@ -69,4 +95,6 @@ public class OBOMapper {
 	public Collection<IdentifiedObject> getObjects() {
 		return oboSession.getObjects();
 	}
+	
+	
 }

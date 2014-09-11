@@ -37,7 +37,6 @@ import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.parser.InputFileParserFactory;
-import de.mpc.pia.intermediate.compiler.parser.OBOMapper;
 import de.mpc.pia.intermediate.piaxml.AccessionsListXML;
 import de.mpc.pia.intermediate.piaxml.AccessionXML;
 import de.mpc.pia.intermediate.piaxml.PIAInputFileXML;
@@ -52,6 +51,7 @@ import de.mpc.pia.intermediate.piaxml.SpectrumMatchXML;
 import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
+import de.mpc.pia.tools.obo.OBOMapper;
 import de.mpc.pia.tools.unimod.UnimodParser;
 
 /**
@@ -169,7 +169,7 @@ public class PIACompiler {
 	 */
 	public OBOMapper getOBOMapper() {
 		if (oboMapper == null) {
-			oboMapper = new OBOMapper(null);
+			oboMapper = new OBOMapper();
 		}
 		return oboMapper;
 	}

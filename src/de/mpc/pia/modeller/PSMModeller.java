@@ -72,7 +72,6 @@ import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
-import de.mpc.pia.intermediate.compiler.parser.OBOMapper;
 import de.mpc.pia.intermediate.xmlhandler.PIAIntermediateJAXBHandler;
 import de.mpc.pia.modeller.psm.PSMExecuteCommands;
 import de.mpc.pia.modeller.psm.PSMReportItem;
@@ -93,6 +92,7 @@ import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 import de.mpc.pia.modeller.score.comparator.RankCalculator;
 import de.mpc.pia.modeller.score.comparator.ScoreComparator;
 import de.mpc.pia.tools.PIAConstants;
+import de.mpc.pia.tools.obo.OBOMapper;
 import de.mpc.pia.tools.unimod.UnimodParser;
 import de.mpc.pia.tools.unimod.jaxb.ModT;
 
@@ -665,7 +665,7 @@ public class PSMModeller {
 	 */
 	private OBOMapper getOBOMapper() {
 		if (oboMapper == null) {
-			oboMapper = new OBOMapper(null);
+			oboMapper = new OBOMapper();
 		}
 		return oboMapper;
 	}
@@ -2336,8 +2336,20 @@ public class PSMModeller {
 		
 		// get the information from PIA XML file
 		if (fileID > 0) {
-			inputs.getSearchDatabase().add(searchDatabases.get(fileID));
-			inputs.getSpectraData().add(spectraData.get(fileID));
+			// get spectrumIdentification of the file
+			SpectrumIdentification specID = inputFiles.get(fileID).
+					getAnalysisCollection().getSpectrumIdentification().get(0);
+			
+			for (InputSpectra inputSpectra : specID.getInputSpectra()) {
+				// add the spectraData
+				inputs.getSpectraData().add(
+						spectraData.get(inputSpectra.getSpectraDataRef()));
+			}
+			
+			for (SearchDatabaseRef dbRef : specID.getSearchDatabaseRef()) {
+				// add the search databases
+				inputs.getSearchDatabase().add(searchDatabases.get(dbRef.getSearchDatabaseRef()));
+			}
 		} else {
 			inputs.getSearchDatabase().addAll(searchDatabases.values());
 			inputs.getSpectraData().addAll(spectraData.values());
