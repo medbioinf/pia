@@ -584,13 +584,24 @@ public class TandemFileParser {
 			String rtStr = spectrum.getPrecursorRetentionTime();
 			Double rt = null;
 			if ((rtStr != null) && (rtStr.trim().length() > 0)) {
-				// try to et the RT directly from eclipse
+				rtStr = rtStr.trim();
+				
+				if (rtStr.startsWith("PT")) {
+					rtStr = rtStr.substring(2);
+				}
+				
+				if (rtStr.endsWith("S")) {
+					rtStr = rtStr.substring(0, rtStr.length()-1);
+				}
+				
+				// try to get the RT directly from tandem
 				try {
 					rt = Double.parseDouble(rtStr);
 				} catch (NumberFormatException e) {
 					logger.error("Could not parse RT: ", e);
 					rt = null;
 				}
+				
 			}
 			
 			if (rt == null) {
