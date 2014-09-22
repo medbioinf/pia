@@ -987,7 +987,8 @@ public class PIACompiler {
 				}
 			} catch (ParseException e) {
 				System.err.println(e.getMessage());
-				PIATools.printCommandLineHelp(options, helpDescription);
+				PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
+						options, helpDescription);
 				System.exit(-1);
 			}
 			
@@ -1002,11 +1003,13 @@ public class PIACompiler {
 				piaCompiler.setName(piaName);
 				piaCompiler.writeOutXML(outFileName);
 			} else {
-				PIATools.printCommandLineHelp(options, helpDescription);
+				PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
+						options, helpDescription);
 				System.exit(-1);
 			}
 		} else {
-			PIATools.printCommandLineHelp(options, helpDescription);
+			PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
+					options, helpDescription);
 		}
 	}
 }

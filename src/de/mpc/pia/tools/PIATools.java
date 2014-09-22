@@ -101,10 +101,10 @@ public class PIATools {
 	 * Print out the help, given the options
 	 * @param options
 	 */
-	public static void printCommandLineHelp(Options options, String header) {
+	public static void printCommandLineHelp(String className, Options options, String header) {
 		HelpFormatter formatter = new HelpFormatter();
 		
-		formatter.printHelp(PIAModeller.class.getSimpleName(),
+		formatter.printHelp(className,
 				header + "\nOptions:",
 				options,
 				"\nCopyright (C) 2013 Medizinisches Proteom-Center, " +

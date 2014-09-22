@@ -1,5 +1,6 @@
 package de.mpc.pia.modeller;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.MalformedURLException;
@@ -3824,6 +3825,149 @@ public class PSMModeller {
 		}
 		
 		return mtd;
+	}
+	
+	
+	/**
+     * Writes some PSM level information.
+     * 
+     * @throws IOException
+     */
+	public void writePSMInformation(String fileName) throws IOException {
+		Writer writer = null;
+		try {
+			writer = new FileWriter(fileName, false);
+			writePSMInformation(writer);
+		} catch (IOException e) {
+			logger.error("Could not write PSM information to " + fileName, e);
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					logger.error("Cannot close file " + fileName, e);
+				}
+			}
+		}
+	}
+	
+	
+	/**
+     * Writes some PSM level information.
+     * 
+     * @throws IOException
+     */
+	public void writePSMInformation(Writer writer) throws IOException {
+		FDRData fdrData = null;
+		Double fdrThresholds[] = {0.01, 0.03, 0.05};
+		Double originalFDRThreshold = null;
+		String nl = System.lineSeparator();
+		
+		writer.append("PSM information about " + fileName + nl);
+		
+		// numbers for each file
+		for (Long fileID : inputFiles.keySet()) {
+			if (fileID < 1) {
+				// skip the overview
+				continue;
+			}
+			
+			writer.append(nl + "PSMs in file #" + fileID + " (" + inputFiles.get(fileID).getName() + ")" + nl);
+			writer.append("==============================" + nl);
+			writer.append("#PSMs: ");
+			writer.append(Integer.toString(getNrReportPSMs(fileID)));
+			writer.append(nl);
+			
+			if (isFDRCalculated(fileID)) {
+				fdrData = getFileFDRData().get(fileID);
+				originalFDRThreshold = fdrData.getFDRThreshold();
+				
+				writer.append("FDR is calculated with " + getScoreName(fdrData.getScoreShortName()));
+				writer.append(" using " + getFilesTopIdentifications(fileID) + " top identifications");
+				writer.append(nl);
+				
+				writer.append("#PSMs with FDR: ");
+				writer.append(Integer.toString(fdrData.getNrItems()));
+				writer.append(nl);
+				writer.append("  #targets:     ");
+				writer.append(Integer.toString(fdrData.getNrTargets()));
+				writer.append(nl);
+				writer.append("  #decoys:      ");
+				writer.append(Integer.toString(fdrData.getNrDecoys()));
+				writer.append(nl);
+				
+				//TODO: make this faster, calculating always the FDR is time consuming
+				for (Double thr : fdrThresholds) {
+					fdrData.setFDRThreshold(thr);
+					calculateFDR(fileID);
+					writer.append("FDR " + thr + ":" + nl);
+					writer.append("  #targets below " + thr + " threshold: ");
+					writer.append(Integer.toString(fdrData.getNrFDRGoodTargets()));
+					writer.append(nl);
+					writer.append("  #decoys below " + thr + " threshold:  ");
+					writer.append(Integer.toString(fdrData.getNrFDRGoodDecoys()));
+					writer.append(nl);
+					writer.append("  score at threshold: ");
+					writer.append(Double.toString(fdrData.getScoreAtThreshold()));
+					writer.append(nl);
+				}
+				
+				// reset the FDR data
+				fdrData.setFDRThreshold(originalFDRThreshold);
+				calculateFDR(fileID);
+			}
+		}
+		
+		// numbers for PSMSets
+		writer.append(nl + "PSM sets (create sets = " + createPSMSets + ")" + nl);
+		writer.append("==============================" + nl);
+		writer.append("#PSM sets: ");
+		writer.append(Integer.toString(getNrReportPSMs(0L)));
+		writer.append(nl);
+		
+		if (isCombinedFDRScoreCalculated()) {
+			writer.append("combined FDR score is calculated" + nl);
+			
+			fdrData = getFileFDRData().get(0L);
+			originalFDRThreshold = fdrData.getFDRThreshold();
+			
+			writer.append("#PSM sets with FDR: ");
+			writer.append(Integer.toString(fdrData.getNrItems()));
+			writer.append(nl);
+			writer.append("  #targets:         ");
+			writer.append(Integer.toString(fdrData.getNrTargets()));
+			writer.append(nl);
+			writer.append("  #decoys:          ");
+			writer.append(Integer.toString(fdrData.getNrDecoys()));
+			writer.append(nl);
+			
+			//TODO: make this better, calculating always the FDR is time consuming
+			for (Double thr : fdrThresholds) {
+				fdrData.setFDRThreshold(thr);
+				calculateCombinedFDRScore();
+				writer.append("FDR " + thr + ":" + nl);
+				writer.append("  #targets below " + thr + " threshold: ");
+				writer.append(Integer.toString(fdrData.getNrFDRGoodTargets()));
+				writer.append(nl);
+				writer.append("  #decoys below " + thr + " threshold:  ");
+				writer.append(Integer.toString(fdrData.getNrFDRGoodDecoys()));
+				writer.append(nl);
+				int nrPSMs = 0;
+				writer.append("  #good identifications in sets:" + nl);
+				for (Integer nrIDs : getNrIdentifications(true)) {
+					nrPSMs++;
+					writer.append("    " + nrPSMs + " - " + nrIDs + nl);
+				}
+			}
+			
+			// reset the FDR data
+			fdrData.setFDRThreshold(originalFDRThreshold);
+			calculateCombinedFDRScore();
+		}
+		
+		// TODO: create histogram-data for mass-shifts at the 1%, 3% and 5% FDR value
+		
+		writer.flush();
 	}
 	
 	
