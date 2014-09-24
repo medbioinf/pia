@@ -2,9 +2,11 @@ package de.mpc.pia.webgui.psmviewer;
 
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -130,6 +132,11 @@ public class PSMViewer {
 		setNumberDigitsPPM(3);
 		setNumberDigitsRT(2);
 		setNumberDigitsScores(4);
+		
+		// ALWAYS use english formats!
+		DecimalFormatSymbols decimalSymbols = new DecimalFormatSymbols(Locale.US);
+		scoreDfVerySmall.setDecimalFormatSymbols(decimalSymbols);
+		scoreDfNormal.setDecimalFormatSymbols(decimalSymbols);
 	}
 	
 	
