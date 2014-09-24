@@ -1,5 +1,7 @@
 package de.mpc.pia.tools;
 
+import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
+import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.FileFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.Param;
@@ -14,6 +16,22 @@ import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
  *
  */
 public class MzIdentMLTools {
+	
+	
+	private static Cv psiMS = new Cv();
+	private static Cv unitOntology = new Cv();
+	
+	// static initialization
+	static {
+		psiMS.setId("PSI-MS");
+		psiMS.setFullName("PSI-MS");
+		psiMS.setUri("http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
+		
+		unitOntology.setId("UO");
+		unitOntology.setFullName("PSI-MS");
+		unitOntology.setUri("http://unit-ontology.googlecode.com/svn/trunk/unit.obo");
+	}
+	
 	
 	/**
 	 * We don't ever want to instantiate this class
@@ -143,5 +161,81 @@ public class MzIdentMLTools {
 			return (x == null) && (y == null);
 		}
 	}
-
+	
+	
+	/**
+	 * Adds the correct unit arguments to an {@link AbstractParam}, which is
+	 * given from a (parsed) string.
+	 * <p>
+	 * The abstractParam's value should be set before, as it is used for the
+	 * conversion from mmu to Dalton.
+	 * 
+	 * @param unit
+	 * @param abstractParam
+	 * @return
+	 */
+	public static boolean setUnitParameterFromString(String unit, AbstractParam abstractParam) {
+		if ((unit == null) || (abstractParam == null)) {
+			return false;
+		}
+		
+		unit = unit.trim();
+		
+		if (unit.equalsIgnoreCase("Da") ||
+				unit.equalsIgnoreCase("Dalton") ||
+				unit.equalsIgnoreCase("amu") ||
+				unit.equalsIgnoreCase("u") ||
+				unit.equalsIgnoreCase("unified atomic mass unit")) {
+			abstractParam.setUnitAccession("UO:0000221");
+			abstractParam.setUnitCv(getUnitOntology());
+			abstractParam.setUnitName("dalton");
+			return true;
+		} else if (unit.equalsIgnoreCase("ppm") ||
+				unit.equalsIgnoreCase("parts per million")) {
+			abstractParam.setUnitAccession("UO:0000169");
+			abstractParam.setUnitCv(getUnitOntology());
+			abstractParam.setUnitName("parts per million");
+			return true;
+		} else if (unit.equalsIgnoreCase("percent") ||
+				unit.equalsIgnoreCase("%")) {
+			abstractParam.setUnitAccession("UO:0000187");
+			abstractParam.setUnitCv(getUnitOntology());
+			abstractParam.setUnitName("percent");
+			return true;
+		} else if (unit.equalsIgnoreCase("mmu")) {
+			// one mmu is 0.001 Da -> calculate it to dalton
+			try {
+				Double value = Double.parseDouble(abstractParam.getValue());
+				value *= 0.001;
+				abstractParam.setValue(value.toString());
+				abstractParam.setUnitAccession("UO:0000221");
+				abstractParam.setUnitCv(getUnitOntology());
+				abstractParam.setUnitName("dalton");
+			} catch (NumberFormatException e) {
+				// could not
+				abstractParam.setUnitName("mmu");
+				return false;
+			}
+		}
+		
+		return false;
+	}
+	
+	
+	/**
+	 * Getter for the PSI-MS controlled vocabulary
+	 * @return
+	 */
+	public static Cv getCvPSIMS() {
+		return psiMS;
+	}
+	
+	
+	/**
+	 * Getter for the UnitOntology controlled vocabulary
+	 * @return
+	 */
+	public static Cv getUnitOntology() {
+		return unitOntology;
+	}
 }
