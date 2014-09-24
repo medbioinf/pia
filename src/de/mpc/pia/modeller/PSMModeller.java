@@ -1252,6 +1252,16 @@ public class PSMModeller {
 					}
 				}
 				
+				// if no score is set, look for searchengine main scores
+				if (fdrData.getScoreShortName() == null) {
+					for (String scoreShort : fileScoreShortNames.get(fileID)) {
+						if (ScoreModelEnum.getModelByDescription(scoreShort).isSearchengineMainScore()) {
+							fdrData.setScoreShortName(scoreShort);
+							break;
+						}
+					}
+				}
+				
 				// if no score is set yet, take the first best score
 				if (fdrData.getScoreShortName() == null) {
 					fdrData.setScoreShortName(
@@ -3906,8 +3916,11 @@ public class PSMModeller {
 				
 				//TODO: make this faster, calculating always the FDR is time consuming
 				for (Double thr : fdrThresholds) {
-					fdrData.setFDRThreshold(thr);
-					calculateFDR(fileID);
+					if (!thr.equals(fdrData.getFDRThreshold())) {
+						fdrData.setFDRThreshold(thr);
+						calculateFDR(fileID);
+					}
+					
 					writer.append("FDR " + thr + ":" + nl);
 					writer.append("  #targets below " + thr + " threshold: ");
 					writer.append(Integer.toString(fdrData.getNrFDRGoodTargets()));
@@ -3916,7 +3929,7 @@ public class PSMModeller {
 					writer.append(Integer.toString(fdrData.getNrFDRGoodDecoys()));
 					writer.append(nl);
 					writer.append("  score at threshold: ");
-					writer.append(Double.toString(fdrData.getScoreAtThreshold()));
+					writer.append("" + fdrData.getScoreAtThreshold());
 					writer.append(nl);
 				}
 				
