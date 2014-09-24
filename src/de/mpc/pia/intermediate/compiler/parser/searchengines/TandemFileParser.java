@@ -904,6 +904,23 @@ public class TandemFileParser {
 						}
 					}
 				}
+				
+				// the quick acetyl and quick pyrolidone are also n-terminal
+				if (loc == 1) {
+					if (Math.abs(mod.getMass() - 42.010565) < 0.0001) {
+						// acetylation
+						Modification modification = new Modification('.',
+								42.0105647,
+								"Acetyl",
+								"UNIMOD:1");
+						modifications.put(0, modification);
+						continue;
+					} else if ((Math.abs(mod.getMass() + 18.010565) < 0.0001) ||
+							(Math.abs(mod.getMass() + 17.026549) < 0.0001)) {
+						// pyrolidone
+						loc = 0;
+					}
+				}
 			} else if (loc == peptideSequence.length()) {
 				// this might be a C-terminal modification
 				//  => check against suitable settings
