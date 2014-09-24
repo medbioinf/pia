@@ -45,7 +45,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.model.mzidml.Tolerance;
 import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
-
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.PIAInputFile;
@@ -56,6 +55,7 @@ import de.mpc.pia.intermediate.compiler.parser.FastaHeaderInfos;
 import de.mpc.pia.intermediate.compiler.parser.InputFileParserFactory;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
+import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.unimod.UnimodParser;
 import de.mpc.pia.tools.unimod.jaxb.ModT;
@@ -443,7 +443,8 @@ public class MascotDatFileParser {
 		((CvParam)abstractParam).setCv(psiMS);
 		abstractParam.setName("search tolerance plus value");
 		abstractParam.setValue(mascotFile.getParametersSection().getITOL());
-		abstractParam.setUnitName(mascotFile.getParametersSection().getITOLU());
+		MzIdentMLTools.setUnitParameterFromString(
+				mascotFile.getParametersSection().getITOLU(), abstractParam);
 		tolerance.getCvParam().add((CvParam)abstractParam);
 		
 		abstractParam = new CvParam();
@@ -451,7 +452,8 @@ public class MascotDatFileParser {
 		((CvParam)abstractParam).setCv(psiMS);
 		abstractParam.setName("search tolerance minus value");
 		abstractParam.setValue(mascotFile.getParametersSection().getITOL());
-		abstractParam.setUnitName(mascotFile.getParametersSection().getITOLU());
+		MzIdentMLTools.setUnitParameterFromString(
+				mascotFile.getParametersSection().getITOLU(), abstractParam);
 		tolerance.getCvParam().add((CvParam)abstractParam);
 		
 		spectrumIDProtocol.setFragmentTolerance(tolerance);
@@ -464,7 +466,8 @@ public class MascotDatFileParser {
 		((CvParam)abstractParam).setCv(psiMS);
 		abstractParam.setName("search tolerance plus value");
 		abstractParam.setValue(mascotFile.getParametersSection().getTOL());
-		abstractParam.setUnitName(mascotFile.getParametersSection().getTOLU());
+		MzIdentMLTools.setUnitParameterFromString(
+				mascotFile.getParametersSection().getTOLU(), abstractParam);
 		tolerance.getCvParam().add((CvParam)abstractParam);
 		
 		abstractParam = new CvParam();
@@ -472,7 +475,8 @@ public class MascotDatFileParser {
 		((CvParam)abstractParam).setCv(psiMS);
 		abstractParam.setName("search tolerance minus value");
 		abstractParam.setValue(mascotFile.getParametersSection().getTOL());
-		abstractParam.setUnitName(mascotFile.getParametersSection().getTOLU());
+		MzIdentMLTools.setUnitParameterFromString(
+				mascotFile.getParametersSection().getTOLU(), abstractParam);
 		tolerance.getCvParam().add((CvParam)abstractParam);
 		
 		spectrumIDProtocol.setParentTolerance(tolerance);

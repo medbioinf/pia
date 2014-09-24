@@ -35,7 +35,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.model.mzidml.Tolerance;
 import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
-
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.PIAInputFile;
@@ -47,6 +46,7 @@ import de.mpc.pia.intermediate.compiler.parser.InputFileParserFactory;
 import de.mpc.pia.modeller.IdentificationKeySettings;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
+import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
 import de.proteinms.xtandemparser.parser.XTandemParser;
@@ -468,7 +468,7 @@ public class TandemFileParser {
 			((CvParam)abstractParam).setCv(psiMS);
 			abstractParam.setName("search tolerance plus value");
 			abstractParam.setValue(error.toString());
-			abstractParam.setUnitName(units);
+			MzIdentMLTools.setUnitParameterFromString(units, abstractParam);
 			tolerance.getCvParam().add((CvParam)abstractParam);
 			
 			abstractParam = new CvParam();
@@ -476,7 +476,7 @@ public class TandemFileParser {
 			((CvParam)abstractParam).setCv(psiMS);
 			abstractParam.setName("search tolerance minus value");
 			abstractParam.setValue(error.toString());
-			abstractParam.setUnitName(units);
+			MzIdentMLTools.setUnitParameterFromString(units, abstractParam);
 			tolerance.getCvParam().add((CvParam)abstractParam);
 			
 			spectrumIDProtocol.setFragmentTolerance(tolerance);
@@ -494,7 +494,8 @@ public class TandemFileParser {
 		abstractParam.setName("search tolerance plus value");
 		abstractParam.setValue(
 				String.valueOf(inputParams.getSpectrumParentMonoIsoMassErrorPlus()));
-		abstractParam.setUnitName(inputParams.getSpectrumParentMonoIsoMassErrorUnits());
+		MzIdentMLTools.setUnitParameterFromString(
+				inputParams.getSpectrumParentMonoIsoMassErrorUnits(), abstractParam);
 		tolerance.getCvParam().add((CvParam)abstractParam);
 		
 		abstractParam = new CvParam();
@@ -503,7 +504,8 @@ public class TandemFileParser {
 		abstractParam.setName("search tolerance minus value");
 		abstractParam.setValue(
 				String.valueOf(inputParams.getSpectrumParentMonoIsoMassErrorMinus()));
-		abstractParam.setUnitName(inputParams.getSpectrumParentMonoIsoMassErrorUnits());
+		MzIdentMLTools.setUnitParameterFromString(
+				inputParams.getSpectrumParentMonoIsoMassErrorUnits(), abstractParam);
 		tolerance.getCvParam().add((CvParam)abstractParam);
 		
 		spectrumIDProtocol.setParentTolerance(tolerance);
