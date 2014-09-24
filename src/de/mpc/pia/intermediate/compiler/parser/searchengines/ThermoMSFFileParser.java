@@ -1,6 +1,5 @@
 package de.mpc.pia.intermediate.compiler.parser.searchengines;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,7 +12,6 @@ import org.apache.log4j.Logger;
 
 import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
-import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
@@ -41,7 +39,6 @@ import de.mpc.PD.AminoAcids;
 import de.mpc.PD.FastaFiles;
 import de.mpc.PD.FileInfos;
 import de.mpc.PD.MassPeaks;
-import de.mpc.PD.PDBaseClassPairedPrimaryKey;
 import de.mpc.PD.PeptideScores;
 import de.mpc.PD.PeptideScores_decoy;
 import de.mpc.PD.Peptides;
@@ -55,14 +52,11 @@ import de.mpc.PD.Peptides_decoy;
 import de.mpc.PD.ProcessingNodeParameters;
 import de.mpc.PD.ProcessingNodeScores;
 import de.mpc.PD.ProcessingNodes;
-import de.mpc.PD.ProcessingNodesSpectra;
 import de.mpc.PD.ProteinAnnotations;
 import de.mpc.PD.Proteins;
 import de.mpc.PD.SpectrumHeaders;
 import de.mpc.PD.DB.JDBCAccess;
-import de.mpc.PD.DB.SQLiteAccess;
 import de.mpc.PD.Params.SimpleProgramParameters;
-import de.mpc.pepXML.MsmsPipelineAnalysis.MsmsRunSummary.SearchSummary.AminoacidModification;
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.PIAInputFile;
@@ -115,10 +109,6 @@ public class ThermoMSFFileParser {
 		JDBCAccess jdbc = new JDBCAccess();
 		jdbc.connectToExistingDB(fileName);
 		fileConnectionParams.setJDBCAccess(jdbc);
-		
-		int accNr = 0;
-		int pepNr = 0;
-		int specNr = 0;
 		
 		Param param;
 		AbstractParam abstractParam;

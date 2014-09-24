@@ -3882,6 +3882,7 @@ public class PSMModeller {
 				fdrData = getFileFDRData().get(fileID);
 				originalFDRThreshold = fdrData.getFDRThreshold();
 				
+				writer.append(nl);
 				writer.append("FDR is calculated with " + getScoreName(fdrData.getScoreShortName()));
 				writer.append(" using " + getFilesTopIdentifications(fileID) + " top identifications");
 				writer.append(nl);
@@ -3890,6 +3891,7 @@ public class PSMModeller {
 				} else {
 					writer.append("Searchengine internal decoys are used.");
 				}
+				writer.append(nl);
 				writer.append(nl);
 				
 				writer.append("#PSMs with FDR: ");
