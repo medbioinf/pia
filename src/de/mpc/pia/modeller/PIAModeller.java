@@ -3,6 +3,8 @@ package de.mpc.pia.modeller;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +29,7 @@ import de.mpc.pia.intermediate.Group;
 import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
+import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.xmlhandler.PIAIntermediateJAXBHandler;
 import de.mpc.pia.modeller.execute.xmlparams.CTDTool;
 import de.mpc.pia.modeller.execute.xmlparams.NODEType;
@@ -627,6 +630,13 @@ public class PIAModeller {
                 		"should be executed before exporting." )
                 .create("proteinExport"));
 		
+		options.addOption(OptionBuilder
+				.withArgName("outfile")
+				.withValueSeparator(' ')
+				.hasArgs(1)
+                .withDescription( "Write out basic information of the file." )
+                .create("writeInformation"));
+		
 		
 		if (args.length > 0) {
 		    try {
@@ -657,6 +667,18 @@ public class PIAModeller {
 						
 						processPipelineFile(line.getOptionValue("paramFile"),
 								model);
+						
+						if (line.hasOption("writeInformation")) {
+							String[] params = line.getOptionValues("writeInformation");
+							
+							if ((params.length > 0) &&
+									(params[0].trim().length() > 0)) {
+								String fileName = params[0].trim();
+								
+								model.getPSMModeller().writePSMInformation(fileName);
+								// TODO: write information from other layers...
+							}
+						}
 						
 						if (line.hasOption("psmExport")) {
 							String[] params = line.getOptionValues("psmExport");
@@ -799,7 +821,8 @@ public class PIAModeller {
 				}
 		    } catch (ParseException e) {
 				System.err.println(e.getMessage());
-				PIATools.printCommandLineHelp(options, helpDescription);
+				PIATools.printCommandLineHelp(PIAModeller.class.getSimpleName(),
+						options, helpDescription);
 				System.exit(-1);
 			} catch (Exception e) {
 				System.err.println("Unexpected exception: " + e.getMessage());
@@ -807,7 +830,8 @@ public class PIAModeller {
 				System.exit(-1);
 			}
 		} else {
-			PIATools.printCommandLineHelp(options, helpDescription);
+			PIATools.printCommandLineHelp(PIAModeller.class.getSimpleName(),
+					options, helpDescription);
 		}
 	}
 }

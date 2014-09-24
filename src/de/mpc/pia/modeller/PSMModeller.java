@@ -3885,6 +3885,12 @@ public class PSMModeller {
 				writer.append("FDR is calculated with " + getScoreName(fdrData.getScoreShortName()));
 				writer.append(" using " + getFilesTopIdentifications(fileID) + " top identifications");
 				writer.append(nl);
+				if (fdrData.getDecoyStrategy().equals(DecoyStrategy.ACCESSIONPATTERN)) {
+					writer.append("Regular expression used to identify decoys: " + fdrData.getDecoyPattern());
+				} else {
+					writer.append("Searchengine internal decoys are used.");
+				}
+				writer.append(nl);
 				
 				writer.append("#PSMs with FDR: ");
 				writer.append(Integer.toString(fdrData.getNrItems()));
