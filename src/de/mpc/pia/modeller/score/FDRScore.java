@@ -55,34 +55,32 @@ public class FDRScore {
 		ListIterator<Integer> stepIterator = stepPoints.listIterator();
 		Integer nextStep;
 		
+		Double bestScore = null;
 		if (higherScoreBetter) {
-			// get the score of the first entry + (difference between first and first decoy) / (index of first decoy)  (to avoid FDRScore = 0)
-			if (stepPoints.size() > 0) {
-				sLast = reportItems.get(0).getScore(scoreShortName) +
-						(reportItems.get(0).getScore(scoreShortName) -
-								reportItems.get(stepPoints.get(0)).getScore(scoreShortName)) / stepPoints.get(0);
-				
-			} else {
-				sLast = reportItems.get(0).getScore(scoreShortName) + 
-						(reportItems.get(0).getScore(scoreShortName) -
-								reportItems.get(reportItems.size()-1).getScore(scoreShortName)) / reportItems.size()-1;
-			}
-		} else {
-			// or 0, if not higherscorebetter
-			sLast = 0;
+			// set the "best score" (which would have FDRSCore=0) to "bestScore + diff to 2nd best score"
+			bestScore = 2*reportItems.get(0).getScore(scoreShortName) - reportItems.get(1).getScore(scoreShortName);
 		}
+		
+		sLast = 0;
 		qLast = 0;
 		
 		if (stepIterator.hasNext()) {
 			nextStep = stepIterator.next();
 			
 			sNext = reportItems.get(nextStep).getScore(scoreShortName);
+			if (higherScoreBetter) {
+				sNext = bestScore - sNext;
+			}
+			
 			qNext = reportItems.get(nextStep).getQValue();
 		} else {
 			// we add an artificial decoy to the end...
 			nextStep = reportItems.size();
 			
 			sNext = reportItems.get(reportItems.size()-1).getScore(scoreShortName);
+			if (higherScoreBetter) {
+				sNext = bestScore - sNext;
+			}
 			qNext = fdrData.getArtificialDecoyFDR();
 		}
 		
@@ -101,6 +99,10 @@ public class FDRScore {
 					nextStep = stepIterator.next();
 					
 					sNext = reportItems.get(nextStep).getScore(scoreShortName);
+					if (higherScoreBetter) {
+						sNext = bestScore - sNext;
+					}
+					
 					qNext = reportItems.get(nextStep).getQValue();
 					
 				}
@@ -108,7 +110,12 @@ public class FDRScore {
 				g = (qNext-qLast) / (sNext-sLast);
 			}
 			
-			item.setFDRScore((item.getScore(scoreShortName)-sLast)*g + qLast);
+			double fdrScore = item.getScore(scoreShortName);
+			if (higherScoreBetter) {
+				fdrScore = bestScore - fdrScore;
+			}
+			fdrScore = (fdrScore - sLast) * g + qLast;
+			item.setFDRScore(fdrScore);
 		}
 	}
 	
