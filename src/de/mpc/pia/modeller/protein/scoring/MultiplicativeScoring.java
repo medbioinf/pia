@@ -35,13 +35,6 @@ public class MultiplicativeScoring extends AbstractScoring {
 	
 	
 	@Override
-	public Boolean higherScoreBetter() {
-		// TODO: make this changeable?
-		return false;
-	}
-	
-	
-	@Override
 	public Double calculateProteinScore(ReportProtein protein) {
 		List<ScoreModel> scores = PSMForScoring.getProteinsScores(
 				getPSMForScoringSetting().getValue(), protein,
@@ -51,26 +44,15 @@ public class MultiplicativeScoring extends AbstractScoring {
 			// no scores found -> no scoring possible
 			return Double.NaN;
 		}
-		/*
-		Double proteinScore = 1.0;
 		
-		for (ScoreModel score : scores) {
-			if ((score != null) && !score.getValue().equals(Double.NaN)) {
-				proteinScore *= score.getValue();
-			} else {
-				proteinScore = Double.NaN;
-				break;
-			}
-		}
-		*/
 		Double proteinScore = Double.NaN;
 		
 		for (ScoreModel score : scores) {
 			if ((score != null) && !score.getValue().equals(Double.NaN)) {
 				if (!proteinScore.equals(Double.NaN)) {
-					proteinScore += Math.log10(score.getValue());
+					proteinScore -= Math.log10(score.getValue());
 				} else {
-					proteinScore =  Math.log10(score.getValue());
+					proteinScore = -Math.log10(score.getValue());
 				}
 			}
 		}

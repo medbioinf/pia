@@ -34,13 +34,6 @@ public class AdditiveScoring extends AbstractScoring {
 	}
 	
 	
-	@Override
-	public Boolean higherScoreBetter() {
-		// TODO: make this changeable?
-		return true;
-	}
-	
-	
 	/**
 	 * Calculate the protein score by adding the scores.
 	 */

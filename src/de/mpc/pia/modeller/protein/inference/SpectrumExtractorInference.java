@@ -367,11 +367,8 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 			}
 			
 			// order the protein list
-			Comparator<ReportProtein> comparator;
-			comparator = ReportProteinComparatorFactory.CompareType.SCORE_SORT.getNewInstance();
-			if (getScoring().higherScoreBetter()) {
-				comparator = ReportProteinComparatorFactory.descending(comparator);
-			}
+			Comparator<ReportProtein> comparator =
+					ReportProteinComparatorFactory.CompareType.SCORE_SORT.getNewInstance();
 			Collections.sort(proteinList, comparator);
 			
 			iterate = false;

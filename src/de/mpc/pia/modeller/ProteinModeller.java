@@ -366,14 +366,8 @@ public class ProteinModeller {
 			protein.setRank(-1L);
 		}
 		
-		Comparator<ReportProtein> comparator;
-		if (appliedProteinInference.getScoring().higherScoreBetter()) {
-			comparator = ReportProteinComparatorFactory.CompareType.
-					SCORE_SORT_HIGHERSCOREBETTER.getNewInstance();
-		} else {
-			comparator = ReportProteinComparatorFactory.CompareType.
-					SCORE_SORT.getNewInstance();
-		}
+		Comparator<ReportProtein> comparator =
+				ReportProteinComparatorFactory.CompareType.SCORE_SORT.getNewInstance();
 		
 		RankCalculator.calculateRanking(
 				ScoreModelEnum.PROTEIN_SCORE.getShortName(),
@@ -394,18 +388,8 @@ public class ProteinModeller {
 		for (String sortKey : sortOrders) {
 			SortOrder order = sortables.get(sortKey);
 			
-			if (sortKey.equals(
-					ReportProteinComparatorFactory.CompareType.
-						SCORE_SORT.toString()) &&
-					getAppliedScoringMethod().higherScoreBetter()) {
-				// if it is the score sorting with a higherScoreBetter flag
-				sortKey = ReportProteinComparatorFactory.CompareType.
-							SCORE_SORT_HIGHERSCOREBETTER.toString();
-			}
-			
 			compares.add( ReportProteinComparatorFactory.getComparatorByName(
-					sortKey, order)
-					);
+					sortKey, order));
 		}
 		
 		Collections.sort(reportProteins,
@@ -506,8 +490,7 @@ public class ProteinModeller {
 	 */
 	public void calculateFDR() {
 		// calculate the FDR values
-		fdrData.calculateFDR(reportProteins,
-				getAppliedScoringMethod().higherScoreBetter());
+		fdrData.calculateFDR(reportProteins, true);
 	}
 	
 	

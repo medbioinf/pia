@@ -136,13 +136,6 @@ public abstract class AbstractScoring {
 	
 	
 	/**
-	 * Returns whether a higher or a lower score is better.
-	 * @return
-	 */
-	public abstract Boolean higherScoreBetter();
-	
-	
-	/**
 	 * Getter for the score setting of this scoring.
 	 * @return
 	 */

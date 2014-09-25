@@ -115,7 +115,7 @@ public class ReportProteinComparatorFactory {
 							return -1;
 						}
 						
-						return o1.getScore().compareTo(o2.getScore());
+						return -o1.getScore().compareTo(o2.getScore());
 					}
 				};
 			}
@@ -126,34 +126,6 @@ public class ReportProteinComparatorFactory {
 			}
 		},
 		
-		/**
-		 * sort by the score with a given name, interpreting a lower score as better
-		 */
-		SCORE_SORT_HIGHERSCOREBETTER {
-			@Override
-			public Comparator<ReportProtein> getNewInstance() {
-				return new Comparator<ReportProtein>() {
-					@Override
-					public int compare(ReportProtein o1, ReportProtein o2) {
-						if (o1.getScore().equals(Double.NaN) &&
-								o2.getScore().equals(Double.NaN)) {
-							return 0;
-						} else if (o1.getScore().equals(Double.NaN)) {
-							return 1;
-						} else if (o2.getScore().equals(Double.NaN)) {
-							return -1;
-						}
-						
-						return -o1.getScore().compareTo(o2.getScore());
-					}
-				};
-			}
-			
-			@Override
-			public String toString() {
-				return "protein_score_lowerscorebetter";
-			}
-		},
 		;
 		
 		
@@ -177,7 +149,7 @@ public class ReportProteinComparatorFactory {
 		return new Comparator<ReportProtein>() {
 			@Override
 			public int compare(ReportProtein o1, ReportProtein o2) {
-				return -1 * other.compare(o1, o2);
+				return other.compare(o2, o1);
 			}
 		};
     }

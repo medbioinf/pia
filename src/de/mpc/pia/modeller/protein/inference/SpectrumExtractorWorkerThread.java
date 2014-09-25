@@ -468,14 +468,8 @@ public class SpectrumExtractorWorkerThread extends Thread {
 					Set<String> alreadyScoringSpectra =
 							new HashSet<String>(spectra.size());
 					
-					Comparator<ReportProtein> comparator;
-					if (scoring.higherScoreBetter()) {
-						comparator = ReportProteinComparatorFactory.CompareType.
-								SCORE_SORT_HIGHERSCOREBETTER.getNewInstance();
-					} else {
-						comparator = ReportProteinComparatorFactory.CompareType.
-								SCORE_SORT.getNewInstance();
-					}
+					Comparator<ReportProtein> comparator =
+							ReportProteinComparatorFactory.CompareType.SCORE_SORT.getNewInstance();
 					Collections.sort(reportProteins, comparator);
 						
 					Set<ReportPeptide> sameScorePeptides =

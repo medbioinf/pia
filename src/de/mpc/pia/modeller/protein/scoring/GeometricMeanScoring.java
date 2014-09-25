@@ -34,13 +34,6 @@ public class GeometricMeanScoring extends AbstractScoring {
 	
 	
 	@Override
-	public Boolean higherScoreBetter() {
-		// TODO: make this changeable?
-		return false;
-	}
-	
-	
-	@Override
 	public Double calculateProteinScore(ReportProtein protein) {
 		List<ScoreModel> scores = PSMForScoring.getProteinsScores(
 				getPSMForScoringSetting().getValue(), protein,
@@ -51,16 +44,31 @@ public class GeometricMeanScoring extends AbstractScoring {
 			return Double.NaN;
 		}
 		
-		Double proteinScore = 1.0;
+		Double proteinScore = Double.NaN;
 		int nrScore = 0;
 		
+		// count the scores
 		for (ScoreModel score : scores) {
 			if ((score != null) && !score.getValue().equals(Double.NaN)) {
-				proteinScore *= score.getValue();
 				nrScore++;
 			}
 		}
 		
-		return new Double(Math.pow(proteinScore, 1.0 / nrScore));
+		if (nrScore > 0) {
+			double exp = 1.0 / (double)nrScore;
+			
+			// calculate the -log( product(scores)^(1/nrScores) )
+			for (ScoreModel score : scores) {
+				if ((score != null) && !score.getValue().equals(Double.NaN)) {
+					if (!proteinScore.equals(Double.NaN)) {
+						proteinScore -= Math.log10(Math.pow(score.getValue(), exp));
+					} else {
+						proteinScore = -Math.log10(Math.pow(score.getValue(), exp));
+					}
+				}
+			}
+		}
+		
+		return proteinScore;
 	}
 }
