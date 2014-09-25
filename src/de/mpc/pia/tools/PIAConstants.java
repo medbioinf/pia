@@ -214,6 +214,31 @@ public class PIAConstants {
 	/** name for "sequence sub-set protein" in PSI-MS */
 	public static final String CV_SEQUENCE_SUB_SET_PROTEIN_NAME = "sequence sub-set protein";
 	
+	/** accession for "MS-GF:RawScore" in PSI-MS */
+	public static final String CV_MSGF_RAWSCORE_ACCESSION = "MS:1002049";
+	/** name for "MS-GF:RawScore" in PSI-MS */
+	public static final String CV_MSGF_RAWSCORE_NAME = "MS-GF:RawScore";
+	
+	/** accession for "MS-GF:DeNovoScore" in PSI-MS */
+	public static final String CV_MSGF_DENOVOSCORE_ACCESSION = "MS:1002050";
+	/** name for "MS-GF:DeNovoScore" in PSI-MS */
+	public static final String CV_MSGF_DENOVOSCORE_NAME = "MS-GF:DeNovoScore";
+	
+	/** accession for "MS-GF:SpecEValue" in PSI-MS */
+	public static final String CV_MSGF_SPECEVALUE_ACCESSION = "MS:1002052";
+	/** name for "MS-GF:SpecEValue" in PSI-MS */
+	public static final String CV_MSGF_SPECEVALUE_NAME = "MS-GF:SpecEValue";
+	
+	/** accession for "MS-GF:EValue" in PSI-MS */
+	public static final String CV_MSGF_EVALUE_ACCESSION = "MS:1002053";
+	/** name for "MS-GF:EValue" in PSI-MS */
+	public static final String CV_MSGF_EVALUE_NAME = "MS-GF:EValue";
+	
+	/** accession for "Amanda Score" in PSI-MS */
+	public static final String CV_AMANDA_SCORE_ACCESSION = "MS:1002319";
+	/** name for "Amanda Score" in PSI-MS */
+	public static final String CV_AMANDA_SCORE_NAME = "Amanda:AmandaScore";
+	
 	/** accession for "PSM-level FDRScore" in PSI-MS */
 	public static final String CV_PSM_LEVEL_FDRSCORE_ACCESSION = "MS:1002355";
 	/** name for "PSM-level FDRScore" in PSI-MS */

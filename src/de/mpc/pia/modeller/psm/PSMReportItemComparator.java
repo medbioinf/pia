@@ -242,6 +242,62 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 			return score_prefix + ScoreModelEnum.XTANDEM_HYPERSCORE.getShortName();
 		}
 	},
+	MSGF_RAWSCORE_SORT {
+		public int compare(PSMReportItem o1, PSMReportItem o2) {
+			ScoreComparator<PSMReportItem> comp =
+					new ScoreComparator<PSMReportItem>(ScoreModelEnum.MSGF_RAWSCORE.getShortName());
+			return comp.compare(o1, o2);
+		}
+		
+		public String toString() {
+			return score_prefix + ScoreModelEnum.MSGF_RAWSCORE.getShortName();
+		}
+	},
+	MSGF_DENOVOSCORE_SORT {
+		public int compare(PSMReportItem o1, PSMReportItem o2) {
+			ScoreComparator<PSMReportItem> comp =
+					new ScoreComparator<PSMReportItem>(ScoreModelEnum.MSGF_DENOVOSCORE.getShortName());
+			return comp.compare(o1, o2);
+		}
+		
+		public String toString() {
+			return score_prefix + ScoreModelEnum.MSGF_DENOVOSCORE.getShortName();
+		}
+	},
+	MSGF_SPECEVALUE_SORT {
+		public int compare(PSMReportItem o1, PSMReportItem o2) {
+			ScoreComparator<PSMReportItem> comp =
+					new ScoreComparator<PSMReportItem>(ScoreModelEnum.MSGF_SPECEVALUE.getShortName());
+			return comp.compare(o1, o2);
+		}
+		
+		public String toString() {
+			return score_prefix + ScoreModelEnum.MSGF_SPECEVALUE.getShortName();
+		}
+	},
+	MSGF_EVALUE_SORT {
+		public int compare(PSMReportItem o1, PSMReportItem o2) {
+			ScoreComparator<PSMReportItem> comp =
+					new ScoreComparator<PSMReportItem>(ScoreModelEnum.MSGF_EVALUE.getShortName());
+			return comp.compare(o1, o2);
+		}
+		
+		public String toString() {
+			return score_prefix + ScoreModelEnum.MSGF_EVALUE.getShortName();
+		}
+	},
+	AMANDA_SCORE_SORT {
+		public int compare(PSMReportItem o1, PSMReportItem o2) {
+			ScoreComparator<PSMReportItem> comp =
+					new ScoreComparator<PSMReportItem>(ScoreModelEnum.AMANDA_SCORE.getShortName());
+			return comp.compare(o1, o2);
+		}
+		
+		public String toString() {
+			return score_prefix + ScoreModelEnum.AMANDA_SCORE.getShortName();
+		}
+	},
+	
 	
 	FASTA_SEQUENCE_COUNT_SCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {

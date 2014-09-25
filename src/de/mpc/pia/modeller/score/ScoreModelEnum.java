@@ -13,6 +13,7 @@ import de.mpc.pia.tools.PIAConstants;
  *
  */
 public enum ScoreModelEnum {
+	
 	/**
 	 * The score type is not further known, so actually nothing is known for it.
 	 */
@@ -518,6 +519,229 @@ public enum ScoreModelEnum {
 			return descs;
 		}
 	},
+	/**
+	 * The MS-GF+ RawScore
+	 */
+	MSGF_RAWSCORE {
+		@Override
+		public String getName() {
+			return "MS-GF:RawScore";
+		}
+		
+		@Override
+		public String getShortName() {
+			return "msgf_rawscore";
+		}
+		
+		@Override
+		public String getCvAccession() {
+			return PIAConstants.CV_MSGF_RAWSCORE_ACCESSION;
+		}
+		
+		@Override
+		public String getCvName() {
+			return PIAConstants.CV_MSGF_RAWSCORE_NAME;
+		}
+
+		@Override
+		public Boolean higherScoreBetter() {
+			return true;
+		}
+		
+		@Override
+		public List<String> getValidDescriptors() {
+			List<String> descs = new ArrayList<String>();
+			
+			descs.add(getName());
+			descs.add(getName().toLowerCase());
+			descs.add(getShortName());
+			descs.add(getCvAccession());
+			descs.add(getCvName());
+			
+			return descs;
+		}
+	},
+	/**
+	 * The MS-GF+ DeNovoScore
+	 */
+	MSGF_DENOVOSCORE {
+		@Override
+		public String getName() {
+			return "MS-GF:DeNovoScore";
+		}
+		
+		@Override
+		public String getShortName() {
+			return "msgf_denovoscore";
+		}
+		
+		@Override
+		public String getCvAccession() {
+			return PIAConstants.CV_MSGF_DENOVOSCORE_ACCESSION;
+		}
+		
+		@Override
+		public String getCvName() {
+			return PIAConstants.CV_MSGF_DENOVOSCORE_NAME;
+		}
+
+		@Override
+		public Boolean higherScoreBetter() {
+			return true;
+		}
+		
+		@Override
+		public List<String> getValidDescriptors() {
+			List<String> descs = new ArrayList<String>();
+			
+			descs.add(getName());
+			descs.add(getName().toLowerCase());
+			descs.add(getShortName());
+			descs.add(getCvAccession());
+			descs.add(getCvName());
+			
+			return descs;
+		}
+	},
+	/**
+	 * The MS-GF+ SpecEValue
+	 */
+	MSGF_SPECEVALUE {
+		@Override
+		public String getName() {
+			return "MS-GF:SpecEValue";
+		}
+		
+		@Override
+		public String getShortName() {
+			return "msgf_specevalue";
+		}
+		
+		@Override
+		public String getCvAccession() {
+			return PIAConstants.CV_MSGF_SPECEVALUE_ACCESSION;
+		}
+		
+		@Override
+		public String getCvName() {
+			return PIAConstants.CV_MSGF_SPECEVALUE_NAME;
+		}
+
+		@Override
+		public Boolean higherScoreBetter() {
+			return false;
+		}
+		
+		@Override
+		public List<String> getValidDescriptors() {
+			List<String> descs = new ArrayList<String>();
+			
+			descs.add(getName());
+			descs.add(getName().toLowerCase());
+			descs.add(getShortName());
+			descs.add(getCvAccession());
+			descs.add(getCvName());
+			
+			return descs;
+		}
+	},
+	/**
+	 * The MS-GF+ SpecEValue
+	 */
+	MSGF_EVALUE {
+		@Override
+		public String getName() {
+			return "MS-GF:EValue";
+		}
+		
+		@Override
+		public String getShortName() {
+			return "msgf_evalue";
+		}
+		
+		@Override
+		public String getCvAccession() {
+			return PIAConstants.CV_MSGF_EVALUE_ACCESSION;
+		}
+		
+		@Override
+		public String getCvName() {
+			return PIAConstants.CV_MSGF_EVALUE_NAME;
+		}
+		
+		@Override
+		public Boolean higherScoreBetter() {
+			return false;
+		}
+
+		@Override
+		public Boolean isSearchengineMainScore() {
+			return true;
+		}
+		
+		@Override
+		public List<String> getValidDescriptors() {
+			List<String> descs = new ArrayList<String>();
+			
+			descs.add(getName());
+			descs.add(getName().toLowerCase());
+			descs.add(getShortName());
+			descs.add(getCvAccession());
+			descs.add(getCvName());
+			
+			return descs;
+		}
+	},
+	
+	/**
+	 * The Amanda score
+	 */
+	AMANDA_SCORE {
+		@Override
+		public String getName() {
+			return "Amanda Score";
+		}
+		
+		@Override
+		public String getShortName() {
+			return "amanda_score";
+		}
+		
+		@Override
+		public String getCvAccession() {
+			return PIAConstants.CV_AMANDA_SCORE_ACCESSION;
+		}
+		
+		@Override
+		public String getCvName() {
+			return PIAConstants.CV_AMANDA_SCORE_NAME;
+		}
+		
+		@Override
+		public Boolean higherScoreBetter() {
+			return true;
+		}
+
+		@Override
+		public Boolean isSearchengineMainScore() {
+			return true;
+		}
+		
+		@Override
+		public List<String> getValidDescriptors() {
+			List<String> descs = new ArrayList<String>();
+			
+			descs.add(getName());
+			descs.add(getName().toLowerCase());
+			descs.add("AmandaScore");
+			descs.add(getShortName());
+			descs.add(getCvAccession());
+			descs.add(getCvName());
+			
+			return descs;
+		}
+	},
+	
 	/**
 	 * The FASTA Sequence Count score.
 	 */
