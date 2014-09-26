@@ -26,6 +26,7 @@ import de.mpc.pia.modeller.report.filter.peptide.NrPSMsPerPeptideFilter;
 import de.mpc.pia.modeller.report.filter.peptide.NrSpectraPerPeptideFilter;
 import de.mpc.pia.modeller.report.filter.peptide.PeptideFileListFilter;
 import de.mpc.pia.modeller.report.filter.peptide.PeptideScoreFilter;
+import de.mpc.pia.modeller.report.filter.protein.NrGroupUniquePeptidesPerProteinFilter;
 import de.mpc.pia.modeller.report.filter.protein.NrPSMsPerProteinFilter;
 import de.mpc.pia.modeller.report.filter.protein.NrPeptidesPerProteinFilter;
 import de.mpc.pia.modeller.report.filter.protein.NrSpectraPerProteinFilter;
@@ -208,6 +209,8 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 				NrUniquePeptidesPerProteinFilter.filteringName()));
 		filters.add(new LabelValueContainer<String>(ProteinScoreFilter.shortName,
 				ProteinScoreFilter.filteringName));
+		filters.add(new LabelValueContainer<String>(NrGroupUniquePeptidesPerProteinFilter.shortName(),
+				NrGroupUniquePeptidesPerProteinFilter.filteringName()));
 		
 		return filters;
 	}

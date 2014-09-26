@@ -15,6 +15,7 @@ import de.mpc.pia.modeller.report.filter.peptide.NrPSMsPerPeptideFilter;
 import de.mpc.pia.modeller.report.filter.peptide.NrSpectraPerPeptideFilter;
 import de.mpc.pia.modeller.report.filter.peptide.PeptideFileListFilter;
 import de.mpc.pia.modeller.report.filter.peptide.PeptideScoreFilter;
+import de.mpc.pia.modeller.report.filter.protein.NrGroupUniquePeptidesPerProteinFilter;
 import de.mpc.pia.modeller.report.filter.protein.NrPSMsPerProteinFilter;
 import de.mpc.pia.modeller.report.filter.protein.NrPeptidesPerProteinFilter;
 import de.mpc.pia.modeller.report.filter.protein.NrSpectraPerProteinFilter;
@@ -128,18 +129,20 @@ public class OccamsRazorInference extends AbstractProteinInference {
 		
 		// protein filters
 		filters.add(new LabelValueContainer<String>(null, "--- Protein ---"));
-		filters.add(new LabelValueContainer<String>(NrPeptidesPerProteinFilter.shortName(),
-				NrPeptidesPerProteinFilter.filteringName()));
-		filters.add(new LabelValueContainer<String>(NrPSMsPerProteinFilter.shortName(),
-				NrPSMsPerProteinFilter.filteringName()));
 		filters.add(new LabelValueContainer<String>(NrSpectraPerProteinFilter.shortName(),
 				NrSpectraPerProteinFilter.filteringName()));
+		filters.add(new LabelValueContainer<String>(NrPSMsPerProteinFilter.shortName(),
+				NrPSMsPerProteinFilter.filteringName()));
+		filters.add(new LabelValueContainer<String>(NrPeptidesPerProteinFilter.shortName(),
+				NrPeptidesPerProteinFilter.filteringName()));
 		filters.add(new LabelValueContainer<String>(ProteinFileListFilter.shortName(),
 				ProteinFileListFilter.filteringName()));
 		filters.add(new LabelValueContainer<String>(ProteinScoreFilter.shortName,
 				ProteinScoreFilter.filteringName));
 		filters.add(new LabelValueContainer<String>(NrUniquePeptidesPerProteinFilter.shortName(),
 				NrUniquePeptidesPerProteinFilter.filteringName()));
+		filters.add(new LabelValueContainer<String>(NrGroupUniquePeptidesPerProteinFilter.shortName(),
+				NrGroupUniquePeptidesPerProteinFilter.filteringName()));
 		
 		return filters;
 	}
