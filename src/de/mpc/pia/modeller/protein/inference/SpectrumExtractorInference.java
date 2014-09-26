@@ -26,6 +26,7 @@ import de.mpc.pia.modeller.report.filter.peptide.NrPSMsPerPeptideFilter;
 import de.mpc.pia.modeller.report.filter.peptide.NrSpectraPerPeptideFilter;
 import de.mpc.pia.modeller.report.filter.peptide.PeptideFileListFilter;
 import de.mpc.pia.modeller.report.filter.peptide.PeptideScoreFilter;
+import de.mpc.pia.modeller.report.filter.protein.NrGroupUniquePeptidesPerProteinFilter;
 import de.mpc.pia.modeller.report.filter.protein.NrPSMsPerProteinFilter;
 import de.mpc.pia.modeller.report.filter.protein.NrPeptidesPerProteinFilter;
 import de.mpc.pia.modeller.report.filter.protein.NrSpectraPerProteinFilter;
@@ -208,6 +209,8 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 				NrUniquePeptidesPerProteinFilter.filteringName()));
 		filters.add(new LabelValueContainer<String>(ProteinScoreFilter.shortName,
 				ProteinScoreFilter.filteringName));
+		filters.add(new LabelValueContainer<String>(NrGroupUniquePeptidesPerProteinFilter.shortName(),
+				NrGroupUniquePeptidesPerProteinFilter.filteringName()));
 		
 		return filters;
 	}
@@ -371,37 +374,97 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 					ReportProteinComparatorFactory.CompareType.SCORE_SORT.getNewInstance();
 			Collections.sort(proteinList, comparator);
 			
-			iterate = false;
 			
 			// take the next protein from the list, that can be reported
-			proteinListIt = proteinList.listIterator();
+			//proteinListIt = proteinList.listIterator();
+			proteinListIt = null;
+			
+			
 			Double reportScore = null;
 			changedAccessions.clear();
-			while (proteinListIt.hasNext()) {
-				ReportProtein protein = proteinListIt.next();
+			iterate = false;
+			while (proteinList.size() > 0 /*proteinListIt.hasNext()*/) {
+				ReportProtein protein = proteinList.get(0) /*proteinListIt.next()*/;
 				
-				// there was a protein reported and the next has another score -> done
+				// there was a protein reported and the next has another score -> do the next scoring
 				if ((reportScore != null) &&
-						reportScore.equals(protein.getScore())) {
+						!reportScore.equals(protein.getScore())) {
+					// start next scoring
 					break;
 				}
 				
+				// count the new peptides in this protein
+				int newPeptides = 0;
+				// IDs of the peptides of this protein
+				Set<String> proteinsPeptides = null;
+				// IDs of the spectra of this protein
+				Set<String> proteinsSpectra = null;
+				
+				// combine all high-scoring proteins with the same peptides and spectra as the current protein
+				proteinListIt = proteinList.listIterator();
+				if (proteinListIt.hasNext()) {
+					proteinListIt.next();
+				}
+				while (proteinListIt.hasNext()) {
+					ReportProtein nextProt = proteinListIt.next();
+					
+					if (!protein.getScore().equals(nextProt.getScore())) {
+						// different score -> no further check needed, leave the loop
+						break;
+					} else {
+						if (proteinsPeptides == null) {
+							// get proteins peptides (if not yet  done)
+							proteinsPeptides = new HashSet<String>(protein.getPeptides().size());
+							proteinsSpectra = new HashSet<String>(proteinsPeptides.size());
+							for (ReportPeptide peptide : protein.getPeptides()) {
+								if (!peptidesSpectra.containsKey(peptide.getStringID())) {
+									newPeptides++;
+								}
+								proteinsPeptides.add(peptide.getStringID());
+								proteinsSpectra.addAll(peptide.getSpectraIdentificationKeys());
+							}
+						}
+						
+						// get the protein's peptides and spectra
+						Set<String> nextProteinsPeptides = new HashSet<String>();
+						Set<String> nextProteinsSpectra = new HashSet<String>();
+						for (ReportPeptide peptide : nextProt.getPeptides()) {
+							nextProteinsPeptides.add(peptide.getStringID());
+							nextProteinsSpectra.addAll(peptide.getScoringSpectraIdentificationKeys());
+						}
+						
+						if (nextProteinsPeptides.equals(proteinsPeptides) &&
+								nextProteinsSpectra.equals(proteinsSpectra)) {
+							// add the accessions to lastIt
+							for (Accession acc : nextProt.getAccessions()) {
+								protein.addAccession(acc);
+							}
+							
+							// remove the next protein from the list
+							proteinListIt.remove();
+						}
+					}
+				}
+				
 				// remove the protein from the proteinList (either it is ok for report now, or it never will be)
-				proteinListIt.remove();
+				//proteinListIt.remove();
+				proteinList.remove(0);
+				
 				
 				if (FilterFactory.
 						satisfiesFilterList(protein, 0L, filters)) {
 					// TODO: insert something like "needs X new spectra/PSMs/Peptides per protein". for now it is set to 1 new peptide
 					
 					// check for subprotein
-					// count the new peptides in this protein
-					int newPeptides = 0;
-					Set<String> proteinsPeptides = new HashSet<String>();
-					for (ReportPeptide peptide : protein.getPeptides()) {
-						if (!peptidesSpectra.containsKey(peptide.getStringID())) {
-							newPeptides++;
+					if (proteinsPeptides == null) {
+						// get proteins peptides (if not yet  done)
+						proteinsPeptides = new HashSet<String>(protein.getPeptides().size());
+						for (ReportPeptide peptide : protein.getPeptides()) {
+							if (!peptidesSpectra.containsKey(peptide.getStringID())) {
+								newPeptides++;
+							}
+							proteinsPeptides.add(peptide.getStringID());
 						}
-						proteinsPeptides.add(peptide.getStringID());
 					}
 					
 					if (newPeptides > 0) {
@@ -465,22 +528,23 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 						// insert the protein in the "to be reported"-list
 						reportProteinList.add(protein);
 						
+						// found a protein to report, get its score
+						reportScore = protein.getScore();
+						
 						if (proteinList.size() > 0) {
 							iterate = true;
 						}
-						
-						// found a protein to report, get its score
-						reportScore = protein.getScore();
 					} else {
 						// no new peptides, so this protein may be a subSet or same protein as an already reported protein
 						
 						// get all the protein's spectra
-						Set<String> proteinsSpectra = new HashSet<String>();
-						for (ReportPeptide peptide : protein.getPeptides()) {
-							proteinsSpectra.addAll(
-									peptide.getSpectraIdentificationKeys());
+						if (proteinsSpectra == null) {
+							proteinsSpectra = new HashSet<String>(proteinsPeptides.size());
+							for (ReportPeptide peptide : protein.getPeptides()) {
+								proteinsSpectra.addAll(
+										peptide.getSpectraIdentificationKeys());
+							}
 						}
-						
 						
 						for (ReportProtein reportProtein : reportProteinList) {
 							// get the spectra and peptides of the reported protein
@@ -500,8 +564,9 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 									// the protein has the same spectra as another protein
 									// as it has no new peptides, there must be
 									// another protein with same peptides
-									if (reportProteinsPeptides.containsAll(proteinsPeptides) &&
-											(reportProteinsPeptides.size() == proteinsPeptides.size())) {
+									if ((reportProteinsPeptides.size() == proteinsPeptides.size()) &&
+											reportProteinsPeptides.containsAll(proteinsPeptides)) {
+										// TODO: this check should be irrelevant, as it is checked before
 										// also the peptides are the same -> add the accession(s)
 										for (Accession acc : protein.getAccessions()) {
 											reportProtein.addAccession(acc);

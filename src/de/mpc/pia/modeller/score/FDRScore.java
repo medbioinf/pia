@@ -57,8 +57,18 @@ public class FDRScore {
 		
 		Double bestScore = null;
 		if (higherScoreBetter) {
-			// set the "best score" (which would have FDRSCore=0) to "bestScore + diff to 2nd best score"
-			bestScore = 2*reportItems.get(0).getScore(scoreShortName) - reportItems.get(1).getScore(scoreShortName);
+			// need to avoid an FDRSCore of 0 for any real item
+			bestScore = reportItems.get(0).getScore(scoreShortName);
+			Double nextBestScore = null;
+			for (int idx = 1; idx < reportItems.size(); idx++) {
+				nextBestScore = reportItems.get(idx).getScore(scoreShortName);
+				if (!bestScore.equals(nextBestScore)) {
+					break;
+				}
+			}
+			
+			// set the "best score" (which will have FDRSCore=0) to "bestScore + diff to 2nd best score"
+			bestScore += bestScore - nextBestScore;
 		}
 		
 		sLast = 0;

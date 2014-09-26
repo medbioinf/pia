@@ -18,6 +18,7 @@ import de.mpc.pia.modeller.report.filter.peptide.PeptideSpectrumTitleListFilter;
 import de.mpc.pia.modeller.report.filter.peptide.PeptideUniqueFilter;
 import de.mpc.pia.modeller.report.filter.protein.NrPSMsPerProteinFilter;
 import de.mpc.pia.modeller.report.filter.protein.NrPeptidesPerProteinFilter;
+import de.mpc.pia.modeller.report.filter.protein.NrGroupUniquePeptidesPerProteinFilter;
 import de.mpc.pia.modeller.report.filter.protein.NrSpectraPerProteinFilter;
 import de.mpc.pia.modeller.report.filter.protein.NrUniquePeptidesPerProteinFilter;
 import de.mpc.pia.modeller.report.filter.protein.ProteinAccessionsFilter;
@@ -136,6 +137,23 @@ public enum RegisteredFilters {
 		public NrAccessionsPerPSMFilter newInstanceOf(FilterComparator arg,
 				Object value, boolean negate) {
 			return new NrAccessionsPerPSMFilter(arg, ((Number)value).intValue(), negate);
+		}
+	},
+	NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER {
+		@Override
+		public FilterType getFilterType() {
+			return NrGroupUniquePeptidesPerProteinFilter.filterType;
+		}
+		
+		@Override
+		public boolean isCorrectValueInstance(Object value) {
+			return NrGroupUniquePeptidesPerProteinFilter.isCorrectValueInstance(value);
+		}
+		
+		@Override
+		public NrGroupUniquePeptidesPerProteinFilter newInstanceOf(FilterComparator arg,
+				Object value, boolean negate) {
+			return new NrGroupUniquePeptidesPerProteinFilter(arg, ((Number)value).intValue(), negate);
 		}
 	},
 	NR_PEPTIDES_FILTER {
@@ -785,6 +803,7 @@ public enum RegisteredFilters {
 		filterShorts.add(NrPeptidesPerProteinFilter.shortName());
 		filterShorts.add(NrPSMsPerProteinFilter.shortName());
 		filterShorts.add(NrSpectraPerProteinFilter.shortName());
+		filterShorts.add(NrGroupUniquePeptidesPerProteinFilter.shortName());
 		filterShorts.add(NrUniquePeptidesPerProteinFilter.shortName());
 		filterShorts.add(ProteinAccessionsFilter.shortName());
 		filterShorts.add(ProteinDescriptionFilter.shortName());
