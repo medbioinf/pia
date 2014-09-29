@@ -43,7 +43,7 @@ import de.mpc.pia.tools.LabelValueContainer;
 
 
 /**
- * This is a spectrum-centric respectively PSM set-centric inference.
+ * This is a spectrum-centric,respectively PSM set-centric, inference.
  * 
  * <ol>
  *   <li>
