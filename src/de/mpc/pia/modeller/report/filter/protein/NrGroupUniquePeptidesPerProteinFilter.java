@@ -99,11 +99,6 @@ public class NrGroupUniquePeptidesPerProteinFilter extends AbstractFilter {
 			for (ReportPeptide peptide : ((ReportProtein) o).getPeptides()) {
 				if (protAccesssions.equals(peptide.getAccessions())) {
 					nrGroupUnique++;
-					
-					
-					System.err.println("proteinlist " + protAccesssions + " == " + peptide.getAccessions());
-				} else {
-					System.err.println("proteinlist " + protAccesssions + " != " + peptide.getAccessions());
 				}
 			}
 			
