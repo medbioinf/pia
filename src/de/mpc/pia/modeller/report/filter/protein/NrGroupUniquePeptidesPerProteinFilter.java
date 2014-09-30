@@ -1,6 +1,8 @@
 package de.mpc.pia.modeller.report.filter.protein;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.modeller.peptide.ReportPeptide;
@@ -94,16 +96,16 @@ public class NrGroupUniquePeptidesPerProteinFilter extends AbstractFilter {
 	public Object getObjectsValue(Object o) {
 		if (o instanceof ReportProtein) {
 			Integer nrGroupUnique = 0;
-			List<Accession> protAccesssions = ((ReportProtein) o).getAccessions();
+			Set<Accession> protAccesssions =
+					new HashSet<Accession>(((ReportProtein) o).getAccessions());
 			
 			for (ReportPeptide peptide : ((ReportProtein) o).getPeptides()) {
-				if (protAccesssions.equals(peptide.getAccessions())) {
+				if (protAccesssions.equals(new HashSet<Accession>(peptide.getAccessions()))) {
 					nrGroupUnique++;
 				}
 			}
 			
 			return nrGroupUnique;
-			
 		} else if (o instanceof Number) {
 			// if we get a Number, just return it
 			return o;
