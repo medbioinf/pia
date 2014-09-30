@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.mpc.pia.intermediate.Modification;
+import de.mpc.pia.tools.PIAConstants;
 
 public abstract class AbstractFilter {
 	
@@ -431,12 +432,17 @@ public abstract class AbstractFilter {
 			boolean has_mass = false;
 			if (o != null) {
 				for (Modification mod : o) {
-					
-					if (mod.getMassString().equals((String)getFilterValue())) {
-						has_mass = true;
-						break;
+					try {
+						Double mass = Double.parseDouble((String)getFilterValue());
+						
+						if (Math.abs(mod.getMass() - mass) <= PIAConstants.unimod_mass_tolerance) {
+							has_mass = true;
+							break;
+						}
+					} catch (NumberFormatException e) {
+						// TODO: give the user feedback of wrong number format
+						return false;
 					}
-					
 				}
 			}
 			return getFilterNegate() ^ has_mass;
