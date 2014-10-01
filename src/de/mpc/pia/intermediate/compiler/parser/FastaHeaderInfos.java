@@ -49,6 +49,34 @@ public class FastaHeaderInfos {
 			}
 		},
 		
+		PIPE_SEPARATED {
+			@Override
+			public String getName() {
+				return "pipeSeparated";
+			}
+			
+			@Override
+			public String matchRegex() {
+				return "^>?[^|]+\\|[^|]*$";
+			}
+			
+			@Override
+			public FastaHeaderInfos parseHeader(String header) {
+				Matcher matcher;
+				Pattern pattern = Pattern.compile("^>?([^|]+)\\|([^|]*)$");
+				
+				matcher = pattern.matcher(header);
+				
+				if (matcher.matches()) {
+					return new FastaHeaderInfos(this, matcher.group(1),
+							matcher.group(2).trim());
+				}
+				else {
+					return null;
+				}
+			}
+		},
+		
 		GENBANK {
 			@Override
 			public String getName() {
