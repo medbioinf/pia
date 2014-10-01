@@ -216,7 +216,7 @@ public class OccamsRazorInference extends AbstractProteinInference {
 		}
 		
 		progress = 100.0;
-		logger.info(name + " calculateInference done");
+		logger.info(name + " calculateInference done, " + reportProteins.size() + " groups inferred");
 		return reportProteins;
 	}
 	

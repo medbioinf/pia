@@ -609,7 +609,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 			}
 		}
 		
-		logger.info("calculateInference done");
+		logger.info(name + " calculateInference done, " + reportProteinList.size() + " groups inferred");
 		inferenceDone = true;
 		return reportProteinList;
 	}
