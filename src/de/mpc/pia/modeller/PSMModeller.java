@@ -6,6 +6,7 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -3843,11 +3844,11 @@ public class PSMModeller {
      * 
      * @throws IOException
      */
-	public void writePSMInformation(String fileName) throws IOException {
+	public void writePSMInformation(String fileName, boolean calculate) throws IOException {
 		Writer writer = null;
 		try {
 			writer = new FileWriter(fileName, false);
-			writePSMInformation(writer);
+			writePSMInformation(writer, calculate);
 		} catch (IOException e) {
 			logger.error("Could not write PSM information to " + fileName, e);
 		} finally {
@@ -3867,9 +3868,9 @@ public class PSMModeller {
      * 
      * @throws IOException
      */
-	public void writePSMInformation(Writer writer) throws IOException {
+	public void writePSMInformation(Writer writer, boolean calculate) throws IOException {
 		FDRData fdrData = null;
-		Double fdrThresholds[] = {0.01, 0.03, 0.05};
+		List<Double> fdrThresholds = Arrays.asList(new Double[] {0.01, 0.03, 0.05});
 		Double originalFDRThreshold = null;
 		String nl = System.lineSeparator();
 		
@@ -3914,28 +3915,44 @@ public class PSMModeller {
 				writer.append(Integer.toString(fdrData.getNrDecoys()));
 				writer.append(nl);
 				
-				//TODO: make this faster, calculating always the FDR is time consuming
-				for (Double thr : fdrThresholds) {
-					if (!thr.equals(fdrData.getFDRThreshold())) {
-						fdrData.setFDRThreshold(thr);
-						calculateFDR(fileID);
-					}
-					
-					writer.append("FDR " + thr + ":" + nl);
-					writer.append("  #targets below " + thr + " threshold: ");
-					writer.append(Integer.toString(fdrData.getNrFDRGoodTargets()));
+				if (!calculate ||
+						!fdrThresholds.contains(fdrData.getFDRThreshold())) {
+					writer.append("FDR " + fdrData.getFDRThreshold() + ":" + nl);
+					writer.append("  #targets below " + fdrData.getFDRThreshold() + " threshold: ");
+					writer.append(fdrData.getNrFDRGoodTargets().toString());
 					writer.append(nl);
-					writer.append("  #decoys below " + thr + " threshold:  ");
-					writer.append(Integer.toString(fdrData.getNrFDRGoodDecoys()));
+					writer.append("  #decoys below " + fdrData.getFDRThreshold() + " threshold:  ");
+					writer.append(fdrData.getNrFDRGoodDecoys().toString());
 					writer.append(nl);
 					writer.append("  score at threshold: ");
 					writer.append("" + fdrData.getScoreAtThreshold());
 					writer.append(nl);
 				}
 				
-				// reset the FDR data
-				fdrData.setFDRThreshold(originalFDRThreshold);
-				calculateFDR(fileID);
+				if (calculate) {
+					//TODO: make this faster, calculating always the FDR is time consuming
+					for (Double thr : fdrThresholds) {
+						if (!thr.equals(fdrData.getFDRThreshold())) {
+							fdrData.setFDRThreshold(thr);
+							calculateFDR(fileID);
+						}
+						
+						writer.append("FDR " + thr + ":" + nl);
+						writer.append("  #targets below " + thr + " threshold: ");
+						writer.append(fdrData.getNrFDRGoodTargets().toString());
+						writer.append(nl);
+						writer.append("  #decoys below " + thr + " threshold:  ");
+						writer.append(fdrData.getNrFDRGoodDecoys().toString());
+						writer.append(nl);
+						writer.append("  score at threshold: ");
+						writer.append("" + fdrData.getScoreAtThreshold());
+						writer.append(nl);
+					}
+					
+					// reset the FDR data
+					fdrData.setFDRThreshold(originalFDRThreshold);
+					calculateFDR(fileID);
+				}
 			}
 		}
 		
@@ -3945,6 +3962,8 @@ public class PSMModeller {
 		writer.append("#PSM sets: ");
 		writer.append(Integer.toString(getNrReportPSMs(0L)));
 		writer.append(nl);
+		
+		
 		
 		if (isCombinedFDRScoreCalculated()) {
 			writer.append("combined FDR score is calculated" + nl);
@@ -3962,28 +3981,44 @@ public class PSMModeller {
 			writer.append(Integer.toString(fdrData.getNrDecoys()));
 			writer.append(nl);
 			
-			//TODO: make this better, calculating always the FDR is time consuming
-			for (Double thr : fdrThresholds) {
-				fdrData.setFDRThreshold(thr);
-				calculateCombinedFDRScore();
-				writer.append("FDR " + thr + ":" + nl);
-				writer.append("  #targets below " + thr + " threshold: ");
-				writer.append(Integer.toString(fdrData.getNrFDRGoodTargets()));
+			if (!calculate ||
+					!fdrThresholds.contains(fdrData.getFDRThreshold())) {
+				writer.append("FDR " + fdrData.getFDRThreshold() + ":" + nl);
+				writer.append("  #targets below " + fdrData.getFDRThreshold() + " threshold: ");
+				writer.append(fdrData.getNrFDRGoodTargets().toString());
 				writer.append(nl);
-				writer.append("  #decoys below " + thr + " threshold:  ");
-				writer.append(Integer.toString(fdrData.getNrFDRGoodDecoys()));
+				writer.append("  #decoys below " + fdrData.getFDRThreshold() + " threshold:  ");
+				writer.append(fdrData.getNrFDRGoodDecoys().toString());
 				writer.append(nl);
-				int nrPSMs = 0;
-				writer.append("  #good identifications in sets:" + nl);
-				for (Integer nrIDs : getNrIdentifications(true)) {
-					nrPSMs++;
-					writer.append("    " + nrPSMs + " - " + nrIDs + nl);
-				}
+				writer.append("  score at threshold: ");
+				writer.append("" + fdrData.getScoreAtThreshold());
+				writer.append(nl);
 			}
 			
-			// reset the FDR data
-			fdrData.setFDRThreshold(originalFDRThreshold);
-			calculateCombinedFDRScore();
+			if (calculate) {
+				//TODO: make this better, calculating always the FDR is time consuming
+				for (Double thr : fdrThresholds) {
+					fdrData.setFDRThreshold(thr);
+					calculateCombinedFDRScore();
+					writer.append("FDR " + thr + ":" + nl);
+					writer.append("  #targets below " + thr + " threshold: ");
+					writer.append(fdrData.getNrFDRGoodTargets().toString());
+					writer.append(nl);
+					writer.append("  #decoys below " + thr + " threshold:  ");
+					writer.append(fdrData.getNrFDRGoodDecoys().toString());
+					writer.append(nl);
+					int nrPSMs = 0;
+					writer.append("  #good identifications in sets:" + nl);
+					for (Integer nrIDs : getNrIdentifications(true)) {
+						nrPSMs++;
+						writer.append("    " + nrPSMs + " - " + nrIDs + nl);
+					}
+				}
+				
+				// reset the FDR data
+				fdrData.setFDRThreshold(originalFDRThreshold);
+				calculateCombinedFDRScore();
+			}
 		}
 		
 		// TODO: create histogram-data for mass-shifts at the 1%, 3% and 5% FDR value

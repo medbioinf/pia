@@ -632,10 +632,15 @@ public class PIAModeller {
 		
 		options.addOption(OptionBuilder
 				.withArgName("outfile")
-				.withValueSeparator(' ')
 				.hasArgs(1)
-                .withDescription( "Write out basic information of the file." )
+                .withDescription( "Write out basic information and some QC of the file." )
                 .create("writeInformation"));
+		
+		options.addOption(OptionBuilder
+				.withArgName("outfile")
+				.hasArgs(1)
+                .withDescription("Calculate some more information for the writeInformation argument (yes/no)")
+                .create("calculateInformation"));
 		
 		
 		if (args.length > 0) {
@@ -669,13 +674,16 @@ public class PIAModeller {
 								model);
 						
 						if (line.hasOption("writeInformation")) {
-							String[] params = line.getOptionValues("writeInformation");
+							boolean calculateInfo = false;
+							if (line.hasOption("calculateInformation") &&
+									(line.getOptionValue("calculateInformation").equals("yes") ||
+											line.getOptionValue("calculateInformation").equals("true"))) {
+								calculateInfo = true;
+							}
 							
-							if ((params.length > 0) &&
-									(params[0].trim().length() > 0)) {
-								String fileName = params[0].trim();
-								
-								model.getPSMModeller().writePSMInformation(fileName);
+							String fileName = line.getOptionValue("writeInformation");
+							if ((fileName != null) && (fileName.trim().length() > 0)) {
+								model.getPSMModeller().writePSMInformation(fileName, calculateInfo);
 								// TODO: write information from other layers...
 							}
 						}
