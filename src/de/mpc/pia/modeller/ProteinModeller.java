@@ -291,7 +291,6 @@ public class ProteinModeller {
 		this.fdrData = new FDRData(defaultDecoyStrategy, defaultDecoyPattern,
 				defaultFDRThreshold);
 		
-		
 		// create the protein map
 		reportProteinsMap = new HashMap<Long, ReportProtein>();
 		for (ReportProtein protein : reportProteins) {
@@ -579,7 +578,7 @@ public class ProteinModeller {
      */
 	public void exportCSV(Writer writer, Boolean filterExport,
 			Boolean includePeptides, Boolean includePSMSets,
-			Boolean includePSMs, Boolean exportForSC) throws IOException {
+			Boolean includePSMs, Boolean oneAccessionPerLine) throws IOException {
 		List<ReportProtein> report;
 		Boolean includes = includePeptides || includePSMSets || includePSMs;
 		List<String> scoreShorts = peptideModeller.getScoreShortNames(0L);
@@ -587,16 +586,23 @@ public class ProteinModeller {
 		boolean considermodifications =
 				peptideModeller.getConsiderModifications();
 		
-		if (includes && !exportForSC) {
+		if (includes && !oneAccessionPerLine) {
 			writer.append(
 					"\"COLS_PROTEIN\";"+
 					"\"accessions\";" +
 					"\"score\";" +
 					"\"#peptides\";" +
 					"\"#PSMs\";" +
-					"\"#spectra\";" +
-					"\n"
-					);
+					"\"#spectra\";");
+			
+			if (fdrData.getNrItems() != null) {
+				writer.append(
+						"\"isDecoy\";" +
+						"\"FDR\";" +
+						"\"q-value\";");
+			}
+			
+			writer.append("\n");
 			
 			if (includePeptides) {
 				writer.append(
@@ -660,18 +666,25 @@ public class ProteinModeller {
 						);
 			}
 			
-		} else if (!exportForSC) {
+		} else if (!oneAccessionPerLine) {
 			// no special includes, no SpectralCounting
 			writer.append(
 					"\"accessions\";" +
 					"\"score\";" +
 					"\"#peptides\";" +
 					"\"#PSMs\";" +
-					"\"#spectra\";" +
-					"\n"
-					);
+					"\"#spectra\";");
+			
+			if (fdrData.getNrItems() != null) {
+				writer.append(
+						"\"isDecoy\";" +
+						"\"FDR\";" +
+						"\"q-value\";");
+			}
+			
+			writer.append("\n");
 		} else {
-			// exportForSC is set, overrride everything else
+			// oneAccessionPerLine is set, override everything else
 			writer.append(
 					"\"accession\";" +
 					"\"filename\";" +
@@ -714,9 +727,11 @@ public class ProteinModeller {
 					accSB.append(",");
 				}
 				accSB.append(accession.getAccession());
+				
+				// TODO: if decoys through inherit, mark the decoy accessions
 			}
 			
-			if (!exportForSC) {
+			if (!oneAccessionPerLine) {
 				if (includes) {
 					writer.append("\"PROTEIN\";");
 				}
@@ -725,13 +740,22 @@ public class ProteinModeller {
 						"\"" + protein.getScore() + "\";" +
 						"\"" + protein.getNrPeptides() + "\";" +
 						"\"" + protein.getNrPSMs() + "\";" +
-						"\"" + protein.getNrSpectra() + "\";" +
-						"\n"
+						"\"" + protein.getNrSpectra() + "\";"
 						);
+				
+				if (fdrData.getNrItems() != null) {
+					writer.append(
+							"\"" + protein.getIsDecoy() + "\";" +
+							"\"" + protein.getFDR() + "\";" +
+							"\"" + protein.getQValue() + "\";"
+							);
+				}
+				
+				writer.append("\n");
 			}
 			
 			
-			if (includes || exportForSC) {
+			if (includes || oneAccessionPerLine) {
 				for (ReportPeptide peptide : protein.getPeptides()) {
 					
 					StringBuffer modStringBuffer = new StringBuffer();
@@ -748,7 +772,7 @@ public class ProteinModeller {
 						}
 					}
 					
-					if (includePeptides && !exportForSC) {
+					if (includePeptides && !oneAccessionPerLine) {
 						
 						accSB = new StringBuffer();
 						for (Accession accession : peptide.getAccessions()) {
@@ -792,11 +816,11 @@ public class ProteinModeller {
 					}
 					
 					
-					if (includePSMSets || includePSMs || exportForSC) {
+					if (includePSMSets || includePSMs || oneAccessionPerLine) {
 						for (PSMReportItem psmSet : peptide.getPSMs()) {
 							if (psmSet instanceof ReportPSMSet) {
 								
-								if (includePSMSets && !exportForSC) {
+								if (includePSMSets && !oneAccessionPerLine) {
 									String rt;
 									if (psmSet.getRetentionTime() != null) {
 										rt = psmSet.getRetentionTime().toString();
@@ -836,7 +860,7 @@ public class ProteinModeller {
 											);
 								}
 								
-								if (includePSMs || exportForSC) {
+								if (includePSMs || oneAccessionPerLine) {
 									for (ReportPSM psm
 											: ((ReportPSMSet)psmSet).getPSMs()) {
 										
@@ -870,7 +894,7 @@ public class ProteinModeller {
 												(psm.getSpectrum().getIsUnique() != null) ?
 														psm.getSpectrum().getIsUnique() : false;
 										
-										if (!exportForSC) {
+										if (!oneAccessionPerLine) {
 											writer.append(
 													"\"PSM\";" +
 													"\"" + psm.getInputFileName() + "\";" +

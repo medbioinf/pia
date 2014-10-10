@@ -37,6 +37,11 @@
 					<h:outputText value="Accessions" />
 				</rich:column>
 				
+				<rich:column id="header_is_decoy"
+						rendered="#{isFDRCalculated}">
+					<h:outputText value="Decoy" />
+				</rich:column>
+				
 				<rich:column id="header_score">
 					<pia:piaSortLink name="Score"
 							sorting="protein_score"
@@ -157,6 +162,8 @@
 						<a4j:outputPanel id="accession"
 								styleClass="accession">
 							<h:outputText value="#{acc.accession}" />
+							<h:outputText value=" (decoy)"
+									rendered="#{proteinRow.getAccessionDecoyState(acc.accession)}"/>
 						</a4j:outputPanel>
 						<h:graphicImage name="plus_icon.png"
 								library="images" alt="show description"
@@ -221,6 +228,8 @@
 					<a4j:outputPanel id="accession"
 							styleClass="accession">
 						<h:outputText value="#{acc.accession}" />
+						<h:outputText value=" (decoy)"
+								rendered="#{proteinRow.getAccessionDecoyState(acc.accession)}"/>
 					</a4j:outputPanel>
 					<h:graphicImage name="plus_icon.png"
 							library="images" alt="show description"
@@ -273,6 +282,11 @@
 				</a4j:outputPanel>
 			</rich:list>
 			
+		</rich:column>
+		
+		<rich:column id="isDecoy"
+				rendered="#{isFDRCalculated}">
+			<h:outputText value="D" rendered="#{proteinRow.isDecoy}" />
 		</rich:column>
 		
 		<rich:column id="protein_score"

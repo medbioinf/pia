@@ -82,6 +82,16 @@ public class FDRData {
 			public String toString() {
 				return "searchengine";
 			}
+		},
+		/**
+		 * The decoys are defined by any inherited item (protein, peptide) or
+		 * are given by the search engine (PSM)
+		 */
+		INHERIT {
+			@Override
+			public String toString() {
+				return "inherit";
+			}
 		}
 		;
 		

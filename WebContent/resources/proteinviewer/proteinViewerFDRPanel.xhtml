@@ -31,10 +31,10 @@
 						<h:selectOneRadio id="decoy_strategy"
 								value="#{cc.attrs.panelHandler.decoyStrategy}"
 								layout="pageDirection">
+							<f:selectItem itemValue="inherit"
+									itemLabel="inherit from PSM" />
 							<f:selectItem itemValue="accessionpattern"
 									itemLabel="accession pattern" />
-							<f:selectItem itemValue="searchengine"
-									itemLabel="by searchengine #{cc.attrs.panelHandler.hasInternalDecoy ? '' : '(no decoys found)'}" />
 							<a4j:ajax event="valueChange"
 									render="fdr_decoy_pattern" />
 						</h:selectOneRadio>

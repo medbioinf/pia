@@ -26,6 +26,8 @@ import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.FilterFactory;
 import de.mpc.pia.modeller.report.filter.RegisteredFilters;
+import de.mpc.pia.modeller.score.FDRData;
+import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 
 
 /**
@@ -281,7 +283,6 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 					new String[] {filtername, comparison, value, negate});
 		}
 	},
-	
 	
 	InfereProteins {
 		/** the identification string for the inference method */
@@ -566,7 +567,96 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 		public void executeXMLParameters(NODEType node, ProteinModeller model) {
 			// this is not executable via XML file
 		}
-	}
+	},
+	
+	CalculateFDR {
+		/** the identification string for the decoy strategy */
+		private static final String idDecoyStrategy = "decoy strategy";
+		
+		/** the identification string for the decoy pattern (if strategy == accessionpattern) */
+		private static final String idDecoyPattern = "decoy pattern";
+		
+		@Override
+		public boolean execute(ProteinModeller modeller, String[] params) {
+			logger.info("execute CLI command " + name());
+			
+			if (params.length >= 1) {
+				DecoyStrategy decoyStrategy = DecoyStrategy.getStrategyByString(params[0]);
+				String decoyPattern = null;
+				
+				switch (decoyStrategy) {
+				case ACCESSIONPATTERN:
+					if (params.length >= 2) {
+						decoyPattern = params[1];
+					} else {
+						logger.error("no decoy pattern given!");
+						return false;
+					}
+					break;
+					
+				case INHERIT:
+					break;
+					
+				default:
+					logger.error("invalid decoy strategy given: " + params[0]);
+					return false;
+				}
+				
+				modeller.updateFDRData(decoyStrategy, decoyPattern, 0.01);
+				modeller.updateDecoyStates();
+				modeller.calculateFDR();
+				
+				return true;
+			}
+			
+			logger.error("no parameters for FDR calculation given, needs 'decoy strategy [decoy pattern]'");
+			return false;
+		}
+		
+		@Override
+		public String describe() {
+			return "Calculates the FDR with the given parameters. The first "
+					+ "parameter is the decoy strategy, either accessionpattern "
+					+ "or inherit (cautious with this). The second is the "
+					+ "decoy regular expression.";
+		}
+		
+		@Override
+		public List<List<String>> neededXMLParameters() {
+			List<List<String>> params = new ArrayList<List<String>>();
+			
+			List<String> param = new ArrayList<String>();
+			param.add(idDecoyStrategy);
+			param.add(FDRData.DecoyStrategy.ACCESSIONPATTERN.toString());
+			param.add(FDRData.DecoyStrategy.INHERIT.toString());
+			params.add(param);
+			
+			param = new ArrayList<String>();
+			param.add(idDecoyPattern);
+			params.add(param);
+			
+			return params;
+		}
+		
+		@Override
+		public void executeXMLParameters(NODEType node, ProteinModeller model) {
+			String decoyStrategy = null;
+			String decoyPattern = null;
+			
+			for (Object item : node.getITEMOrITEMLISTOrNODE()) {
+				if (item instanceof ITEMType) {
+					if (idDecoyStrategy.equals(((ITEMType) item).getName())) {
+						decoyStrategy = ((ITEMType) item).getValue();
+					} else if (idDecoyPattern.equals(((ITEMType) item).getName())) {
+						decoyPattern = ((ITEMType) item).getValue();
+					}
+				}
+			}
+			
+			execute(model,
+					new String[] {decoyStrategy, decoyPattern});
+		}
+	},
 	;
 	
 	

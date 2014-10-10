@@ -60,6 +60,9 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
 	/** the map of accessions */
 	private Map<String, Accession> accMap;
 	
+	/** maps from the accession key (string) to whether this accession is a decoy or not */
+	private Map<String, Boolean> accessionDecoyStateMap;
+	
 	/** the key to the representative accession */
 	private String representativeRef;
 	
@@ -94,6 +97,7 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
 		qValue = Double.POSITIVE_INFINITY;
 		isFDRGood = false;
 		accMap = new TreeMap<String, Accession>();
+		accessionDecoyStateMap = new TreeMap<String, Boolean>();
 		peptideMap = new TreeMap<String, ReportPeptide>();
 		subSetProteins = new ArrayList<ReportProtein>(1);
 		
@@ -137,6 +141,15 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
 	
 	
 	/**
+	 * Returns the decoy state of this accession. Necessary, because a protein
+	 * group may have target and decoy accessions.
+	 */
+	public Boolean getAccessionDecoyState(String accession) {
+		return accessionDecoyStateMap.get(accession);
+	}
+	
+	
+	/**
 	 * Adds the given accession to the accessions map, if it is not yet in it.
 	 * 
 	 * @param acc
@@ -154,6 +167,8 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
 			if (representativeRef == null) {
 				representativeRef = accession;
 			}
+			
+			accessionDecoyStateMap.put(accession, null);
 		}
 	}
 	
@@ -481,24 +496,31 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
 			for (Map.Entry<String, Accession> accIt : accMap.entrySet()) {
 				m = p.matcher(accIt.getValue().getAccession());
 				isDecoy &= m.matches();
-				if (!isDecoy) {
-					break;
-				}
+				accessionDecoyStateMap.put(accIt.getKey(), m.matches());
 			}
 			break;
 			
+		case INHERIT:
 		case SEARCHENGINE:
 			// go through all the spectra, if there is one not flagged as decoy, the protein is no decoy
 			isDecoy = true;
+			Set<Accession> targetAccs = new HashSet<Accession>();
 			
 			for (ReportPeptide pep : peptideMap.values()) {
 				for (PSMReportItem psmSet : pep.getPSMs()) {
 					if (psmSet instanceof ReportPSMSet) {
 						for (ReportPSM psm : ((ReportPSMSet) psmSet).getPSMs()) {
-							if ((psm.getSpectrum().getIsDecoy() == null) ||
+							
+							if (psm.getFDRScore() != null) {
+								// the FDR is calculated on PSM level -> take the decoy state there 
+								if (!psm.getIsDecoy()) {
+									isDecoy = false;
+									targetAccs.addAll(psm.getAccessions());
+								}
+							} else if ((psm.getSpectrum().getIsDecoy() == null) ||
 									!psm.getSpectrum().getIsDecoy()) {
 								isDecoy = false;
-								break;
+								targetAccs.addAll(psm.getAccessions());
 							}
 						}
 					} else {
@@ -507,12 +529,18 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
 								"not a ReportPSMSet in ReportProtein, this " +
 								"should not happen!");
 					}
-					
-					if (!isDecoy) {
-						break;
-					}
 				}
 			}
+			
+			// update the accession target/decoy state
+			for (Map.Entry<String, Accession> accIt : accMap.entrySet()) {
+				if (targetAccs.contains(accIt.getValue())) {
+					accessionDecoyStateMap.put(accIt.getKey(), false);
+				} else {
+					accessionDecoyStateMap.put(accIt.getKey(), true);
+				}
+			}
+			
 			break;
 		}
 	}

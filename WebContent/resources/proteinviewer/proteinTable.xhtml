@@ -29,6 +29,8 @@
 	</cc:interface>
 	
 	<cc:implementation>
+		<c:set var="isFDRCalculated"
+				value="#{cc.attrs.proteinViewerBean.FDRHandler.isFDRCalculated}" />
 		
 		<h:panelGrid id="#{cc.attrs.tableID}_wrapper"
 				columns="1"
