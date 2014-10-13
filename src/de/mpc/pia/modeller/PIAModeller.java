@@ -3,8 +3,6 @@ package de.mpc.pia.modeller;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +27,6 @@ import de.mpc.pia.intermediate.Group;
 import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
-import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.xmlhandler.PIAIntermediateJAXBHandler;
 import de.mpc.pia.modeller.execute.xmlparams.CTDTool;
 import de.mpc.pia.modeller.execute.xmlparams.NODEType;
@@ -326,8 +323,7 @@ public class PIAModeller {
 			proteinModeller = new ProteinModeller(psmModeller,
 					peptideModeller,
 					getGroups(),
-					intermediateHandler.getSearchDatabase(),
-					intermediateHandler.getAnalysisSoftware());
+					intermediateHandler.getSearchDatabase());
 			
 			progress[0] += 60;
 		}

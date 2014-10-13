@@ -40,7 +40,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationItem;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationItemRef;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationList;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationResult;
-import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 import uk.ac.ebi.jmzidml.xml.io.MzIdentMLMarshaller;
 import uk.ac.ebi.pride.jmztab.model.CVParam;
 import uk.ac.ebi.pride.jmztab.model.MZTabColumnFactory;
@@ -48,9 +47,9 @@ import uk.ac.ebi.pride.jmztab.model.MZTabConstants;
 import uk.ac.ebi.pride.jmztab.model.MZTabDescription;
 import uk.ac.ebi.pride.jmztab.model.Metadata;
 import uk.ac.ebi.pride.jmztab.model.MsRun;
-import uk.ac.ebi.pride.jmztab.model.Param;
 import uk.ac.ebi.pride.jmztab.model.Protein;
 import uk.ac.ebi.pride.jmztab.model.ProteinColumn;
+import uk.ac.ebi.pride.jmztab.model.Reliability;
 import uk.ac.ebi.pride.jmztab.model.Section;
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.AccessionOccurrence;
@@ -93,8 +92,6 @@ public class ProteinModeller {
 	/** maps from the string ID to the {@link SearchDatabase}s, they are straight from the intermediateHandler */
 	private Map<String, SearchDatabase> searchDatabases;
 	
-	/** maps from the string ID to the {@link AnalysisSoftware}s, they are straight from the intermediateHandler */
-	private Map<String, AnalysisSoftware> analysisSoftware;
 	
 	
 	/** List of the report proteins */
@@ -147,8 +144,7 @@ public class ProteinModeller {
 	 */
 	public ProteinModeller(PSMModeller psmModeller,
 			PeptideModeller peptideModeller, Map<Long, Group> groups,
-			Map<String, SearchDatabase> searchDatabases,
-			Map<String, AnalysisSoftware> analysisSoftware) {
+			Map<String, SearchDatabase> searchDatabases) {
 		if (psmModeller == null) {
 			throw new IllegalArgumentException("The given PSMModeller is null!");
 		} else {
@@ -177,7 +173,6 @@ public class ProteinModeller {
 		this.reportFilters = new ArrayList<AbstractFilter>();
 		
 		this.searchDatabases = searchDatabases;
-		this.analysisSoftware = analysisSoftware;
 	}
 	
 	
@@ -1549,16 +1544,18 @@ public class ProteinModeller {
 		Map<String, List<MsRun>> specIdRefToMsRuns =
 				new HashMap<String, List<MsRun>>();
 		
-		Metadata mtd = psmModeller.createMetadataForMzTab(0L, unimodParser,
-				tabDescription, specIdRefToMsRuns);
+		Map<String, Integer> psmScoreShortToId = new HashMap<String, Integer>();
 		
-		// finally add PIA to the list of used softwares
+		Metadata mtd = psmModeller.createMetadataForMzTab(0L, unimodParser,
+				tabDescription, specIdRefToMsRuns, psmScoreShortToId);
+		
+		// add PIA to the list of used softwares
 		int piaSoftwareNr = mtd.getSoftwareMap().size() + 1;
-		mtd.addSoftwareParam(piaSoftwareNr,
-				new CVParam("MS",
-						PIAConstants.CV_PIA_ACCESSION,
-						PIAConstants.CV_PIA_NAME,
-						PIAConstants.version));
+		CVParam piaParam = new CVParam("MS",
+				PIAConstants.CV_PIA_ACCESSION,
+				PIAConstants.CV_PIA_NAME,
+				PIAConstants.version);
+		mtd.addSoftwareParam(piaSoftwareNr, piaParam);
 		
 		mtd.addSoftwareSetting(piaSoftwareNr, "modifications are " + 
 				(getConsiderModifications() ? "" : "NOT ") +
@@ -1587,6 +1584,12 @@ public class ProteinModeller {
 			}
 		}
 		
+		// add the PIA protein score
+		mtd.addProteinSearchEngineScoreParam(1, new CVParam("MS",
+				PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION,
+				PIAConstants.CV_PIA_PROTEIN_SCORE_NAME,
+				null));
+		
 		// write out the header
 		writer.append(mtd.toString());
 		
@@ -1603,13 +1606,14 @@ public class ProteinModeller {
 			// write out the proteins
 			writer.append(MZTabConstants.NEW_LINE);
 			writeProteinsForMzTab(mtd, proteinList, specIdRefToMsRuns,
-					reportPSMs, writer, unimodParser);
+					reportPSMs, piaParam, writer, unimodParser);
 			
 			// write out the PSMs
 			writer.append(MZTabConstants.NEW_LINE);
 			psmModeller.writePSMsForMzTab(mtd, 
 					new ArrayList<PSMReportItem>(reportPSMs.values()),
 					specIdRefToMsRuns,
+					psmScoreShortToId,
 					psmModeller.isCombinedFDRScoreCalculated(), writer,
 					unimodParser);
 		}
@@ -1619,10 +1623,22 @@ public class ProteinModeller {
 	}
 	
 	
+	/**
+	 * Writes the protein section into an mzTab file
+	 * 
+	 * @param metadata
+	 * @param report
+	 * @param specIDRefToMsRuns
+	 * @param reportPSMs
+	 * @param writer
+	 * @param unimodParser
+	 * @throws IOException
+	 */
 	public void writeProteinsForMzTab(Metadata metadata,
 			List<ReportProtein> report,
 			Map<String, List<MsRun>> specIDRefToMsRuns,
 			Map<String, PSMReportItem> reportPSMs,
+			CVParam piaParam,
 			Writer writer,
 			UnimodParser unimodParser) throws IOException {
 		// initialize the columns
@@ -1648,9 +1664,37 @@ public class ProteinModeller {
 					msRunIt.getValue());
 		}
 		
+		// add the PIA score 
+		CVParam proteinScoreColumnParam =
+				new CVParam(PIAConstants.CV_PSI_MS_LABEL,
+						PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION,
+						PIAConstants.CV_PIA_PROTEIN_SCORE_NAME,
+						null);
+		columnFactory.addOptionalColumn(proteinScoreColumnParam, Double.class);
+		
+		// add FDR value, if calculated
+		CVParam fdrColumnParam = null;
+		CVParam qvalueColumnParam = null;
+		if (fdrData.getNrItems() != null) {
+			columnFactory.addReliabilityOptionalColumn();
+			
+			fdrColumnParam = new CVParam(PIAConstants.CV_PSI_MS_LABEL,
+					"MS:1002364",
+					"protein-level local FDR",
+					null);
+			columnFactory.addOptionalColumn(fdrColumnParam, Double.class);
+			
+			qvalueColumnParam = new CVParam(PIAConstants.CV_PSI_MS_LABEL,
+					"MS:1002373",
+					"protein group-level q-value",
+					null);
+			columnFactory.addOptionalColumn(qvalueColumnParam, Double.class);
+		}
+		
 		// add custom column for nr_peptides
-		columnFactory.addOptionalColumn(
-				PIAConstants.MZTAB_NR_PEPTIDES_COLUMN_NAME, Integer.class);
+		CVParam nrPeptidesColumnParam =
+				new CVParam("MS", "MS:1001097", "distinct peptide sequences", null);
+		columnFactory.addOptionalColumn(nrPeptidesColumnParam, Integer.class);
 		
 		// add custom column for nr_psms
 		columnFactory.addOptionalColumn(
@@ -1660,17 +1704,12 @@ public class ProteinModeller {
 		columnFactory.addOptionalColumn(
 				PIAConstants.MZTAB_NR_SPECTRA_COLUMN_NAME, Integer.class);
 		
-		
 		writer.append(columnFactory.toString());
 		writer.append(MZTabConstants.NEW_LINE);
 		
 		// cache the databaseRefs to an array with name and version
 		Map<String, String[]> dbRefToDbNameAndVersion =
 				new HashMap<String, String[]>();
-		
-		// cache the softwareRefs to the Params
-		Map<String, uk.ac.ebi.pride.jmztab.model.Param> softwareParams = 
-				new HashMap<String, uk.ac.ebi.pride.jmztab.model.Param>();
 		
 		for (ReportProtein reportProtein : report) {
 			Protein mzTabProtein = new Protein(columnFactory);
@@ -1739,6 +1778,7 @@ public class ProteinModeller {
 			for (ReportPeptide reportPeptide : reportProtein.getPeptides()) {
 				for (PSMReportItem reportItem : reportPeptide.getPSMs()) {
 					if (reportItem instanceof ReportPSMSet) {
+						
 						for (ReportPSM reportPSM
 								: ((ReportPSMSet) reportItem).getPSMs()) {
 							// get the used search engine for this PSM
@@ -1774,14 +1814,12 @@ public class ProteinModeller {
 									disctinctPeptides.add(reportPSM.getSequence());
 								}
 							}
-							
-							
-							// add the PSM to the PSM map
-							String psmKey = 
-									reportPSM.getIdentificationKey(psmSetSettings);
-							if (!reportPSMs.containsKey(psmKey)) {
-								reportPSMs.put(psmKey, reportPSM);
-							}
+						}
+						
+						// add the PSM set to the PSM map
+						String psmKey = reportItem.getIdentificationKey(psmSetSettings);
+						if (!reportPSMs.containsKey(psmKey)) {
+							reportPSMs.put(psmKey, reportItem);
 						}
 					} else {
 						logger.error(
@@ -1790,49 +1828,28 @@ public class ProteinModeller {
 				}
 			}
 			
-			// add the search engines (i.e. analysisSoftwares)
-			for (String softwareRef : usedSoftwareRefs) {
-				Param softwareParam = 
-						softwareParams.get(softwareRef);
-				
-				if (softwareParam == null) {
-					AnalysisSoftware software = 
-							analysisSoftware.get(softwareRef);
-					
-					uk.ac.ebi.jmzidml.model.mzidml.Param softwareName =
-							software.getSoftwareName();
-					if (softwareName.getCvParam() != null) {
-						CvParam param = softwareName.getCvParam();
-						
-						softwareParam = new CVParam(param.getCvRef(),
-								param.getAccession(), param.getName(),
-								software.getVersion());
-					} else if (softwareName.getUserParam() != null) {
-						UserParam param = softwareName.getUserParam();
-						
-						softwareParam =
-								new uk.ac.ebi.pride.jmztab.model.UserParam(
-										param.getName(), software.getVersion());
-					}
-					
-					softwareParams.put(softwareRef, softwareParam);
-				}
-				
-				mzTabProtein.addSearchEngineParam(softwareParam);
-			}
+			// add the search engines, which is always PIA
+			mzTabProtein.addSearchEngineParam(piaParam);
 			
-			// only one replicate and this has the PIA protein score
-			mzTabProtein.addBestSearchEngineScoreParam(
-					new CVParam(PIAConstants.CV_PSI_MS_LABEL,
-							PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION,
-							PIAConstants.CV_PIA_PROTEIN_SCORE_NAME,
-							reportProtein.getScore().toString()));
+			// set the PIA protein score
+			mzTabProtein.setOptionColumnValue(proteinScoreColumnParam, reportProtein.getScore());
 			
 			// the protein score for each search engine's identification is not collected
 			//mzTabProtein.addSearchEngineScoreParam(msRun, param)
 			
-			// reliability is not supported, yet
-	        //protein.setReliability(Reliability.Poor);
+			// get the protein FDR, if calculated, and set the reliability
+			if (fdrColumnParam != null) {
+				if (reportProtein.getQValue() <= 0.01) {
+					mzTabProtein.setReliability(Reliability.High);
+				} else if (reportProtein.getQValue() <= 0.05) {
+					mzTabProtein.setReliability(Reliability.Medium);
+				} else {
+					mzTabProtein.setReliability(Reliability.Poor);
+				}
+				
+				mzTabProtein.setOptionColumnValue(fdrColumnParam, reportProtein.getFDR());
+				mzTabProtein.setOptionColumnValue(qvalueColumnParam, reportProtein.getQValue());
+			}
 			
 			for (Map.Entry<Integer, MsRun> msRunIt : msRunMap.entrySet()) {
 				Integer msRunID = msRunIt.getValue().getId();
@@ -1863,7 +1880,6 @@ public class ProteinModeller {
 			// TODO: perhaps add modifications
 			//mzTabProtein.addModification(modification);
 			
-			
 			// there is no URI for the proteins
 			//mzTabProtein.setURI(null);
 			
@@ -1876,15 +1892,14 @@ public class ProteinModeller {
 				mzTabProtein.setProteinConverage(coverage);
 			}
 			
-			mzTabProtein.setOptionColumn(
-					PIAConstants.MZTAB_NR_PEPTIDES_COLUMN_NAME,
+			mzTabProtein.setOptionColumnValue(nrPeptidesColumnParam,
 					reportProtein.getNrPeptides());
 			
-			mzTabProtein.setOptionColumn(
+			mzTabProtein.setOptionColumnValue(
 					PIAConstants.MZTAB_NR_PSMS_COLUMN_NAME,
 					reportProtein.getNrPSMs());
 			
-			mzTabProtein.setOptionColumn(
+			mzTabProtein.setOptionColumnValue(
 					PIAConstants.MZTAB_NR_SPECTRA_COLUMN_NAME,
 					reportProtein.getNrSpectra());
 			

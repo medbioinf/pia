@@ -38,7 +38,6 @@ public class PIAConstants {
 	
 	// prefixes for mzTab export
 	public static String MZTAB_MISSED_CLEAVAGES_COLUMN_NAME = "missed_cleavages";
-	public static String MZTAB_NR_PEPTIDES_COLUMN_NAME = "number_of_peptides";
 	public static String MZTAB_NR_PSMS_COLUMN_NAME = "number_of_psms";
 	public static String MZTAB_NR_SPECTRA_COLUMN_NAME = "number_of_spectra";
 	

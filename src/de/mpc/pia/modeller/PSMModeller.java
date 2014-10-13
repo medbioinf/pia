@@ -46,6 +46,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabaseRef;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchModification;
 import uk.ac.ebi.jmzidml.model.mzidml.SequenceCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.SourceFile;
+import uk.ac.ebi.jmzidml.model.mzidml.SpecificityRules;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationItem;
@@ -61,8 +62,10 @@ import uk.ac.ebi.pride.jmztab.model.MZTabColumnFactory;
 import uk.ac.ebi.pride.jmztab.model.MZTabConstants;
 import uk.ac.ebi.pride.jmztab.model.MZTabDescription;
 import uk.ac.ebi.pride.jmztab.model.Metadata;
+import uk.ac.ebi.pride.jmztab.model.Mod;
 import uk.ac.ebi.pride.jmztab.model.MsRun;
 import uk.ac.ebi.pride.jmztab.model.PSM;
+import uk.ac.ebi.pride.jmztab.model.PSMColumn;
 import uk.ac.ebi.pride.jmztab.model.Reliability;
 import uk.ac.ebi.pride.jmztab.model.Section;
 import uk.ac.ebi.pride.jmztab.model.SpectraRef;
@@ -3451,9 +3454,10 @@ public class PSMModeller {
 		Map<String, List<MsRun>> specIdRefToMsRuns =
 				new HashMap<String, List<MsRun>>();
 		
-		Metadata mtd = createMetadataForMzTab(fileID, unimodParser,
-				tabDescription, specIdRefToMsRuns);
+		Map<String, Integer> psmScoreShortToId = new HashMap<String, Integer>();
 		
+		Metadata mtd = createMetadataForMzTab(fileID, unimodParser,
+				tabDescription, specIdRefToMsRuns, psmScoreShortToId);
 		
 		// finally add PIA to the list of used softwares
 		int piaSoftwareNr = mtd.getSoftwareMap().size() + 1;
@@ -3525,7 +3529,7 @@ public class PSMModeller {
 		
 		// write out the PSMs
 		writer.append(MZTabConstants.NEW_LINE);
-		writePSMsForMzTab(mtd, report, specIdRefToMsRuns,
+		writePSMsForMzTab(mtd, report, specIdRefToMsRuns, psmScoreShortToId,
 				writeReliabilityCol, writer, unimodParser);
 		
 		writer.flush();
@@ -3548,7 +3552,8 @@ public class PSMModeller {
 	 */
 	public Metadata createMetadataForMzTab(Long fileID,
 			UnimodParser unimodParser, MZTabDescription tabDescription,
-			Map<String, List<MsRun>> spectrumIdentificationRefToMsRuns)
+			Map<String, List<MsRun>> spectrumIdentificationRefToMsRuns,
+			Map<String, Integer> psmScoreShortToId)
 					throws IOException {
 		Metadata mtd = new Metadata(tabDescription);
 		mtd.setDescription("PIA export of " + fileName);
@@ -3596,6 +3601,36 @@ public class PSMModeller {
 								file.getAnalysisProtocolCollection());
 					}
 				}
+				
+				// add the scores of each file
+				for (String scoreShort : getScoreShortNames(file.getID())) {
+					if (!psmScoreShortToId.containsKey(scoreShort)) {
+						Integer scoreID = psmScoreShortToId.size() + 1;
+						ScoreModelEnum scoreType = 
+								ScoreModelEnum.getModelByDescription(scoreShort);
+						
+						uk.ac.ebi.pride.jmztab.model.Param scoreParam = null;
+						
+						// do NOT add the PSM-level FDR for the overview
+						if (!scoreType.equals(ScoreModelEnum.PSM_LEVEL_FDR_SCORE)) {
+							if (scoreType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+								scoreParam =
+										new uk.ac.ebi.pride.jmztab.model.UserParam(
+												getScoreName(scoreShort),
+												"");
+							} else {
+								scoreParam = new CVParam(
+										PIAConstants.CV_PSI_MS_LABEL,
+										scoreType.getCvAccession(),
+										scoreType.getCvName(),
+										"");
+							}
+							
+							mtd.addPsmSearchEngineScoreParam(scoreID, scoreParam);
+							psmScoreShortToId.put(scoreShort, scoreID);
+						}
+					}
+				}
 			}
 		} else {
 			SpectrumIdentification specID = inputFiles.get(fileID).
@@ -3626,6 +3661,34 @@ public class PSMModeller {
 			if (inputFiles.get(fileID).getAnalysisProtocolCollection() != null) {
 				analysisProtocols.add(
 						inputFiles.get(fileID).getAnalysisProtocolCollection());
+			}
+			
+			// the the file's scores
+			for (String scoreShort : getScoreShortNames(fileID)) {
+				if (!psmScoreShortToId.containsKey(scoreShort)) {
+					Integer scoreID = psmScoreShortToId.size() + 1;
+					ScoreModelEnum scoreType = 
+							ScoreModelEnum.getModelByDescription(scoreShort);
+					
+					uk.ac.ebi.pride.jmztab.model.Param scoreParam = null;
+					
+					if (scoreType.equals(
+							ScoreModelEnum.UNKNOWN_SCORE)) {
+						scoreParam =
+								new uk.ac.ebi.pride.jmztab.model.UserParam(
+										getScoreName(scoreShort),
+										"");
+					} else {
+						scoreParam = new CVParam(
+								PIAConstants.CV_PSI_MS_LABEL,
+								scoreType.getCvAccession(),
+								scoreType.getCvName(),
+								"");
+					}
+					
+					mtd.addPsmSearchEngineScoreParam(scoreID, scoreParam);
+					psmScoreShortToId.put(scoreShort, scoreID);
+				}
 			}
 		}
 		
@@ -3715,6 +3778,24 @@ public class PSMModeller {
 					(double)searchMod.getMassDelta(),
 					searchMod.getResidues());
 			
+			List<String> positions = new ArrayList<String>();
+			for (SpecificityRules rule : searchMod.getSpecificityRules()) {
+				for (CvParam param : rule.getCvParam()) {
+					if (PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION.equals(param.getAccession())) {
+						positions.add("Any N-term");
+					} else if (PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_ACCESSION.equals(param.getAccession())) {
+						positions.add("Protein N-term");
+					} else if (PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION.equals(param.getAccession())) {
+						positions.add("Any C-term");
+					} else if (PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_ACCESSION.equals(param.getAccession())) {
+						positions.add("Protein C-term");
+					}
+				}
+			}
+			if (positions.size() < 1) {
+				positions.add("Anywhere");
+			}
+			
 			for (String site : searchMod.getResidues()) {
 				CVParam cvParam;
 				
@@ -3732,28 +3813,68 @@ public class PSMModeller {
 							Float.toString(searchMod.getMassDelta()));
 				}
 				
-				if (searchMod.isFixedMod()) {
-					FixedMod fixedMod = new FixedMod(nrFixedMods+1);
-					fixedMod.setParam(cvParam);
-					fixedMod.setSite(site);
+				for (String position : positions) {
+					Mod mod = null;
 					
-					if (!fixedMods.contains(site + cvParam.toString())) {
-						nrFixedMods++;
-						mtd.addFixedMod(fixedMod);
-						fixedMods.add(site + cvParam.toString());
+					if (searchMod.isFixedMod()) {
+						mod = new FixedMod(nrFixedMods+1);
+					} else {
+						mod = new VariableMod(nrVariableMods+1);
 					}
-				} else {
-					VariableMod variableMod = new VariableMod(nrVariableMods+1);
-					variableMod.setParam(cvParam);
-					variableMod.setSite(site);
 					
-					if (!variableMods.contains(site + cvParam.toString())) {
-						nrVariableMods++;
-						mtd.addVariableMod(variableMod);
-						variableMods.add(site + cvParam.toString());
+					mod.setParam(cvParam);
+					
+					if (!position.equals("Anywhere")) {
+						if (position.contains("N-term")) {
+							if (site.equals(".")) {
+								site = "N-term";
+							} else {
+								site = "N-term " + site;
+							}
+						} else if (position.contains("C-term")) {
+							if (site.equals(".")) {
+								site = "C-term";
+							} else {
+								site = "C-term " + site;
+							}
+						}
+						
+						mod.setPosition(position);
+					}
+					mod.setSite(site);
+					
+					if (searchMod.isFixedMod()) {
+						if (!fixedMods.contains(position + site + cvParam.toString())) {
+							nrFixedMods++;
+							mtd.addFixedMod((FixedMod)mod);
+							fixedMods.add(position + site + cvParam.toString());
+						}
+					} else {
+						if (!variableMods.contains(position + site + cvParam.toString())) {
+							nrVariableMods++;
+							mtd.addVariableMod((VariableMod)mod);
+							variableMods.add(position + site + cvParam.toString());
+						}
 					}
 				}
 			}
+		}
+		
+		if (nrFixedMods == 0) {
+			FixedMod fixedMod = new FixedMod(1);
+			fixedMod.setParam(new CVParam("MS",
+					"MS:1002453",
+					"No fixed modifications searched",
+					null));
+			mtd.addFixedMod(fixedMod);
+		}
+		if (nrVariableMods == 0) {
+			VariableMod variableMod = new VariableMod(1);
+			variableMod.setParam(new CVParam("MS",
+					"MS:1002454",
+					"No variable modifications searched",
+					null));
+			mtd.addVariableMod(variableMod);
 		}
 		
 		// adding the software
@@ -3792,6 +3913,7 @@ public class PSMModeller {
 					sb.append(" = ");
 					sb.append(param.getValue());
 					if (param.getUnitName() != null) {
+						sb.append(" ");
 						sb.append(param.getUnitName());
 					}
 					
@@ -3807,6 +3929,7 @@ public class PSMModeller {
 					sb.append(" = ");
 					sb.append(param.getValue());
 					if (param.getUnitName() != null) {
+						sb.append(" ");
 						sb.append(param.getUnitName());
 					}
 					
@@ -4038,18 +4161,26 @@ public class PSMModeller {
 	 * @param specIDRefToMsRuns a mapping from the spectrumIdentificationRefs to
 	 * the associated MsRuns (should be filled by a call of 
 	 * {@link #createPSMsHeaderForMzTab(Long, Boolean, UnimodParser, MZTabDescription, Map)})
+	 * @param psmScoreShortToId maps from the score short name to the "psm_search_engine_score[n]"
 	 * @param reliabilityCol whether the reliability column should be written
 	 * @param writer the Writer for the export
 	 * @param unimodParser instance of a prior initialized {@link UnimodParser}
 	 * @throws IOException
 	 */
 	public void writePSMsForMzTab(Metadata metadata, List<PSMReportItem> report,
-			Map<String, List<MsRun>> specIDRefToMsRuns, boolean reliabilityCol,
+			Map<String, List<MsRun>> specIDRefToMsRuns,
+			Map<String, Integer> psmScoreShortToId,
+			boolean reliabilityCol,
 			Writer writer,
 			UnimodParser unimodParser) throws IOException {
 		// initialize the columns
 		MZTabColumnFactory columnFactory =
 				MZTabColumnFactory.getInstance(Section.PSM_Header);
+		
+		// add the score columns
+		for (Integer scoreID : psmScoreShortToId.values()) {
+			columnFactory.addSearchEngineScoreOptionalColumn(PSMColumn.SEARCH_ENGINE_SCORE, scoreID, null);
+		}
 		
 		// add custom column for missed cleavages
 		columnFactory.addOptionalColumn(
@@ -4064,7 +4195,6 @@ public class PSMModeller {
 		if (reliabilityCol) {
 			columnFactory.addReliabilityOptionalColumn();
 		}
-		
 		
 		writer.append(columnFactory.toString());
 		writer.append(MZTabConstants.NEW_LINE);
@@ -4088,9 +4218,6 @@ public class PSMModeller {
 			
 			Set<String> softwareRefs = new HashSet<String>();
 			
-			
-			List<ScoreModel> scoreModels = new ArrayList<ScoreModel>();
-			
 			if (psmItem instanceof ReportPSM) {
 				psmID = ((ReportPSM) psmItem).getId().intValue();
 				
@@ -4101,14 +4228,11 @@ public class PSMModeller {
 						getAnalysisProtocolCollection().
 						getSpectrumIdentificationProtocol().get(0).
 						getAnalysisSoftwareRef());
-				
-				scoreModels.addAll(((ReportPSM)psmItem).getScores());
 			} else if (psmItem instanceof ReportPSMSet) {
 				// in PSM sets, the ID does NOT represent the ID from the PIA
 				// file but is an incremental value
 				psmID++;
 				
-				Set<String> scoreShorts = new HashSet<String>();
 				for (ReportPSM reportPSM : ((ReportPSMSet) psmItem).getPSMs()) {
 					if (reportPSM.getSpectrum().
 							getSpectrumIdentification().getId() != null) {
@@ -4120,25 +4244,6 @@ public class PSMModeller {
 							getAnalysisProtocolCollection().
 							getSpectrumIdentificationProtocol().get(0).
 							getAnalysisSoftwareRef());
-					
-					scoreShorts.addAll(fileScoreShortNames.get(
-							reportPSM.getFile().getID()));
-				}
-				
-				for (String scoreShort : scoreShorts) {
-					ScoreModel scoreModel =
-							((ReportPSMSet) psmItem).getBestScoreModel(scoreShort);
-					if ((scoreModel != null) &&
-							!scoreModel.getType().equals(ScoreModelEnum.PSM_LEVEL_FDR_SCORE)) {
-						// the best PSM level FDRScore is not exported for PSM sets
-						scoreModels.add(scoreModel);
-					}
-				}
-				
-				// add combined fdr score (if it is calculated)
-				if (isCombinedFDRScoreCalculated() &&
-						(psmItem.getFDRScore() != null)) {
-					scoreModels.add(psmItem.getFDRScore());
 				}
 			}
 			mztabPsm.setPSM_ID(psmID);
@@ -4232,38 +4337,34 @@ public class PSMModeller {
 			
 			// add the scores
 			Reliability reliability = null;
-			for (ScoreModel scoreModel : scoreModels) {
-				uk.ac.ebi.pride.jmztab.model.Param scoreParam;
+			for (Map.Entry<String, Integer> scoreIt : psmScoreShortToId.entrySet()) {
+				Double scoreValue = null;
 				
-				if (scoreModel.getType().equals(
-						ScoreModelEnum.UNKNOWN_SCORE)) {
-					scoreParam =
-							new uk.ac.ebi.pride.jmztab.model.UserParam(
-									scoreModel.getName(),
-									scoreModel.getValue().toString());
-				} else {
-					scoreParam = new CVParam(
-							PIAConstants.CV_PSI_MS_LABEL,
-							scoreModel.getAccession(),
-							scoreModel.getType().getCvName(),
-							scoreModel.getValue().toString());
-					
-					if (reliabilityCol &&
-							(scoreModel.getType().equals(
-									ScoreModelEnum.PSM_LEVEL_FDR_SCORE) ||
-							scoreModel.getType().equals(
-									ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE))) {
-						if (scoreModel.getValue() <= 0.01) {
-							reliability = Reliability.High;
-						} else if (scoreModel.getValue() <= 0.05) {
-							reliability = Reliability.Medium;
-						} else {
-							reliability = Reliability.Poor;
-						}
+				if (psmItem instanceof ReportPSM) {
+					scoreValue = psmItem.getScore(scoreIt.getKey());
+				} else if (psmItem instanceof ReportPSMSet) {
+					scoreValue = ((ReportPSMSet) psmItem).getBestScore(scoreIt.getKey());
+					if (scoreValue.equals(Double.NaN)) {
+						scoreValue = psmItem.getScore(scoreIt.getKey());
 					}
 				}
+				if (scoreValue.equals(Double.NaN)) {
+					scoreValue = null;
+				}
+				mztabPsm.setSearchEngineScore(scoreIt.getValue(), scoreValue);
 				
-				mztabPsm.addSearchEngineScoreParam(scoreParam);
+				ScoreModelEnum model = ScoreModelEnum.getModelByDescription(scoreIt.getKey());
+				if (reliabilityCol &&
+						(model.equals(ScoreModelEnum.PSM_LEVEL_FDR_SCORE) ||
+								model.equals(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE))) {
+					if (scoreValue <= 0.01) {
+						reliability = Reliability.High;
+					} else if (scoreValue <= 0.05) {
+						reliability = Reliability.Medium;
+					} else {
+						reliability = Reliability.Poor;
+					}
+				}
 			}
 			
 			// if the (combined) FDRScore is calculated, give the reliability
@@ -4274,11 +4375,12 @@ public class PSMModeller {
 				mztabPsm.setReliability(reliability);
 			}
 			
-			mztabPsm.setOptionColumn(
+			
+			mztabPsm.setOptionColumnValue(
 					PIAConstants.MZTAB_MISSED_CLEAVAGES_COLUMN_NAME,
 					psmItem.getMissedCleavages());
 			
-			mztabPsm.setOptionColumn(decoyColumnParam,
+			mztabPsm.setOptionColumnValue(decoyColumnParam,
 					psmItem.getIsDecoy() ? "1" : "0");
 			
 			// one line and some special info per accession
@@ -4350,7 +4452,7 @@ public class PSMModeller {
 						mztabPsm.setStart(occurrence.getStart().toString());
 						mztabPsm.setEnd(occurrence.getEnd().toString());
 					}
-					// TODO: multiple occurrences in the the same protein
+					// TODO: multiple occurrences in the the same protein?
 				}
 				
 				writer.append(mztabPsm.toString());
