@@ -321,16 +321,23 @@ public class MascotDatFileParser {
 				searchMod = new SearchModification();
 				searchMod.setFixedMod(false);
 				
-				if (mod.getLocation().equalsIgnoreCase("N-Term") ||
-						mod.getLocation().equalsIgnoreCase("C-Term")) {
+				if (mod.getLocation().equalsIgnoreCase("N-Term") || mod.getLocation().equalsIgnoreCase("Protein N-Term") || 
+						mod.getLocation().equalsIgnoreCase("C-Term") || mod.getLocation().equalsIgnoreCase("Protein C-Term")) {
 					CvParam  specificity = new CvParam();
 					specificity.setCv(psiMS);
+					
 					if (mod.getLocation().equalsIgnoreCase("N-Term")) {
-						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION);
-						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_NAME);
-					} else {
-						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_ACCESSION);
-						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_NAME);
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_NAME);
+					} else if (mod.getLocation().equalsIgnoreCase("Protein N-Term")) {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_NAME);
+					} else if (mod.getLocation().equalsIgnoreCase("C-Term")) {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_NAME);
+					} else if (mod.getLocation().equalsIgnoreCase("Protein C-Term")) {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_NAME);
 					}
 					
 					SpecificityRules specRules = new SpecificityRules();
@@ -368,15 +375,23 @@ public class MascotDatFileParser {
 				searchMod = new SearchModification();
 				searchMod.setFixedMod(true);
 				
-				if (mod.getLocation().equalsIgnoreCase("N-Term")) {
+				if (mod.getLocation().equalsIgnoreCase("N-Term") || mod.getLocation().equalsIgnoreCase("Protein N-Term") || 
+						mod.getLocation().equalsIgnoreCase("C-Term") || mod.getLocation().equalsIgnoreCase("Protein C-Term")) {
 					CvParam  specificity = new CvParam();
 					specificity.setCv(psiMS);
+					
 					if (mod.getLocation().equalsIgnoreCase("N-Term")) {
-						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION);
-						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_NAME);
-					} else {
-						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_ACCESSION);
-						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_NAME);
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_NAME);
+					} else if (mod.getLocation().equalsIgnoreCase("Protein N-Term")) {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_NAME);
+					} else if (mod.getLocation().equalsIgnoreCase("C-Term")) {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_NAME);
+					} else if (mod.getLocation().equalsIgnoreCase("Protein C-Term")) {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_NAME);
 					}
 					
 					SpecificityRules specRules = new SpecificityRules();
@@ -389,6 +404,7 @@ public class MascotDatFileParser {
 						searchMod.getResidues().add(residue.toString());
 					}
 				}
+				
 				searchMod.setMassDelta((float)mod.getMass());
 				
 				ModT unimod =

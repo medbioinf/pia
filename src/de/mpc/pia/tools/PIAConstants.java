@@ -194,16 +194,26 @@ public class PIAConstants {
 	/** name for "X!Tandem:hyperscore" in PSI-MS */
 	public static final String CV_XTANDEM_HYPERSCORE_NAME = "X!Tandem:hyperscore";
 	
-	/** accession for "modification specificity N-term" in PSI-MS */
-	public static final String CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION = "MS:1001189";
-	/** name for "modification specificity N-term" in PSI-MS */
-	public static final String CV_MODIFICATION_SPECIFICITY_N_TERM_NAME = "modification specificity N-term";
+	/** accession for "modification specificity peptide N-term" in PSI-MS */
+	public static final String CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION = "MS:1001189";
+	/** name for "modification specificity peptide N-term" in PSI-MS */
+	public static final String CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_NAME = "modification specificity peptide N-term";
 	
-	/** accession for "modification specificity C-term" in PSI-MS */
-	public static final String CV_MODIFICATION_SPECIFICITY_C_TERM_ACCESSION = "MS:1001190";
-	/** name for "modification specificity C-term" in PSI-MS */
-	public static final String CV_MODIFICATION_SPECIFICITY_C_TERM_NAME = "modification specificity C-term";
+	/** accession for "modification specificity peptide C-term" in PSI-MS */
+	public static final String CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION = "MS:1001190";
+	/** name for "modification specificity peptide C-term" in PSI-MS */
+	public static final String CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_NAME = "modification specificity peptide C-term";
 
+	/** accession for "modification specificity protein N-term" in PSI-MS */
+	public static final String CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_ACCESSION = "MS:1002057";
+	/** name for "modification specificity protein N-term" in PSI-MS */
+	public static final String CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_NAME = "modification specificity protein N-term";
+	
+	/** accession for "modification specificity protein C-term" in PSI-MS */
+	public static final String CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_ACCESSION = "MS:1002058";
+	/** name for "modification specificity protein C-term" in PSI-MS */
+	public static final String CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_NAME = "modification specificity protein C-term";
+	
 	/** accession for "sequence same-set protein" in PSI-MS */
 	public static final String CV_SEQUENCE_SAME_SET_PROTEIN_ACCESSION = "MS:1001594";
 	/** name for "sequence same-set protein" in PSI-MS */

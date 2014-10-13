@@ -802,7 +802,7 @@ public class TandemFileParser {
 	
 	
 	/**
-	 * Adds the modififcations in the tandem encoded strParam to the
+	 * Adds the modifications in the tandem encoded strParam to the
 	 * {@link ModificationParams}.
 	 * 
 	 * @param strParam modifications encoded as specified by the X!Tandem API
@@ -836,11 +836,11 @@ public class TandemFileParser {
 						CvParam  specificity = new CvParam();
 						specificity.setCv(psiMS);
 						if (values[1].equals("[")) {
-							specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION);
-							specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_NAME);
+							specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION);
+							specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_NAME);
 						} else {
-							specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_ACCESSION);
-							specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_NAME);
+							specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION);
+							specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_NAME);
 						}
 						SpecificityRules specRules = new SpecificityRules();
 						specRules.getCvParam().add(specificity);
@@ -896,7 +896,7 @@ public class TandemFileParser {
 								: searchMod.getSpecificityRules()) {
 							for (CvParam cvParam : rule.getCvParam()) {
 								if (cvParam.getAccession().equals(
-										PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION)) {
+										PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION)) {
 									loc = 0;
 									break;
 								}
@@ -931,8 +931,7 @@ public class TandemFileParser {
 						for (SpecificityRules rule
 								: searchMod.getSpecificityRules()) {
 							for (CvParam cvParam : rule.getCvParam()) {
-								if (cvParam.getAccession().equals(
-										PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_ACCESSION)) {
+								if (cvParam.getAccession().equals(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION)) {
 									loc = peptideSequence.length()+1;
 									break;
 								}

@@ -853,12 +853,23 @@ public class ThermoMSFFileParser {
 				CvParam  specificity = new CvParam();
 				specificity.setCv(MzIdentMLTools.getCvPSIMS());
 				if (res.contains("N-Term")) {
-					specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_ACCESSION);
-					specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_N_TERM_NAME);
+					if (res.contains("Protein")) {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_NAME);
+					} else {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_NAME);
+					}
 				} else {
-					specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_ACCESSION);
-					specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_C_TERM_NAME);
+					if (res.contains("Protein")) {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_NAME);
+					} else {
+						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION);
+						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_NAME);
+					}
 				}
+				
 				SpecificityRules specRules = new SpecificityRules();
 				specRules.getCvParam().add(specificity);
 				searchMod.getSpecificityRules().add(specRules);
