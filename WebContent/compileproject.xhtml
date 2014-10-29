@@ -131,7 +131,7 @@
 							</rich:dataGrid>
 							
 							<h:outputText value="No files uploaded yet."
-								rendered="#{compilerBean.compileFiles.size() == 0}" />
+								rendered="#{empty compilerBean.compileFiles}" />
 							
 						</rich:panel>
 						

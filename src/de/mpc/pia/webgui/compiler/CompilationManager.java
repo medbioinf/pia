@@ -7,11 +7,15 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -103,11 +107,22 @@ public class CompilationManager implements Runnable {
 	public void destruct() {
 		goRun = false;
 		
-		// wake up the run() (to fuinish it)
+		// wake up the run() (to finish it)
 		if (runner.isAlive()) {
 			synchronized (monitor) {
 				monitor.notifyAll();
 			}
+		}
+		
+		try {
+			Enumeration<Driver> drivers = DriverManager.getDrivers();
+			
+			while (drivers.hasMoreElements()) {
+				Driver driver = drivers.nextElement();
+				DriverManager.deregisterDriver(driver);
+			}
+		} catch (SQLException e) {
+			logger.error("Error while trying to deregister the SQL driver", e);
 		}
 	}
 	
