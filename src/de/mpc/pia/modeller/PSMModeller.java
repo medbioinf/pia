@@ -3995,7 +3995,7 @@ public class PSMModeller {
 		FDRData fdrData = null;
 		List<Double> fdrThresholds = Arrays.asList(new Double[] {0.01, 0.03, 0.05});
 		Double originalFDRThreshold = null;
-		String nl = System.lineSeparator();
+		String nl = System.getProperty("line.separator");
 		
 		writer.append("PSM information about " + fileName + nl);
 		
@@ -4424,8 +4424,9 @@ public class PSMModeller {
 					}
 				}
 				
-				for (AccessionOccurrence occurrence :
-					psmItem.getPeptide().getAccessionOccurrences()) {
+				for (AccessionOccurrence occurrence
+						: psmItem.getPeptide().getAccessionOccurrences()) {
+					
 					if (accession.equals(occurrence.getAccession())) {
 						String dbSequence = accession.getDbSequence();
 						if (dbSequence != null) {
