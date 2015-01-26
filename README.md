@@ -11,7 +11,7 @@ you to inspect your peptide spectrum matches, calculate FDR values across
 different search engine results and visualize the correspondence between PSMs,
 peptides and proteins.
 
-![PIA - Logo](https://raw.github.com/wiki/mpc-bioinformatics/pia/pia_logo.png)
+![PIA - Logo](https://github.com/mpc-bioinformatics/pia/wiki/pia_logo.png)
 
 PIA in a nutshell
 ===
