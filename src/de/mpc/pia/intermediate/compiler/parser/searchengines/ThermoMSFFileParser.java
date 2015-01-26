@@ -182,32 +182,7 @@ public class ThermoMSFFileParser {
 						}
 		        	} else if (paramName.equals("Enzyme") ||
 		        			paramName.equals("Enzyme Name")) {
-						enzyme = new Enzyme();
-						enzyme.setId("enzyme_" +
-								node.getProcessingNodeNumber());
-						
-						ParamList enzymeName = new ParamList();
-						
-						if (processingNodeParams.getParameterValue().equalsIgnoreCase("Trypsin") ||
-								processingNodeParams.getValueDisplayString().equalsIgnoreCase("Trypsin (Full)")) {
-							// this is trypsin
-							enzyme.setSiteRegexp("(?<=[KR])(?!P)");
-							
-							abstractParam = new CvParam();
-							((CvParam)abstractParam).setAccession(
-									PIAConstants.CV_TRYPSIN_ACCESSION);
-							((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-							((CvParam)abstractParam).setName(
-									PIAConstants.CV_TRYPSIN_NAME);
-							
-							enzymeName.getCvParam().add((CvParam)abstractParam);
-						} else {
-							abstractParam = new UserParam();
-							((UserParam)abstractParam).setName(
-									processingNodeParams.getValueDisplayString());
-							enzymeName.getCvParam().add((CvParam)abstractParam);
-						}
-						enzyme.setEnzymeName(enzymeName);
+		        		enzyme = MzIdentMLTools.getEnzymeFromName(processingNodeParams.getParameterValue());
 		        	} else if (paramName.equals("MaxMissedCleavages") ||
 		        			paramName.equals("MissedCleavages") ||
 		        			paramName.equals("Maximum Missed Cleavage Sites") ||

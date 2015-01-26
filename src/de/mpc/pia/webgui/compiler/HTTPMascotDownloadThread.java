@@ -135,13 +135,12 @@ public class HTTPMascotDownloadThread extends Thread {
 		tmpFilePath = null;
 		
 		try {
-			String params = "Autorefresh=false&" +
-					"Show=RESULTFILE&" + 
-					"DateDir=" + jobDatePath + "&" +  
-					"ResJob=" + downloadJobName;
+			String params = "do_export=1&"
+					+ "export_format=MascotDAT&"
+					+ "file=../data/" + jobDatePath + "/" + downloadJobName;
 			
 			URL downloadUrl = new URL("http://" + host + "/" + mascotPath +
-					"/x-cgi/ms-status.exe?" + params);
+					"/cgi/export_dat_2.pl?" + params);
 			
 			// open connection to URL
 			HttpURLConnection connection = 
@@ -150,7 +149,10 @@ public class HTTPMascotDownloadThread extends Thread {
 			// Connect to server.
 			connection.connect();
 			
+			logger.debug("connecting to " + downloadUrl.toString());
+			
 			// Make sure response code is in the 200 range.
+			logger.debug("response code: " + connection.getResponseCode());
 			if (connection.getResponseCode() / 100 != 2) {
 				messages.add("Connection error: " + connection.getResponseCode());
 				logger.error("Connection error: " + connection.getResponseCode());
@@ -225,6 +227,7 @@ public class HTTPMascotDownloadThread extends Thread {
 						new BufferedReader(new InputStreamReader(inputStream));
 				
 				String line;
+				boolean fileOk = false;
 				while ((line = reader.readLine()) != null) {
 					// look for specific lines to indicate good or bad file
 					if (line.contains("Mascot results file not found.")) {
@@ -233,8 +236,14 @@ public class HTTPMascotDownloadThread extends Thread {
 						break;
 					} else if (line.contains("Content-Type: application/x-Mascot")) {
 						// ok, this is a DAT file
+						fileOk = true;
 						break;
 					}
+				}
+				
+				if (!fileOk) {
+					// no line with "Content-Type: application/x-Mascot" found, return error
+					messages.add("Error checking for valid DAT file, the file is no valid mascot search file!");
 				}
 				
 				reader.close();

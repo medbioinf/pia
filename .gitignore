@@ -1,5 +1,7 @@
 /bin
 
+/*.log
+
 # eclipse files
 .classpath
 .project

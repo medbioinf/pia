@@ -3,8 +3,10 @@ package de.mpc.pia.tools;
 import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
+import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 import uk.ac.ebi.jmzidml.model.mzidml.FileFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.Param;
+import uk.ac.ebi.jmzidml.model.mzidml.ParamList;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 
@@ -219,6 +221,44 @@ public class MzIdentMLTools {
 		}
 		
 		return false;
+	}
+	
+	
+	/**
+	 * Create an {@link Enzyme} corresponding to the given name
+	 * 
+	 * @param enzymeString
+	 * @return
+	 */
+	public static Enzyme getEnzymeFromName(String enzymeString) {
+		if ((enzymeString == null) || (enzymeString.trim().length() == 0)) {
+			return null;
+		}
+		
+		CleavageAgent agent = CleavageAgent.getByName(enzymeString);
+		Enzyme enzyme = new Enzyme();
+		ParamList paramList = new ParamList();
+		
+		if (agent != null) {
+			CvParam cvParam = new CvParam();
+			cvParam.setAccession(agent.getAccession());
+			cvParam.setCv(MzIdentMLTools.getCvPSIMS());
+			cvParam.setName(agent.getName());
+			
+			enzyme.setSiteRegexp(agent.getSiteRegexp());
+			
+			paramList.getCvParam().add(cvParam);
+			enzyme.setId("enzyme_" + cvParam.getAccession());
+		} else {
+			UserParam userParam = new UserParam();
+			userParam.setName(enzymeString);
+			
+			paramList.getUserParam().add(userParam);
+			enzyme.setId("enzyme_" + userParam.getName());
+		}
+		
+		enzyme.setEnzymeName(paramList);
+		return enzyme;
 	}
 	
 	

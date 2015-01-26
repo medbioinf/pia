@@ -432,8 +432,7 @@ public class MascotDatFileParser {
 			
 			enzyme.setId("enzyme");
 			enzyme.setMissedCleavages(
-					Integer.parseInt(
-							mascotFile.getParametersSection().getPFA()));
+					Integer.parseInt(mascotFile.getParametersSection().getPFA()));
 			
 			StringBuilder regExp = new StringBuilder();
 			if (enzymeRestrict == null) {

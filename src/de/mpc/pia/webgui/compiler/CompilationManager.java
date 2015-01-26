@@ -324,7 +324,7 @@ public class CompilationManager implements Runnable {
 				
 				br.close();
 			} catch (IOException e) {
-				logger.error("Error while trying to get ");
+				logger.error("Error while trying to get " + files[i]);
 			}
 			
 			if (compName == null) {
