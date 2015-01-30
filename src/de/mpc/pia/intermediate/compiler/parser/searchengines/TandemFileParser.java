@@ -254,7 +254,7 @@ public class TandemFileParser {
 		param.setParam(abstractParam);
 		tandem.setSoftwareName(param);
 		
-		compiler.putIntoSoftwareMap(tandem);
+		tandem = compiler.putIntoSoftwareMap(tandem);
 		
 		// TODO: add refinement (modifications and all other stuff
 		

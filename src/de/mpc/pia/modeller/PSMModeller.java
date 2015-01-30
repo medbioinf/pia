@@ -33,6 +33,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvList;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.DBSequence;
+import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 import uk.ac.ebi.jmzidml.model.mzidml.FileFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.InputSpectra;
 import uk.ac.ebi.jmzidml.model.mzidml.Inputs;
@@ -96,6 +97,7 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 import de.mpc.pia.modeller.score.comparator.RankCalculator;
 import de.mpc.pia.modeller.score.comparator.ScoreComparator;
+import de.mpc.pia.tools.CleavageAgent;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.obo.OBOMapper;
 import de.mpc.pia.tools.unimod.UnimodParser;
@@ -2492,11 +2494,29 @@ public class PSMModeller {
 							(specIdProt.getEnzymes().getEnzyme().size() < 1)) {
 						// no enzymes given, sad, but possible
 						specIdProt.setEnzymes(null);
+					} else if (specIdProt.getEnzymes() != null) {
+						// if there are enzymes, check whether they can be given names by their regexp
+						for (Enzyme enzyme : specIdProt.getEnzymes().getEnzyme()) {
+							if ((enzyme.getEnzymeName() == null) && (enzyme.getSiteRegexp() != null)) {
+								CleavageAgent agent = CleavageAgent.getBySiteRegexp(enzyme.getSiteRegexp());
+								if (agent != null) {
+									ParamList enzymeNameList = new ParamList();
+									
+									CvParam cvParam = new CvParam();
+									cvParam.setAccession(agent.getAccession());
+									cvParam.setCv(psiCV);
+									cvParam.setName(agent.getName());
+									
+									enzymeNameList.getCvParam().add(cvParam);
+									enzyme.setEnzymeName(enzymeNameList);
+								}
+							}
+						}
 					}
+					
 					if (specIdProt.getAdditionalSearchParams() == null) {
 						specIdProt.setAdditionalSearchParams(new ParamList());
 					}
-					
 					
 					for (SearchModification mod
 							: specIdProt.getModificationParams().getSearchModification()) {
@@ -2902,20 +2922,21 @@ public class PSMModeller {
 			}
 			
 			String dbRef = null;
+			CvParam descCvParam = new CvParam();
+			descCvParam.setAccession("MS:1001088");
+			descCvParam.setName(
+					"protein description");
+			descCvParam.setCv(psiCV);
+			
 			// look for a good description
-			for (Map.Entry<Long, String> descIt
-					: accession.getDescriptions().entrySet()) {
-				if ((descIt.getValue() != null) &&
-						(descIt.getValue().trim().length() > 0)) {
+			for (Map.Entry<Long, String> descIt : accession.getDescriptions().entrySet()) {
+				
+				if ((descIt.getValue() != null) && (descIt.getValue().trim().length() > 0)) {
 					// take this description and DBsequence_ref
-					CvParam tempCvParam = new CvParam();
-					tempCvParam.setAccession("MS:1001088");
-					tempCvParam.setName(
-							"protein description");
-					tempCvParam.setCv(psiCV);
-					tempCvParam.setValue(descIt.getValue());
-					dbSequence.getCvParam().add(
-							tempCvParam);
+					if ((descCvParam.getValue() == null) ||
+							(descIt.getValue().trim().length() > descCvParam.getValue().length())) {
+						descCvParam.setValue(descIt.getValue().trim());
+					}
 					
 					for (String ref : accession.getSearchDatabaseRefs()) {
 						if (dbsInFiles.get(ref).contains(descIt.getKey())) {
@@ -2923,6 +2944,10 @@ public class PSMModeller {
 						}
 					}
 				}
+			}
+			
+			if ((descCvParam.getValue() != null)) {
+				dbSequence.getCvParam().add(descCvParam);
 			}
 			
 			if (dbRef == null) {

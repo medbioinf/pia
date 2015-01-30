@@ -36,6 +36,26 @@ public enum CleavageAgent {
 		}
 	},
 	
+	/**
+	 * Tandem prefers to write the SiteRegexp with switched KR
+	 */
+	TRYPSIN_TANDEM {
+		@Override
+		public String getName() {
+			return "Trypsin";
+		}
+		
+		@Override
+		public String getAccession() {
+			return "MS:1001251";
+		}
+		
+		@Override
+		public String getSiteRegexp() {
+			return "(?<=[RK])(?!P)";
+		}
+	},
+	
 	ARGC {
 		@Override
 		public String getName() {
@@ -314,6 +334,24 @@ public enum CleavageAgent {
 				if (enzName.equalsIgnoreCase(name)) {
 					return enzyme;
 				}
+			}
+		}
+		
+		return null;
+	}
+	
+	
+	/**
+	 * Gets the {@link CleavageAgent} with the given site regExpt. If
+	 * there is none, returns null.
+	 * 
+	 * @param regexp
+	 * @return
+	 */
+	public static CleavageAgent getBySiteRegexp(String regexp) {
+		for (CleavageAgent enzyme : values()) {
+			if (enzyme.getSiteRegexp().equals(regexp)) {
+				return enzyme;
 			}
 		}
 		

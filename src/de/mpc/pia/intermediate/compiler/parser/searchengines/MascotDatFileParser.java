@@ -177,7 +177,7 @@ public class MascotDatFileParser {
 		param.setParam(abstractParam);
 		mascot.setSoftwareName(param);
 		
-		compiler.putIntoSoftwareMap(mascot);
+		mascot = compiler.putIntoSoftwareMap(mascot);
 		
 		
 		// create the searchDatabase and add it to the compiler

@@ -135,7 +135,7 @@ public class IdXMLFileParser {
 			param.setParam(abstractParam);
 			topp.setSoftwareName(param);
 			
-			compiler.putIntoSoftwareMap(topp);
+			topp = compiler.putIntoSoftwareMap(topp);
 			
 			// define the spectrumIdentificationProtocol
 			SearchParameters searchParameters =

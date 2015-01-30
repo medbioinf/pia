@@ -134,8 +134,8 @@ public class ThermoMSFFileParser {
 			
 			if (software != null) {
 				// add the software
-				nodeNumbersToSoftwares.put(node.getProcessingNodeNumber(),
-						compiler.putIntoSoftwareMap(software));
+				software = compiler.putIntoSoftwareMap(software);
+				nodeNumbersToSoftwares.put(node.getProcessingNodeNumber(), software);
 				
 				// get all additional data
 				SearchDatabase searchDatabase = null;
