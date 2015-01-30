@@ -160,11 +160,6 @@ public class MascotDatFileParser {
 		PIAInputFile file = compiler.insertNewFile(name, fileName,
 				InputFileParserFactory.InputFileTypes.MASCOT_DAT_INPUT.getFileSuffix());
 		
-		Cv psiMS = new Cv();
-		psiMS.setId("PSI-MS");
-		psiMS.setFullName("PSI-MS");
-		psiMS.setUri("http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
-		
 		// create the analysis software and add it to the compiler
 		AnalysisSoftware mascot = new AnalysisSoftware();
 		
@@ -177,7 +172,7 @@ public class MascotDatFileParser {
 		Param param = new Param();
 		abstractParam = new CvParam();
 		((CvParam)abstractParam).setAccession("MS:1001207");
-		((CvParam)abstractParam).setCv(psiMS);
+		((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
 		abstractParam.setName("Mascot");
 		param.setParam(abstractParam);
 		mascot.setSoftwareName(param);
@@ -200,7 +195,7 @@ public class MascotDatFileParser {
 		FileFormat fileFormat = new FileFormat();
 		abstractParam = new CvParam();
 		((CvParam)abstractParam).setAccession("MS:1001348");
-		((CvParam)abstractParam).setCv(psiMS);
+		((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
 		abstractParam.setName("FASTA format");
 		fileFormat.setCvParam((CvParam)abstractParam);
 		searchDatabase.setFileFormat(fileFormat);
@@ -230,16 +225,15 @@ public class MascotDatFileParser {
 				
 				abstractParam = new CvParam();
 				((CvParam)abstractParam).setAccession("MS:1001062");
-				((CvParam)abstractParam).setCv(psiMS);
+				((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
 				abstractParam.setName("Mascot MGF file");
 				fileFormat.setCvParam((CvParam)abstractParam);
 				spectraData.setFileFormat(fileFormat);
 				
-				
 				SpectrumIDFormat idFormat = new SpectrumIDFormat();
 				abstractParam = new CvParam();
 				((CvParam)abstractParam).setAccession("MS:1000774");
-				((CvParam)abstractParam).setCv(psiMS);
+				((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
 				abstractParam.setName("multiple peak list nativeID format");
 				idFormat.setCvParam((CvParam)abstractParam);
 				spectraData.setSpectrumIDFormat(idFormat);
@@ -261,7 +255,7 @@ public class MascotDatFileParser {
 		if (mascotFile.getParametersSection().getSearch().equals("MIS")) {
 			abstractParam = new CvParam();
 			((CvParam)abstractParam).setAccession("MS:1001083");
-			((CvParam)abstractParam).setCv(psiMS);
+			((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
 			abstractParam.setName("ms-ms search");
 			param.setParam(abstractParam);
 		}
@@ -272,7 +266,7 @@ public class MascotDatFileParser {
 		ParamList paramList = new ParamList();
 		abstractParam = new CvParam();
 		((CvParam)abstractParam).setAccession("MS:1001656");
-		((CvParam)abstractParam).setCv(psiMS);
+		((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
 		abstractParam.setName("Mascot:Instrument");
 		abstractParam.setValue(mascotFile.getParametersSection().getInstrument());
 		paramList.getCvParam().add((CvParam)abstractParam);
@@ -286,142 +280,37 @@ public class MascotDatFileParser {
 				equalsIgnoreCase("Monoisotopic")) {
 			abstractParam = new CvParam();
     		((CvParam)abstractParam).setAccession("MS:1001256");
-    		((CvParam)abstractParam).setCv(psiMS);
+    		((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
     		abstractParam.setName("fragment mass type mono");
     		paramList.getCvParam().add((CvParam)abstractParam);
     		
 			abstractParam = new CvParam();
     		((CvParam)abstractParam).setAccession("MS:1001211");
-    		((CvParam)abstractParam).setCv(psiMS);
+    		((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
     		abstractParam.setName("parent mass type mono");
     		paramList.getCvParam().add((CvParam)abstractParam);
         } else {
     		abstractParam = new CvParam();
     		((CvParam)abstractParam).setAccession("MS:1001255");
-    		((CvParam)abstractParam).setCv(psiMS);
+    		((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
     		abstractParam.setName("fragment mass type average");
     		paramList.getCvParam().add((CvParam)abstractParam);
     		
 			abstractParam = new CvParam();
     		((CvParam)abstractParam).setAccession("MS:1001212");
-    		((CvParam)abstractParam).setCv(psiMS);
+    		((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
     		abstractParam.setName("parent mass type average");
     		paramList.getCvParam().add((CvParam)abstractParam);
         }
 		
 		spectrumIDProtocol.setAdditionalSearchParams(paramList);
 		
-		
 		ModificationParams modParams = new ModificationParams();
-		SearchModification searchMod;
 		for (Object objMod : mascotFile.getModificationList().getVariableModifications()) {
-			if (objMod instanceof VariableModification) {
-				VariableModification mod = (VariableModification)objMod;
-				
-				searchMod = new SearchModification();
-				searchMod.setFixedMod(false);
-				
-				if (mod.getLocation().equalsIgnoreCase("N-Term") || mod.getLocation().equalsIgnoreCase("Protein N-Term") || 
-						mod.getLocation().equalsIgnoreCase("C-Term") || mod.getLocation().equalsIgnoreCase("Protein C-Term")) {
-					CvParam  specificity = new CvParam();
-					specificity.setCv(psiMS);
-					
-					if (mod.getLocation().equalsIgnoreCase("N-Term")) {
-						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION);
-						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_NAME);
-					} else if (mod.getLocation().equalsIgnoreCase("Protein N-Term")) {
-						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_ACCESSION);
-						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_NAME);
-					} else if (mod.getLocation().equalsIgnoreCase("C-Term")) {
-						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION);
-						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_NAME);
-					} else if (mod.getLocation().equalsIgnoreCase("Protein C-Term")) {
-						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_ACCESSION);
-						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_NAME);
-					}
-					
-					SpecificityRules specRules = new SpecificityRules();
-					specRules.getCvParam().add(specificity);
-					searchMod.getSpecificityRules().add(specRules);
-					
-					searchMod.getResidues().add(".");
-				} else {
-					for (Character residue : mod.getLocation().toCharArray()) {
-						searchMod.getResidues().add(residue.toString());
-					}
-				}
-				searchMod.setMassDelta((float)mod.getMass());
-				
-				ModT unimod =
-						compiler.getUnimodParser().getModificationByNameAndMass(
-								mod.getType(),
-								mod.getMass(),
-								searchMod.getResidues());
-				if (unimod != null) {
-					CvParam cvParam = new CvParam();
-					cvParam.setAccession("UNIMOD:" + unimod.getRecordId());
-					cvParam.setCv(UnimodParser.getCv());
-					cvParam.setName(unimod.getTitle());
-					searchMod.getCvParam().add(cvParam);
-				}
-				
-				modParams.getSearchModification().add(searchMod);
-			}
+			modParams.getSearchModification().add(createPSIModification((VariableModification)objMod, compiler.getUnimodParser()));
 		}
 		for (Object objMod : mascotFile.getModificationList().getFixedModifications()) {
-			if (objMod instanceof FixedModification) {
-				FixedModification mod = (FixedModification)objMod;
-				
-				searchMod = new SearchModification();
-				searchMod.setFixedMod(true);
-				
-				if (mod.getLocation().equalsIgnoreCase("N-Term") || mod.getLocation().equalsIgnoreCase("Protein N-Term") || 
-						mod.getLocation().equalsIgnoreCase("C-Term") || mod.getLocation().equalsIgnoreCase("Protein C-Term")) {
-					CvParam  specificity = new CvParam();
-					specificity.setCv(psiMS);
-					
-					if (mod.getLocation().equalsIgnoreCase("N-Term")) {
-						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION);
-						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_NAME);
-					} else if (mod.getLocation().equalsIgnoreCase("Protein N-Term")) {
-						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_ACCESSION);
-						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_NAME);
-					} else if (mod.getLocation().equalsIgnoreCase("C-Term")) {
-						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION);
-						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_NAME);
-					} else if (mod.getLocation().equalsIgnoreCase("Protein C-Term")) {
-						specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_ACCESSION);
-						specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_NAME);
-					}
-					
-					SpecificityRules specRules = new SpecificityRules();
-					specRules.getCvParam().add(specificity);
-					searchMod.getSpecificityRules().add(specRules);
-					
-					searchMod.getResidues().add(".");
-				} else {
-					for (Character residue : mod.getLocation().toCharArray()) {
-						searchMod.getResidues().add(residue.toString());
-					}
-				}
-				
-				searchMod.setMassDelta((float)mod.getMass());
-				
-				ModT unimod =
-						compiler.getUnimodParser().getModificationByNameAndMass(
-								mod.getType(),
-								mod.getMass(),
-								searchMod.getResidues());
-				if (unimod != null) {
-					CvParam cvParam = new CvParam();
-					cvParam.setAccession("UNIMOD:" + unimod.getRecordId());
-					cvParam.setCv(UnimodParser.getCv());
-					cvParam.setName(unimod.getTitle());
-					searchMod.getCvParam().add(cvParam);
-				}
-				
-				modParams.getSearchModification().add(searchMod);
-			}
+			modParams.getSearchModification().add(createPSIModification((FixedModification)objMod, compiler.getUnimodParser()));
 		}
 		spectrumIDProtocol.setModificationParams(modParams);
 		
@@ -455,7 +344,7 @@ public class MascotDatFileParser {
 		
 		abstractParam = new CvParam();
 		((CvParam)abstractParam).setAccession("MS:1001412");
-		((CvParam)abstractParam).setCv(psiMS);
+		((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
 		abstractParam.setName("search tolerance plus value");
 		abstractParam.setValue(mascotFile.getParametersSection().getITOL());
 		MzIdentMLTools.setUnitParameterFromString(
@@ -464,7 +353,7 @@ public class MascotDatFileParser {
 		
 		abstractParam = new CvParam();
 		((CvParam)abstractParam).setAccession("MS:1001413");
-		((CvParam)abstractParam).setCv(psiMS);
+		((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
 		abstractParam.setName("search tolerance minus value");
 		abstractParam.setValue(mascotFile.getParametersSection().getITOL());
 		MzIdentMLTools.setUnitParameterFromString(
@@ -478,7 +367,7 @@ public class MascotDatFileParser {
 		
 		abstractParam = new CvParam();
 		((CvParam)abstractParam).setAccession("MS:1001412");
-		((CvParam)abstractParam).setCv(psiMS);
+		((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
 		abstractParam.setName("search tolerance plus value");
 		abstractParam.setValue(mascotFile.getParametersSection().getTOL());
 		MzIdentMLTools.setUnitParameterFromString(
@@ -487,7 +376,7 @@ public class MascotDatFileParser {
 		
 		abstractParam = new CvParam();
 		((CvParam)abstractParam).setAccession("MS:1001413");
-		((CvParam)abstractParam).setCv(psiMS);
+		((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
 		abstractParam.setName("search tolerance minus value");
 		abstractParam.setValue(mascotFile.getParametersSection().getTOL());
 		MzIdentMLTools.setUnitParameterFromString(
@@ -501,7 +390,7 @@ public class MascotDatFileParser {
 		paramList = new ParamList();
 		abstractParam = new CvParam();
 		((CvParam)abstractParam).setAccession("MS:1001494");
-		((CvParam)abstractParam).setCv(psiMS);
+		((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
 		abstractParam.setName("no threshold");
 		paramList.getCvParam().add((CvParam)abstractParam);
 		spectrumIDProtocol.setThreshold(paramList);
@@ -743,5 +632,70 @@ public class MascotDatFileParser {
 		}
 		
 		return nrPepHits;
+	}
+	
+	
+	
+	private static SearchModification createPSIModification(com.compomics.mascotdatfile.util.interfaces.Modification mod, UnimodParser uniModParser) {
+		SearchModification searchMod = new SearchModification();
+		
+		if (mod instanceof VariableModification) {
+			searchMod.setFixedMod(false);
+		} else {
+			searchMod.setFixedMod(true);
+		}
+		
+		if (mod.getLocation().contains("term") || mod.getLocation().contains("Term")) {
+			CvParam  specificity = new CvParam();
+			specificity.setCv(MzIdentMLTools.getCvPSIMS());
+			
+			if (mod.getLocation().startsWith("Protein N")) {
+				specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_ACCESSION);
+				specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_N_TERM_NAME);
+			} else if (mod.getLocation().startsWith("Protein C")) {
+				specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_ACCESSION);
+				specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PROTEIN_C_TERM_NAME);
+			} else if (mod.getLocation().startsWith("N")) {
+				specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION);
+				specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_NAME);
+			} else if (mod.getLocation().startsWith("C")) {
+				specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION);
+				specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_NAME);
+			}
+			
+			SpecificityRules specRules = new SpecificityRules();
+			specRules.getCvParam().add(specificity);
+			searchMod.getSpecificityRules().add(specRules);
+			
+			String[] residues = mod.getLocation().split("erm");
+			if (residues.length > 1) {
+				for (Character residue : residues[1].trim().toCharArray()) {
+					if (residue != ' ') {
+						searchMod.getResidues().add(residue.toString());
+					}
+				}
+			} else {
+				searchMod.getResidues().add(".");
+			}
+		} else {
+			for (Character residue : mod.getLocation().toCharArray()) {
+				searchMod.getResidues().add(residue.toString());
+			}
+		}
+		searchMod.setMassDelta((float)mod.getMass());
+		
+		ModT unimod = uniModParser.getModificationByNameAndMass(
+						mod.getType(),
+						mod.getMass(),
+						searchMod.getResidues());
+		if (unimod != null) {
+			CvParam cvParam = new CvParam();
+			cvParam.setAccession("UNIMOD:" + unimod.getRecordId());
+			cvParam.setCv(UnimodParser.getCv());
+			cvParam.setName(unimod.getTitle());
+			searchMod.getCvParam().add(cvParam);
+		}
+		
+		return searchMod;
 	}
 }
