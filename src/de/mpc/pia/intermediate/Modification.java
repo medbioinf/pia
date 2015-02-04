@@ -2,6 +2,8 @@ package de.mpc.pia.intermediate;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 /**
  * A ModificationType describes the type of a modification via its amino acids,
@@ -36,6 +38,7 @@ public class Modification {
 		// we have a four digit formatter
 		// TODO: this may be set up somewhere
 		df = new DecimalFormat("0.####");
+		df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
 		df.setRoundingMode(RoundingMode.HALF_UP);
 	}
 	
