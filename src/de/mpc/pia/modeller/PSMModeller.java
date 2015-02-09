@@ -2564,7 +2564,7 @@ public class PSMModeller {
 								PIAConstants.CV_PIA_USED_TOP_IDENTIFICATIONS_ACCESSION);
 						tempCvParam.setCv(psiCV);
 						tempCvParam.setName(
-								PIAConstants.CV_PIA_USED_TOP_IDENTIFICATIONS_ACCESSION);
+								PIAConstants.CV_PIA_USED_TOP_IDENTIFICATIONS_NAME);
 						tempCvParam.setValue(
 								fileTopIdentifications.get(file.getID()).toString());
 						

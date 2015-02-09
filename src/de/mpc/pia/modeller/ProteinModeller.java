@@ -1440,8 +1440,11 @@ public class ProteinModeller {
 						ph.setPeptideEvidence(
 								pepEvidenceMap.get(evidenceID));
 						
-						
-						
+						if (ph.getPeptideEvidence() == null) {
+							logger.error("could not find peptideEvidence for '" + evidenceID + "'! "
+									+ "This may happen, if you use different accessions in your databases/search engines.");
+							return null;
+						}
 						
 						peptideHypotheses.put(evidenceID, ph);
 						pdh.getPeptideHypothesis().add(ph);

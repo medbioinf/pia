@@ -29,6 +29,7 @@ public class FastaHeaderInfos {
 			
 			@Override
 			public String matchRegex() {
+				// TODO: use official regex!
 				return "^>?(?:sp|tr)\\|[^|]+\\|.*$";
 			}
 			
@@ -42,6 +43,33 @@ public class FastaHeaderInfos {
 				if (matcher.matches()) {
 					return new FastaHeaderInfos(this, matcher.group(1),
 							matcher.group(2).trim());
+				}
+				else {
+					return null;
+				}
+			}
+		},
+		
+		UNIPROT_SHORTENED {
+			@Override
+			public String getName() {
+				return "UniProt_short";
+			}
+			
+			@Override
+			public String matchRegex() {
+				return "^(?:(?:[OPQ][0-9][A-Z0-9]{3}[0-9])|(?:[A-NR-Z][0-9](?:[A-Z][A-Z0-9]{2}[0-9]){1,2}))\\|[^ ]+_[^ ]+.*$";
+			}
+			
+			@Override
+			public FastaHeaderInfos parseHeader(String header) {
+				Matcher matcher;
+				Pattern pattern = Pattern.compile("^((?:[OPQ][0-9][A-Z0-9]{3}[0-9])|(?:[A-NR-Z][0-9](?:[A-Z][A-Z0-9]{2}[0-9]){1,2}))\\|([^ ]+_[^ ]+).*$");
+				
+				matcher = pattern.matcher(header);
+				
+				if (matcher.matches()) {
+					return new FastaHeaderInfos(this, matcher.group(1), matcher.group(2).trim());
 				}
 				else {
 					return null;

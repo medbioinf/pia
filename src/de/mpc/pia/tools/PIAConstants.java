@@ -105,7 +105,7 @@ public class PIAConstants {
 	/** accession for the "PIA:used top identifications for FDR" in PSI-MS */
 	public static final String CV_PIA_USED_TOP_IDENTIFICATIONS_ACCESSION = "MS:1002393";
 	/** name for the "PIA:used top identifications for FDR" in PSI-MS */
-	public static final String CV_PIA_USED_TOP_IDENTIFICATIONS_DNAME = "PIA:used top identifications for FDR";
+	public static final String CV_PIA_USED_TOP_IDENTIFICATIONS_NAME = "PIA:used top identifications for FDR";
 	
 	/** accession for the "PIA protein score" in PSI-MS */
 	public static final String CV_PIA_PROTEIN_SCORE_ACCESSION = "MS:1002394";
