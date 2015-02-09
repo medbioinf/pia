@@ -13,6 +13,7 @@ peptides and proteins.
 
 ![PIA - Logo](https://github.com/mpc-bioinformatics/pia/wiki/pia_logo.png)
 
+
 PIA in a nutshell
 ===
 
@@ -38,6 +39,12 @@ allow for any adjustments needed by the user.
 PIA can be called via the command line, via
 [GenericKnimeNodes](https://github.com/genericworkflownodes/GenericKnimeNodes) in
 KNIME or using the JavaServer Faces web-interface.
+
+
+Download
+===
+
+Download the latest released version [here](https://github.com/mpc-bioinformatics/pia/releases/latest)
 
 
 Documentation
