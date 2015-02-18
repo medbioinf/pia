@@ -297,6 +297,28 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 			return score_prefix + ScoreModelEnum.AMANDA_SCORE.getShortName();
 		}
 	},
+	OPENMS_POSTERIOR_ERROR_PROBABILITY_SORT {
+		public int compare(PSMReportItem o1, PSMReportItem o2) {
+			ScoreComparator<PSMReportItem> comp =
+					new ScoreComparator<PSMReportItem>(ScoreModelEnum.OPENMS_POSTERIOR_ERROR_PROBABILITY.getShortName());
+			return comp.compare(o1, o2);
+		}
+		
+		public String toString() {
+			return score_prefix + ScoreModelEnum.OPENMS_POSTERIOR_ERROR_PROBABILITY.getShortName();
+		}
+	},
+	OPENMS_POSTERIOR_PROBABILITY_SORT {
+		public int compare(PSMReportItem o1, PSMReportItem o2) {
+			ScoreComparator<PSMReportItem> comp =
+					new ScoreComparator<PSMReportItem>(ScoreModelEnum.OPENMS_POSTERIOR_PROBABILITY.getShortName());
+			return comp.compare(o1, o2);
+		}
+		
+		public String toString() {
+			return score_prefix + ScoreModelEnum.OPENMS_POSTERIOR_PROBABILITY.getShortName();
+		}
+	},
 	
 	
 	FASTA_SEQUENCE_COUNT_SCORE_SORT {

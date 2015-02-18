@@ -3,11 +3,14 @@ package de.mpc.pia.modeller.score;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.mpc.pia.modeller.psm.PSMReportItemComparator;
 import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.tools.PIAConstants;
 
 /**
  * This enumeration registers all {@link ScoreModel}s.
+ * <p>
+ * Also set the {@link PSMReportItemComparator}, if adding a new score!!
  * 
  * @author julian
  *
@@ -275,6 +278,7 @@ public enum ScoreModelEnum {
 			descs.add("mascot score");
 			descs.add("Mascot score");
 			descs.add("Mascot_openmsmainscore");
+			descs.add("Mascot_Mascot_score");
 			descs.add(getShortName());
 			descs.add(getCvAccession());
 			descs.add(getCvName());
@@ -512,6 +516,7 @@ public enum ScoreModelEnum {
 			descs.add("Hyperscore");
 			descs.add("hyperscore");
 			descs.add("XTandem_openmsmainscore");
+			descs.add("XTandem_XTandem_score");
 			descs.add(getShortName());
 			descs.add(getCvAccession());
 			descs.add(getCvName());
@@ -737,6 +742,91 @@ public enum ScoreModelEnum {
 			descs.add(getShortName());
 			descs.add(getCvAccession());
 			descs.add(getCvName());
+			
+			return descs;
+		}
+	},
+	
+	/**
+	 * The OpenMS Posterior Error Probability
+	 */
+	OPENMS_POSTERIOR_ERROR_PROBABILITY {
+		@Override
+		public String getName() {
+			return "OpenMS Posterior Error Probability";
+		}
+		
+		@Override
+		public String getShortName() {
+			return "openms_posterior_error_probability";
+		}
+		
+		@Override
+		public String getCvAccession() {
+			return "NO_CV_" + getShortName();
+		}
+		
+		@Override
+		public String getCvName() {
+			return "(cvName not set for " + getShortName();
+		}
+		
+		@Override
+		public Boolean higherScoreBetter() {
+			return false;
+		}
+		
+		@Override
+		public List<String> getValidDescriptors() {
+			List<String> descs = new ArrayList<String>();
+			
+			descs.add("Posterior Error Probability_openmsmainscore");
+			descs.add(getCvAccession());
+			descs.add(getName());
+			descs.add(getName().toLowerCase());
+			descs.add(getShortName());
+			
+			return descs;
+		}
+	},
+	/**
+	 * The OpenMS Posterior Probability
+	 */
+	OPENMS_POSTERIOR_PROBABILITY {
+		@Override
+		public String getName() {
+			return "OpenMS Posterior Probability";
+		}
+		
+		@Override
+		public String getShortName() {
+			return "openms_posterior_probability";
+		}
+		
+		@Override
+		public String getCvAccession() {
+			return "NO_CV_" + getShortName();
+		}
+		
+		@Override
+		public String getCvName() {
+			return "(cvName not set for " + getShortName();
+		}
+		
+		@Override
+		public Boolean higherScoreBetter() {
+			return true;
+		}
+		
+		@Override
+		public List<String> getValidDescriptors() {
+			List<String> descs = new ArrayList<String>();
+			
+			descs.add("Posterior Probability_openmsmainscore");
+			descs.add(getCvAccession());
+			descs.add(getName());
+			descs.add(getName().toLowerCase());
+			descs.add(getShortName());
 			
 			return descs;
 		}

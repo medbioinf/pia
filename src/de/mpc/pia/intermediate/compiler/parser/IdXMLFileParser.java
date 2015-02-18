@@ -424,7 +424,7 @@ public class IdXMLFileParser {
 						
 						// try another alternative
 						scoreModel = ScoreModelEnum.getModelByDescription(
-								idRun.getSearchEngine() + " " +
+								idRun.getSearchEngine() + "_" +
 								pepID.getScoreType());
 						
 						if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
@@ -444,13 +444,13 @@ public class IdXMLFileParser {
 						}
 					}
 					
-					// add additional userParams
+					// add additional userParams Scores
 					for (de.mpc.pia.tools.openms.jaxb.UserParam userParam
 							: pepHit.getUserParam()) {
 						// test for any other (known) scores
 						if (userParam.getType().equals(UserParamType.FLOAT)) {
 							scoreModel = ScoreModelEnum.getModelByDescription(
-									pepID.getScoreType() + "_" + userParam.getName());
+									idRun.getSearchEngine() + "_" + userParam.getName());
 							
 							if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
 								score = new ScoreModel(
