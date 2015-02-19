@@ -243,6 +243,11 @@ public class PIAConstants {
 	/** name for "Amanda Score" in PSI-MS */
 	public static final String CV_AMANDA_SCORE_NAME = "Amanda:AmandaScore";
 	
+	/** accession for "PSM-level q-value" in PSI-MS */
+	public static final String CV_PSM_LEVEL_QVALUE_ACCESSION = "MS:1002354";
+	/** name for "PSM-level q-value" in PSI-MS */
+	public static final String CV_PSM_LEVEL_QVALUE_NAME = "PSM-level q-value";
+
 	/** accession for "PSM-level FDRScore" in PSI-MS */
 	public static final String CV_PSM_LEVEL_FDRSCORE_ACCESSION = "MS:1002355";
 	/** name for "PSM-level FDRScore" in PSI-MS */

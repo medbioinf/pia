@@ -132,7 +132,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	},
 	
 	// the scores
-	FDR_SCORE_SORT {
+	PSM_FDR_SCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
 					new ScoreComparator<PSMReportItem>(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
@@ -141,6 +141,17 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 		
 		public String toString() {
 			return score_prefix + ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName();
+		}
+	},
+	PSM_Q_VALUE_SCORE_SORT {
+		public int compare(PSMReportItem o1, PSMReportItem o2) {
+			ScoreComparator<PSMReportItem> comp =
+					new ScoreComparator<PSMReportItem>(ScoreModelEnum.PSM_LEVEL_Q_VALUE.getShortName());
+			return comp.compare(o1, o2);
+		}
+		
+		public String toString() {
+			return score_prefix + ScoreModelEnum.PSM_LEVEL_Q_VALUE.getShortName();
 		}
 	},
 	AVERAGE_FDR_SCORE_SORT {
@@ -317,6 +328,17 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 		
 		public String toString() {
 			return score_prefix + ScoreModelEnum.OPENMS_POSTERIOR_PROBABILITY.getShortName();
+		}
+	},
+	OPENMS_CONSENSUS_PEPMATRIX_PEP_SORT {
+		public int compare(PSMReportItem o1, PSMReportItem o2) {
+			ScoreComparator<PSMReportItem> comp =
+					new ScoreComparator<PSMReportItem>(ScoreModelEnum.OPENMS_CONSENSUS_PEPMATRIX_POSTERIOR_ERROR_PROBABILITY.getShortName());
+			return comp.compare(o1, o2);
+		}
+		
+		public String toString() {
+			return score_prefix + ScoreModelEnum.OPENMS_CONSENSUS_PEPMATRIX_POSTERIOR_ERROR_PROBABILITY.getShortName();
 		}
 	},
 	

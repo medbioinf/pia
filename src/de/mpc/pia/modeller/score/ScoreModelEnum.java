@@ -190,6 +190,50 @@ public enum ScoreModelEnum {
 		}
 	},
 	/**
+	 * This Score implements the PSM level q-value.
+	 */
+	PSM_LEVEL_Q_VALUE {
+		@Override
+		public String getName() {
+			return "PSM q-value";
+		}
+		
+		@Override
+		public String getShortName() {
+			return "psm_q_value";
+		}
+		
+		@Override
+		public String getCvAccession() {
+			return PIAConstants.CV_PSM_LEVEL_QVALUE_ACCESSION;
+		}
+		
+		@Override
+		public String getCvName() {
+			return PIAConstants.CV_PSM_LEVEL_QVALUE_NAME;
+		}
+
+		@Override
+		public Boolean higherScoreBetter() {
+			return false;
+		}
+		
+		@Override
+		public List<String> getValidDescriptors() {
+			List<String> descs = new ArrayList<String>();
+			
+			descs.add(getName());
+			descs.add(getName().toLowerCase());
+			descs.add(getShortName());
+			descs.add(getCvAccession());
+			descs.add(getCvName());
+			descs.add("q-value_openmsmainscore");
+			descs.add("q-value");
+			
+			return descs;
+		}
+	},
+	/**
 	 *  This Score implements the Mascot expectation value
 	 */
 	MASCOT_EXPECT {
@@ -831,7 +875,49 @@ public enum ScoreModelEnum {
 			return descs;
 		}
 	},
-	
+	/**
+	 * The OpenMS Posterior Probability
+	 */
+	OPENMS_CONSENSUS_PEPMATRIX_POSTERIOR_ERROR_PROBABILITY {
+		@Override
+		public String getName() {
+			return "OpenMS Consensus PEPMatrix (Posterior Error Probability)";
+		}
+		
+		@Override
+		public String getShortName() {
+			return "openms_consensus_pepmatrix_pep";
+		}
+		
+		@Override
+		public String getCvAccession() {
+			return "NO_CV_" + getShortName();
+		}
+		
+		@Override
+		public String getCvName() {
+			return "(cvName not set for " + getShortName();
+		}
+		
+		@Override
+		public Boolean higherScoreBetter() {
+			return true;
+		}
+		
+		@Override
+		public List<String> getValidDescriptors() {
+			List<String> descs = new ArrayList<String>();
+			
+			descs.add("Consensus_PEPMatrix (Posterior Error Probability)_score");
+			descs.add("Consensus_PEPMatrix (Posterior Error Probability)_openmsmainscore");
+			descs.add(getCvAccession());
+			descs.add(getName());
+			descs.add(getName().toLowerCase());
+			descs.add(getShortName());
+			
+			return descs;
+		}
+	},
 	/**
 	 * The FASTA Sequence Count score.
 	 */

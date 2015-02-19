@@ -457,6 +457,15 @@ public class IdXMLFileParser {
 										Double.parseDouble(userParam.getValue()),
 										scoreModel);
 								psm.addScore(score);
+							} else if (userParam.getName().contains("Consensus_")) {
+								// look for consensus score separately
+								scoreModel = ScoreModelEnum.getModelByDescription(userParam.getName());
+								if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+									score = new ScoreModel(
+											Double.parseDouble(userParam.getValue()),
+											scoreModel);
+									psm.addScore(score);
+								}
 							}
 						}
 						
