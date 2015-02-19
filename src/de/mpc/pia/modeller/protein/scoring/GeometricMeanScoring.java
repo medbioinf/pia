@@ -57,13 +57,28 @@ public class GeometricMeanScoring extends AbstractScoring {
 		if (nrScore > 0) {
 			double exp = 1.0 / (double)nrScore;
 			
-			// calculate the -log( product(scores)^(1/nrScores) )
+			// calculate the product(scores)^(1/nrScores) respectively -log() of it for higherScoreBetter
 			for (ScoreModel score : scores) {
+				Double signum = 1.0;
+				if ((score.getType().higherScoreBetter() != null) &&
+						!score.getType().higherScoreBetter()) {
+					signum = -1.0;
+				}
+				
 				if ((score != null) && !score.getValue().equals(Double.NaN)) {
 					if (!proteinScore.equals(Double.NaN)) {
-						proteinScore -= Math.log10(Math.pow(score.getValue(), exp));
+						if (signum < 0) {
+							proteinScore -= Math.log10(Math.pow(score.getValue(), exp));
+						} else {
+							proteinScore *= Math.pow(score.getValue(), exp);
+						}
+						
 					} else {
-						proteinScore = -Math.log10(Math.pow(score.getValue(), exp));
+						if (signum < 0) {
+							proteinScore = -Math.log10(Math.pow(score.getValue(), exp));
+						} else {
+							proteinScore = Math.pow(score.getValue(), exp);
+						}
 					}
 				}
 			}
