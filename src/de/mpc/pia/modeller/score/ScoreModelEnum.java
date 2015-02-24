@@ -901,7 +901,7 @@ public enum ScoreModelEnum {
 		
 		@Override
 		public Boolean higherScoreBetter() {
-			return true;
+			return false;
 		}
 		
 		@Override
