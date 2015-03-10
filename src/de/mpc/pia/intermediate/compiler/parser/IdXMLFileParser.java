@@ -424,7 +424,6 @@ public class IdXMLFileParser {
 						
 						// try another alternative
 						scoreModel = ScoreModelEnum.getModelByDescription(
-								idRun.getSearchEngine() + "_" +
 								pepID.getScoreType());
 						
 						if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
@@ -434,8 +433,7 @@ public class IdXMLFileParser {
 											String.valueOf(pepHit.getScore())),
 									scoreModel);
 							psm.addScore(score);
-						}
-						else {
+						} else {
 							score = new ScoreModel(
 									Double.parseDouble(String.valueOf(pepHit.getScore())),
 									pepID.getScoreType() + "_openmsmainscore",
@@ -457,7 +455,9 @@ public class IdXMLFileParser {
 										Double.parseDouble(userParam.getValue()),
 										scoreModel);
 								psm.addScore(score);
-							} else if (userParam.getName().contains("Consensus_")) {
+							} else if (userParam.getName().contains("Posterior Error Probability") ||
+									userParam.getName().contains("Posterior Probability") ||
+									userParam.getName().contains("Consensus_")) {
 								// look for consensus score separately
 								scoreModel = ScoreModelEnum.getModelByDescription(userParam.getName());
 								if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {

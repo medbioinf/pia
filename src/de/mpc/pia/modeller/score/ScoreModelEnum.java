@@ -560,7 +560,7 @@ public enum ScoreModelEnum {
 			descs.add("Hyperscore");
 			descs.add("hyperscore");
 			descs.add("XTandem_openmsmainscore");
-			descs.add("XTandem_XTandem_score");
+			descs.add("Mascot_XTandem_score");
 			descs.add(getShortName());
 			descs.add(getCvAccession());
 			descs.add(getCvName());
@@ -686,6 +686,8 @@ public enum ScoreModelEnum {
 			List<String> descs = new ArrayList<String>();
 			
 			descs.add(getName());
+			descs.add("SpecEValue_openmsmainscore");
+			descs.add("MSGFPlus_SpecEValue_score");
 			descs.add(getName().toLowerCase());
 			descs.add(getShortName());
 			descs.add(getCvAccession());
@@ -792,6 +794,55 @@ public enum ScoreModelEnum {
 	},
 	
 	/**
+	 * The MyriMatch MVH
+	 */
+	MYRIMATCH_MVH {
+		@Override
+		public String getName() {
+			return "MyriMatch:MVH";
+		}
+		
+		@Override
+		public String getShortName() {
+			return "myrimatch_mvh";
+		}
+		
+		@Override
+		public String getCvAccession() {
+			return PIAConstants.CV_MYRIMATCH_MVH_ACCESSION;
+		}
+		
+		@Override
+		public String getCvName() {
+			return PIAConstants.CV_MYRIMATCH_MVH_NAME;
+		}
+		
+		@Override
+		public Boolean higherScoreBetter() {
+			return true;
+		}
+
+		@Override
+		public Boolean isSearchengineMainScore() {
+			return true;
+		}
+		
+		@Override
+		public List<String> getValidDescriptors() {
+			List<String> descs = new ArrayList<String>();
+			
+			descs.add(getName());
+			descs.add(getName().toLowerCase());
+			descs.add(getShortName());
+			descs.add(getCvAccession());
+			descs.add(getCvName());
+			descs.add("MyriMatch_mvh_score");
+			
+			return descs;
+		}
+	},
+	
+	/**
 	 * The OpenMS Posterior Error Probability
 	 */
 	OPENMS_POSTERIOR_ERROR_PROBABILITY {
@@ -825,6 +876,7 @@ public enum ScoreModelEnum {
 			List<String> descs = new ArrayList<String>();
 			
 			descs.add("Posterior Error Probability_openmsmainscore");
+			descs.add("Posterior Error Probability_score");
 			descs.add(getCvAccession());
 			descs.add(getName());
 			descs.add(getName().toLowerCase());
@@ -867,6 +919,7 @@ public enum ScoreModelEnum {
 			List<String> descs = new ArrayList<String>();
 			
 			descs.add("Posterior Probability_openmsmainscore");
+			descs.add("Posterior Probability_score");
 			descs.add(getCvAccession());
 			descs.add(getName());
 			descs.add(getName().toLowerCase());

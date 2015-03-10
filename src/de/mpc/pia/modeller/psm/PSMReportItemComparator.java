@@ -297,6 +297,17 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 			return score_prefix + ScoreModelEnum.MSGF_EVALUE.getShortName();
 		}
 	},
+	MYRIMATCH_MVH_SORT {
+		public int compare(PSMReportItem o1, PSMReportItem o2) {
+			ScoreComparator<PSMReportItem> comp =
+					new ScoreComparator<PSMReportItem>(ScoreModelEnum.MYRIMATCH_MVH.getShortName());
+			return comp.compare(o1, o2);
+		}
+		
+		public String toString() {
+			return score_prefix + ScoreModelEnum.MYRIMATCH_MVH.getShortName();
+		}
+	},
 	AMANDA_SCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =

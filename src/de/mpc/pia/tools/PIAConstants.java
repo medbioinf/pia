@@ -219,6 +219,11 @@ public class PIAConstants {
 	public static final String CV_SEQUENCE_SUB_SET_PROTEIN_NAME = "sequence sub-set protein";
 	
 	/** accession for "MS-GF:RawScore" in PSI-MS */
+	public static final String CV_MYRIMATCH_MVH_ACCESSION = "MS:1001589";
+	/** name for "MS-GF:RawScore" in PSI-MS */
+	public static final String CV_MYRIMATCH_MVH_NAME = "MyriMatch:MVH";
+	
+	/** accession for "MS-GF:RawScore" in PSI-MS */
 	public static final String CV_MSGF_RAWSCORE_ACCESSION = "MS:1002049";
 	/** name for "MS-GF:RawScore" in PSI-MS */
 	public static final String CV_MSGF_RAWSCORE_NAME = "MS-GF:RawScore";
