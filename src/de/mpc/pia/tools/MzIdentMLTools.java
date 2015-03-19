@@ -28,6 +28,7 @@ public class MzIdentMLTools {
 		psiMS.setId("PSI-MS");
 		psiMS.setFullName("PSI-MS");
 		psiMS.setUri("http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
+		psiMS.setVersion("3.74.0");
 		
 		unitOntology.setId("UO");
 		unitOntology.setFullName("PSI-MS");

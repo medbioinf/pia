@@ -29,7 +29,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.AnalysisCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisProtocolCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftwareList;
-import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvList;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.DBSequence;
@@ -98,6 +97,7 @@ import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 import de.mpc.pia.modeller.score.comparator.RankCalculator;
 import de.mpc.pia.modeller.score.comparator.ScoreComparator;
 import de.mpc.pia.tools.CleavageAgent;
+import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.obo.OBOMapper;
 import de.mpc.pia.tools.unimod.UnimodParser;
@@ -2111,9 +2111,6 @@ public class PSMModeller {
 		
 		
 		// there are some variables needed for additional tags later
-		Cv psiCV = new Cv();
-		Cv unimodCV = new Cv();
-		Cv unitCV = new Cv();
 		Map<String, DBSequence> sequenceMap = new HashMap<String, DBSequence>();
 		Map<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide> peptideMap =
 				new HashMap<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide>();
@@ -2129,7 +2126,6 @@ public class PSMModeller {
 		
 		// write common tags
 		writeCommonMzIdentMLTags(writer, m, unimodParser,
-				psiCV, unimodCV, unitCV,
 				sequenceMap, peptideMap, pepEvidenceMap, silMap,
 				piaAnalysisSoftware, inputs,
 				analysisProtocolCollection, analysisCollection,
@@ -2140,17 +2136,15 @@ public class PSMModeller {
 				// the "final PSM list" flag, if only this PSM list is exported
 				CvParam tempCvParam = new CvParam();
 				tempCvParam.setAccession(PIAConstants.CV_FINAL_PSM_LIST_ACCESSION);
-				tempCvParam.setCv(psiCV);
+				tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 				tempCvParam.setName(PIAConstants.CV_FINAL_PSM_LIST_NAME);
 				sil.getCvParam().add(tempCvParam);
 			} else {
 				// the "intermediate PSM list" flag, if also the overview is exported
 				CvParam tempCvParam = new CvParam();
-				tempCvParam.setAccession(
-						PIAConstants.CV_INTERMEDIATE_PSM_LIST_ACCESSION);
-				tempCvParam.setCv(psiCV);
-				tempCvParam.setName(
-						PIAConstants.CV_INTERMEDIATE_PSM_LIST_NAME);
+				tempCvParam.setAccession(PIAConstants.CV_INTERMEDIATE_PSM_LIST_ACCESSION);
+				tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+				tempCvParam.setName(PIAConstants.CV_INTERMEDIATE_PSM_LIST_NAME);
 				sil.getCvParam().add(tempCvParam);
 			}
 		}
@@ -2160,16 +2154,13 @@ public class PSMModeller {
 				new HashMap<String, SpectrumIdentificationItem>();
 		if (fileID < 1) {
 			// create the spectrumIdentificationList for PSM sets
-			SpectrumIdentificationList combinedSil = 
-					createSpectrumIdentificationListForOverview(
-							sequenceMap, peptideMap, pepEvidenceMap, combinedSiiMap,
-							psiCV, unitCV, filterExport);
+			SpectrumIdentificationList combinedSil = createSpectrumIdentificationListForOverview(
+							sequenceMap, peptideMap, pepEvidenceMap, combinedSiiMap,filterExport);
 			silMap.put(0L, combinedSil);
 			
 			// create the protocol and SpectrumIdentification
 			SpectrumIdentification combiningId =
 					createCombinedSpectrumIdentification(
-							psiCV,
 							piaAnalysisSoftware,
 							filterExport ? getFilters(0L) : null );
 			
@@ -2248,7 +2239,6 @@ public class PSMModeller {
 	 */
 	public void writeCommonMzIdentMLTags(
 			Writer writer, MzIdentMLMarshaller m, UnimodParser unimodParser,
-			Cv psiCV, Cv unimodCV, Cv unitCV,
 			Map<String, DBSequence> sequenceMap,
 			Map<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide> peptideMap,
 			Map<String, PeptideEvidence> pepEvidenceMap,
@@ -2263,22 +2253,9 @@ public class PSMModeller {
 		// the CV list
 		CvList cvList = new CvList();
 		
-		psiCV.setUri("http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
-		psiCV.setId("PSI-MS");
-		// this is the version used for programming the exporter
-		psiCV.setVersion("3.57.0");
-		psiCV.setFullName("PSI-MS");
-        cvList.getCv().add(psiCV);
-        
-		unimodCV.setUri("http://www.unimod.org/obo/unimod.obo");
-		unimodCV.setId("UNIMOD");
-		unimodCV.setFullName("UNIMOD");
-		cvList.getCv().add(unimodCV);
-		
-		unitCV.setUri("http://obo.cvs.sourceforge.net/*checkout*/obo/obo/ontology/phenotype/unit.obo");
-		unitCV.setId("UO");
-		unitCV.setFullName("UNIT-ONTOLOGY");
-		cvList.getCv().add(unitCV);
+        cvList.getCv().add(MzIdentMLTools.getCvPSIMS());
+		cvList.getCv().add(unimodParser.getCv());
+		cvList.getCv().add(MzIdentMLTools.getUnitOntology());
 		
 		m.marshal(cvList, writer);
 		writer.write("\n");
@@ -2295,7 +2272,7 @@ public class PSMModeller {
 		CvParam tempCvParam = new CvParam();
 		tempCvParam.setAccession(PIAConstants.CV_PIA_ACCESSION);
 		tempCvParam.setName(PIAConstants.CV_PIA_NAME);
-		tempCvParam.setCv(psiCV);
+		tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 		tempParam.setParam(tempCvParam);
 		piaAnalysisSoftware.setSoftwareName(tempParam);
 		
@@ -2309,47 +2286,6 @@ public class PSMModeller {
 		m.marshal(analysisSoftwareList, writer);
 		writer.write("\n");
 		
-		/*
-		// provider is not necessary... maybe add it later
-		Provider provider = new Provider();
-		provider.setId("PROVIDER");
-		ContactRole contactRole = new ContactRole();
-		Person docOwner = new Person();
-		docOwner.setId("PERSON_DOC_OWNER");
-		//docOwner.setFirstName(firstName);
-		//docOwner.setLastName(lastName);
-        //docOwner.setEmail(email);
-		
-		contactRole.setContact(docOwner);
-		Role role = new Role();
-		tempCvParam = new CvParam();
-		tempCvParam.setAccession("MS:1001271");
-		tempCvParam.setCv(psiCV);
-		tempCvParam.setName("researcher");
-		role.setCvParam(tempCvParam);
-		contactRole.setRole(role);
-		provider.setContactRole(contactRole);
-		
-        Organization org = new Organization();
-        org.setId("ORG_DOC_OWNER");
-        //org.setName(affiliationName);
-        //org.setAddress(address);
-
-        List<Affiliation> affList = docOwner.getAffiliation();
-        Affiliation aff = new Affiliation();
-        aff.setOrganization(org);
-        affList.add(aff);
-        
-		AuditCollection auditCollection = new AuditCollection();
-        auditCollection.getPersonOrOrganization().add(docOwner);
-        auditCollection.getPersonOrOrganization().add(org);
-        
-		m.marshal(provider, writer);
-		writer.write("\n");
-		
-		m.marshal(auditCollection, writer);
-		writer.write("\n");
-		*/
 		
 		// get the information from PIA XML file
 		if (fileID > 0) {
@@ -2381,7 +2317,7 @@ public class PSMModeller {
 		FileFormat fileFormat = new FileFormat();
 		tempCvParam = new CvParam();
 		tempCvParam.setAccession(PIAConstants.CV_PIA_XML_FILE_ACCESSION);
-		tempCvParam.setCv(psiCV);
+		tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 		tempCvParam.setName(PIAConstants.CV_PIA_XML_FILE_NAME);
 		fileFormat.setCvParam(tempCvParam);
 		sourceFile.setFileFormat(fileFormat);
@@ -2449,7 +2385,7 @@ public class PSMModeller {
 				SpectrumIdentificationList sil = 
 						createSpectrumIdentificationListForFile(file.getID(),
 								sequenceMap, peptideMap, pepEvidenceMap,
-								dbsInFiles, unimodParser, psiCV, unitCV,
+								dbsInFiles, unimodParser,
 								rankScoreShort,
 								(fileID > 0) ? filterPSMs : false);
 				
@@ -2504,7 +2440,7 @@ public class PSMModeller {
 									
 									CvParam cvParam = new CvParam();
 									cvParam.setAccession(agent.getAccession());
-									cvParam.setCv(psiCV);
+									cvParam.setCv(MzIdentMLTools.getCvPSIMS());
 									cvParam.setName(agent.getName());
 									
 									enzymeNameList.getCvParam().add(cvParam);
@@ -2529,9 +2465,8 @@ public class PSMModeller {
 							
 							if (unimod != null) {
 								tempCvParam = new CvParam();
-								tempCvParam.setAccession(
-										"UNIMOD:" + unimod.getRecordId());
-								tempCvParam.setCv(unimodCV);
+								tempCvParam.setAccession("UNIMOD:" + unimod.getRecordId());
+								tempCvParam.setCv(UnimodParser.getCv());
 								tempCvParam.setName(unimod.getTitle());
 								mod.getCvParam().add(tempCvParam);
 								mod.setMassDelta(
@@ -2545,14 +2480,13 @@ public class PSMModeller {
 								getDecoyStrategy().equals(FDRData.DecoyStrategy.ACCESSIONPATTERN)) {
 							tempCvParam = new CvParam();
 							tempCvParam.setAccession("MS:1001283");
-							tempCvParam.setCv(psiCV);
+							tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 							tempCvParam.setName("decoy DB accession regexp");
-							tempCvParam.setValue(
-									getFileFDRData().get(file.getID()).getDecoyPattern());
+							tempCvParam.setValue(getFileFDRData().get(file.getID()).getDecoyPattern());
 						} else {
 							tempCvParam = new CvParam();
 							tempCvParam.setAccession("MS:1001454");
-							tempCvParam.setCv(psiCV);
+							tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 							tempCvParam.setName("quality estimation with implicite decoy sequences");
 						}
 						
@@ -2560,28 +2494,21 @@ public class PSMModeller {
 								.getCvParam().add(tempCvParam);
 						
 						tempCvParam = new CvParam();
-						tempCvParam.setAccession(
-								PIAConstants.CV_PIA_USED_TOP_IDENTIFICATIONS_ACCESSION);
-						tempCvParam.setCv(psiCV);
-						tempCvParam.setName(
-								PIAConstants.CV_PIA_USED_TOP_IDENTIFICATIONS_NAME);
-						tempCvParam.setValue(
-								fileTopIdentifications.get(file.getID()).toString());
+						tempCvParam.setAccession(PIAConstants.CV_PIA_USED_TOP_IDENTIFICATIONS_ACCESSION);
+						tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+						tempCvParam.setName(PIAConstants.CV_PIA_USED_TOP_IDENTIFICATIONS_NAME);
+						tempCvParam.setValue(fileTopIdentifications.get(file.getID()).toString());
 						
 						specIdProt.getAdditionalSearchParams().getCvParam().add(
 								tempCvParam);
 					}
 					
 					tempCvParam = new CvParam();
-					tempCvParam.setAccession(
-							PIAConstants.CV_PIA_FDRSCORE_CALCULATED_ACCESSION);
-					tempCvParam.setCv(psiCV);
-					tempCvParam.setName(
-							PIAConstants.CV_PIA_FDRSCORE_CALCULATED_NAME);
-					tempCvParam.setValue(
-							isFDRCalculated(file.getID()).toString());
-					specIdProt.getAdditionalSearchParams().getCvParam().add(
-							tempCvParam);
+					tempCvParam.setAccession(PIAConstants.CV_PIA_FDRSCORE_CALCULATED_ACCESSION);
+					tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+					tempCvParam.setName(PIAConstants.CV_PIA_FDRSCORE_CALCULATED_NAME);
+					tempCvParam.setValue(isFDRCalculated(file.getID()).toString());
+					specIdProt.getAdditionalSearchParams().getCvParam().add(tempCvParam);
 					
 					if (fileID.equals(file.getID()) && filterPSMs) {
 						// add the filters
@@ -2601,33 +2528,27 @@ public class PSMModeller {
 									
 									tempCvParam = new CvParam();
 									tempCvParam.setAccession(scoreModel.getCvAccession());
-									tempCvParam.setCv(psiCV);
+									tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 									tempCvParam.setName(scoreModel.getCvName());
 									tempCvParam.setValue(filter.getFilterValue().toString());
 									
-									specIdProt.getThreshold()
-											.getCvParam().add(tempCvParam);
+									specIdProt.getThreshold().getCvParam().add(tempCvParam);
 								} else {
 									// TODO: also make scores from OBO available
-									
 									UserParam userParam = new UserParam();
 									userParam.setName(((PSMScoreFilter) filter).getModelName());
 									userParam.setValue(filter.getFilterValue().toString());
 									
-									specIdProt.getThreshold()
-											.getUserParam().add(userParam);
+									specIdProt.getThreshold().getUserParam().add(userParam);
 								}
 							} else {
 								// all other report filters are AdditionalSearchParams
 								tempCvParam = new CvParam();
-								tempCvParam.setAccession(
-										PIAConstants.CV_PIA_FILTER_ACCESSION);
-								tempCvParam.setCv(psiCV);
-								tempCvParam.setName(
-										PIAConstants.CV_PIA_FILTER_NAME);
+								tempCvParam.setAccession(PIAConstants.CV_PIA_FILTER_ACCESSION);
+								tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+								tempCvParam.setName(PIAConstants.CV_PIA_FILTER_NAME);
 								tempCvParam.setValue(filter.toString());
-								specIdProt.getAdditionalSearchParams()
-										.getCvParam().add(tempCvParam);
+								specIdProt.getAdditionalSearchParams().getCvParam().add(tempCvParam);
 							}
 						}
 					}
@@ -2641,13 +2562,20 @@ public class PSMModeller {
 						
 						tempCvParam = new CvParam();
 						tempCvParam.setAccession("MS:1001494");
-						tempCvParam.setCv(psiCV);
+						tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 						tempCvParam.setName("no threshold");
 						specIdProt.getThreshold().getCvParam().add(tempCvParam);
 					}
 					
-					analysisProtocolCollection
-						.getSpectrumIdentificationProtocol().add(specIdProt);
+					// at the moment, PIA does "no special processing" as described in the OBO for
+					tempCvParam = new CvParam();
+					tempCvParam.setAccession("MS:1002495");
+					tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+					tempCvParam.setName("no special processing");
+					specIdProt.getAdditionalSearchParams().getCvParam().add(tempCvParam);
+					
+					
+					analysisProtocolCollection.getSpectrumIdentificationProtocol().add(specIdProt);
 				}
 			}
 		}
@@ -2687,8 +2615,6 @@ public class PSMModeller {
 			Map<String, PeptideEvidence> peptideEvidenceMap,
 			Map<String, Set<Long>> dbsInFiles,
 			UnimodParser unimodParser,
-			Cv psiCV,
-			Cv unitCV,
 			String rankScoreShort, Boolean filterPSMs) {
 		if ((fileID == 0) || !fileReportPSMs.containsKey(fileID)) {
 			logger.warn("invalid file ID " + fileID);
@@ -2736,7 +2662,7 @@ public class PSMModeller {
 						
 						CvParam tempCvParam = new CvParam();
 						tempCvParam.setAccession("MS:1001460");
-						tempCvParam.setCv(psiCV);
+						tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 						tempCvParam.setName("unknown modification");
 						mod.getCvParam().add(tempCvParam);
 					}
@@ -2773,7 +2699,7 @@ public class PSMModeller {
 									occurrence.getStart(), occurrence.getEnd(),
 									psm.getIsDecoy(), peptide,
 									accession,
-									sequenceMap, dbsInFiles, psiCV);
+									sequenceMap, dbsInFiles);
 							
 							peptideEvidenceMap.put(evidenceID, pepEvi);
 						}
@@ -2792,7 +2718,7 @@ public class PSMModeller {
 								null, null,
 								psm.getIsDecoy(), peptide,
 								accession,
-								sequenceMap, dbsInFiles, psiCV);
+								sequenceMap, dbsInFiles);
 						
 						peptideEvidenceMap.put(evidenceID, pepEvi);
 					}
@@ -2801,7 +2727,7 @@ public class PSMModeller {
 			
 			putPsmInSpectrumIdentificationResultMap(psm, specIdResMap,
 					peptideMap, peptideEvidenceMap,
-					psiCV, unitCV, rankScoreShort, filterPSMs);
+					rankScoreShort, filterPSMs);
 		}
 		
 		sil.getSpectrumIdentificationResult().addAll(specIdResMap.values());
@@ -2833,8 +2759,6 @@ public class PSMModeller {
 			Map<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide> peptideMap,
 			Map<String, PeptideEvidence> peptideEvidenceMap,
 			Map<String, SpectrumIdentificationItem> specIDMap,
-			Cv psiCV,
-			Cv unitCV,
 			Boolean filterPSMs) {
 		SpectrumIdentificationList sil = new SpectrumIdentificationList();
 		sil.setId("combined_PSMs");
@@ -2844,10 +2768,8 @@ public class PSMModeller {
 		
 		// each PSM is one SpectrumIdentificationItem, iterate over the PSMs
 		for (ReportPSMSet psmSet : reportPSMSets) {
-			SpectrumIdentificationItem sii =
-					putPsmInSpectrumIdentificationResultMap(psmSet, specIdResMap,
-							peptideMap, peptideEvidenceMap,
-							psiCV, unitCV, null, filterPSMs);
+			SpectrumIdentificationItem sii = putPsmInSpectrumIdentificationResultMap(
+					psmSet, specIdResMap, peptideMap, peptideEvidenceMap, null, filterPSMs);
 			
 			specIDMap.put(sii.getId(), sii);
 			
@@ -2855,11 +2777,9 @@ public class PSMModeller {
 				ScoreModel fdrScore = psmSet.getFDRScore();
 				
 				CvParam tempCvParam = new CvParam();
-				tempCvParam.setAccession(
-						ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getCvAccession());
-				tempCvParam.setCv(psiCV);
-				tempCvParam.setName(
-						ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getCvName());
+				tempCvParam.setAccession(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getCvAccession());
+				tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+				tempCvParam.setName(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getCvName());
 				if (fdrScore != null) {
 					tempCvParam.setValue(fdrScore.getValue().toString());
 				} else {
@@ -2874,7 +2794,7 @@ public class PSMModeller {
 		// the "final PSM list" flag, because the overview is always the final (on PSM level)
 		CvParam tempCvParam = new CvParam();
 		tempCvParam.setAccession(PIAConstants.CV_FINAL_PSM_LIST_ACCESSION);
-		tempCvParam.setCv(psiCV);
+		tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 		tempCvParam.setName(PIAConstants.CV_FINAL_PSM_LIST_NAME);
 		sil.getCvParam().add(tempCvParam);
 		
@@ -2903,8 +2823,7 @@ public class PSMModeller {
 			uk.ac.ebi.jmzidml.model.mzidml.Peptide peptide,
 			Accession accession,
 			Map<String, DBSequence> sequenceMap,
-			Map<String, Set<Long>> dbsInFiles,
-			Cv psiCV) {
+			Map<String, Set<Long>> dbsInFiles) {
 		PeptideEvidence pepEvi = new PeptideEvidence();
 		
 		DBSequence dbSequence = sequenceMap.get(accession);
@@ -2924,9 +2843,8 @@ public class PSMModeller {
 			String dbRef = null;
 			CvParam descCvParam = new CvParam();
 			descCvParam.setAccession("MS:1001088");
-			descCvParam.setName(
-					"protein description");
-			descCvParam.setCv(psiCV);
+			descCvParam.setName("protein description");
+			descCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 			
 			// look for a good description
 			for (Map.Entry<Long, String> descIt : accession.getDescriptions().entrySet()) {
@@ -2949,6 +2867,13 @@ public class PSMModeller {
 			if ((descCvParam.getValue() != null)) {
 				dbSequence.getCvParam().add(descCvParam);
 			}
+			
+			// add info for the DBSequence
+			descCvParam = new CvParam();
+			descCvParam.setAccession("MS:1001344");
+			descCvParam.setName("AA sequence");
+			descCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+			dbSequence.getCvParam().add(descCvParam);
 			
 			if (dbRef == null) {
 				// no description found -> use any sequenceRef
@@ -3023,8 +2948,6 @@ public class PSMModeller {
 			Map<String, SpectrumIdentificationResult> specIdResMap,
 			Map<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide> peptideMap,
 			Map<String, PeptideEvidence> peptideEvidenceMap,
-			Cv psiCV,
-			Cv unitCV,
 			String rankScoreShort,
 			Boolean filterPSM) {
 		
@@ -3154,7 +3077,7 @@ public class PSMModeller {
 				if (!score.getType().equals(ScoreModelEnum.UNKNOWN_SCORE)) {
 					CvParam tempCvParam = new CvParam();
 					tempCvParam.setAccession(score.getAccession());
-					tempCvParam.setCv(psiCV);
+					tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 					tempCvParam.setName(score.getType().getCvName());
 					tempCvParam.setValue(score.getValue().toString());
 					
@@ -3167,7 +3090,7 @@ public class PSMModeller {
 			// mark as consensus result
 			CvParam tempCvParam = new CvParam();
 			tempCvParam.setAccession("MS:1002315");
-			tempCvParam.setCv(psiCV);
+			tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 			tempCvParam.setName("consensus result");
 			sii.getCvParam().add(tempCvParam);
 		}
@@ -3175,11 +3098,11 @@ public class PSMModeller {
 		if (psm.getRetentionTime() != null) {
 			CvParam tempCvParam = new CvParam();
 			tempCvParam.setAccession("MS:1000016");
-			tempCvParam.setCv(psiCV);
+			tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 			tempCvParam.setName("scan start time");
 			tempCvParam.setValue(psm.getRetentionTime().toString());
 			
-			tempCvParam.setUnitCv(unitCV);
+			tempCvParam.setUnitCv(MzIdentMLTools.getUnitOntology());
 			tempCvParam.setUnitName("second");
 			tempCvParam.setUnitAccession("UO:0000010");
 			
@@ -3189,7 +3112,7 @@ public class PSMModeller {
 		if (psm.getSpectrumTitle() != null) {
 			CvParam tempCvParam = new CvParam();
 			tempCvParam.setAccession("MS:1000796");
-			tempCvParam.setCv(psiCV);
+			tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 			tempCvParam.setName("spectrum title");
 			tempCvParam.setValue(psm.getSpectrumTitle());
 			
@@ -3199,11 +3122,11 @@ public class PSMModeller {
 		if (psm.getDeltaMass() > -1) {
 			CvParam tempCvParam = new CvParam();
 			tempCvParam.setAccession("MS:1001975");
-			tempCvParam.setCv(psiCV);
+			tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 			tempCvParam.setName("delta m/z");
 			tempCvParam.setValue(Double.toString(psm.getDeltaMass()));
 			
-			tempCvParam.setUnitCv(unitCV);
+			tempCvParam.setUnitCv(MzIdentMLTools.getUnitOntology());
 			tempCvParam.setUnitName("dalton");
 			tempCvParam.setUnitAccession("UO:0000221");
 			
@@ -3324,7 +3247,6 @@ public class PSMModeller {
 	 * @return
 	 */
 	public SpectrumIdentification createCombinedSpectrumIdentification(
-			Cv psiCV,
 			AnalysisSoftware pia,
 			List<AbstractFilter> appliedFilters) {
 
@@ -3339,33 +3261,40 @@ public class PSMModeller {
 		Param tempParam = new Param();
 		CvParam tempCvParam = new CvParam();
 		tempCvParam.setAccession("MS:1001083");
-		tempCvParam.setCv(psiCV);
+		tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 		tempCvParam.setName("ms-ms search");
 		// this may change in the future, but now we only use ms/ms search
 		tempParam.setParam(tempCvParam);
 		combiningProtocol.setSearchType(tempParam);
 		
-		tempParam = new Param();
 		tempCvParam = new CvParam();
-		tempCvParam.setAccession(
-				PIAConstants.CV_PIA_PSM_SETS_CREATED_ACCESSION);
-		tempCvParam.setCv(psiCV);
+		tempCvParam.setAccession(PIAConstants.CV_PIA_PSM_SETS_CREATED_ACCESSION);
+		tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 		tempCvParam.setName(PIAConstants.CV_PIA_PSM_SETS_CREATED_NAME);
 		tempCvParam.setValue(Boolean.toString(createPSMSets));
 		combiningProtocol.getAdditionalSearchParams().getCvParam().add(
 				tempCvParam);
 		
-		tempParam = new Param();
 		tempCvParam = new CvParam();
-		tempCvParam.setAccession(
-				PIAConstants.CV_PIA_COMBINED_FDRSCORE_CALCULATED_ACCESSION);
-		tempCvParam.setCv(psiCV);
-		tempCvParam.setName(
-				PIAConstants.CV_PIA_COMBINED_FDRSCORE_CALCULATED_NAME);
-		tempCvParam.setValue(
-				Boolean.toString(isCombinedFDRScoreCalculated()));
-		combiningProtocol.getAdditionalSearchParams().getCvParam().add(
-				tempCvParam);
+		tempCvParam.setAccession(PIAConstants.CV_PIA_COMBINED_FDRSCORE_CALCULATED_ACCESSION);
+		tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+		tempCvParam.setName(PIAConstants.CV_PIA_COMBINED_FDRSCORE_CALCULATED_NAME);
+		tempCvParam.setValue(Boolean.toString(isCombinedFDRScoreCalculated()));
+		combiningProtocol.getAdditionalSearchParams().getCvParam().add(tempCvParam);
+		
+		if (isCombinedFDRScoreCalculated()) {
+			tempCvParam = new CvParam();
+			tempCvParam.setAccession("MS:1002492");
+			tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+			tempCvParam.setName("consensus scoring");
+			combiningProtocol.getAdditionalSearchParams().getCvParam().add(tempCvParam);
+		} else {
+			tempCvParam = new CvParam();
+			tempCvParam.setAccession("MS:1002495");
+			tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+			tempCvParam.setName("no special processing");
+			combiningProtocol.getAdditionalSearchParams().getCvParam().add(tempCvParam);
+		}
 		
 		if ((appliedFilters != null) && (appliedFilters.size() > 0)) {
 			// add the filters
@@ -3385,7 +3314,7 @@ public class PSMModeller {
 						
 						tempCvParam = new CvParam();
 						tempCvParam.setAccession(scoreModel.getCvAccession());
-						tempCvParam.setCv(psiCV);
+						tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 						tempCvParam.setName(scoreModel.getCvName());
 						tempCvParam.setValue(filter.getFilterValue().toString());
 						
@@ -3405,9 +3334,8 @@ public class PSMModeller {
 					// all other report filters are AdditionalSearchParams
 					tempParam = new Param();
 					tempCvParam = new CvParam();
-					tempCvParam.setAccession(
-							PIAConstants.CV_PIA_FILTER_ACCESSION);
-					tempCvParam.setCv(psiCV);
+					tempCvParam.setAccession(PIAConstants.CV_PIA_FILTER_ACCESSION);
+					tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 					tempCvParam.setName(PIAConstants.CV_PIA_FILTER_NAME);
 					tempCvParam.setValue(filter.toString());
 					combiningProtocol.getAdditionalSearchParams()
@@ -3425,7 +3353,7 @@ public class PSMModeller {
 			
 			tempCvParam = new CvParam();
 			tempCvParam.setAccession("MS:1001494");
-			tempCvParam.setCv(psiCV);
+			tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
 			tempCvParam.setName("no threshold");
 			combiningProtocol.getThreshold().getCvParam().add(tempCvParam);
 		}
