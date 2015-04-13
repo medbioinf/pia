@@ -3955,7 +3955,7 @@ public class PSMModeller {
 		// numbers for each file
 		for (Long fileID : inputFiles.keySet()) {
 			if (fileID < 1) {
-				// skip the overview
+				// skip the overview, combined FDR is added later
 				continue;
 			}
 			
@@ -3965,7 +3965,11 @@ public class PSMModeller {
 			writer.append(Integer.toString(getNrReportPSMs(fileID)));
 			writer.append(nl);
 			
-			if (isFDRCalculated(fileID)) {
+			Boolean fdrCalculated = isFDRCalculated(fileID);
+			if (fdrCalculated == null) {
+				writer.append("FDR was not calculated or was not able to be calculated.");
+				writer.append(nl);
+			} else if (fdrCalculated) {
 				fdrData = getFileFDRData().get(fileID);
 				originalFDRThreshold = fdrData.getFDRThreshold();
 				
