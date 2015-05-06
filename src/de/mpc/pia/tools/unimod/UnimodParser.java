@@ -33,7 +33,7 @@ public class UnimodParser {
 	private static Cv cvUnimod;
 	
 	// defining statics
-	{
+	static {
 		cvUnimod = new Cv();
 		cvUnimod.setId("UNIMOD");
 		cvUnimod.setFullName("UNIMOD");

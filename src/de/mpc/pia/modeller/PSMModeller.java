@@ -1442,7 +1442,7 @@ public class PSMModeller {
 						}
 					}
 					
-					StringBuffer sbKey = new StringBuffer("");
+					StringBuilder sbKey = new StringBuilder("");
 					
 					for (Long file : files) {
 						if (sbKey.length() > 0) {
@@ -1982,7 +1982,7 @@ public class PSMModeller {
 				if (item instanceof ReportPSM) {
 					ReportPSM psm = (ReportPSM)item;
 					
-					StringBuffer accessionsSB = new StringBuffer();
+					StringBuilder accessionsSB = new StringBuilder();
 					for (Accession acc : psm.getAccessions()) {
 						if (accessionsSB.length() > 0) {
 							accessionsSB.append(",");
@@ -2011,7 +2011,7 @@ public class PSMModeller {
 				} else if (item instanceof ReportPSMSet) {
 					ReportPSMSet psm = (ReportPSMSet)item;
 					
-					StringBuffer accessionsSB = new StringBuffer();
+					StringBuilder accessionsSB = new StringBuilder();
 					for (Accession acc : psm.getAccessions()) {
 						if (accessionsSB.length() > 0) {
 							accessionsSB.append(",");
@@ -2019,13 +2019,19 @@ public class PSMModeller {
 						accessionsSB.append(acc.getAccession());
 					}
 					
-					StringBuffer scores = new StringBuffer();
-					StringBuffer idRanks = new StringBuffer();
+					StringBuilder scores = new StringBuilder();
+					StringBuilder idRanks = new StringBuilder();
 					
+					if (isCombinedFDRScoreCalculated()) {
+						ScoreModel combinedFDR = psm.getFDRScore();
+						if (combinedFDR.getValue() != Double.NaN) {
+							scores.append("[");
+							scores.append(combinedFDR);
+							scores.append("]");
+						}
+					}
 					for (ReportPSM rp : psm.getPSMs()) {
-						scores.append("[");
 						scores.append(rp.getScores());
-						scores.append("]");
 						
 						idRanks.append("[");
 						idRanks.append(rp.getIdentificationRanks());
@@ -2254,7 +2260,7 @@ public class PSMModeller {
 		CvList cvList = new CvList();
 		
         cvList.getCv().add(MzIdentMLTools.getCvPSIMS());
-		cvList.getCv().add(unimodParser.getCv());
+		cvList.getCv().add(UnimodParser.getCv());
 		cvList.getCv().add(MzIdentMLTools.getUnitOntology());
 		
 		m.marshal(cvList, writer);
