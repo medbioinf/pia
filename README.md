@@ -53,6 +53,13 @@ Documentation
 For documentation please refer to the Wiki (https://github.com/mpc-bioinformatics/pia/wiki) on github.
 
 
+Citation and Publication
+===
+If you found PIA useful for your work, please cite the following publication:
+
+http://www.ncbi.nlm.nih.gov/pubmed/25938255
+
+
 Test Server
 ===
 
