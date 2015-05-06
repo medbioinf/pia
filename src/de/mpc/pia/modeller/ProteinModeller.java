@@ -581,82 +581,85 @@ public class ProteinModeller {
 		boolean considermodifications =
 				peptideModeller.getConsiderModifications();
 		
+		String separator = ",";
+		
 		if (includes && !oneAccessionPerLine) {
 			writer.append(
-					"\"COLS_PROTEIN\";"+
-					"\"accessions\";" +
-					"\"score\";" +
-					"\"#peptides\";" +
-					"\"#PSMs\";" +
-					"\"#spectra\";");
+					"\"COLS_PROTEIN\"" + separator +
+					"\"accessions\"" + separator +
+					"\"score\"" + separator +
+					"\"#peptides\"" + separator +
+					"\"#PSMs\"" + separator +
+					"\"#spectra\"");
 			
 			if (fdrData.getNrItems() != null) {
-				writer.append(
-						"\"isDecoy\";" +
-						"\"FDR\";" +
-						"\"q-value\";");
+				writer.append( separator +
+						"\"isDecoy\"" + separator +
+						"\"FDR\"" + separator +
+						"\"q-value\"" + separator);
 			}
 			
 			writer.append("\n");
 			
 			if (includePeptides) {
 				writer.append(
-						"\"COLS_PEPTIDE\";"+
-						"\"sequence\";");
+						"\"COLS_PEPTIDE\"" + separator +
+						"\"sequence\"" + separator);
 				
 				if (considermodifications) {
-					writer.append("\"modifications\";");
+					writer.append("\"modifications\"" + separator);
 				}
 				
-				writer.append(	"\"accessions\";" +
-						"\"#spectra\";" +
-						"\"#PSMSets\";" +
-						"\"bestScores\";" +
+				writer.append(	"\"accessions\"" + separator +
+						"\"#spectra\"" + separator +
+						"\"#PSMSets\"" + separator +
+						"\"bestScores\"" +
 						"\n"
 						);
 			}
 			
 			if (includePSMSets) {
 				writer.append(
-						"\"COLS_PSMSET\";"+
-						"\"sequence\";");
+						"\"COLS_PSMSET\"" + separator +
+						"\"sequence\"" + separator);
 				
 				if (considermodifications) {
-					writer.append("\"modifications\";");
+					writer.append("\"modifications\"" + separator);
 				}
 				
-				writer.append("\"#identifications\";" +
-						"\"charge\";" +
-						"\"m/z\";" +
-						"\"dMass\";" +
-						"\"ppm\";" +
-						"\"RT\";" +
-						"\"missed\";" +
-						"\"sourceID\";" +
-						"\"spectrumTitle\";" +
+				writer.append("\"#identifications\"" + separator +
+						"\"charge\"" + separator +
+						"\"m/z\"" + separator +
+						"\"dMass\"" + separator +
+						"\"ppm\"" + separator +
+						"\"RT\"" + separator +
+						"\"missed\"" + separator +
+						"\"sourceID\"" + separator +
+						"\"spectrumTitle\"" + separator +
+						"\"scores\"" +
 						"\n"
 						);
 			}
 			
 			if (includePSMs) {
 				writer.append(
-						"\"COLS_PSM\";"+
-						"\"filename\";" +
-						"\"sequence\";");
+						"\"COLS_PSM\"" + separator +
+						"\"filename\"" + separator +
+						"\"sequence\"" + separator);
 				
 				if (considermodifications) {
-					writer.append("\"modifications\";");
+					writer.append("\"modifications\"" + separator);
 				}
 				
-				writer.append("\"charge\";" +
-						"\"m/z\";" +
-						"\"dMass\";" +
-						"\"ppm\";" +
-						"\"RT\";" +
-						"\"missed\";" +
-						"\"sourceID\";" +
-						"\"spectrumTitle\";" +
-						"\"scores\";" +
+				writer.append("\"charge\"" + separator +
+						"\"m/z\"" + separator +
+						"\"dMass\"" + separator +
+						"\"ppm\"" + separator +
+						"\"RT\"" + separator +
+						"\"missed\"" + separator +
+						"\"sourceID\"" + separator +
+						"\"spectrumTitle\"" + separator +
+						"\"scores\"" +
 						"\n"
 						);
 			}
@@ -664,41 +667,41 @@ public class ProteinModeller {
 		} else if (!oneAccessionPerLine) {
 			// no special includes, no SpectralCounting
 			writer.append(
-					"\"accessions\";" +
-					"\"score\";" +
-					"\"#peptides\";" +
-					"\"#PSMs\";" +
-					"\"#spectra\";");
+					"\"accessions\"" + separator +
+					"\"score\"" + separator +
+					"\"#peptides\"" + separator +
+					"\"#PSMs\"" + separator +
+					"\"#spectra\"");
 			
 			if (fdrData.getNrItems() != null) {
-				writer.append(
-						"\"isDecoy\";" +
-						"\"FDR\";" +
-						"\"q-value\";");
+				writer.append( separator +
+						"\"isDecoy\"" + separator +
+						"\"FDR\"" + separator +
+						"\"q-value\"");
 			}
 			
 			writer.append("\n");
 		} else {
 			// oneAccessionPerLine is set, override everything else
 			writer.append(
-					"\"accession\";" +
-					"\"filename\";" +
-					"\"sequence\";");
+					"\"accession\"" + separator +
+					"\"filename\"" + separator +
+					"\"sequence\"" + separator);
 			
 			if (considermodifications) {
-				writer.append("\"modifications\";");
+				writer.append("\"modifications\"" + separator);
 			}
 			
-			writer.append("\"charge\";" +
-					"\"m/z\";" +
-					"\"dMass\";" +
-					"\"ppm\";" +
-					"\"RT\";" +
-					"\"missed\";" +
-					"\"sourceID\";" +
-					"\"spectrumTitle\";" +
-					"\"scores\";" +
-					"\"isUnique\";" +
+			writer.append("\"charge\"" + separator +
+					"\"m/z\"" + separator +
+					"\"dMass\"" + separator +
+					"\"ppm\"" + separator +
+					"\"RT\"" + separator +
+					"\"missed\"" + separator +
+					"\"sourceID\"" + separator +
+					"\"spectrumTitle\"" + separator +
+					"\"scores\"" + separator +
+					"\"isUnique\"" +
 					"\n"
 					);
 		}
@@ -716,7 +719,7 @@ public class ProteinModeller {
 		for (ReportProtein protein : report) {
 			// Accessions	Score	Coverage	#Peptides	#PSMs	#Spectra
 			
-			StringBuffer accSB = new StringBuffer();
+			StringBuilder accSB = new StringBuilder();
 			for (Accession accession : protein.getAccessions()) {
 				if (accSB.length() > 0) {
 					accSB.append(",");
@@ -728,21 +731,21 @@ public class ProteinModeller {
 			
 			if (!oneAccessionPerLine) {
 				if (includes) {
-					writer.append("\"PROTEIN\";");
+					writer.append("\"PROTEIN\"" + separator);
 				}
 				
-				writer.append("\"" + accSB.toString() + "\";" +
-						"\"" + protein.getScore() + "\";" +
-						"\"" + protein.getNrPeptides() + "\";" +
-						"\"" + protein.getNrPSMs() + "\";" +
-						"\"" + protein.getNrSpectra() + "\";"
+				writer.append("\"" + accSB.toString() + "\"" + separator +
+						"\"" + protein.getScore() + "\"" + separator +
+						"\"" + protein.getNrPeptides() + "\"" + separator +
+						"\"" + protein.getNrPSMs() + "\"" + separator +
+						"\"" + protein.getNrSpectra() + "\""
 						);
 				
 				if (fdrData.getNrItems() != null) {
-					writer.append(
-							"\"" + protein.getIsDecoy() + "\";" +
-							"\"" + protein.getFDR() + "\";" +
-							"\"" + protein.getQValue() + "\";"
+					writer.append( separator +
+							"\"" + protein.getIsDecoy() + "\"" + separator +
+							"\"" + protein.getFDR() + "\"" + separator +
+							"\"" + protein.getQValue() + "\""
 							);
 				}
 				
@@ -753,12 +756,12 @@ public class ProteinModeller {
 			if (includes || oneAccessionPerLine) {
 				for (ReportPeptide peptide : protein.getPeptides()) {
 					
-					StringBuffer modStringBuffer = new StringBuffer();
+					StringBuilder modStringBuffer = new StringBuilder();
 					if (considermodifications) {
 						for (Map.Entry<Integer, Modification> modIt
 								: peptide.getModifications().entrySet()) {
-							modStringBuffer.append("[" + modIt.getKey() + ";" +
-									modIt.getValue().getMass() + ";");
+							modStringBuffer.append("[" + modIt.getKey() + "," +
+									modIt.getValue().getMass() + ",");
 							if (modIt.getValue().getDescription() != null) {
 								modStringBuffer.append(
 										modIt.getValue().getDescription());
@@ -769,7 +772,7 @@ public class ProteinModeller {
 					
 					if (includePeptides && !oneAccessionPerLine) {
 						
-						accSB = new StringBuffer();
+						accSB = new StringBuilder();
 						for (Accession accession : peptide.getAccessions()) {
 							if (accSB.length() > 0) {
 								accSB.append(",");
@@ -777,7 +780,7 @@ public class ProteinModeller {
 							accSB.append(accession.getAccession());
 						}
 						
-						StringBuffer scoresSB = new StringBuffer();
+						StringBuilder scoresSB = new StringBuilder();
 						for (String scoreShort : scoreShorts) {
 							ScoreModel model = 
 									peptide.getBestScoreModel(scoreShort);
@@ -794,18 +797,17 @@ public class ProteinModeller {
 						}
 						
 						writer.append(
-								"\"PEPTIDE\";"+
-								"\"" + peptide.getSequence() + "\";");
+								"\"PEPTIDE\"" + separator +
+								"\"" + peptide.getSequence() + "\"" + separator);
 						
 						if (considermodifications) {
-							writer.append(
-									"\"" + modStringBuffer.toString() + "\";");
+							writer.append("\"" + modStringBuffer.toString() + "\"" + separator);
 						}
 						
-						writer.append("\"" + accSB.toString() + "\";" +
-								"\"" + peptide.getNrSpectra() + "\";" +
-								"\"" + peptide.getNrPSMs() + "\";" +
-								"\"" + scoresSB.toString() + "\";" +
+						writer.append("\"" + accSB.toString() + "\"" + separator +
+								"\"" + peptide.getNrSpectra() + "\"" + separator +
+								"\"" + peptide.getNrPSMs() + "\"" + separator +
+								"\"" + scoresSB.toString() + "\"" +
 								"\n"
 								);
 					}
@@ -834,23 +836,23 @@ public class ProteinModeller {
 									}
 									
 									writer.append(
-											"\"PSMSET\";"+
-											"\"" + psmSet.getSequence() +"\";");
+											"\"PSMSET\"" + separator +
+											"\"" + psmSet.getSequence() +"\"" + separator);
 									
 									if (considermodifications) {
-										writer.append(
-												"\"" + modStringBuffer.toString() + "\";");
+										writer.append("\"" + modStringBuffer.toString() + "\"" + separator);
 									}
 									
-									writer.append("\"" + ((ReportPSMSet)psmSet).getPSMs().size() + "\";" +
-											"\"" + psmSet.getCharge() + "\";" +
-											"\"" + psmSet.getMassToCharge() + "\";" +
-											"\"" + psmSet.getDeltaMass() + "\";" +
-											"\"" + psmSet.getDeltaPPM() + "\";" +
-											"\"" + rt + "\";" +
-											"\"" + psmSet.getMissedCleavages() + "\";" +
-											"\"" + sourceID + "\";" +
-											"\"" + spectrumTitle + "\";" +
+									writer.append("\"" + ((ReportPSMSet)psmSet).getPSMs().size() + "\"" + separator +
+											"\"" + psmSet.getCharge() + "\"" + separator +
+											"\"" + psmSet.getMassToCharge() + "\"" + separator +
+											"\"" + psmSet.getDeltaMass() + "\"" + separator +
+											"\"" + psmSet.getDeltaPPM() + "\"" + separator +
+											"\"" + rt + "\"" + separator +
+											"\"" + psmSet.getMissedCleavages() + "\"" + separator +
+											"\"" + sourceID + "\"" + separator +
+											"\"" + spectrumTitle + "\"" + separator +
+											"\"" + psmSet.getScoresString() + "\"" +
 											"\n"
 											);
 								}
@@ -876,7 +878,7 @@ public class ProteinModeller {
 											spectrumTitle = "";
 										}
 										
-										StringBuffer scoresSB = new StringBuffer();
+										StringBuilder scoresSB = new StringBuilder();
 										for (ScoreModel model : psm.getScores()) {
 											if (scoresSB.length() > 0) {
 												scoresSB.append(",");
@@ -891,24 +893,23 @@ public class ProteinModeller {
 										
 										if (!oneAccessionPerLine) {
 											writer.append(
-													"\"PSM\";" +
-													"\"" + psm.getInputFileName() + "\";" +
-													"\"" + psm.getSequence() + "\";");
+													"\"PSM\"" + separator +
+													"\"" + psm.getInputFileName() + "\"" + separator +
+													"\"" + psm.getSequence() + "\"" + separator);
 											
 											if (considermodifications) {
-												writer.append(
-														"\"" + modStringBuffer.toString() + "\";");
+												writer.append("\"" + modStringBuffer.toString() + "\"" + separator);
 											}
 											
-											writer.append("\"" + psm.getCharge() + "\";" +
-													"\"" + psm.getMassToCharge() + "\";" +
-													"\"" + psm.getDeltaMass() + "\";" +
-													"\"" + psm.getDeltaPPM() + "\";" +
-													"\"" + rt + "\";" +
-													"\"" + psm.getMissedCleavages() + "\";" +
-													"\"" + sourceID + "\";" +
-													"\"" + spectrumTitle + "\";" +
-													"\"" + scoresSB.toString() + "\";" +
+											writer.append("\"" + psm.getCharge() + "\"" + separator +
+													"\"" + psm.getMassToCharge() + "\"" + separator +
+													"\"" + psm.getDeltaMass() + "\"" + separator +
+													"\"" + psm.getDeltaPPM() + "\"" + separator +
+													"\"" + rt + "\"" + separator +
+													"\"" + psm.getMissedCleavages() + "\"" + separator +
+													"\"" + sourceID + "\"" + separator +
+													"\"" + spectrumTitle + "\"" + separator +
+													"\"" + scoresSB.toString() + "\"" +
 													"\n"
 													);
 										} else {
@@ -917,26 +918,26 @@ public class ProteinModeller {
 													: protein.getAccessions()) {
 												
 												writer.append(
-														"\"" + acc.getAccession() + "\";" +
-														"\"" + psm.getInputFileName() + "\";" +
-														"\"" + psm.getSequence() + "\";"
+														"\"" + acc.getAccession() + "\"" + separator +
+														"\"" + psm.getInputFileName() + "\"" + separator +
+														"\"" + psm.getSequence() + "\"" + separator
 														);
 												
 												if (considermodifications) {
 													writer.append(
-															"\"" + modStringBuffer.toString() + "\";");
+															"\"" + modStringBuffer.toString() + "\"" + separator);
 												}
 												
-												writer.append("\"" + psm.getCharge() + "\";" +
-														"\"" + psm.getMassToCharge() + "\";" +
-														"\"" + psm.getDeltaMass() + "\";" +
-														"\"" + psm.getDeltaPPM() + "\";" +
-														"\"" + rt + "\";" +
-														"\"" + psm.getMissedCleavages() + "\";" +
-														"\"" + sourceID + "\";" +
-														"\"" + spectrumTitle + "\";" +
-														"\"" + scoresSB.toString() + "\";" +
-														"\"" + uniqueness  + "\";" +
+												writer.append("\"" + psm.getCharge() + "\"" + separator +
+														"\"" + psm.getMassToCharge() + "\"" + separator +
+														"\"" + psm.getDeltaMass() + "\"" + separator +
+														"\"" + psm.getDeltaPPM() + "\"" + separator +
+														"\"" + rt + "\"" + separator +
+														"\"" + psm.getMissedCleavages() + "\"" + separator +
+														"\"" + sourceID + "\"" + separator +
+														"\"" + spectrumTitle + "\"" + separator +
+														"\"" + scoresSB.toString() + "\"" + separator +
+														"\"" + uniqueness  + "\"" +
 														"\n"
 														);
 											}

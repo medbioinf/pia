@@ -393,81 +393,83 @@ public class PeptideModeller {
 				filterExport ? getFilters(fileID) : null);
 		List<String> scoreShorts = getScoreShortNames(fileID);
 		
+		String separator = ",";
+		
 		// write header information
 		if (includes) {
-			writer.append("\"COLS_PEPTIDES\";");
+			writer.append("\"COLS_PEPTIDES\"" + separator);
 		}
 		
-		writer.append("\"sequence\";");
+		writer.append("\"sequence\"" + separator);
 		
 		if (considerModifications) {
-			writer.append("\"modifications\";");
+			writer.append("\"modifications\"" + separator);
 		}
 		
 		if (oneAccessionPerLine) {
-			writer.append("\"accession\";");
+			writer.append("\"accession\"" + separator);
 		} else {
-			writer.append("\"accessions\";");
+			writer.append("\"accessions\"" + separator);
 		}
 		
 		writer.append(
-				"\"#spectra\";" +
-				"\"#PSM sets\";");
+				"\"#spectra\"" + separator +
+				"\"#PSM sets\"" + separator);
 		
 		if (fileID > 0) {
-			writer.append("\"missed\";");
+			writer.append("\"missed\"" + separator);
 		}
 		
-		writer.append("\"unique\";");
+		writer.append("\"unique\"");
 		
 		for (String scoreShort : scoreShorts) {
-			writer.append("\"best_" + scoreShort + "\";");
+			writer.append(separator + "\"best_" + scoreShort + "\"");
 		}
 		
 		writer.append("\n");
 		
 		if (includePSMSets) {
 			writer.append(
-					"\"COLS_PSMSET\";"+
-					"\"sequence\";");
+					"\"COLS_PSMSET\"" + separator +
+					"\"sequence\"" + separator);
 			
 			if (considerModifications) {
-				writer.append("\"modifications\";");
+				writer.append("\"modifications\"" + separator);
 			}
 			
-			writer.append("\"#identifications\";" +
-					"\"charge\";" +
-					"\"m/z\";" +
-					"\"dMass\";" +
-					"\"ppm\";" +
-					"\"RT\";" +
-					"\"missed\";" +
-					"\"sourceID\";" +
-					"\"spectrumTitle\";" +
-					"\"scores\";" +
+			writer.append("\"#identifications\"" + separator +
+					"\"charge\"" + separator +
+					"\"m/z\"" + separator +
+					"\"dMass\"" + separator +
+					"\"ppm\"" + separator +
+					"\"RT\"" + separator +
+					"\"missed\"" + separator +
+					"\"sourceID\"" + separator +
+					"\"spectrumTitle\"" + separator +
+					"\"scores\"" +
 					"\n"
 					);
 		}
 		
 		if (includePSMs) {
 			writer.append(
-					"\"COLS_PSM\";"+
-					"\"filename\";" +
-					"\"sequence\";");
+					"\"COLS_PSM\"" + separator +
+					"\"filename\"" + separator +
+					"\"sequence\"" + separator);
 			
 			if (considerModifications) {
-				writer.append("\"modifications\";");
+				writer.append("\"modifications\"" + separator);
 			}
 			
-			writer.append("\"charge\";" +
-					"\"m/z\";" +
-					"\"dMass\";" +
-					"\"ppm\";" +
-					"\"RT\";" +
-					"\"missed\";" +
-					"\"sourceID\";" +
-					"\"spectrumTitle\";" +
-					"\"scores\";" +
+			writer.append("\"charge\"" + separator +
+					"\"m/z\"" + separator +
+					"\"dMass\"" + separator +
+					"\"ppm\"" + separator +
+					"\"RT\"" + separator +
+					"\"missed\"" + separator +
+					"\"sourceID\"" + separator +
+					"\"spectrumTitle\"" + separator +
+					"\"scores\"" +
 					"\n"
 					);
 		}
@@ -477,41 +479,41 @@ public class PeptideModeller {
 			StringBuilder lineFirst = new StringBuilder(64);	// first part of the line, up to the accession(s)
 			StringBuilder lineLast = new StringBuilder(64);		// last part of the line, from the accession(s) to end
 			if (includes) {
-				lineFirst.append("\"PEPTIDE\";");
+				lineFirst.append("\"PEPTIDE\"" + separator);
 			}
 			
-			lineFirst.append("\"" + peptide.getSequence() + "\";");
+			lineFirst.append("\"" + peptide.getSequence() + "\"" + separator);
 			
 			if (considerModifications) {
 				lineFirst.append("\"" +
 						peptide.getPSMs().get(0).getModificationsString() +
-						"\";");
+						"\"" + separator);
 			}
 			
 			lineLast.append(
-					"\"" + peptide.getNrSpectra() + "\";" +
-					"\"" + peptide.getNrPSMs() + "\";");
+					"\"" + peptide.getNrSpectra() + "\"" + separator +
+					"\"" + peptide.getNrPSMs() + "\"" + separator);
 			
 			
 			if (fileID > 0) {
-				lineLast.append("\"" + peptide.getMissedCleavages() + "\";");
+				lineLast.append("\"" + peptide.getMissedCleavages() + "\"" + separator);
 			}
 			
 			if (peptide.getAccessions().size() > 1) {
-				lineLast.append("\"false\";");
+				lineLast.append("\"false\"");
 			} else {
-				lineLast.append("\"true\";");
+				lineLast.append("\"true\"");
 			}
 			
 			for (String scoreShort : scoreShorts) {
-				lineLast.append("\"" + peptide.getBestScore(scoreShort) + "\";");
+				lineLast.append(separator + "\"" + peptide.getBestScore(scoreShort) + "\"");
 			}
 			
 			// either cumulate the accessions or write out one line per accession
 			if (oneAccessionPerLine) {
 				for (Accession acc : peptide.getAccessions()) {
 					writer.append(lineFirst);
-					writer.append("\"" + acc.getAccession() + "\";");
+					writer.append("\"" + acc.getAccession() + "\"" + separator);
 					writer.append(lineLast);
 					writer.append("\n");
 				}
@@ -528,7 +530,7 @@ public class PeptideModeller {
 				}
 				
 				writer.append(lineFirst);
-				writer.append("\"" + accessionsSB + "\";");
+				writer.append("\"" + accessionsSB + "\"" + separator);
 				writer.append(lineLast);
 				writer.append("\n");
 			}
@@ -538,39 +540,39 @@ public class PeptideModeller {
 				for (PSMReportItem psm : peptide.getPSMs()) {
 					StringBuilder row = new StringBuilder();
 					
-					row.append("\"" + psm.getSequence() + "\";");
+					row.append("\"" + psm.getSequence() + "\"" + separator);
 					
 					if (considerModifications) {
-						row.append("\""  + psm.getModificationsString() + "\";");
+						row.append("\""  + psm.getModificationsString() + "\"" + separator);
 					}
 					
 					if (psm instanceof ReportPSMSet) {
 						row.append("\"" +
-								((ReportPSMSet) psm).getPSMs().size() + "\";"); 
+								((ReportPSMSet) psm).getPSMs().size() + "\"" + separator); 
 					}
 					
-					row.append("\"" + psm.getCharge() + "\";" +
-							"\"" + psm.getMassToCharge() + "\";" +
-							"\"" + psm.getDeltaMass() + "\";" +
-							"\"" + psm.getDeltaPPM() + "\";" +
-							"\"" + psm.getRetentionTime() + "\";" +
-							"\"" + psm.getMissedCleavages() + "\";" +
-							"\"" + psm.getSourceID() + "\";" +
-							"\"" + psm.getSpectrumTitle() + "\";" +
-							"\"" + psm.getScoresString() + "\";");
+					row.append("\"" + psm.getCharge() + "\"" + separator +
+							"\"" + psm.getMassToCharge() + "\"" + separator +
+							"\"" + psm.getDeltaMass() + "\"" + separator +
+							"\"" + psm.getDeltaPPM() + "\"" + separator +
+							"\"" + psm.getRetentionTime() + "\"" + separator +
+							"\"" + psm.getMissedCleavages() + "\"" + separator +
+							"\"" + psm.getSourceID() + "\"" + separator +
+							"\"" + psm.getSpectrumTitle() + "\"" + separator +
+							"\"" + psm.getScoresString() + "\"");
 					
 					
 					if (psm instanceof ReportPSM) {
 						// write the input file name before the remaining row
 						if (includePSMs) {
-							writer.append("\"PSM\";\"" +
-									((ReportPSM) psm).getInputFileName() + "\";");
+							writer.append("\"PSM\"" + separator + "\"" +
+									((ReportPSM) psm).getInputFileName() + "\"" + separator);
 							writer.append(row.toString());
 							writer.append("\n");
 						}
 					} else if (psm instanceof ReportPSMSet) {
 						if (includePSMSets) {
-							writer.append("\"PSMSET\";");
+							writer.append("\"PSMSET\"" + separator);
 							writer.append(row.toString());
 							writer.append("\n");
 						}
@@ -578,23 +580,23 @@ public class PeptideModeller {
 						// include the PSMs, if set
 						if (includePSMs) {
 							for (ReportPSM p : ((ReportPSMSet) psm).getPSMs()) {
-								writer.append("\"PSM\";\"" +
-										((ReportPSM) p).getInputFileName() + "\";" +
-										"\"" + p.getSequence() + "\";");
+								writer.append("\"PSM\"" + separator + "\"" +
+										((ReportPSM) p).getInputFileName() + "\"" + separator +
+										"\"" + p.getSequence() + "\"" + separator);
 								
 								if (considerModifications) {
-									writer.append("\""  + p.getModificationsString() + "\";");
+									writer.append("\""  + p.getModificationsString() + "\"" + separator);
 								}
 								
-								writer.append("\"" + p.getCharge() + "\";" +
-										"\"" + p.getMassToCharge() + "\";" +
-										"\"" + p.getDeltaMass() + "\";" +
-										"\"" + p.getDeltaPPM() + "\";" +
-										"\"" + p.getRetentionTime() + "\";" +
-										"\"" + p.getMissedCleavages() + "\";" +
-										"\"" + p.getSourceID() + "\";" +
-										"\"" + p.getSpectrumTitle() + "\";" +
-										"\"" + p.getScoresString() + "\";");
+								writer.append("\"" + p.getCharge() + "\"" + separator +
+										"\"" + p.getMassToCharge() + "\"" + separator +
+										"\"" + p.getDeltaMass() + "\"" + separator +
+										"\"" + p.getDeltaPPM() + "\"" + separator +
+										"\"" + p.getRetentionTime() + "\"" + separator +
+										"\"" + p.getMissedCleavages() + "\"" + separator +
+										"\"" + p.getSourceID() + "\"" + separator +
+										"\"" + p.getSpectrumTitle() + "\"" + separator +
+										"\"" + p.getScoresString() + "\"");
 								writer.append("\n");
 							}
 						}

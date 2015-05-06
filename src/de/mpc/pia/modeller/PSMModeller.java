@@ -1915,64 +1915,66 @@ public class PSMModeller {
 			}
 		}
 		
+		String separator = ",";
+		
 		if (!exportForSC) {
 			if (fileID > 0) {
 				writer.append(
-						"\"sequence\";" +
-						"\"modifications\";" +
-						"\"charge\";" +
-						"\"m/z\";" +
-						"\"delta mass\";" +
-						"\"delta ppm\";" +
-						"\"retention time\";" +
-						"\"missed\";" +
-						"\"sourceID\";" +
-						"\"accessions\";" +
-						"\"scores\";" +
-						"\"identification ranks\";" +
-						"\"isDecoy\";" +
-						"\"isUnique\";" +
-						"\"isFDRGood\";" +
+						"\"sequence\"" + separator +
+						"\"modifications\"" + separator +
+						"\"charge\"" + separator +
+						"\"m/z\"" + separator +
+						"\"delta mass\"" + separator +
+						"\"delta ppm\"" + separator +
+						"\"retention time\"" + separator +
+						"\"missed\"" + separator +
+						"\"sourceID\"" + separator +
+						"\"accessions\"" + separator +
+						"\"scores\"" + separator +
+						"\"identification ranks\"" + separator +
+						"\"isDecoy\"" + separator +
+						"\"isUnique\"" + separator +
+						"\"isFDRGood\"" +
 						"\n"
 						);
 			} else {
 				writer.append(
-						"\"sequence\";" +
-						"\"modifications\";" +
-						"\"charge\";" +
-						"\"m/z\";" +
-						"\"delta mass\";" +
-						"\"delta ppm\";" +
-						"\"retention time\";" +
-						"\"missed\";" +
-						"\"sourceID\";" +
-						"\"accessions\";" +
-						"\"scores\";" +
-						"\"identification ranks\";" +
-						"\"isDecoy\";" +
-						"\"isFDRGood\";" +
+						"\"sequence\"" + separator +
+						"\"modifications\"" + separator +
+						"\"charge\"" + separator +
+						"\"m/z\"" + separator +
+						"\"delta mass\"" + separator +
+						"\"delta ppm\"" + separator +
+						"\"retention time\"" + separator +
+						"\"missed\"" + separator +
+						"\"sourceID\"" + separator +
+						"\"accessions\"" + separator +
+						"\"scores\"" + separator +
+						"\"identification ranks\"" + separator +
+						"\"isDecoy\"" + separator +
+						"\"isFDRGood\"" + separator +
 						"\n"
 						);
 			}
 		} else {
 			// exportForSC is set
 			writer.append(
-					"\"accession\";" +
-					"\"filename\";" +
-					"\"sequence\";" +
-					"\"modifications\";" +
-					"\"charge\";" +
-					"\"m/z\";" +
-					"\"delta mass\";" +
-					"\"delta ppm\";" +
-					"\"retention time\";" +
-					"\"missed\";" +
-					"\"sourceID\";" +
-					"\"spectrumTitle\";" +
-					"\"scores\";" +
-					"\"identification ranks\";" +
-					"\"isDecoy\";" +
-					"\"isUnique\";" +
+					"\"accession\"" + separator +
+					"\"filename\"" + separator +
+					"\"sequence\"" + separator +
+					"\"modifications\"" + separator +
+					"\"charge\"" + separator +
+					"\"m/z\"" + separator +
+					"\"delta mass\"" + separator +
+					"\"delta ppm\"" + separator +
+					"\"retention time\"" + separator +
+					"\"missed\"" + separator +
+					"\"sourceID\"" + separator +
+					"\"spectrumTitle\"" + separator +
+					"\"scores\"" + separator +
+					"\"identification ranks\"" + separator +
+					"\"isDecoy\"" + separator +
+					"\"isUnique\"" +
 					"\n"
 					);
 		}
@@ -1991,21 +1993,21 @@ public class PSMModeller {
 					}
 					
 					writer.append(
-							"\"" + psm.getSequence() + "\";" +
-							"\"" + psm.getModificationsString() + "\";" +
-							"\"" + psm.getCharge() + "\";" +
-							"\"" + psm.getMassToCharge() + "\";" +
-							"\"" + psm.getDeltaMass() + "\";" +
-							"\"" + psm.getDeltaPPM() + "\";" +
-							"\"" + psm.getRetentionTime() + "\";" +
-							"\"" + psm.getMissedCleavages() + "\";" +
-							"\"" + psm.getSourceID() + "\";" +
-							"\"" + accessionsSB.toString() + "\";" +
-							"\"" + psm.getScores() + "\";" +
-							"\"" + psm.getIdentificationRanks() + "\";" +
-							"\"" + psm.getIsDecoy() + "\";" +
-							"\"" + ((psm.getSpectrum().getIsUnique() != null) ? psm.getSpectrum().getIsUnique() : false) + "\";" +
-							"\"" + psm.getIsFDRGood() + "\";" +
+							"\"" + psm.getSequence() + "\"" + separator +
+							"\"" + psm.getModificationsString() + "\"" + separator +
+							"\"" + psm.getCharge() + "\"" + separator +
+							"\"" + psm.getMassToCharge() + "\"" + separator +
+							"\"" + psm.getDeltaMass() + "\"" + separator +
+							"\"" + psm.getDeltaPPM() + "\"" + separator +
+							"\"" + psm.getRetentionTime() + "\"" + separator +
+							"\"" + psm.getMissedCleavages() + "\"" + separator +
+							"\"" + psm.getSourceID() + "\"" + separator +
+							"\"" + accessionsSB.toString() + "\"" + separator +
+							"\"" + psm.getScores() + "\"" + separator +
+							"\"" + psm.getIdentificationRanks() + "\"" + separator +
+							"\"" + psm.getIsDecoy() + "\"" + separator +
+							"\"" + ((psm.getSpectrum().getIsUnique() != null) ? psm.getSpectrum().getIsUnique() : false) + "\"" + separator +
+							"\"" + psm.getIsFDRGood() + "\"" +
 							"\n"
 							);
 				} else if (item instanceof ReportPSMSet) {
@@ -2024,7 +2026,7 @@ public class PSMModeller {
 					
 					if (isCombinedFDRScoreCalculated()) {
 						ScoreModel combinedFDR = psm.getFDRScore();
-						if (combinedFDR.getValue() != Double.NaN) {
+						if (!combinedFDR.getValue().equals(Double.NaN)) {
 							scores.append("[");
 							scores.append(combinedFDR);
 							scores.append("]");
@@ -2039,20 +2041,20 @@ public class PSMModeller {
 					}
 					
 					writer.append(
-							"\"" + psm.getSequence() + "\";" +
-							"\"" + psm.getModificationsString() + "\";" +
-							"\"" + psm.getCharge() + "\";" +
-							"\"" + psm.getMassToCharge() + "\";" +
-							"\"" + psm.getDeltaMass() + "\";" +
-							"\"" + psm.getDeltaPPM() + "\";" +
-							"\"" + psm.getRetentionTime() + "\";" +
-							"\"" + psm.getMissedCleavages() + "\";" +
-							"\"" + psm.getSourceID() + "\";" +
-							"\"" + accessionsSB.toString() + "\";" +
-							"\"" + scores.toString() + "\";" +
-							"\"" + idRanks.toString() + "\";" +
-							"\"" + psm.getIsDecoy() + "\";" +
-							"\"" + psm.getIsFDRGood() + "\";" +
+							"\"" + psm.getSequence() + "\"" + separator +
+							"\"" + psm.getModificationsString() + "\"" + separator +
+							"\"" + psm.getCharge() + "\"" + separator +
+							"\"" + psm.getMassToCharge() + "\"" + separator +
+							"\"" + psm.getDeltaMass() + "\"" + separator +
+							"\"" + psm.getDeltaPPM() + "\"" + separator +
+							"\"" + psm.getRetentionTime() + "\"" + separator +
+							"\"" + psm.getMissedCleavages() + "\"" + separator +
+							"\"" + psm.getSourceID() + "\"" + separator +
+							"\"" + accessionsSB.toString() + "\"" + separator +
+							"\"" + scores.toString() + "\"" + separator +
+							"\"" + idRanks.toString() + "\"" + separator +
+							"\"" + psm.getIsDecoy() + "\"" + separator +
+							"\"" + psm.getIsFDRGood() + "\"" + separator +
 							"\n"
 							);
 				}
@@ -2062,24 +2064,24 @@ public class PSMModeller {
 					ReportPSM psm = (ReportPSM)item;
 					
 					String exportLine = 
-							"\"" + psm.getFileName() +  "\";" +
-							"\"" + psm.getSequence() + "\";" +
-							"\"" + psm.getModificationsString() + "\";" +
-							"\"" + psm.getCharge() + "\";" +
-							"\"" + psm.getMassToCharge() + "\";" +
-							"\"" + psm.getDeltaMass() + "\";" +
-							"\"" + psm.getDeltaPPM() + "\";" +
-							"\"" + psm.getRetentionTime() + "\";" +
-							"\"" + psm.getMissedCleavages() + "\";" +
-							"\"" + psm.getSourceID() + "\";" +
-							"\"" + psm.getSpectrumTitle() + "\";" +
-							"\"" + psm.getScores() + "\";" +
-							"\"" + psm.getIdentificationRanks() + "\";" +
-							"\"" + psm.getIsDecoy() + "\";" +
-							"\"" + ((psm.getSpectrum().getIsUnique() != null) ? psm.getSpectrum().getIsUnique() : false) + "\";";
+							"\"" + psm.getFileName() +  "\"" + separator +
+							"\"" + psm.getSequence() + "\"" + separator +
+							"\"" + psm.getModificationsString() + "\"" + separator +
+							"\"" + psm.getCharge() + "\"" + separator +
+							"\"" + psm.getMassToCharge() + "\"" + separator +
+							"\"" + psm.getDeltaMass() + "\"" + separator +
+							"\"" + psm.getDeltaPPM() + "\"" + separator +
+							"\"" + psm.getRetentionTime() + "\"" + separator +
+							"\"" + psm.getMissedCleavages() + "\"" + separator +
+							"\"" + psm.getSourceID() + "\"" + separator +
+							"\"" + psm.getSpectrumTitle() + "\"" + separator +
+							"\"" + psm.getScores() + "\"" + separator +
+							"\"" + psm.getIdentificationRanks() + "\"" + separator +
+							"\"" + psm.getIsDecoy() + "\"" + separator +
+							"\"" + ((psm.getSpectrum().getIsUnique() != null) ? psm.getSpectrum().getIsUnique() : false) + "\"";
 					
 					for (Accession accession : psm.getAccessions()) {
-						writer.append("\"" + accession.getAccession() + "\";");
+						writer.append("\"" + accession.getAccession() + "\"" + separator);
 						writer.append(exportLine);
 						writer.append("\n");
 					}
