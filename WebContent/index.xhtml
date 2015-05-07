@@ -23,8 +23,63 @@
 	
 	<div class="welcome_header">Welcome to PIA</div>
 	<div class="welcome_text">
-		Click on 'Projects' to see already compiled projects or 'New Project' to
-		create a new compilation.
+		<p>
+		PIA is a toolbox for MS based protein inference and identification analysis.
+		</p>
+		<p>
+		PIA allows you to inspect the results of common proteomics spectrum
+		identification search engines, combine them and conduct statistical
+		analyses. The main focus of PIA lays on the integrated inference
+		algorithms, i.e. concluding the proteins from a set of identified
+		spectra. But it also allows you to inspect your peptide spectrum
+		matches, calculate FDR values across different search engine results and
+		visualize the correspondence between PSMs, peptides and proteins.
+		</p>
+		<p>
+		This web installation of PIA is mainly to get familiar with the way, PIA
+		is used. The KNIME implementation is the most efficient way to use PIA
+		in daily workflows. For developers, also the command line usage may be
+		of interest. For more information on the last two, please also see PIA's
+		GitHub page.
+		</p>
+		
+		<div class="browse">
+			<h:outputLink id="browse-projects"
+					value="./showprojects.jsf"
+					styleClass="browse-box">
+				<h3>Projects</h3>
+				<h:outputText
+						value="Here you can find listings of already created
+							projects. A project is a combination of one or more search results.
+							The results may originate from multiple MS runs or the same run,
+							searched with different MS/MS identification algorithms."
+						styleClass="browse-text"/>
+			</h:outputLink>
+			
+			<h:outputLink id="browse-new"
+					value="./compileproject.jsf"
+					styleClass="browse-box">
+				<h3>New Project</h3>
+				<h:outputText
+						value="Under new projects you can create a new compilation
+							of search results. The search result files must either
+							be downloaded from your local computer, or (if available)
+							can directly be copied from a Mascot installation."
+						styleClass="browse-text"/>
+			</h:outputLink>
+			
+			<h:outputLink id="browse-help"
+					value="https://github.com/mpc-bioinformatics/pia/wiki"
+					styleClass="browse-box"
+					target="_blank">
+				<h3>Help</h3>
+				<h:outputText
+						value="For more information, please see the Wiki documentation
+							on PIA's GitHub page. Here, you can also download the
+							command line and KNIME implementation of PIA."
+						styleClass="browse-text"/>
+			</h:outputLink>
+		</div>
 	</div>
 	
 	<ui:decorate template="templates/footer.xhtml" />

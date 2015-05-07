@@ -85,9 +85,40 @@ table.navigation {
 
 .welcome_text {
 	font-family: '#{richSkin.generalFamilyFont}';
-	font-size: 11px;
+	font-size: 13px;
+	width: '#{richSkin.minBodyWidth}';
 }
 
+.browse {
+	float: none;
+}
+
+.browse-box {
+	vertical-align: top;
+	display: inline-block;
+	width: 280px;
+	height: 13em;
+	margin: 0 1em;
+	border: "1px solid #{richSkin.panelBorderColor}";
+	outline: 0 none;
+	background: url("#{resource['org.richfaces.images:tabLineBg.png']}") repeat-x scroll center top;
+}
+
+.browse-box h3 {
+	float: left;
+	margin: 1em 0 0 1em;
+}
+
+a.browse-box {
+	color: '#{richSkin.generalTextColor}';
+	text-decoration: none;
+}
+
+.browse-text {
+	display: block;
+	margin: 3.5em 1em 1em 1em;
+	clear: left;
+}
 
 /* messages */
 .errorMsg {
