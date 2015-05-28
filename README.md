@@ -4,7 +4,7 @@ PIA - Protein Inference Algorithms
 PIA is a toolbox for MS based protein inference and identification analysis.
 
 PIA allows you to inspect the results of common proteomics spectrum
-identification search engines, combine them semlessly and conduct statistical 
+identification search engines, combine them seamlessly and conduct statistical 
 analyses.
 The main focus of PIA lays on the integrated inference algorithms, i.e.
 concluding the proteins from a set of identified spectra. But it also allows
