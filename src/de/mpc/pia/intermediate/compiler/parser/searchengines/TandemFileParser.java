@@ -588,7 +588,7 @@ public class TandemFileParser {
 			// check for scan number in the title, if it is there, take the title as sourceID
 			Matcher matcher = MzIdentMLTools.patternScanInTitle.matcher(spectrumTitle);
 			if (matcher.matches()) {
-				sourceID = spectrumTitle;
+				sourceID = "index=" + matcher.group(1);
 			}
 			
 			List<de.proteinms.xtandemparser.xtandem.Peptide> pepList =

@@ -1,5 +1,7 @@
 package de.mpc.pia.tools;
 
+import java.util.regex.Pattern;
+
 import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
@@ -19,6 +21,8 @@ import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
  */
 public class MzIdentMLTools {
 	
+	/** get the index from the title, which is the scan number there */
+	public static Pattern patternScanInTitle = Pattern.compile("^.*scan=(\\d+).*$");
 	
 	private static Cv psiMS = new Cv();
 	private static Cv unitOntology = new Cv();

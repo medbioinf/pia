@@ -490,7 +490,7 @@ public class MascotDatFileParser {
 		
 		Matcher matcher = MzIdentMLTools.patternScanInTitle.matcher(spectrumTitle);
 		if (matcher.matches()) {
-			index = spectrumTitle;
+			index = "index=" + matcher.group(1);
 		}
 		
 		// the peptideHits are the SpectrumPeptideMatches

@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 import org.apache.log4j.Logger;
 import org.obo.datamodel.IdentifiedObject;
@@ -47,6 +48,7 @@ import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
+import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.obo.OBOMapper;
 
 
@@ -505,6 +507,16 @@ public class MzIdentMLFileParser {
 						}
 					}
 					
+					String sourceID = specIdResult.getSpectrumID();
+					Matcher matcher = MzIdentMLTools.patternScanInTitle.matcher(sourceID);
+					if (matcher.matches()) {
+						if (spectrumTitle == null) {
+							spectrumTitle = sourceID; 
+						}
+						
+						sourceID = "index=" + matcher.group(1);
+					}
+					
 					// create the PeptideSpectrumMatch object
 					PeptideSpectrumMatch psm;
 					psm = compiler.insertNewSpectrum(specIdItem.getChargeState(),
@@ -513,7 +525,7 @@ public class MzIdentMLFileParser {
 							null,		// TODO: look for a CV with the RT
 							sequence,
 							missed,
-							specIdResult.getSpectrumID(),
+							sourceID,
 							spectrumTitle,
 							file,
 							spectrumID);
