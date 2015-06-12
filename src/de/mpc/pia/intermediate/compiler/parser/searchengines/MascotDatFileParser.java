@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.regex.Matcher;
 
 import org.apache.log4j.Logger;
 
@@ -26,7 +27,6 @@ import com.compomics.mascotdatfile.util.mascot.iterator.QueryEnumerator;
 
 import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
-import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
@@ -72,7 +72,6 @@ public class MascotDatFileParser {
 	
 	/** logger for this class */
 	private static final Logger logger = Logger.getLogger(MascotDatFileParser.class);
-	
 	
 	/**
 	 * We don't ever want to instantiate this class
@@ -488,6 +487,11 @@ public class MascotDatFileParser {
 		}
 		
 		int nrPepHits = 0;
+		
+		Matcher matcher = MzIdentMLTools.patternScanInTitle.matcher(spectrumTitle);
+		if (matcher.matches()) {
+			index = spectrumTitle;
+		}
 		
 		// the peptideHits are the SpectrumPeptideMatches
 		for (int i=0; i < peptideHits.size(); i++) {

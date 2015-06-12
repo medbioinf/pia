@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -70,6 +72,10 @@ public class TandemFileParser {
 	
 	/** logger for this class */
 	private static final Logger logger = Logger.getLogger(TandemFileParser.class);
+	
+	
+	/** this pattern matches a special case of RT, which occurs from mzML files */
+	private static Pattern patternMzMLRT = Pattern.compile("^PT(\\d+(\\.\\d+))S$");
 	
 	
 	/**
@@ -579,6 +585,12 @@ public class TandemFileParser {
 					getSupportData(spectrum.getSpectrumNumber()).
 					getFragIonSpectrumDescription();
 			
+			// check for scan number in the title, if it is there, take the title as sourceID
+			Matcher matcher = MzIdentMLTools.patternScanInTitle.matcher(spectrumTitle);
+			if (matcher.matches()) {
+				sourceID = spectrumTitle;
+			}
+			
 			List<de.proteinms.xtandemparser.xtandem.Peptide> pepList =
 					pepMap.getAllPeptides(spectrum.getSpectrumNumber());
 			
@@ -588,22 +600,20 @@ public class TandemFileParser {
 			if ((rtStr != null) && (rtStr.trim().length() > 0)) {
 				rtStr = rtStr.trim();
 				
-				if (rtStr.startsWith("PT")) {
-					rtStr = rtStr.substring(2);
-				}
-				
-				if (rtStr.endsWith("S")) {
-					rtStr = rtStr.substring(0, rtStr.length()-1);
-				}
-				
-				// try to get the RT directly from tandem
 				try {
-					rt = Double.parseDouble(rtStr);
+					matcher = patternMzMLRT.matcher(rtStr);
+					if (matcher.matches()) {
+						rt = Double.parseDouble(matcher.group(1));
+						// the RT is also somehow wrong, fix this
+						rt = rt / 60.0;
+					} else {
+						// try to get the RT directly from tandem
+						rt = Double.parseDouble(rtStr);
+					}
 				} catch (NumberFormatException e) {
 					logger.error("Could not parse RT: ", e);
 					rt = null;
 				}
-				
 			}
 			
 			if (rt == null) {
