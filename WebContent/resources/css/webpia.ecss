@@ -236,7 +236,7 @@ div.current_settings_outpanel {
 }
 
 div.protein_sequence.rf-p  {
-	width: 940px;
+	width: 1070px;
 }
 
 /* file panel */
