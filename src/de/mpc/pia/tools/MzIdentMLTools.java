@@ -60,6 +60,8 @@ public class MzIdentMLTools {
 		if ((x == null) && (y == null)) {
 			// both are null
 			return true;
+		} else if ((x == null) || (y == null)) {
+			return false;
 		}
 		
 		CvParam cv1 = x.getCvParam();

@@ -1,5 +1,6 @@
 package de.mpc.pia.intermediate.compiler;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.Writer;
@@ -967,6 +968,11 @@ public class PIACompiler {
 								if (values.length > 3) {
 									additionalInfoFile = (values[3].length() > 0) ? values[3] : null;
 								}
+							}
+						} else {
+							if (file.contains(File.separator)) {
+								// take the filename-only as name, if none is given
+								name = new File(file).getName();
 							}
 						}
 						

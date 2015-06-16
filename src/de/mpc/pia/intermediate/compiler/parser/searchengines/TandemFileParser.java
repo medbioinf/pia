@@ -532,7 +532,7 @@ public class TandemFileParser {
 		
 		// add the spectrum identification
 		SpectrumIdentification spectrumID = new SpectrumIdentification();
-		spectrumID.setId("mascotIdentification");
+		spectrumID.setId("tandemIdentification");
 		spectrumID.setSpectrumIdentificationList(null);
 		spectrumID.setSpectrumIdentificationProtocol(spectrumIDProtocol);
 		

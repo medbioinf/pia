@@ -188,9 +188,11 @@ public class PIAInputFile implements Serializable {
 		
 		// uniquify the enzymes' IDs in the SpectrumIdentificationProtocol
 		int idx = 1;
-		for (Enzyme enzyme : sip.getEnzymes().getEnzyme()) {
-			enzyme.setId(PIAConstants.enzyme_prefix + this.ID + "_" + idx);
-			idx++;
+		if (sip.getEnzymes() != null) {
+			for (Enzyme enzyme : sip.getEnzymes().getEnzyme()) {
+				enzyme.setId(PIAConstants.enzyme_prefix + this.ID + "_" + idx);
+				idx++;
+			}
 		}
 		
 		return strID;
