@@ -9,6 +9,7 @@ import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.compiler.parser.searchengines.MascotDatFileParser;
 import de.mpc.pia.intermediate.compiler.parser.searchengines.TandemFileParser;
 import de.mpc.pia.intermediate.compiler.parser.searchengines.ThermoMSFFileParser;
+import de.mpc.pia.intermediate.compiler.parser.searchengines.TideTXTFileParser;
 
 public class InputFileParserFactory {
 
@@ -182,6 +183,32 @@ public class InputFileParserFactory {
 			public boolean parseFile(String name, String fileName,
 					PIACompiler compiler, String additionalInfoFileName) {
 				return ThermoMSFFileParser.getDataFromThermoMSFFile(name,
+						fileName, compiler);
+			}
+		},
+		/**
+		 * the input file is a Tide TXT file
+		 */
+		TIDE_TXT_INPUT {
+			@Override
+			public String getFileSuffix() {
+				return "txt";
+			}
+			
+			@Override
+			public String getFileTypeName() {
+				return "Tide TXT";
+			}
+			
+			@Override
+			public String getFileTypeShort() {
+				return "tide";
+			}
+			
+			@Override
+			public boolean parseFile(String name, String fileName,
+					PIACompiler compiler, String additionalInfoFileName) {
+				return TideTXTFileParser.getDataFromTideTXTFile(name,
 						fileName, compiler);
 			}
 		},
