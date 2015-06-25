@@ -1,0 +1,113 @@
+package de.mpc.pia.tools.obo;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import org.apache.log4j.Logger;
+import org.biojava.nbio.ontology.Ontology;
+import org.biojava.nbio.ontology.Term;
+import org.biojava.nbio.ontology.Triple;
+import org.biojava.nbio.ontology.io.OboParser;
+
+
+public class OBOMapper {
+	
+	/** the logger for this class */
+	private static final Logger logger = Logger.getLogger(OBOMapper.class);
+	
+	/** the actual ontology in the OBO file */
+	private Ontology ontology;
+	
+	/** the URL to the current OBO file */
+	public final String urlToOBO = "http://psidev.cvs.sourceforge.net/viewvc/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo";
+	
+	public static final String obo_cleavageAgentNameID = "MS:1001045";
+	public static final String obo_relationship = "relationship";
+	public static final String obo_is_a = "is_a";
+	public static final String obo_has_regexp = "has_regexp";
+	public static final String obo_has_order_higherscorebetter = "has_order MS:1002108";
+	public static final String obo_has_order_lowerscorebetter = "has_order MS:1002109";
+	public static final String obo_spectrumTitleID = "MS:1000796";
+	public static final String obo_psmScoreID = "MS:1001143";
+	
+	/**
+	 * Constructor for the OBOMapper. Uses the online OBO file (if accessible)
+	 * or a local file.
+	 * 
+	 * @param pathToFile
+	 */
+	public OBOMapper() {
+    	InputStream inStream;
+    	
+    	try {
+    		// default: reading from internet
+    		inStream = new URL(urlToOBO).openStream();
+    		logger.debug("using the online version of the OBO");
+    	} catch (IOException e) {
+    		// failure in retrieving internet version of file, use the shipped obo file
+    		inStream = getClass().getResourceAsStream("psi-ms.obo");
+    		logger.debug("using the shipped version of the OBO");
+    	}
+    	
+        try {
+        	OboParser parser = new OboParser();
+        	BufferedReader oboFile = new BufferedReader(new InputStreamReader(inStream));
+        	
+        	ontology = parser.parseOBO(oboFile, "PSI-MS", "MS ontology of the HUPO-PSI");
+        	
+        	inStream.close();
+		} catch (Exception e) {
+			logger.error(e);
+			throw new AssertionError(e);
+		}
+    }
+	
+	/**
+	 * Fetch {@link Term} with specified name
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public Term getTerm(String name) {
+		try {
+			return ontology.getTerm(name);
+		} catch (NoSuchElementException e) {
+			logger.warn(e);
+			return null;
+		}
+	}
+	
+	
+	/**
+	 * Fetch all {@link Term}s of the ontology
+	 * 
+	 * @return
+	 */
+	public Set<Term> getTerms() {
+		try {
+			return ontology.getTerms();
+		} catch (NoSuchElementException e) {
+			logger.warn(e);
+			return null;
+		}
+	}
+	
+	/**
+	 * Return all triples from this ontology which match the supplied pattern.
+	 * If any of the parameters of this method are null, they are treated as
+	 * wildcards.
+	 * 
+	 * @param subject
+	 * @param object
+	 * @param predicate
+	 * @return
+	 */
+	public Set<Triple> getTriples(Term subject, Term object, Term predicate) {
+		return ontology.getTriples(subject, object, predicate);
+	}
+}
