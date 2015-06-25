@@ -1,5 +1,7 @@
 PIA - Protein Inference Algorithms
-===
+==================================
+
+[![Build Status](https://travis-ci.org/mpc-bioinformatics/pia.svg?branch=master)](https://travis-ci.org/mpc-bioinformatics/pia)
 
 PIA is a toolbox for MS based protein inference and identification analysis.
 
@@ -16,7 +18,7 @@ peptides and proteins.
 
 
 PIA in a nutshell
-===
+=================
 
 Most search engines for protein identification in MS/MS experiments return
 protein lists, although the actual search yields a set of peptide spectrum
@@ -43,19 +45,20 @@ free to test it using the test server).
 
 
 Download
-===
+========
+For how to install and run PIA inside KNIME see [the wiki about PIA in KNIME](https://github.com/mpc-bioinformatics/pia/wiki/Running-PIA-via-KNIME).
 
-Download the latest released version [here](https://github.com/mpc-bioinformatics/pia/releases/latest)
+Download the latest released version [here](https://github.com/mpc-bioinformatics/pia/releases/latest).
 
 
 Documentation
-===
+=============
 
 For documentation please refer to the Wiki (https://github.com/mpc-bioinformatics/pia/wiki) on github.
 
 
 Citation and Publication
-===
+========================
 If you found PIA useful for your work, please cite the following publication:
 
 http://www.ncbi.nlm.nih.gov/pubmed/25938255
