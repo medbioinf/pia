@@ -8,9 +8,11 @@ import java.util.Set;
 import org.biojava.nbio.ontology.Term;
 import org.junit.Test;
 
-public class OBOMapperTesting {
+
+public class OBOMapperTest {
+	
 	@Test
-	public void readOBO() {
+	public void testRreadOBO() {
 		OBOMapper oboMapper = new OBOMapper();
 		
 		boolean foundTrypsin = false;
@@ -40,4 +42,5 @@ public class OBOMapperTesting {
 		assertEquals("Mascot:score should be found in the obo", true, foundMascotScore);
 		assertEquals("MS/GF+ (MS:1002048) should be found in the obo", true, foundMSGF);
 	}
+	
 }
