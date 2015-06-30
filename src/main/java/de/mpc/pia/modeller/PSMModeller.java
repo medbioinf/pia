@@ -3901,24 +3901,24 @@ public class PSMModeller {
 			}
 			
 			// add additional search params
-			for (CvParam param
-					: specIdProtocol.getAdditionalSearchParams().getCvParam()) {
-				if (param.getValue() != null) {
-					mtd.addSoftwareSetting(nrSoftwares,
-							param.getName() + " = " + param.getValue());
-				} else {
-					mtd.addSoftwareSetting(nrSoftwares, param.getName());
+			ParamList additionalSearchParams = specIdProtocol.getAdditionalSearchParams();
+			if (additionalSearchParams != null) {
+				for (CvParam param : additionalSearchParams.getCvParam()) {
+					if (param.getValue() != null) {
+						mtd.addSoftwareSetting(nrSoftwares, param.getName() + " = " + param.getValue());
+					} else {
+						mtd.addSoftwareSetting(nrSoftwares, param.getName());
+					}
+				}
+				for (UserParam param : additionalSearchParams.getUserParam()) {
+					if (param.getValue() != null) {
+						mtd.addSoftwareSetting(nrSoftwares, param.getName() + " = " + param.getValue());
+					} else {
+						mtd.addSoftwareSetting(nrSoftwares, param.getName());
+					}
 				}
 			}
-			for (UserParam param
-					: specIdProtocol.getAdditionalSearchParams().getUserParam()) {
-				if (param.getValue() != null) {
-					mtd.addSoftwareSetting(nrSoftwares,
-							param.getName() + " = " + param.getValue());
-				} else {
-					mtd.addSoftwareSetting(nrSoftwares, param.getName());
-				}
-			}
+			
 		}
 		
 		return mtd;
@@ -4121,7 +4121,7 @@ public class PSMModeller {
 	 * Writes out a PSM section for the list of PSMs (which can be either sets
 	 * or not).
 	 * 
-	 * @param metadata the metadata associated to teh columns (should be created
+	 * @param metadata the metadata associated to the columns (should be created
 	 * by a call of {@link #createPSMsHeaderForMzTab(Long, Boolean, UnimodParser, MZTabDescription, Map)})
 	 * @param report a List of {@link PSMReportItem}s containing the PSMs to be
 	 * reported
@@ -4143,6 +4143,8 @@ public class PSMModeller {
 		// initialize the columns
 		MZTabColumnFactory columnFactory =
 				MZTabColumnFactory.getInstance(Section.PSM_Header);
+		
+		columnFactory.addDefaultStableColumns();
 		
 		// add the score columns
 		for (Integer scoreID : psmScoreShortToId.values()) {
@@ -4282,18 +4284,20 @@ public class PSMModeller {
 							analysisSoftware.get(softwareRef);
 					
 					Param softwareName = software.getSoftwareName();
-					if (softwareName.getCvParam() != null) {
-						CvParam param = softwareName.getCvParam();
-						
-						softwareParam = new CVParam(param.getCvRef(),
-								param.getAccession(), param.getName(),
-								software.getVersion());
-					} else if (softwareName.getUserParam() != null) {
-						UserParam param = softwareName.getUserParam();
-						
-						softwareParam =
-								new uk.ac.ebi.pride.jmztab.model.UserParam(
-										param.getName(), software.getVersion());
+					if (softwareName != null) {
+						if (softwareName.getCvParam() != null) {
+							CvParam param = softwareName.getCvParam();
+							
+							softwareParam = new CVParam(param.getCvRef(),
+									param.getAccession(), param.getName(),
+									software.getVersion());
+						} else if (softwareName.getUserParam() != null) {
+							UserParam param = softwareName.getUserParam();
+							
+							softwareParam =
+									new uk.ac.ebi.pride.jmztab.model.UserParam(
+											param.getName(), software.getVersion());
+						}
 					}
 					
 					softwareParams.put(softwareRef, softwareParam);
@@ -4324,9 +4328,9 @@ public class PSMModeller {
 				if (reliabilityCol &&
 						(model.equals(ScoreModelEnum.PSM_LEVEL_FDR_SCORE) ||
 								model.equals(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE))) {
-					if (scoreValue <= 0.01) {
+					if ((scoreValue != null) && (scoreValue <= 0.01)) {
 						reliability = Reliability.High;
-					} else if (scoreValue <= 0.05) {
+					} else if ((scoreValue != null) && (scoreValue <= 0.05)) {
 						reliability = Reliability.Medium;
 					} else {
 						reliability = Reliability.Poor;
