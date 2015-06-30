@@ -1615,6 +1615,8 @@ public class ProteinModeller {
 		MZTabColumnFactory columnFactory =
 				MZTabColumnFactory.getInstance(Section.Protein_Header);
 		
+		columnFactory.addDefaultStableColumns();
+		
 		Map<String, Boolean> psmSetSettings = psmModeller.getPSMSetSettings();
 		
 		// cache the msRuns
