@@ -57,6 +57,12 @@ Documentation
 For documentation please refer to the Wiki (https://github.com/mpc-bioinformatics/pia/wiki) on github.
 
 
+Problems, Bugs and Issues
+=========================
+If you have any problems with PIA or find bugs and other issues, please use the
+issue tracker of github (https://github.com/mpc-bioinformatics/pia/issues).
+
+
 Citation and Publication
 ========================
 If you found PIA useful for your work, please cite the following publication:
