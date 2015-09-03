@@ -250,7 +250,7 @@
     
     <!-- local files for the PD parser -->
     <repository>
-      <id>repo</id>
+      <id>pia-shipped-repo</id>
       <releases>
         <enabled>true</enabled>
         <checksumPolicy>ignore</checksumPolicy>
@@ -258,7 +258,7 @@
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <url>file://${project.basedir}/libs</url>
+      <url>file:///${project.basedir}/libs</url>
     </repository>
   </repositories>
 </project>
