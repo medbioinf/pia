@@ -97,6 +97,7 @@
   		<artifactId>sqlite-jdbc</artifactId>
   		<version>3.8.10.1</version>
   	</dependency>
+  	
   	<dependency>
   		<groupId>log4j</groupId>
   		<artifactId>log4j</artifactId>
@@ -251,6 +252,7 @@
     <!-- local files for the PD parser -->
     <repository>
       <id>pia-shipped-repo</id>
+      <name>pia-shipped-repo</name>
       <releases>
         <enabled>true</enabled>
         <checksumPolicy>ignore</checksumPolicy>
@@ -258,7 +260,7 @@
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <url>file:///${project.basedir}/libs</url>
+      <url>file://${project.basedir}/libs</url>
     </repository>
   </repositories>
 </project>
