@@ -133,18 +133,21 @@ public class PIAModeller {
 	
 	
 	/**
-	 * Setter for fileName.
+	 * Setter for fileName, notifies progress on the given object.
 	 * Also initialises the model, if the fileName changed.
 	 * 
 	 * @param filename
+	 * @param progress the first item in the array holds the current progress
+	 * @param notifier progress will be notified on this object
+	 * 
 	 * @throws JAXBException 
 	 * @throws FileNotFoundException
 	 * 
 	 * @return true, if a new file was loaded
 	 */
-	public boolean loadFileName(String filename, Long[] progress)
+	public boolean loadFileName(String filename, Long[] progress, Object notifier)
 			throws FileNotFoundException, JAXBException, XMLStreamException {
-		logger.info("start loading file "+filename);
+		logger.info("start loading file " + filename);
 		
 		if (filename != null) {
 			this.psmModeller = null;
@@ -156,11 +159,37 @@ public class PIAModeller {
 			
 			if ((this.fileName != null) && !this.fileName.equals("")) {
 				parseIntermediate(progress);
+				if (notifier != null) {
+					synchronized (notifier) {
+						notifier.notifyAll();
+					}
+				}
 				return true;
 			}
 		}
 		
+		if (notifier != null) {
+			synchronized (notifier) {
+				notifier.notifyAll();
+			}
+		}
 		return false;
+	}
+	
+	
+	/**
+	 * Setter for fileName.
+	 * Also initialises the model, if the fileName changed.
+	 * 
+	 * @param filename
+	 * @throws JAXBException 
+	 * @throws FileNotFoundException
+	 * 
+	 * @return true, if a new file was loaded
+	 */
+	public boolean loadFileName(String filename, Long[] progress)
+			throws FileNotFoundException, JAXBException, XMLStreamException {
+		return loadFileName(filename, progress, null);
 	}
 	
 	
@@ -246,8 +275,11 @@ public class PIAModeller {
 	/**
 	 * Parses in the intermediate structure from the given file.<br/>
 	 * The progress gets increased by 100.
+	 * 
+	 * @param progress the first entry in this array holds the progress
+	 * @param notifier progress is notified on this object
 	 */
-	private void parseIntermediate(Long[] progress)
+	private void parseIntermediate(Long[] progress, Object notifier)
 			throws FileNotFoundException, JAXBException, XMLStreamException {
 		logger.info("loadIntermediate started...");
 		
@@ -258,6 +290,11 @@ public class PIAModeller {
 		}
 		
 		progress[0] = 0L;
+		if (notifier != null) {
+			synchronized (notifier) {
+				notifier.notifyAll();
+			}
+		}
 		
 		if (fileName == null) {
 			logger.error("no file given!");
@@ -268,7 +305,7 @@ public class PIAModeller {
 			logger.info("Starting parse...");
 			
 			intermediateHandler = new PIAIntermediateJAXBHandler();
-			intermediateHandler.parse(fileName, progress);
+			intermediateHandler.parse(fileName, progress, notifier);
 			
 			logger.info(fileName + " successfully parsed.\n" + 
 					"\t" + intermediateHandler.getFiles().size() + " files\n" + 
@@ -326,7 +363,22 @@ public class PIAModeller {
 					intermediateHandler.getSearchDatabase());
 			
 			progress[0] += 60;
+			if (notifier != null) {
+				synchronized (notifier) {
+					notifier.notifyAll();
+				}
+			}
 		}
+	}
+	
+	
+	/**
+	 * Parses in the intermediate structure from the given file.<br/>
+	 * The progress gets increased by 100.
+	 */
+	private void parseIntermediate(Long[] progress)
+			throws FileNotFoundException, JAXBException, XMLStreamException {
+		parseIntermediate(progress, null);
 	}
 	
 	

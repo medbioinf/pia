@@ -122,11 +122,14 @@ public class PIAIntermediateJAXBHandler {
 	 * The progress gets increased by 40 (remaining 60 are in the PIAModeller).
 	 * 
 	 * @param fileName
+	 * @param progress the first entry in this array holds the progress
+	 * @param notifier progress is notified on this object
+	 * 
 	 * @throws XMLStreamException 
 	 * @throws FileNotFoundException 
 	 * @throws JAXBException 
 	 */
-	public void parse(String fileName, Long[] progress)
+	public void parse(String fileName, Long[] progress, Object notifier)
 			throws FileNotFoundException, XMLStreamException, JAXBException {
 		projectName = null;
 		files = new HashMap<Long, PIAInputFile>();
@@ -176,6 +179,11 @@ public class PIAIntermediateJAXBHandler {
 					parseFilesList(filesList);
 				}
 				progress[0] += 1;
+				if (notifier != null) {
+					synchronized (notifier) {
+						notifier.notifyAll();
+					}
+				}
 			} else if (tag.equalsIgnoreCase("Inputs")) {
 				logger.info(tag);
 				// Inputs
@@ -196,6 +204,11 @@ public class PIAIntermediateJAXBHandler {
 					}
 				}
 				progress[0] += 1;
+				if (notifier != null) {
+					synchronized (notifier) {
+						notifier.notifyAll();
+					}
+				}
 			} else if (tag.equalsIgnoreCase("AnalysisSoftwareList")) {
 				logger.info(tag);
 				// AnalysisSoftwareList
@@ -210,22 +223,47 @@ public class PIAIntermediateJAXBHandler {
 					}
 				}
 				progress[0] += 1;
+				if (notifier != null) {
+					synchronized (notifier) {
+						notifier.notifyAll();
+					}
+				}
 			} else if (tag.equalsIgnoreCase("spectraList")) {
 				logger.info(tag);
 				parseSpectraChunked(xmlr);
 				progress[0] += 30;
+				if (notifier != null) {
+					synchronized (notifier) {
+						notifier.notifyAll();
+					}
+				}
 			} else if (tag.equalsIgnoreCase("accessionsList")) {
 				logger.info(tag);
 				parseAccessionsChunked(xmlr);
 				progress[0] += 1;
+				if (notifier != null) {
+					synchronized (notifier) {
+						notifier.notifyAll();
+					}
+				}
 			} else if (tag.equalsIgnoreCase("peptidesList")) {
 				logger.info(tag);
 				parsePeptidesChunked(xmlr);
 				progress[0] += 5;
+				if (notifier != null) {
+					synchronized (notifier) {
+						notifier.notifyAll();
+					}
+				}
 			} else if (tag.equalsIgnoreCase("groupsList")) {
 				logger.info(tag);
 				parseGroupsChunked(xmlr);
 				progress[0] += 1;
+				if (notifier != null) {
+					synchronized (notifier) {
+						notifier.notifyAll();
+					}
+				}
 			} else {
 				logger.warn("unknown tag in piaXML: " + xmlr.getLocalName());
 			}
@@ -242,6 +280,23 @@ public class PIAIntermediateJAXBHandler {
 				break;
 			}
 		}
+	}
+	
+	
+	/**
+	 * Parses the file in chunks and thus having a low memory footprint.<br/>
+	 * The progress gets increased by 40 (remaining 60 are in the PIAModeller).
+	 * 
+	 * @param fileName
+	 * @param progress
+	 * 
+	 * @throws XMLStreamException 
+	 * @throws FileNotFoundException 
+	 * @throws JAXBException 
+	 */
+	public void parse(String fileName, Long[] progress)
+			throws FileNotFoundException, XMLStreamException, JAXBException {
+		parse(fileName, progress, null);
 	}
 	
 	

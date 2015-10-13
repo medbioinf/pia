@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -1697,6 +1698,46 @@ public class PSMModeller {
 		}
 		
 		return null;
+	}
+	
+	
+	
+	public double[] getPPMDeviationData(Long fileID, boolean fdrGood) {
+		if (fdrGood && !isFDRCalculated(fileID)) {
+			return new double[0];
+		}
+		
+		ArrayList<Double> ppmData;
+		
+		// put all PPM shifts into the array
+		if (fileID > 0) {
+			ppmData = new ArrayList<Double>(fileReportPSMs.get(fileID).size());
+			ListIterator<ReportPSM> iter = fileReportPSMs.get(fileID).listIterator();
+			while (iter.hasNext()) {
+				ReportPSM psm = iter.next();
+				if (!fdrGood || (!psm.getIsDecoy() && psm.getIsFDRGood())) {
+					ppmData.add(psm.getDeltaPPM());
+				}
+			}
+		} else {
+			ppmData = new ArrayList<Double>(reportPSMSets.size());
+			ListIterator<ReportPSMSet> iter = reportPSMSets.listIterator();
+			while (iter.hasNext()) {
+				ReportPSMSet psm = iter.next();
+				if (!fdrGood || (!psm.getIsDecoy() && psm.getIsFDRGood())) {
+					ppmData.add(psm.getDeltaPPM());
+				}
+			}
+		}
+		
+		double[] ppmResult = new double[ppmData.size()];
+		ListIterator<Double> iter = ppmData.listIterator();
+		int idx = 0;
+		while (iter.hasNext()) {
+			ppmResult[idx] = iter.next();
+			idx++;
+		}
+		return ppmResult;
 	}
 	
 	
