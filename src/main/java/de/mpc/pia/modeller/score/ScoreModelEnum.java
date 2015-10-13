@@ -1,6 +1,7 @@
 package de.mpc.pia.modeller.score;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import de.mpc.pia.modeller.psm.PSMReportItemComparator;
@@ -1215,4 +1216,19 @@ public enum ScoreModelEnum {
 		
 		return UNKNOWN_SCORE;
 	}
+	
+	
+	/**
+	 * The scores in this list should not be used for FDR estimation on PSM level
+	 */
+	public final static List<ScoreModelEnum> notForPSMFdrScore = new ArrayList<ScoreModelEnum>(
+			Arrays.asList(new ScoreModelEnum[]{
+					AVERAGE_FDR_SCORE,
+					FASTA_ACCESSION_COUNT,
+					FASTA_SEQUENCE_COUNT,
+					PROTEIN_SCORE,
+					PSM_LEVEL_COMBINED_FDR_SCORE,
+					PSM_LEVEL_FDR_SCORE,
+					PSM_LEVEL_Q_VALUE
+			}));
 }
