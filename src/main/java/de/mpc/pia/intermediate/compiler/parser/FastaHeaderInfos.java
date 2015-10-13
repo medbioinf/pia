@@ -58,13 +58,13 @@ public class FastaHeaderInfos {
 			
 			@Override
 			public String matchRegex() {
-				return "^(?:(?:[OPQ][0-9][A-Z0-9]{3}[0-9])|(?:[A-NR-Z][0-9](?:[A-Z][A-Z0-9]{2}[0-9]){1,2}))\\|[^ ]+_[^ ]+.*$";
+				return "^>?(?:(?:[OPQ][0-9][A-Z0-9]{3}[0-9])|(?:[A-NR-Z][0-9](?:[A-Z][A-Z0-9]{2}[0-9]){1,2}))\\|[^ ]+_[^ ]+.*$";
 			}
 			
 			@Override
 			public FastaHeaderInfos parseHeader(String header) {
 				Matcher matcher;
-				Pattern pattern = Pattern.compile("^((?:[OPQ][0-9][A-Z0-9]{3}[0-9])|(?:[A-NR-Z][0-9](?:[A-Z][A-Z0-9]{2}[0-9]){1,2}))\\|([^ ]+_[^ ]+).*$");
+				Pattern pattern = Pattern.compile("^>?((?:[OPQ][0-9][A-Z0-9]{3}[0-9])|(?:[A-NR-Z][0-9](?:[A-Z][A-Z0-9]{2}[0-9]){1,2}))\\|([^ ]+_[^ ]+).*$");
 				
 				matcher = pattern.matcher(header);
 				
@@ -126,65 +126,6 @@ public class FastaHeaderInfos {
 				if (matcher.matches()) {
 					return new FastaHeaderInfos(this, matcher.group(1),
 							matcher.group(2).trim());
-				}
-				else {
-					return null;
-				}
-			}
-		},
-		
-		ACCESSION_AND_GENE {
-			@Override
-			public String getName() {
-				return "Generic accession followed by gene";
-			}
-			
-			@Override
-			public String matchRegex() {
-				return "^>?\\S+\\s\\S{3,4}\\s.+$";
-			}
-			
-			@Override
-			public FastaHeaderInfos parseHeader(String header) {
-				Matcher matcher;
-				Pattern pattern = Pattern.compile("^>?(\\S+)\\s(\\S{3,4}\\s.+)$");
-				
-				matcher = pattern.matcher(header);
-				
-				if (matcher.matches()) {
-					return new FastaHeaderInfos(this, matcher.group(1),
-							matcher.group(2).trim());
-				}
-				else {
-					return null;
-				}
-			}
-		},
-		
-		/**
-		 * This is a database for a proteogenomics project
-		 */
-		DIRECT_GENOME_PROTEOME {
-			@Override
-			public String getName() {
-				return "Genometranslation";
-			}
-			
-			@Override
-			public String matchRegex() {
-				return "^>?(?:|decoy_)genometranslation_\\S*$";
-			}
-			
-			@Override
-			public FastaHeaderInfos parseHeader(String header) {
-				Matcher matcher;
-				Pattern pattern = Pattern.compile("^>?((?:|decoy_)genometranslation_\\S*)$");
-				
-				matcher = pattern.matcher(header);
-				
-				if (matcher.matches()) {
-					return new FastaHeaderInfos(this, matcher.group(1),
-							matcher.group(1));
 				}
 				else {
 					return null;
