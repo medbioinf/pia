@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
 
+import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisProtocolCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
@@ -3036,7 +3037,7 @@ public class PSMModeller {
 		}
 		
 		
-		if (!createPSMSets && (psm instanceof ReportPSMSet)) {
+		if (!getCreatePSMSets() && (psm instanceof ReportPSMSet)) {
 			psmIdentificationKey =
 					getSpectrumIdentificationItemID(psm, ((ReportPSMSet) psm).getPSMs().get(0).getFileID());
 			psmIdentificationKey += ":set";
@@ -3122,9 +3123,49 @@ public class PSMModeller {
 			}
 		}
 		
+		if ((psm instanceof ReportPSMSet) && getCreatePSMSets()) {
+			// mark as consensus result
+			CvParam tempCvParam = new CvParam();
+			tempCvParam.setAccession("MS:1002315");
+			tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+			tempCvParam.setName("consensus result");
+			sii.getCvParam().add(tempCvParam);
+		}
 		
-		if (psm instanceof ReportPSM) {
-			for (ScoreModel score : ((ReportPSM) psm).getScores()) {
+		if ((psm instanceof ReportPSM) || !getCreatePSMSets()) {
+			// either a single PSM or the PSM sets are actually single PSMs 
+			
+			ListIterator<AbstractParam> paramIt = null;
+			ListIterator<ScoreModel> scoreIt = null;
+			
+			if (psm instanceof ReportPSM) {
+				paramIt = ((ReportPSM)psm).getSpectrum().getParams().listIterator();
+				scoreIt = ((ReportPSM) psm).getScores().listIterator();
+			} else if (psm instanceof ReportPSMSet){
+				ReportPSM rPSM = ((ReportPSMSet)psm).getPSMs().get(0);
+				paramIt = rPSM.getSpectrum().getParams().listIterator();
+				scoreIt = rPSM.getScores().listIterator();
+				
+				if (((ReportPSMSet)psm).getPSMs().size() > 1) {
+					logger.error("There should be only one PSM in each set, as no real sets are created!");
+				}
+			}
+			
+			// copy all cvParams over
+			while (paramIt.hasNext()) {
+				AbstractParam param = paramIt.next();
+				
+				if (param instanceof CvParam) {
+					sii.getCvParam().add((CvParam)param);
+				} else if (param instanceof UserParam) {
+					sii.getUserParam().add((UserParam)param);
+				}
+			}
+			
+			// add the scores (as cvParams)
+			while (scoreIt.hasNext()) {
+				ScoreModel score = scoreIt.next();
+				
 				if (!score.getType().equals(ScoreModelEnum.UNKNOWN_SCORE)) {
 					CvParam tempCvParam = new CvParam();
 					tempCvParam.setAccession(score.getAccession());
@@ -3135,15 +3176,9 @@ public class PSMModeller {
 					sii.getCvParam().add(tempCvParam);
 				} else {
 					// TODO: add unknown scores...
+					// TODO: check CV first... if not there, add as userParam
 				}
 			}
-		} else if (psm instanceof ReportPSMSet) {
-			// mark as consensus result
-			CvParam tempCvParam = new CvParam();
-			tempCvParam.setAccession("MS:1002315");
-			tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
-			tempCvParam.setName("consensus result");
-			sii.getCvParam().add(tempCvParam);
 		}
 		
 		if (psm.getRetentionTime() != null) {
