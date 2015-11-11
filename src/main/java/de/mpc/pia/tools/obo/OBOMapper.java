@@ -59,7 +59,7 @@ public class OBOMapper {
     	
     	try {
     		// get the shipped ontology
-        	inStream = getClass().getResourceAsStream("psi-ms.obo");
+        	inStream = OBOMapper.class.getResourceAsStream("psi-ms.obo");
         	
         	OboParser parser = new OboParser();
         	BufferedReader oboFile = new BufferedReader(new InputStreamReader(inStream));
