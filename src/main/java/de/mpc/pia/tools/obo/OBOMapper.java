@@ -21,10 +21,13 @@ public class OBOMapper {
 	private static final Logger logger = Logger.getLogger(OBOMapper.class);
 	
 	/** the actual ontology in the OBO file */
-	private Ontology ontology;
+	private Ontology onlineOntology;
+	
+	/** the actual ontology in the OBO file */
+	private Ontology shippedOntology;
 	
 	/** the URL to the current OBO file */
-	public final String urlToOBO = "http://psidev.cvs.sourceforge.net/viewvc/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo";
+	public final String urlToOBO = "https://raw.githubusercontent.com/HUPO-PSI/mzML/master/cv/psi-ms.obo";
 	
 	public static final String obo_cleavageAgentNameID = "MS:1001045";
 	public static final String obo_relationship = "relationship";
@@ -37,35 +40,53 @@ public class OBOMapper {
 	
 	/**
 	 * Constructor for the OBOMapper. Uses the online OBO file (if accessible)
-	 * or a local file.
+	 * or a locally shipped file.
 	 * 
 	 * @param pathToFile
 	 */
 	public OBOMapper() {
+    	this(true);
+    }
+	
+	
+	/**
+	 * Creates a new OBOMapper, using the online OBO or the shipped only.
+	 * 
+	 * @param useOnline whether to use the online OBO
+	 */
+	public OBOMapper(boolean useOnline) {
     	InputStream inStream;
     	
     	try {
-    		// default: reading from internet
-    		inStream = new URL(urlToOBO).openStream();
-    		logger.debug("using the online version of the OBO");
-    	} catch (IOException e) {
-    		// failure in retrieving internet version of file, use the shipped obo file
-    		inStream = getClass().getResourceAsStream("psi-ms.obo");
-    		logger.debug("using the shipped version of the OBO");
-    	}
-    	
-        try {
+    		// get the shipped ontology
+        	inStream = getClass().getResourceAsStream("psi-ms.obo");
+        	
         	OboParser parser = new OboParser();
         	BufferedReader oboFile = new BufferedReader(new InputStreamReader(inStream));
         	
-        	ontology = parser.parseOBO(oboFile, "PSI-MS", "MS ontology of the HUPO-PSI");
-        	
+        	shippedOntology = parser.parseOBO(oboFile, "PSI-MS", "MS ontology of the HUPO-PSI");
         	inStream.close();
-		} catch (Exception e) {
+        	
+    		// get the internet ontology
+        	if (useOnline) {
+	    		inStream = new URL(urlToOBO).openStream();
+	    		
+	        	parser = new OboParser();
+	        	oboFile = new BufferedReader(new InputStreamReader(inStream));
+	        	
+	        	onlineOntology = parser.parseOBO(oboFile, "PSI-MS", "MS ontology of the HUPO-PSI");
+	        	inStream.close();
+        	} else {
+        		onlineOntology = null;
+        	}
+    	} catch (IOException e) {
+    		onlineOntology = null;
+    	} catch (Exception e) {
 			logger.error(e);
 			throw new AssertionError(e);
 		}
     }
+	
 	
 	/**
 	 * Fetch {@link Term} with specified name
@@ -75,7 +96,11 @@ public class OBOMapper {
 	 */
 	public Term getTerm(String name) {
 		try {
-			return ontology.getTerm(name);
+			if (onlineOntology != null) {
+				return onlineOntology.getTerm(name);
+			} else {
+				return shippedOntology.getTerm(name);
+			}
 		} catch (NoSuchElementException e) {
 			logger.warn(e);
 			return null;
@@ -90,12 +115,17 @@ public class OBOMapper {
 	 */
 	public Set<Term> getTerms() {
 		try {
-			return ontology.getTerms();
+			if (onlineOntology != null) {
+				return onlineOntology.getTerms();
+			} else {
+				return shippedOntology.getTerms();
+			}
 		} catch (NoSuchElementException e) {
 			logger.warn(e);
 			return null;
 		}
 	}
+	
 	
 	/**
 	 * Return all triples from this ontology which match the supplied pattern.
@@ -108,6 +138,10 @@ public class OBOMapper {
 	 * @return
 	 */
 	public Set<Triple> getTriples(Term subject, Term object, Term predicate) {
-		return ontology.getTriples(subject, object, predicate);
+		if (onlineOntology != null) {
+			return onlineOntology.getTriples(subject, object, predicate);
+		} else {
+			return shippedOntology.getTriples(subject, object, predicate);
+		}
 	}
 }

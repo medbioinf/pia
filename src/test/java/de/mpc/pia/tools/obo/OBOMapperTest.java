@@ -12,9 +12,22 @@ import org.junit.Test;
 public class OBOMapperTest {
 	
 	@Test
-	public void testRreadOBO() {
-		OBOMapper oboMapper = new OBOMapper();
-		
+	public void testMapperOffline() {
+		OBOMapper oboMapper = new OBOMapper(false);
+		// first, test the offline reader
+		testMapper(oboMapper);
+	}
+	
+	
+	@Test
+	public void testMapperOnline() {
+		OBOMapper oboMapper = new OBOMapper(true);
+		// test the choosing mapper
+		testMapper(oboMapper);
+	}
+	
+	
+	public void testMapper(OBOMapper oboMapper) {
 		boolean foundTrypsin = false;
 		boolean foundMascotScore = false;
 		boolean foundMSGF = false;
