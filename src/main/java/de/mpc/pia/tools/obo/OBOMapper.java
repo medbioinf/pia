@@ -14,6 +14,8 @@ import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
 import org.biojava.nbio.ontology.io.OboParser;
 
+import de.mpc.pia.tools.PIAConstants;
+
 
 public class OBOMapper {
 	
@@ -59,7 +61,7 @@ public class OBOMapper {
     	
     	try {
     		// get the shipped ontology
-        	inStream = OBOMapper.class.getResourceAsStream("psi-ms.obo");
+        	inStream = OBOMapper.class.getResourceAsStream("/de/mpc/pia/psi-ms.obo");
         	
         	OboParser parser = new OboParser();
         	BufferedReader oboFile = new BufferedReader(new InputStreamReader(inStream));
