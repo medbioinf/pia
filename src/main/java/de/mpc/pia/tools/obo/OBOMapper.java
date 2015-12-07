@@ -14,8 +14,6 @@ import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
 import org.biojava.nbio.ontology.io.OboParser;
 
-import de.mpc.pia.tools.PIAConstants;
-
 
 public class OBOMapper {
 	
