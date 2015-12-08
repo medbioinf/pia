@@ -23,7 +23,7 @@ public class ProteinIdentification {
     @XmlElement(name = "ProteinHit")
     protected List<ProteinHit> proteinHit;
     @XmlElement(name = "UserParam")
-    protected List<UserParam> userParam;
+    protected List<UserParamIdXML> userParam;
     @XmlAttribute(name = "score_type", required = true)
     protected String scoreType;
     @XmlAttribute(name = "higher_score_better", required = true)
@@ -78,13 +78,13 @@ public class ProteinIdentification {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link UserParam }
+     * {@link UserParamIdXML }
      * 
      * 
      */
-    public List<UserParam> getUserParam() {
+    public List<UserParamIdXML> getUserParam() {
         if (userParam == null) {
-            userParam = new ArrayList<UserParam>();
+            userParam = new ArrayList<UserParamIdXML>();
         }
         return this.userParam;
     }

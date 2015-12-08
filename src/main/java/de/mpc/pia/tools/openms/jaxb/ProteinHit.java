@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class ProteinHit {
 
     @XmlElement(name = "UserParam")
-    protected List<UserParam> userParam;
+    protected List<UserParamIdXML> userParam;
     @XmlAttribute(required = true)
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
@@ -54,13 +54,13 @@ public class ProteinHit {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link UserParam }
+     * {@link UserParamIdXML }
      * 
      * 
      */
-    public List<UserParam> getUserParam() {
+    public List<UserParamIdXML> getUserParam() {
         if (userParam == null) {
-            userParam = new ArrayList<UserParam>();
+            userParam = new ArrayList<UserParamIdXML>();
         }
         return this.userParam;
     }

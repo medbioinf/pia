@@ -30,7 +30,7 @@ public class SearchParameters {
     @XmlElement(name = "VariableModification")
     protected List<VariableModification> variableModification;
     @XmlElement(name = "UserParam")
-    protected List<UserParam> userParam;
+    protected List<UserParamIdXML> userParam;
     @XmlAttribute(required = true)
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
@@ -132,13 +132,13 @@ public class SearchParameters {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link UserParam }
+     * {@link UserParamIdXML }
      * 
      * 
      */
-    public List<UserParam> getUserParam() {
+    public List<UserParamIdXML> getUserParam() {
         if (userParam == null) {
-            userParam = new ArrayList<UserParam>();
+            userParam = new ArrayList<UserParamIdXML>();
         }
         return this.userParam;
     }

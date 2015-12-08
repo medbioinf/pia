@@ -38,7 +38,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "UserParam")
-public class UserParam {
+public class UserParamIdXML {
 
     @XmlAttribute(required = true)
     protected UserParamType type;
