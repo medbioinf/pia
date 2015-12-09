@@ -13,8 +13,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.log4j.Logger;
 
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisCollection;
@@ -971,15 +969,7 @@ public class ProteinModeller {
             throws IOException {
         logger.info("start writing mzIdentML file");
 
-        UnimodParser unimodParser;
-        try {
-            unimodParser = new UnimodParser();
-        } catch (JAXBException e) {
-            logger.error("Could not initialize the UnimodParser.", e);
-            writer.flush();
-            return;
-        }
-
+        UnimodParser unimodParser = new UnimodParser();
         MzIdentMLMarshaller m = new MzIdentMLMarshaller();
 
         // XML header
@@ -1494,14 +1484,7 @@ public class ProteinModeller {
             Boolean includePSMSets) throws IOException {
         logger.info("start writing mzTab file");
 
-        UnimodParser unimodParser;
-        try {
-            unimodParser = new UnimodParser();
-        } catch (JAXBException e) {
-            logger.error("Could not initialize the UnimodParser.", e);
-            writer.flush();
-            return;
-        }
+        UnimodParser unimodParser = new UnimodParser();
 
         // Setting version, mode, and type in MZTabDescription
         MZTabDescription tabDescription;

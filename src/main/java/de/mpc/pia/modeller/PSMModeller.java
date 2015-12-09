@@ -19,8 +19,6 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.log4j.Logger;
 import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
@@ -107,7 +105,7 @@ import de.mpc.pia.tools.unimod.jaxb.ModT;
 
 /**
  * Modeller for the PSM related stuff.
- * 
+ *
  * @author julian
  *
  */
@@ -220,7 +218,7 @@ public class PSMModeller {
      * Basic constructor, creates the {@link ReportPSM}s and
      * {@link ReportPSMSet}s from the given {@link Group}s. The {@link Group}s
      * should derive from a {@link PIAInputFile}.
-     * 
+     *
      * @param groups groups of the PIA intermediate file
      * @param inputFiles the used {@link PIAInputFile}s
      * @param fileScoreNames a map, which will be filled with the scoreNames for each file
@@ -363,9 +361,9 @@ public class PSMModeller {
      * This method creates for each {@link PeptideSpectrumMatch} in the
      * given Map of {@link Group}s the corresponding {@link ReportPSM} and the
      * List of {@link ReportPSMSet}s for the overview.
-     * 
+     *
      * TODO: this could be run threaded (by PIA clusters)!
-     * 
+     *
      * @return a mapping from the spectrum ID to the ReportPSM
      */
     private void createReportPSMsFromGroups(Map<Long, Group> groups) {
@@ -416,9 +414,9 @@ public class PSMModeller {
                 new HashMap<String, List<ReportPSM>>();
 
         // this map is used, to get the identification ranking for each score of a PSMs
-        //  fileID    spectrumID  scoreShort        psm   
+        //  fileID    spectrumID  scoreShort        psm
         Map<Long, Map<String, Map<String, ArrayList<ReportPSM>>>> fileToRankings =
-                new HashMap<Long, Map<String,Map<String, ArrayList<ReportPSM>>>>(); 
+                new HashMap<Long, Map<String,Map<String, ArrayList<ReportPSM>>>>();
 
 
         // iterate through the groups
@@ -602,7 +600,7 @@ public class PSMModeller {
                             }
 
 
-                            if (!fileHasInternalDecoy.get(fileID) && 
+                            if (!fileHasInternalDecoy.get(fileID) &&
                                     (spec.getIsDecoy() != null) &&
                                     spec.getIsDecoy()) {
                                 fileHasInternalDecoy.put(fileID, true);
@@ -628,7 +626,7 @@ public class PSMModeller {
                 for (Map.Entry<String, ArrayList<ReportPSM>> scoreToPSMsIt
                         : scoreshortsToPSMs.entrySet()) {
                     String scoreShort = scoreToPSMsIt.getKey();
-                    Comparator<PSMReportItem> comp = 
+                    Comparator<PSMReportItem> comp =
                             scoreShortToComparator.get(scoreShort);
 
                     // only sort and rank, if we know how
@@ -639,7 +637,7 @@ public class PSMModeller {
                         Double lastScore = null;
                         int rank = 0;
                         for (ReportPSM psm : scoreToPSMsIt.getValue()) {
-                            Double thisScore = 
+                            Double thisScore =
                                     psm.getScore(scoreShort);
 
                             if (!thisScore.equals(lastScore)) {
@@ -706,7 +704,7 @@ public class PSMModeller {
     /**
      * Returns a key by which the PSMs can be grouped for calculation of top
      * rank identifications.
-     * 
+     *
      * @param psm
      * @return
      */
@@ -719,7 +717,7 @@ public class PSMModeller {
     /**
      * Getter for the files used in the PIA intermediate file, including the
      * pseudo-overview-file.
-     * 
+     *
      * @return
      */
     public Map<Long, PIAInputFile> getFiles() {
@@ -729,7 +727,7 @@ public class PSMModeller {
 
     /**
      * Getter for the filename of the PIA XML file.
-     * 
+     *
      * @return
      */
     public String getFileName() {
@@ -769,7 +767,7 @@ public class PSMModeller {
      * Reports the mapping from the ReportPSMSet identificationKeys to the
      * {@link ReportPSMSet}s. This map includes all possible, unfiltered PSM
      * sets.
-     * 
+     *
      * @return
      */
     public Map<String, ReportPSMSet> getReportPSMSets() {
@@ -778,7 +776,7 @@ public class PSMModeller {
 
 
     /**
-     * Returns the number of PSMs or PSM sets for the given file ID. 
+     * Returns the number of PSMs or PSM sets for the given file ID.
      * @param fileID
      * @return
      */
@@ -797,7 +795,7 @@ public class PSMModeller {
 
     /**
      * Returns the filtered List of {@link ReportPSM}s for the given fileID.
-     * 
+     *
      * @param fileID
      * @param filters
      * @return
@@ -817,7 +815,7 @@ public class PSMModeller {
     /**
      * Returns the filtered List of {@link ReportPSMSet}s for the PSM sets,
      * applying the given filters.
-     * 
+     *
      * @param filters
      * @return
      */
@@ -857,7 +855,7 @@ public class PSMModeller {
     /**
      * Returns, whether the "higherscorebetter" can be changed by the user for
      * this score.
-     * 
+     *
      * @param shortName
      * @return
      */
@@ -868,7 +866,7 @@ public class PSMModeller {
 
     /**
      * Gets whether the higherScoreBetter is true or false for the score.
-     * 
+     *
      * @param scoreShort
      * @return
      */
@@ -879,7 +877,7 @@ public class PSMModeller {
 
     /**
      * Sets whether the higherScoreBetter is true or false for the score.
-     * 
+     *
      * @param scoreShort
      */
     public void setHigherScoreBetter(String scoreShort,
@@ -902,7 +900,7 @@ public class PSMModeller {
 
     /**
      * Returns the comparator for the given short.
-     * 
+     *
      * @param scoreShort
      * @return
      */
@@ -918,7 +916,7 @@ public class PSMModeller {
 
     /**
      * Returns for the given score, whether a higher score is better.
-     * 
+     *
      * @param scoreShort
      * @return
      */
@@ -929,7 +927,7 @@ public class PSMModeller {
 
     /**
      * Getter for the shortNames of all scores of the given file
-     * 
+     *
      * @param fileID
      * @return
      */
@@ -944,7 +942,7 @@ public class PSMModeller {
 
     /**
      * Returns the mapping from the shortNames to the nicely readable names.
-     * 
+     *
      * @return
      */
     public Map<String, String> getScoreShortsToScoreNames() {
@@ -954,7 +952,7 @@ public class PSMModeller {
 
     /**
      * Returns the {@link FDRData} for the file with the given ID.
-     * 
+     *
      * @param fileID
      * @return
      */
@@ -975,7 +973,7 @@ public class PSMModeller {
     /**
      * Returns the set number of top identifications used for the FDR
      * calculation for the given file.
-     * 
+     *
      * @param fileID
      * @return
      */
@@ -987,7 +985,7 @@ public class PSMModeller {
     /**
      * Sets the number of top identifications used for the FDR calculation for
      * the given file.
-     * 
+     *
      * @param fileID
      * @return
      */
@@ -999,7 +997,7 @@ public class PSMModeller {
     /**
      * Sets the number of top identifications used for the FDR calculation for
      * all files.
-     * 
+     *
      * @param fileID
      * @return
      */
@@ -1016,7 +1014,7 @@ public class PSMModeller {
      * {@link FDRData.DecoyStrategy}.ACCESSIONPATTERN, unless "searchengine" is
      * given as pattern, which will set
      * {@link FDRData.DecoyStrategy}.SEARCHENGINE as decoy strategy.
-     * 
+     *
      * @param pattern
      */
     public void setAllDecoyPattern(String pattern) {
@@ -1042,7 +1040,7 @@ public class PSMModeller {
 
     /**
      * Updates the {@link FDRData} for the given file.
-     * 
+     *
      * @param fileID
      * @return
      */
@@ -1074,7 +1072,7 @@ public class PSMModeller {
     /**
      * Returns a List of scoreShortNames of available Scores for FDR calculation
      * for the given file.
-     * 
+     *
      * @param fileID
      * @return
      */
@@ -1103,7 +1101,7 @@ public class PSMModeller {
     /**
      * Returns a mapping from the file IDs to the scoreNames used for FDR
      * calculation for each file.
-     * 
+     *
      * @return
      */
     public Map<Long, String> getFileIDsToScoreOfFDRCalculation() {
@@ -1157,7 +1155,7 @@ public class PSMModeller {
 
 
     /**
-     * Returns whether the combined FDR Score is calculated. 
+     * Returns whether the combined FDR Score is calculated.
      * @return
      */
     public boolean isCombinedFDRScoreCalculated() {
@@ -1170,7 +1168,7 @@ public class PSMModeller {
     /**
      * Returns, whether the file with the given ID has internal decoys, i.e.
      * PSMs which are set to be decoys in the PIA XML file.
-     * 
+     *
      * @param fileID
      * @return
      */
@@ -1182,7 +1180,7 @@ public class PSMModeller {
     /**
      * Updates the decoy states of the PSMs with the current settings from the
      * file's FDRData.
-     * 
+     *
      */
     public void updateDecoyStates(Long fileID) {
         FDRData fdrData = fileFDRData.get(fileID);
@@ -1236,7 +1234,7 @@ public class PSMModeller {
 
     /**
      * Calculate the FDR for the file given by fileID
-     * 
+     *
      * @param fileID
      */
     public void calculateFDR(Long fileID) {
@@ -1394,7 +1392,7 @@ public class PSMModeller {
     /**
      * Adds the score with the given short to the preferred FDR scores. If the
      * score does not exist, do nothing.
-     * 
+     *
      * @param scoreShortName
      */
     public void addPreferredFDRScore(String scoreShortName) {
@@ -1418,7 +1416,7 @@ public class PSMModeller {
 
 
     /**
-     * Calculates the Combined FDR Score for the PSM sets in the overview 
+     * Calculates the Combined FDR Score for the PSM sets in the overview
      */
     public void calculateCombinedFDRScore() {
         Map<String, List<ReportPSMSet>> fileLists = new HashMap<String, List<ReportPSMSet>>();
@@ -1591,7 +1589,7 @@ public class PSMModeller {
 
     /**
      * Returns a List of scoreShortNames of available Scores for ranking.
-     * 
+     *
      * @param fileID
      * @return
      */
@@ -1743,7 +1741,7 @@ public class PSMModeller {
      * Calculates the data for a histogram of the distribution of the PPM
      * divergence. If fdrGood is true, only the FDR good target PSM (sets) are
      * taken into account.
-     * 
+     *
      * @param fileID
      * @param fdrGood whether to use only the FDR good target PSM(set)s
      * @return
@@ -1865,7 +1863,7 @@ public class PSMModeller {
     /**
      * Returns, how many times a PSM set had how many identifications. The first
      * entry in the list represents one identification, the second two...
-     * 
+     *
      * @param fdrGood
      * @return
      */
@@ -1915,7 +1913,7 @@ public class PSMModeller {
      * the given filters in a loose CSV format.<br/>
      * If the export is for spectral counting, the filters are applied for every
      * file instead of the set overview (only important for the overview and).
-     * 
+     *
      * @param writer
      * @param fileID
      * @throws IOException
@@ -1924,7 +1922,7 @@ public class PSMModeller {
             boolean exportForSC, boolean filterExport) throws IOException {
         List<PSMReportItem> report;
         if (fileID > 0) {
-            List<ReportPSM> rep = filterExport ? 
+            List<ReportPSM> rep = filterExport ?
                     getFilteredReportPSMs(fileID, getFilters(fileID)) :
                         fileReportPSMs.get(fileID);
 
@@ -1932,7 +1930,7 @@ public class PSMModeller {
                     report.addAll(rep);
         } else {
             if (!exportForSC) {
-                List<ReportPSMSet> rep = filterExport ? 
+                List<ReportPSMSet> rep = filterExport ?
                         getFilteredReportPSMSets(getFilters(fileID)) :
                             reportPSMSets;
                         report = new ArrayList<PSMReportItem>(rep.size());
@@ -1943,7 +1941,7 @@ public class PSMModeller {
 
                 for (Long psmFileID: fileReportPSMs.keySet()) {
                     if (getFilters(0L).size() > 0) {
-                        List<ReportPSM> part = filterExport ? 
+                        List<ReportPSM> part = filterExport ?
                                 getFilteredReportPSMs(psmFileID, getFilters(0L)) :
                                     fileReportPSMs.get(psmFileID);
 
@@ -2104,7 +2102,7 @@ public class PSMModeller {
                 if (item instanceof ReportPSM) {
                     ReportPSM psm = (ReportPSM)item;
 
-                    String exportLine = 
+                    String exportLine =
                             "\"" + psm.getFileName() +  "\"" + separator +
                             "\"" + psm.getSequence() + "\"" + separator +
                             "\"" + psm.getModificationsString() + "\"" + separator +
@@ -2136,22 +2134,14 @@ public class PSMModeller {
 
     /**
      * Writes the PSM report into mzIdentML.
-     * 
+     *
      * @throws IOException
      */
     public void exportMzIdentML(Writer writer, Long fileID,
             Boolean filterExport) throws IOException {
         logger.info("start writing mzIdentML file");
 
-        UnimodParser unimodParser;
-        try {
-            unimodParser = new UnimodParser();
-        } catch (JAXBException e) {
-            logger.error("Could not initialize the UnimodParser.", e);
-            writer.flush();
-            return;
-        }
-
+        UnimodParser unimodParser = new UnimodParser();
         MzIdentMLMarshaller m = new MzIdentMLMarshaller();
 
         // XML header
@@ -2218,7 +2208,7 @@ public class PSMModeller {
 
             analysisProtocolCollection.getSpectrumIdentificationProtocol()
             .add(combiningId.getSpectrumIdentificationProtocol());
-        }		
+        }
 
         // now write out the mzIdentML tags
         m.marshal(analysisCollection, writer);
@@ -2259,7 +2249,7 @@ public class PSMModeller {
      * in this procedure.
      * <p>
      * The mzIdentML file will be written up to the {@link SequenceCollection}.
-     * 
+     *
      * @param writer the output writer, i.e. where the file goes
      * @param m the used marshaller
      * @param unimodParser the prior initialised unimodParser
@@ -2283,7 +2273,7 @@ public class PSMModeller {
      * @param fileID the ID of the file for the report (0 for overview AND all
      * other together)
      * @param psmFilterMap a map from the file ID to the applied filters, may be
-     * null (no filters set or for protein export) 
+     * null (no filters set or for protein export)
      * @throws IOException
      */
     public void writeCommonMzIdentMLTags(
@@ -2431,7 +2421,7 @@ public class PSMModeller {
                 // if this is not valid, use the search engine main score
                 String rankScoreShort = null;
 
-                SpectrumIdentificationList sil = 
+                SpectrumIdentificationList sil =
                         createSpectrumIdentificationListForFile(file.getID(),
                                 sequenceMap, peptideMap, pepEvidenceMap,
                                 dbsInFiles, unimodParser,
@@ -2475,7 +2465,7 @@ public class PSMModeller {
                 // add all needed spectrum identification protocols
                 for (SpectrumIdentificationProtocol specIdProt
                         : file.getAnalysisProtocolCollection().getSpectrumIdentificationProtocol()) {
-                    if ((specIdProt.getEnzymes() != null) && 
+                    if ((specIdProt.getEnzymes() != null) &&
                             (specIdProt.getEnzymes().getEnzyme().size() < 1)) {
                         // no enzymes given, sad, but possible
                         specIdProt.setEnzymes(null);
@@ -2639,7 +2629,7 @@ public class PSMModeller {
      * As the sequenceMap, peptideMap and peptideEvidenceMap are filled during
      * the creation of the SpectrumIdentificationList, their contents should be
      * added to the respective lists after this call.
-     * 
+     *
      * @param fileID the file id (>0)
      * @param sequenceMap a map containing the {@link DBSequence} of this and
      * other files, mapping from the accession
@@ -2793,7 +2783,7 @@ public class PSMModeller {
      * but all entries should be available from prior calls of
      * {@link #createSpectrumIdentificationListForFile(Long, Map, Map, Map, Map, UnimodParser, Cv, Cv, String)}
      * for all available files.
-     * 
+     *
      * @param sequenceMap
      * @param peptideMap
      * @param peptideEvidenceMap
@@ -2853,7 +2843,7 @@ public class PSMModeller {
 
     /**
      * Creates a {@link PeptideEvidence} with the given parameters.
-     * 
+     *
      * @param evidenceID
      * @param start
      * @param end
@@ -2931,7 +2921,7 @@ public class PSMModeller {
 
             dbSequence.setSearchDatabase(searchDatabases.get(dbRef));
 
-            sequenceMap.put(accession.getAccession(), dbSequence);								
+            sequenceMap.put(accession.getAccession(), dbSequence);
         }
         pepEvi.setDBSequence(dbSequence);
 
@@ -2953,7 +2943,7 @@ public class PSMModeller {
     /**
      * Creates a String containing the ID of a {@link PeptideEvidence} with the
      * given information. This string is used for the MzIdentML export.
-     * 
+     *
      * @param peptideStringID the peptideStringID containing the seqeunce and
      * modifications as in {@link PeptideSpectrumMatch#getPeptideStringID(boolean)}
      * @param start the start in the dbSequence (if known)
@@ -2982,7 +2972,7 @@ public class PSMModeller {
      * Creates a {@link SpectrumIdentificationItem} for the given PSM and puts
      * it into its {@link SpectrumIdentificationResult}, which will be created
      * if necessary.
-     *  
+     *
      * @param psm
      * @param specIdResMap
      * @param peptideMap
@@ -3081,7 +3071,7 @@ public class PSMModeller {
             }
         }
 
-        // add the peptideEvidences 
+        // add the peptideEvidences
         for (Accession accession : psm.getAccessions()) {
             boolean foundOccurrence = false;
 
@@ -3130,7 +3120,7 @@ public class PSMModeller {
         }
 
         if ((psm instanceof ReportPSM) || !getCreatePSMSets()) {
-            // either a single PSM or the PSM sets are actually single PSMs 
+            // either a single PSM or the PSM sets are actually single PSMs
 
             ListIterator<AbstractParam> paramIt = null;
             ListIterator<ScoreModel> scoreIt = null;
@@ -3223,7 +3213,7 @@ public class PSMModeller {
     /**
      * Gets a representative of the {@link SpectraData} for the given
      * {@link PSMReportItem}.
-     * 
+     *
      * @param psm
      * @return
      */
@@ -3238,10 +3228,10 @@ public class PSMModeller {
         for (ReportPSM repPSM : psmList) {
             if ((repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra() != null) &&
                     (repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra().size() > 0)) {
-                SpectraData specData = 
+                SpectraData specData =
                         spectraData.get(
                                 repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra().get(0).getSpectraDataRef());
-                // TODO: make the choice of spectrumID and spectraData more sophisticated 
+                // TODO: make the choice of spectrumID and spectraData more sophisticated
                 if (specData != null) {
                     return specData;
                 }
@@ -3255,7 +3245,7 @@ public class PSMModeller {
     /**
      * Returns the used ID for the {@link SpectrumIdentificationItem} in
      * mzIdentML export.
-     * 
+     *
      * @param psm
      * @return
      */
@@ -3291,7 +3281,7 @@ public class PSMModeller {
     /**
      * Returns the used ID for the {@link SpectrumIdentificationResult} in
      * mzIdentML export.
-     * 
+     *
      * @param psm
      * @return
      */
@@ -3323,7 +3313,7 @@ public class PSMModeller {
     /**
      * Create the {@link SpectrumIdentification} (and the
      * {@link SpectrumIdentificationProtocol}) for the combination of PSMs.
-     * 
+     *
      * @param psiCV
      * @param pia
      * @param appliedFilters
@@ -3465,23 +3455,16 @@ public class PSMModeller {
 
     /**
      * Writes the PSM report into mzTab.
-     * 
+     *
      * @throws IOException
      */
     public void exportMzTab(Writer writer, Long fileID,
             Boolean filterExport) throws IOException {
         logger.debug("Start exportMzTab");
 
-        UnimodParser unimodParser; 
-        try {
-            unimodParser = new UnimodParser();
-        } catch (JAXBException e) {
-            logger.error("Could not initialize the UnimodParser.", e);
-            writer.flush();
-            return;
-        }
+        UnimodParser unimodParser = new UnimodParser();
 
-        // Setting version, mode, and type in MZTabDescription 
+        // Setting version, mode, and type in MZTabDescription
         MZTabDescription tabDescription;
         tabDescription = new MZTabDescription(
                 MZTabDescription.Mode.Complete,
@@ -3508,7 +3491,7 @@ public class PSMModeller {
 
             if (isCombinedFDRScoreCalculated()) {
                 mtd.addSoftwareSetting(piaSoftwareNr,
-                        PIAConstants.CV_PSM_LEVEL_COMBINED_FDRSCORE_NAME + 
+                        PIAConstants.CV_PSM_LEVEL_COMBINED_FDRSCORE_NAME +
                         " was calculated");
 
                 for (Map.Entry<Long, FDRData> fdrIt : fileFDRData.entrySet()) {
@@ -3526,7 +3509,7 @@ public class PSMModeller {
 
             if (isFDRCalculated(fileID)) {
                 mtd.addSoftwareSetting(piaSoftwareNr,
-                        PIAConstants.CV_PSM_LEVEL_FDRSCORE_NAME + 
+                        PIAConstants.CV_PSM_LEVEL_FDRSCORE_NAME +
                         " was calculated for file " + fileID);
 
                 mtd.addSoftwareSetting(piaSoftwareNr,
@@ -3538,7 +3521,7 @@ public class PSMModeller {
 
         if (filterExport) {
             for (AbstractFilter filter : getFilters(fileID)) {
-                mtd.addSoftwareSetting(piaSoftwareNr, "applied filter " + 
+                mtd.addSoftwareSetting(piaSoftwareNr, "applied filter " +
                         filter.toString());
             }
         }
@@ -3552,7 +3535,7 @@ public class PSMModeller {
 
         report = new ArrayList<PSMReportItem>();
         if (fileID > 0) {
-            List<ReportPSM> rep = filterExport ? 
+            List<ReportPSM> rep = filterExport ?
                     getFilteredReportPSMs(fileID, getFilters(fileID)) :
                         fileReportPSMs.get(fileID);
 
@@ -3576,7 +3559,7 @@ public class PSMModeller {
     /**
      * This method creates the {@link Metadata} and fills it with the basic
      * information for an export.
-     * 
+     *
      * @param fileID the ID of the exported file (0 for overview)
      * @param unimodParser a prior initialized instance on {@link UnimodParser}
      * @param tabDescription the prior generated {@link MZTabDescription}
@@ -3602,7 +3585,7 @@ public class PSMModeller {
         List<AnalysisProtocolCollection> analysisProtocols =
                 new ArrayList<AnalysisProtocolCollection>();
         // maps from the spectrumIdentification ID to the spectraData ID
-        Map<String, List<String>> spectrumIdentificationToSpectraData = 
+        Map<String, List<String>> spectrumIdentificationToSpectraData =
                 new HashMap<String, List<String>>();
         if (fileID == 0) {
             for (PIAInputFile file : getFiles().values()) {
@@ -3642,7 +3625,7 @@ public class PSMModeller {
                 for (String scoreShort : getScoreShortNames(file.getID())) {
                     if (!psmScoreShortToId.containsKey(scoreShort)) {
                         Integer scoreID = psmScoreShortToId.size() + 1;
-                        ScoreModelEnum scoreType = 
+                        ScoreModelEnum scoreType =
                                 ScoreModelEnum.getModelByDescription(scoreShort);
 
                         uk.ac.ebi.pride.jmztab.model.Param scoreParam = null;
@@ -3703,7 +3686,7 @@ public class PSMModeller {
             for (String scoreShort : getScoreShortNames(fileID)) {
                 if (!psmScoreShortToId.containsKey(scoreShort)) {
                     Integer scoreID = psmScoreShortToId.size() + 1;
-                    ScoreModelEnum scoreType = 
+                    ScoreModelEnum scoreType =
                             ScoreModelEnum.getModelByDescription(scoreShort);
 
                     uk.ac.ebi.pride.jmztab.model.Param scoreParam = null;
@@ -3919,7 +3902,7 @@ public class PSMModeller {
 
             SpectrumIdentificationProtocol specIdProtocol =
                     protocol.getSpectrumIdentificationProtocol().get(0);
-            AnalysisSoftware software = 
+            AnalysisSoftware software =
                     analysisSoftware.get(
                             specIdProtocol.getAnalysisSoftwareRef());
             Param softwareName = software.getSoftwareName();
@@ -4000,7 +3983,7 @@ public class PSMModeller {
 
     /**
      * Writes some PSM level information.
-     * 
+     *
      * @throws IOException
      */
     public void writePSMInformation(String fileName, boolean calculate) throws IOException {
@@ -4024,7 +4007,7 @@ public class PSMModeller {
 
     /**
      * Writes some PSM level information.
-     * 
+     *
      * @throws IOException
      */
     public void writePSMInformation(Writer writer, boolean calculate) throws IOException {
@@ -4193,13 +4176,13 @@ public class PSMModeller {
     /**
      * Writes out a PSM section for the list of PSMs (which can be either sets
      * or not).
-     * 
+     *
      * @param metadata the metadata associated to the columns (should be created
      * by a call of {@link #createPSMsHeaderForMzTab(Long, Boolean, UnimodParser, MZTabDescription, Map)})
      * @param report a List of {@link PSMReportItem}s containing the PSMs to be
      * reported
      * @param specIDRefToMsRuns a mapping from the spectrumIdentificationRefs to
-     * the associated MsRuns (should be filled by a call of 
+     * the associated MsRuns (should be filled by a call of
      * {@link #createPSMsHeaderForMzTab(Long, Boolean, UnimodParser, MZTabDescription, Map)})
      * @param psmScoreShortToId maps from the score short name to the "psm_search_engine_score[n]"
      * @param reliabilityCol whether the reliability column should be written
@@ -4246,7 +4229,7 @@ public class PSMModeller {
                 new HashMap<String, String[]>();
 
                 // cache the softwareRefs to the Params
-                Map<String, uk.ac.ebi.pride.jmztab.model.Param> softwareParams = 
+                Map<String, uk.ac.ebi.pride.jmztab.model.Param> softwareParams =
                         new HashMap<String, uk.ac.ebi.pride.jmztab.model.Param>();
 
 
@@ -4349,7 +4332,7 @@ public class PSMModeller {
 
                     // add the search engines (i.e. analysisSoftwares)
                     for (String softwareRef : softwareRefs) {
-                        uk.ac.ebi.pride.jmztab.model.Param softwareParam = 
+                        uk.ac.ebi.pride.jmztab.model.Param softwareParam =
                                 softwareParams.get(softwareRef);
 
                         if (softwareParam == null) {
@@ -4442,10 +4425,10 @@ public class PSMModeller {
                                 if (sDB.getDatabaseName() != null) {
                                     nameAndVersion = new String[2];
                                     if (sDB.getDatabaseName().getCvParam() != null) {
-                                        nameAndVersion[0] = 
+                                        nameAndVersion[0] =
                                                 sDB.getDatabaseName().getCvParam().getName();
                                     } else if (sDB.getDatabaseName().getUserParam() != null) {
-                                        nameAndVersion[0] = 
+                                        nameAndVersion[0] =
                                                 sDB.getDatabaseName().getUserParam().getName();
                                     }
                                     nameAndVersion[1] = sDB.getVersion();
