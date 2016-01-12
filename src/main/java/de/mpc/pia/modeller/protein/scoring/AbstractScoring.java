@@ -29,9 +29,9 @@ public abstract class AbstractScoring {
 	private Setting psmForScoringSetting;
 	
 	
-	public final String scoringSettingID = "used_score";
+	public final static String scoringSettingID = "used_score";
 	
-	public final String scoringSpectraSettingID = "used_spectra";
+	public final static String scoringSpectraSettingID = "used_spectra";
 	
 	
 	/**

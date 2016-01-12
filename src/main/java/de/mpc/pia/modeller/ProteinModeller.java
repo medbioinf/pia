@@ -64,7 +64,7 @@ import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.modeller.report.SortOrder;
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterFactory;
-import de.mpc.pia.modeller.report.filter.protein.ProteinScoreFilter;
+import de.mpc.pia.modeller.report.filter.RegisteredFilters;
 import de.mpc.pia.modeller.score.FDRData;
 import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 import de.mpc.pia.modeller.score.ScoreModel;
@@ -1067,7 +1067,7 @@ public class ProteinModeller {
         proteinDetectionProtocol.setThreshold(new ParamList());
         if (filterExport && (getReportFilters().size() > 0)) {
             for (AbstractFilter filter : getReportFilters()) {
-                if (ProteinScoreFilter.shortName().equals(filter.getShortName())) {
+                if (RegisteredFilters.PROTEIN_SCORE_FILTER.getShortName().equals(filter.getShortName())) {
                     // if score filters are set, they are the threshold
                     cvParam = new CvParam();
                     cvParam.setAccession(PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION);

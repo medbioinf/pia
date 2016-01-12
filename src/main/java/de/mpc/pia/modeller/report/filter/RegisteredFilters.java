@@ -1,819 +1,1607 @@
 package de.mpc.pia.modeller.report.filter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 
-import de.mpc.pia.modeller.report.filter.peptide.NrPSMsPerPeptideFilter;
-import de.mpc.pia.modeller.report.filter.peptide.NrSpectraPerPeptideFilter;
-import de.mpc.pia.modeller.report.filter.peptide.PeptideAccessionsFilter;
-import de.mpc.pia.modeller.report.filter.peptide.PeptideDescriptionFilter;
-import de.mpc.pia.modeller.report.filter.peptide.PeptideFileListFilter;
-import de.mpc.pia.modeller.report.filter.peptide.PeptideMissedCleavagesFilter;
-import de.mpc.pia.modeller.report.filter.peptide.PeptideModificationsFilter;
-import de.mpc.pia.modeller.report.filter.peptide.PeptideRankFilter;
-import de.mpc.pia.modeller.report.filter.peptide.PeptideScoreFilter;
-import de.mpc.pia.modeller.report.filter.peptide.PeptideSequenceFilter;
-import de.mpc.pia.modeller.report.filter.peptide.PeptideSourceIDListFilter;
-import de.mpc.pia.modeller.report.filter.peptide.PeptideSpectrumTitleListFilter;
-import de.mpc.pia.modeller.report.filter.peptide.PeptideUniqueFilter;
-import de.mpc.pia.modeller.report.filter.protein.NrPSMsPerProteinFilter;
-import de.mpc.pia.modeller.report.filter.protein.NrPeptidesPerProteinFilter;
-import de.mpc.pia.modeller.report.filter.protein.NrGroupUniquePeptidesPerProteinFilter;
-import de.mpc.pia.modeller.report.filter.protein.NrSpectraPerProteinFilter;
-import de.mpc.pia.modeller.report.filter.protein.NrUniquePeptidesPerProteinFilter;
-import de.mpc.pia.modeller.report.filter.protein.ProteinAccessionsFilter;
-import de.mpc.pia.modeller.report.filter.protein.ProteinDescriptionFilter;
-import de.mpc.pia.modeller.report.filter.protein.ProteinFileListFilter;
-import de.mpc.pia.modeller.report.filter.protein.ProteinModificationsFilter;
-import de.mpc.pia.modeller.report.filter.protein.ProteinRankFilter;
-import de.mpc.pia.modeller.report.filter.protein.ProteinScoreFilter;
-import de.mpc.pia.modeller.report.filter.protein.SequenceListFilter;
-import de.mpc.pia.modeller.report.filter.psm.ChargeFilter;
-import de.mpc.pia.modeller.report.filter.psm.DeltaMassFilter;
-import de.mpc.pia.modeller.report.filter.psm.DeltaPPMFilter;
-import de.mpc.pia.modeller.report.filter.psm.MZFilter;
-import de.mpc.pia.modeller.report.filter.psm.NrAccessionsPerPSMFilter;
-import de.mpc.pia.modeller.report.filter.psm.NrPSMsPerPSMSetFilter;
-import de.mpc.pia.modeller.report.filter.psm.PSMAccessionsFilter;
-import de.mpc.pia.modeller.report.filter.psm.PSMDescriptionFilter;
-import de.mpc.pia.modeller.report.filter.psm.PSMFileListFilter;
-import de.mpc.pia.modeller.report.filter.psm.PSMMissedCleavagesFilter;
-import de.mpc.pia.modeller.report.filter.psm.PSMModificationsFilter;
-import de.mpc.pia.modeller.report.filter.psm.PSMRankFilter;
-import de.mpc.pia.modeller.report.filter.psm.PSMScoreFilter;
-import de.mpc.pia.modeller.report.filter.psm.PSMSequenceFilter;
-import de.mpc.pia.modeller.report.filter.psm.PSMTopIdentificationFilter;
-import de.mpc.pia.modeller.report.filter.psm.PSMUniqueFilter;
-import de.mpc.pia.modeller.report.filter.psm.SourceIDFilter;
+import de.mpc.pia.intermediate.Accession;
+import de.mpc.pia.intermediate.Modification;
+import de.mpc.pia.modeller.peptide.ReportPeptide;
+import de.mpc.pia.modeller.protein.ReportProtein;
+import de.mpc.pia.modeller.psm.PSMReportItem;
+import de.mpc.pia.modeller.psm.ReportPSM;
+import de.mpc.pia.modeller.psm.ReportPSMSet;
+import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
+import de.mpc.pia.modeller.report.filter.impl.PSMTopIdentificationFilter;
+import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
+import de.mpc.pia.modeller.report.filter.impl.SimpleTypeFilter;
 
 /**
  * All the filters should be registered in this enum.
- * 
+ *
  * @author julian
  *
  */
 public enum RegisteredFilters {
-	
-	CHARGE_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return ChargeFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return ChargeFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public ChargeFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new ChargeFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	DELTA_MASS_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return DeltaMassFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return DeltaMassFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public DeltaMassFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new DeltaMassFilter(arg, ((Number)value).doubleValue(), negate);
-		}
-	},
-	DELTA_PPM_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return DeltaPPMFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return DeltaPPMFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public DeltaPPMFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new DeltaPPMFilter(arg, ((Number)value).doubleValue(), negate);
-		}
-	},
-	MZ_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return MZFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return MZFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public MZFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new MZFilter(arg, ((Number)value).doubleValue(), negate);
-		}
-	},
-	NR_ACCESSIONS_PER_PSM_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return NrAccessionsPerPSMFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return NrAccessionsPerPSMFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public NrAccessionsPerPSMFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new NrAccessionsPerPSMFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return NrGroupUniquePeptidesPerProteinFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return NrGroupUniquePeptidesPerProteinFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public NrGroupUniquePeptidesPerProteinFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new NrGroupUniquePeptidesPerProteinFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	NR_PEPTIDES_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return NrPeptidesPerProteinFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return NrPeptidesPerProteinFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public NrPeptidesPerProteinFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new NrPeptidesPerProteinFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	NR_PSMS_PER_PEPTIDE_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return NrPSMsPerPeptideFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return NrPSMsPerPeptideFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public NrPSMsPerPeptideFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new NrPSMsPerPeptideFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	NR_PSMS_PER_PROTEIN_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return NrPSMsPerProteinFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return NrPSMsPerProteinFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public NrPSMsPerProteinFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new NrPSMsPerProteinFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	NR_PSMS_PER_PSM_SET_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return NrPSMsPerPSMSetFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return NrPSMsPerPSMSetFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public NrPSMsPerPSMSetFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new NrPSMsPerPSMSetFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	NR_SPECTRA_PER_PEPTIDE_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return NrSpectraPerPeptideFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return NrSpectraPerPeptideFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public NrSpectraPerPeptideFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new NrSpectraPerPeptideFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	NR_SPECTRA_PER_PROTEIN_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return NrSpectraPerProteinFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return NrSpectraPerProteinFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public NrSpectraPerProteinFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new NrSpectraPerProteinFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	NR_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return NrUniquePeptidesPerProteinFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return NrUniquePeptidesPerProteinFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public NrUniquePeptidesPerProteinFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new NrUniquePeptidesPerProteinFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	PEPTIDE_ACCESSIONS_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PeptideAccessionsFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PeptideAccessionsFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PeptideAccessionsFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PeptideAccessionsFilter(arg, (String)value, negate);
-		}
-	},
-	PEPTIDE_DESCRIPTION_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PeptideDescriptionFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PeptideDescriptionFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PeptideDescriptionFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PeptideDescriptionFilter(arg, (String)value, negate);
-		}
-	},
-	PEPTIDE_FILE_LIST_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PeptideFileListFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PeptideFileListFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PeptideFileListFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PeptideFileListFilter(arg, (String)value, negate);
-		}
-	},
-	PEPTIDE_MISSED_CLEAVAGES_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PeptideMissedCleavagesFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PeptideMissedCleavagesFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PeptideMissedCleavagesFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PeptideMissedCleavagesFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	PEPTIDE_MODIFICATIONS_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PeptideModificationsFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PeptideModificationsFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PeptideModificationsFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PeptideModificationsFilter(arg, (String)value, negate);
-		}
-	},
-	PEPTIDE_RANK_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PeptideRankFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PeptideRankFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PeptideRankFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PeptideRankFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	PEPTIDE_SEQUENCE_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PeptideSequenceFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PeptideSequenceFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PeptideSequenceFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PeptideSequenceFilter(arg, (String)value, negate);
-		}
-	},
-	PEPTIDE_SOURCE_ID_LIST_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PeptideSourceIDListFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PeptideSourceIDListFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PeptideSourceIDListFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PeptideSourceIDListFilter(arg, (String)value, negate);
-		}
-	},
-	PEPTIDE_SPECTRUM_TITLE_LIST_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PeptideSpectrumTitleListFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PeptideSpectrumTitleListFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PeptideSpectrumTitleListFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PeptideSpectrumTitleListFilter(arg, (String)value, negate);
-		}
-	},
-	PEPTIDE_UNIQUE_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PeptideUniqueFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PeptideUniqueFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PeptideUniqueFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PeptideUniqueFilter(arg, (Boolean)value, negate);
-		}
-	},
-	PROTEIN_ACCESSIONS_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return ProteinAccessionsFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return ProteinAccessionsFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public ProteinAccessionsFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new ProteinAccessionsFilter(arg, (String)value, negate);
-		}
-	},
-	PROTEIN_DESCRIPTION_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return ProteinDescriptionFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return ProteinDescriptionFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public ProteinDescriptionFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new ProteinDescriptionFilter(arg, (String)value, negate);
-		}
-	},
-	PROTEIN_FILE_LIST_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return ProteinFileListFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return ProteinFileListFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public ProteinFileListFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new ProteinFileListFilter(arg, (String)value, negate);
-		}
-	},
-	PROTEIN_MODIFICATIONS_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return ProteinModificationsFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return ProteinModificationsFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public ProteinModificationsFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new ProteinModificationsFilter(arg, (String)value, negate);
-		}
-	},
-	PROTEIN_RANK_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return ProteinRankFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return ProteinRankFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public ProteinRankFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new ProteinRankFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	PSM_ACCESSIONS_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PSMAccessionsFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PSMAccessionsFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PSMAccessionsFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PSMAccessionsFilter(arg, (String)value, negate);
-		}
-	},
-	PSM_DESCRIPTION_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PSMDescriptionFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PSMDescriptionFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PSMDescriptionFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PSMDescriptionFilter(arg, (String)value, negate);
-		}
-	},
-	PSM_FILE_LIST_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PSMFileListFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PSMFileListFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PSMFileListFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PSMFileListFilter(arg, (String)value, negate);
-		}
-	},
-	PSM_MISSED_CLEAVAGES_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PSMMissedCleavagesFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PSMMissedCleavagesFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PSMMissedCleavagesFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PSMMissedCleavagesFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	PSM_MODIFICATIONS_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PSMModificationsFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PSMModificationsFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PSMModificationsFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PSMModificationsFilter(arg, (String)value, negate);
-		}
-	},
-	PSM_RANK_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PSMRankFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PSMRankFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PSMRankFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PSMRankFilter(arg, ((Number)value).intValue(), negate);
-		}
-	},
-	PSM_SEQUENCE_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PSMSequenceFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PSMSequenceFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PSMSequenceFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PSMSequenceFilter(arg, (String)value, negate);
-		}
-	},
-	PSM_UNIQUE_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return PSMUniqueFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return PSMUniqueFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public PSMUniqueFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new PSMUniqueFilter(arg, (Boolean)value, negate);
-		}
-	},
-	SEQUENCE_LIST_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return SequenceListFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return SequenceListFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public SequenceListFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new SequenceListFilter(arg, (String)value, negate);
-		}
-	},
-	SOURCE_ID_FILTER {
-		@Override
-		public FilterType getFilterType() {
-			return SourceIDFilter.filterType;
-		}
-		
-		@Override
-		public boolean isCorrectValueInstance(Object value) {
-			return SourceIDFilter.isCorrectValueInstance(value);
-		}
-		
-		@Override
-		public SourceIDFilter newInstanceOf(FilterComparator arg,
-				Object value, boolean negate) {
-			return new SourceIDFilter(arg, (String)value, negate);
-		}
-	},
-	;
-	
-	
-	/**
-	 * Returns the short name of this filter.
-	 * @return
-	 */
-	public final String getShortName() {
-		return this.name().toLowerCase();
-	}
-	
-	
-	/**
-	 * Returns the {@link FilterType} of this filter.
-	 * @return
-	 */
-	public abstract FilterType getFilterType();
-	
-	
-	/**
-	 * Checks wether the given value has the correct instance type for this
-	 * filter.
-	 * @return
-	 */
-	public abstract boolean isCorrectValueInstance(Object value);
-	
-	
-	/**
-	 * Builds a new instance of this filter type.</br>
-	 * The arg must be a {@link FilterComparator} valid for this filter
-	 * type and the value of a valid type.
-	 * 
-	 * @param arg
-	 * @param value
-	 * @param negate
-	 * @return
-	 */
-	public abstract AbstractFilter newInstanceOf(FilterComparator arg,
-			Object value, boolean negate);
-	
-	
-	/**
-	 * Returns a set of (descriptive) shorts for the registered PSM filters
-	 */
-	public static Set<String> getPSMFilters() {
-		Set<String> filterShorts = new HashSet<String>();
-		
-		filterShorts.add(ChargeFilter.shortName());
-		filterShorts.add(DeltaMassFilter.shortName());
-		filterShorts.add(DeltaPPMFilter.shortName());
-		filterShorts.add(MZFilter.shortName());
-		filterShorts.add(NrAccessionsPerPSMFilter.shortName());
-		filterShorts.add(NrPSMsPerPSMSetFilter.shortName());
-		filterShorts.add(PSMAccessionsFilter.shortName());
-		filterShorts.add(PSMDescriptionFilter.shortName());
-		filterShorts.add(PSMFileListFilter.shortName());
-		filterShorts.add(PSMMissedCleavagesFilter.shortName());
-		filterShorts.add(PSMModificationsFilter.shortName());
-		filterShorts.add(PSMRankFilter.shortName());
-		filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
-		filterShorts.add(PSMSequenceFilter.shortName());
-		filterShorts.add(PSMTopIdentificationFilter.prefix + "[scoreShort]");
-		filterShorts.add(PSMUniqueFilter.shortName());
-		filterShorts.add(SourceIDFilter.shortName());
-		
-		return filterShorts;
-	}
-	
-	
-	/**
-	 * Returns a set of (descriptive) shorts for the registered peptide filters
-	 */
-	public static Set<String> getPeptideFilters() {
-		Set<String> filterShorts = new HashSet<String>();
-		
-		filterShorts.add(NrPSMsPerPeptideFilter.shortName());
-		filterShorts.add(NrSpectraPerPeptideFilter.shortName());
-		filterShorts.add(PeptideAccessionsFilter.shortName());
-		filterShorts.add(PeptideDescriptionFilter.shortName());
-		filterShorts.add(PeptideFileListFilter.shortName());
-		filterShorts.add(PeptideMissedCleavagesFilter.shortName());
-		filterShorts.add(PeptideModificationsFilter.shortName());
-		filterShorts.add(PeptideRankFilter.shortName());
-		filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
-		filterShorts.add(PeptideScoreFilter.prefix + "[scoreShort]");
-		filterShorts.add(PeptideSequenceFilter.shortName());
-		filterShorts.add(PeptideSourceIDListFilter.shortName());
-		filterShorts.add(PeptideSpectrumTitleListFilter.shortName());
-		filterShorts.add(PeptideUniqueFilter.shortName());
-		
-		return filterShorts;
-	}
-	
-	
-	/**
-	 * Returns a set of (descriptive) shorts for the registered protein filters
-	 */
-	public static Set<String> getProteinFilters() {
-		Set<String> filterShorts = new HashSet<String>();
-		
-		filterShorts.add(NrPeptidesPerProteinFilter.shortName());
-		filterShorts.add(NrPSMsPerProteinFilter.shortName());
-		filterShorts.add(NrSpectraPerProteinFilter.shortName());
-		filterShorts.add(NrGroupUniquePeptidesPerProteinFilter.shortName());
-		filterShorts.add(NrUniquePeptidesPerProteinFilter.shortName());
-		filterShorts.add(ProteinAccessionsFilter.shortName());
-		filterShorts.add(ProteinDescriptionFilter.shortName());
-		filterShorts.add(ProteinFileListFilter.shortName());
-		filterShorts.add(ProteinModificationsFilter.shortName());
-		filterShorts.add(ProteinRankFilter.shortName());
-		filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
-		filterShorts.add(ProteinScoreFilter.shortName());
-		filterShorts.add(SequenceListFilter.shortName());
-		
-		return filterShorts;
-	}
+
+    /* -------------------------------------------------------------------------
+    /* PSM based filters
+    /* -----------------------------------------------------------------------*/
+
+    CHARGE_FILTER(FilterType.numerical, Number.class, "Charge Filter", "Charge (PSM)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Number getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                // if we get a ReportItem, return its charge value
+                return ((PSMReportItem)o).getCharge();
+            } else if (o instanceof Number) {
+                // if we get an Number, just return it
+                return (Number)o;
+            } else {
+                // nothing supported
+                return null;
+            }
+        }
+
+        @Override
+        public boolean supportsClass(Object obj) {
+            return (obj instanceof PSMReportItem);
+        }
+    },
+    DELTA_MASS_FILTER(FilterType.numerical, Number.class, "dMass Filter for PSM", "dMass (PSM)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).doubleValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                return ((PSMReportItem)o).getDeltaMass();
+            } else if (o instanceof Number) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return ((c instanceof PSMReportItem) || (c instanceof Number));
+        }
+    },
+    DELTA_PPM_FILTER(FilterType.numerical, Number.class, "dPPM Filter for PSM", "dPPM (PSM)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).doubleValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                return ((PSMReportItem)o).getDeltaPPM();
+            } else if (o instanceof Number) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof PSMReportItem);
+        }
+    },
+    MZ_FILTER(FilterType.numerical, Number.class, "m/z Filter for PSM", "m/z (PSM)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).doubleValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                return ((PSMReportItem)o).getMassToCharge();
+            } else if (o instanceof Number) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof PSMReportItem);
+        }
+    },
+    PSM_ACCESSIONS_FILTER(FilterType.literal_list, String.class, "Accessions Filter for PSM", "Accessions (PSM)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                return ((PSMReportItem) o).getAccessions();
+            } else if (o instanceof List<?>) {
+                List<String> objList = new ArrayList<String>();
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof String) {
+                        objList.add((String)obj);
+                    }
+                }
+                return objList;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object obj) {
+            return (obj instanceof PSMReportItem);
+        }
+
+        @Override
+        public boolean valueNeedsFileRefinement() {
+            return true;
+        }
+
+        @Override
+        public Object doFileRefinement(Long fileID, Object o) {
+            // converts the list of strings or accessions into a List<String>
+            List<String> strList = new ArrayList<String>();
+
+            if (o instanceof List<?>) {
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof Accession) {
+                        if (((fileID > 0) && (((Accession)obj).foundInFile(fileID))) ||
+                                (fileID == 0)) {
+                            strList.add(((Accession)obj).getAccession());
+                        }
+                    } else if (obj instanceof String) {
+                        strList.add((String)obj);
+                    }
+                }
+            }
+
+            return strList;
+        }
+    },
+    PSM_DESCRIPTION_FILTER(FilterType.literal_list, String.class, "Description Filter for PSM", "Description (PSM)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                return ((PSMReportItem) o).getAccessions();
+            } else if (o instanceof List<?>) {
+                List<String> objList = new ArrayList<String>();
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof String) {
+                        objList.add((String)obj);
+                    }
+                }
+                return objList;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof PSMReportItem);
+        }
+
+        @Override
+        public boolean valueNeedsFileRefinement() {
+            return true;
+        }
+
+        @Override
+        public Object doFileRefinement(Long fileID, Object o) {
+            List<String> strList = new ArrayList<String>();
+
+            if (o instanceof List<?>) {
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof Accession) {
+                        if ((fileID > 0) && (((Accession)obj).foundInFile(fileID))) {
+                            strList.add(((Accession)obj).getDescription(fileID));
+                        } else if (fileID == 0) {
+                            for (Map.Entry<Long, String> descIt : ((Accession)obj).getDescriptions().entrySet()) {
+                                strList.add(descIt.getValue());
+                            }
+                        }
+                    } else if (obj instanceof String) {
+                        strList.add((String)obj);
+                    }
+                }
+            }
+
+            return strList;
+        }
+    },
+    PSM_FILE_LIST_FILTER(FilterType.literal_list, String.class, "File List Filter for PSM", "File List (PSM)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportPSM) {
+                return o;
+            } else if (o instanceof ReportPSMSet) {
+                // if we get an ReportPSM, return its PSMs
+                return ((ReportPSMSet)o).getPSMs();
+            } else if (o instanceof List<?>) {
+                List<ReportPSM> objList = new ArrayList<ReportPSM>();
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof ReportPSM) {
+                        objList.add((ReportPSM)obj);
+                    }
+                }
+                return objList;
+            } else {
+                // nothing supported
+                return null;
+            }
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            if ((c instanceof ReportPSMSet) || (c instanceof ReportPSM)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public boolean valueNeedsFileRefinement() {
+            return true;
+        }
+
+        @Override
+        public Object doFileRefinement(Long fileID, Object o) {
+            List<String> strList = new ArrayList<String>();
+
+            if (o instanceof List<?>) {
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof ReportPSM) {
+                        strList.add(((ReportPSM)obj).getFile().getName());
+                    } else if (obj instanceof String) {
+                        strList.add((String)obj);
+                    }
+                }
+            } else if (o instanceof ReportPSM) {
+                strList.add(((ReportPSM) o).getFile().getName());
+            }
+
+            return strList;
+        }
+    },
+    PSM_MISSED_CLEAVAGES_FILTER(FilterType.numerical, Number.class, "Missed Cleavages Filter for PSM", "Missed Cleavages (PSM)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                return ((PSMReportItem)o).getMissedCleavages();
+            } else if (o instanceof Number) {
+                return ((Number) o).intValue();
+            } else {
+                // nothing supported
+                return null;
+            }
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof PSMReportItem);
+        }
+    },
+    PSM_MODIFICATIONS_FILTER(FilterType.modification, String.class, "Modifications Filter for PSM", "Modifications (PSM)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                List<Modification> modList = new ArrayList<Modification>();
+                for (Map.Entry<Integer, Modification> modIt : ((PSMReportItem) o).getModifications().entrySet()) {
+                    modList.add(modIt.getValue());
+                }
+                return modList;
+            } else if (o instanceof List<?>) {
+                List<Modification> modList = new ArrayList<Modification>();
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof Modification) {
+                        modList.add((Modification)obj);
+                    }
+                }
+                return modList;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof PSMReportItem);
+        }
+    },
+    PSM_RANK_FILTER(FilterType.numerical, Number.class, "Rank Filter for PSM", "Rank (PSM)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                return ((PSMReportItem)o).getRank();
+            } else if (o instanceof Number) {
+                return o;
+            } else {
+                // nothing supported
+                return null;
+            }
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof PSMReportItem);
+        }
+    },
+    PSM_SEQUENCE_FILTER(FilterType.literal, String.class, "Sequence Filter for PSM", "Sequence (PSM)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                return ((PSMReportItem)o).getSequence();
+            } else if (o instanceof String) {
+                return o;
+            } else {
+                // nothing supported
+                return null;
+            }
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof PSMReportItem);
+        }
+    },
+    PSM_UNIQUE_FILTER(FilterType.bool, Boolean.class, "Unique Filter for PSM", "Unique (PSM)") {
+        @Override
+        public SimpleTypeFilter<Boolean> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Boolean>(arg, this, negate, (Boolean)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                Boolean isUnique = null;
+                if (o instanceof ReportPSMSet) {
+                    isUnique = ((ReportPSMSet) o).getPSMs().get(0).getSpectrum().getIsUnique();
+                } else if (o instanceof ReportPSM) {
+                    isUnique = ((ReportPSM) o).getSpectrum().getIsUnique();
+                }
+
+                if (isUnique != null) {
+                    return isUnique;
+                } else {
+                    return new Boolean(false);
+                }
+            } else if (o instanceof Boolean) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof PSMReportItem);
+        }
+
+    },
+    NR_ACCESSIONS_PER_PSM_FILTER(FilterType.numerical, Number.class, "#accessions per PSM", "#accessions (PSM)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                return ((PSMReportItem) o).getAccessions();
+            } else if (o instanceof List<?>) {
+                List<String> objList = new ArrayList<String>();
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof String) {
+                        objList.add((String)obj);
+                    }
+                }
+                return objList;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof PSMReportItem);
+        }
+
+        @Override
+        public boolean valueNeedsFileRefinement() {
+                return true;
+        }
+
+        @Override
+        public Object doFileRefinement(Long fileID, Object o) {
+            List<String> strList = new ArrayList<String>();
+
+            if (o instanceof List<?>) {
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof Accession) {
+                        if (((fileID > 0) && ((Accession)obj).foundInFile(fileID)) ||
+                                (fileID == 0)) {
+                            strList.add(((Accession)obj).getAccession());
+                        }
+                    } else if (obj instanceof String) {
+                        strList.add((String)obj);
+                    }
+                }
+            }
+
+            return strList.size();
+        }
+    },
+    NR_PSMS_PER_PSM_SET_FILTER(FilterType.numerical, Number.class, "#PSMs per PSM Set", "#PSMs (PSM Set)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportPSMSet) {
+                return ((ReportPSMSet) o).getPSMs().size();
+            } else if (o instanceof Number) {
+                // if we get a Number, just return it
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportPSMSet);
+        }
+    },
+    PSM_SOURCE_ID_FILTER(FilterType.literal, String.class, "Source ID Filter for PSM", "Source ID (PSM)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                return ((PSMReportItem)o).getSourceID();
+            } else if (o instanceof String) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof PSMReportItem);
+        }
+    },
+
+    /* -------------------------------------------------------------------------
+    /* peptide based filters
+    /* -----------------------------------------------------------------------*/
+
+    PEPTIDE_ACCESSIONS_FILTER(FilterType.literal_list, String.class, "Accessions Filter for Peptide", "Accessions (Peptide)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportPeptide) {
+                return ((ReportPeptide) o).getAccessions();
+            } else if (o instanceof List<?>) {
+                List<String> objList = new ArrayList<String>();
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof String) {
+                        objList.add((String)obj);
+                    }
+                }
+                return objList;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportPeptide);
+        }
+
+        @Override
+        public boolean valueNeedsFileRefinement() {
+            return true;
+        }
+
+        @Override
+        public Object doFileRefinement(Long fileID, Object o) {
+            List<String> strList = new ArrayList<String>();
+
+            if (o instanceof List<?>) {
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof Accession) {
+                        if (((fileID > 0) && (((Accession)obj).foundInFile(fileID))) ||
+                                (fileID == 0)) {
+                            strList.add(((Accession)obj).getAccession());
+                        }
+                    } else if (obj instanceof String) {
+                        strList.add((String)obj);
+                    }
+                }
+            }
+
+            return strList;
+        }
+    },
+    PEPTIDE_DESCRIPTION_FILTER(FilterType.literal_list, String.class, "Description Filter for Peptide", "Description (Peptide)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportPeptide) {
+                return ((ReportPeptide) o).getAccessions();
+            } else if (o instanceof List<?>) {
+                List<String> objList = new ArrayList<String>();
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof String) {
+                        objList.add((String)obj);
+                    }
+                }
+                return objList;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportPeptide);
+        }
+
+        @Override
+        public boolean valueNeedsFileRefinement() {
+            return true;
+        }
+
+        @Override
+        public Object doFileRefinement(Long fileID, Object o) {
+            List<String> strList = new ArrayList<String>();
+
+            if (o instanceof List<?>) {
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof Accession) {
+                        if ((fileID > 0) && (((Accession)obj).foundInFile(fileID))) {
+                            strList.add(((Accession)obj).getDescription(fileID));
+                        } else if (fileID == 0) {
+                            for (Map.Entry<Long, String> descIt : ((Accession)obj).getDescriptions().entrySet()) {
+                                strList.add(descIt.getValue());
+                            }
+                        }
+                    } else if (obj instanceof String) {
+                        strList.add((String)obj);
+                    }
+                }
+            }
+
+            return strList;
+        }
+    },
+    PEPTIDE_FILE_LIST_FILTER(FilterType.literal_list, String.class, "File List Filter for Peptide", "File List (Peptide)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportPeptide) {
+                return ((ReportPeptide) o).getFileNames();
+            } else {
+                // nothing supported
+                return null;
+            }
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportPeptide);
+        }
+    },
+    PEPTIDE_MISSED_CLEAVAGES_FILTER(FilterType.numerical, Number.class, "Missed Cleavages Filter for Peptide", "Missed Cleavages (Peptide)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportPeptide) {
+                return ((ReportPeptide) o).getMissedCleavages();
+            } else if (o instanceof Number) {
+                // if we get an Number, just return it
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportPeptide);
+        }
+    },
+    PEPTIDE_MODIFICATIONS_FILTER(FilterType.modification, String.class, "Modifications Filter for Peptide", "Modifications (Peptide)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportPeptide) {
+                return ((ReportPeptide) o).getModificationsList();
+            } else if (o instanceof List<?>) {
+                List<Modification> modList = new ArrayList<Modification>();
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof Modification) {
+                        modList.add((Modification)obj);
+                    }
+                }
+                return modList;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportPeptide);
+        }
+    },
+    PEPTIDE_SEQUENCE_FILTER(FilterType.literal, String.class, "Sequence Filter for Peptide", "Sequence (Peptide)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportPeptide) {
+                return ((ReportPeptide) o).getSequence();
+            } else if (o instanceof String) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportPeptide);
+        }
+    },
+    PEPTIDE_SOURCE_ID_LIST_FILTER(FilterType.literal, String.class, "Source ID Filter for Peptide", "Source ID (Peptide)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportPeptide) {
+                return ((ReportPeptide) o).getSourceIDs();
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportPeptide);
+        }
+    },
+    PEPTIDE_UNIQUE_FILTER(FilterType.bool, Boolean.class, "Unique Filter for Peptide", "Unique (Peptide)") {
+        @Override
+        public SimpleTypeFilter<Boolean> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Boolean>(arg, this, negate, (Boolean)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportPeptide) {
+                ListIterator<PSMReportItem> psmIt =  ((ReportPeptide) o).getPSMs().listIterator();
+
+                while (psmIt.hasNext()) {
+                    Boolean isUnique = null;
+
+                    PSMReportItem psm = psmIt.next();
+                    if (psm instanceof ReportPSMSet) {
+                        isUnique = ((ReportPSMSet) psm).getPSMs().iterator().next().getSpectrum().getIsUnique();
+                    } else if (psm instanceof ReportPSM) {
+                        isUnique = ((ReportPSM) psm).getSpectrum().getIsUnique();
+                    }
+
+                    if ((isUnique == null) || (isUnique == false)) {
+                        return new Boolean(false);
+                    }
+                }
+                // all PSMs were unique
+                return new Boolean(true);
+            } else if (o instanceof Boolean) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportPeptide);
+        }
+    },
+    NR_PSMS_PER_PEPTIDE_FILTER(FilterType.numerical, Number.class, "#PSMs per Peptide Set", "#PSMs (Peptide)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportPeptide) {
+                return ((ReportPeptide) o).getNrPSMs();
+            } else if (o instanceof Number) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportPeptide);
+        }
+    },
+    NR_SPECTRA_PER_PEPTIDE_FILTER(FilterType.numerical, Number.class, "#Spectra per Peptide Set", "#spectra (Peptide)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportPeptide) {
+                return ((ReportPeptide) o).getNrSpectra();
+            } else if (o instanceof Number) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportPeptide);
+        }
+    },
+
+    /* -------------------------------------------------------------------------
+    /* protein based filters
+    /* -----------------------------------------------------------------------*/
+
+    PROTEIN_ACCESSIONS_FILTER(FilterType.literal_list, String.class, "Accessions Filter for Protein", "Accessions (Protein)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportProtein) {
+                return ((ReportProtein) o).getAccessions();
+            } else if (o instanceof List<?>) {
+                List<String> objList = new ArrayList<String>();
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof String) {
+                        objList.add((String)obj);
+                    }
+                }
+                return objList;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportProtein);
+        }
+
+        @Override
+        public boolean valueNeedsFileRefinement() {
+            return true;
+        }
+
+        @Override
+        public Object doFileRefinement(Long fileID, Object o) {
+            List<String> strList = new ArrayList<String>();
+
+            if (o instanceof List<?>) {
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof Accession) {
+                        if (((fileID > 0) && (((Accession)obj).foundInFile(fileID))) ||
+                                (fileID == 0)) {
+                            strList.add(((Accession)obj).getAccession());
+                        }
+                    } else if (obj instanceof String) {
+                        strList.add((String)obj);
+                    }
+                }
+            }
+
+            return strList;
+        }
+    },
+    PROTEIN_DESCRIPTION_FILTER(FilterType.literal_list, String.class, "Description Filter for Protein", "Description (Protein)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportProtein) {
+                ((ReportProtein) o).getAccessions();
+            } else if (o instanceof List<?>) {
+                List<String> objList = new ArrayList<String>();
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof String) {
+                        objList.add((String)obj);
+                    }
+                }
+                return objList;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportProtein);
+        }
+
+        @Override
+        public boolean valueNeedsFileRefinement() {
+            return true;
+        }
+
+        @Override
+        public Object doFileRefinement(Long fileID, Object o) {
+            List<String> strList = new ArrayList<String>();
+
+            if (o instanceof List<?>) {
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof Accession) {
+                        if ((fileID > 0) && (((Accession)obj).foundInFile(fileID))) {
+                            strList.add(((Accession)obj).getDescription(fileID));
+                        } else if (fileID == 0) {
+                            for (Map.Entry<Long, String> descIt : ((Accession)obj).getDescriptions().entrySet()) {
+                                strList.add(descIt.getValue());
+                            }
+                        }
+                    } else if (obj instanceof String) {
+                        strList.add((String)obj);
+                    }
+                }
+            }
+
+            return strList;
+        }
+    },
+    PROTEIN_FILE_LIST_FILTER(FilterType.literal_list, String.class, "File List Filter for Protein", "File List (Protein)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportProtein) {
+                Set<String> fileNames = new HashSet<String>();
+
+                for (ReportPeptide pepIt :((ReportProtein) o).getPeptides()) {
+                    fileNames.addAll(pepIt.getFileNames());
+                }
+
+                return new ArrayList<String>(fileNames);
+            } else {
+                // nothing supported
+                return null;
+            }
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportProtein);
+        }
+    },
+    PROTEIN_MODIFICATIONS_FILTER(FilterType.modification, String.class, "Modifications Filter for Protein", "Modifications (Protein)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportProtein) {
+                List<Modification> modList = new ArrayList<Modification>();
+                for (ReportPeptide pep : ((ReportProtein) o).getPeptides()) {
+                    modList.addAll(pep.getModificationsList());
+                }
+                return modList;
+            } else if (o instanceof List<?>) {
+                List<Modification> modList = new ArrayList<Modification>();
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof Modification) {
+                        modList.add((Modification)obj);
+                    }
+                }
+                return modList;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportProtein);
+        }
+    },
+    PROTEIN_RANK_FILTER(FilterType.numerical, Number.class, "Rank Filter for Protein", "Rank (Protein)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportProtein) {
+                return ((ReportProtein) o).getRank();
+            } else if (o instanceof Number) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportProtein);
+        }
+    },
+    PROTEIN_SEQUENCE_LIST_FILTER(FilterType.literal_list, String.class, "Sequence List Filter for Protein", "Sequence List (Protein)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportProtein) {
+                return ((ReportProtein) o).getPeptides();
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportProtein);
+        }
+
+        @Override
+        public boolean valueNeedsFileRefinement() {
+            return true;
+        }
+
+        @Override
+        public Object doFileRefinement(Long fileID, Object o) {
+            List<String> strList = new ArrayList<String>();
+
+            if (o instanceof List<?>) {
+                for (Object obj : (List<?>)o) {
+                    if (obj instanceof ReportPeptide) {
+                        strList.add(((ReportPeptide) obj).getSequence());
+                    } else if (obj instanceof String) {
+                        strList.add((String)obj);
+                    }
+                }
+            }
+
+            return strList;
+        }
+    },
+    PROTEIN_SCORE_FILTER(FilterType.numerical, Number.class, "Protein Score filter", "score (Protein)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).doubleValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportProtein) {
+                return ((ReportProtein) o).getScore();
+            } else if (o instanceof Number) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportProtein);
+        }
+    },
+    NR_PEPTIDES_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#Peptides per Protein Filter", "#peptides (Protein)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportProtein) {
+                return ((ReportProtein) o).getNrPeptides();
+            } else if (o instanceof Number) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportProtein);
+        }
+    },
+    NR_PSMS_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#PSMs per Protein Filter", "#PSMs (Protein)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportProtein) {
+                return ((ReportProtein) o).getNrPSMs();
+            } else if (o instanceof Number) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportProtein);
+        }
+    },
+    NR_SPECTRA_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#Spectra per Protein Filter", "#spectra (Protein)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportProtein) {
+                return ((ReportProtein) o).getNrSpectra();
+            } else if (o instanceof Number) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportProtein);
+        }
+    },
+    NR_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#Unique Peptides per Protein Filter", "#unique peptides (Protein)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportProtein) {
+                Integer nrUnique = 0;
+
+                ListIterator<ReportPeptide> peptideIt = ((ReportProtein) o).getPeptides().listIterator();
+                while (peptideIt.hasNext()) {
+                    ListIterator<PSMReportItem> psmIt = peptideIt.next().getPSMs().listIterator();
+                    while (psmIt.hasNext()) {
+                        PSMReportItem psmItem = psmIt.next();
+                        Boolean isUnique = null;
+
+                        if (psmItem instanceof ReportPSMSet) {
+                            for (ReportPSM psm : ((ReportPSMSet) psmItem).getPSMs()) {
+                                isUnique = psm.getSpectrum().getIsUnique();
+                                if (isUnique != null) {
+                                    // one definitely set PSM is enough
+                                    break;
+                                }
+                            }
+                        } else if (psmItem instanceof ReportPSM) {
+                            isUnique = ((ReportPSM) psmItem).getSpectrum().getIsUnique();
+                        }
+
+                        if ((isUnique != null) && isUnique) {
+                            // peptide is unique: increase and go to next peptide
+                            nrUnique++;
+                            break;
+                        }
+                    }
+                }
+
+                return nrUnique;
+            } else if (o instanceof Number) {
+                // if we get a Number, simply return it
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportProtein);
+        }
+    },
+    NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#Unique Peptides per Protein Group Filter", "#unique peptides for group (Protein)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportProtein) {
+                Integer nrGroupUnique = 0;
+                Set<Accession> protAccesssions =
+                        new HashSet<Accession>(((ReportProtein) o).getAccessions());
+
+                ListIterator<ReportPeptide> peptideIt = ((ReportProtein) o).getPeptides().listIterator();
+                while (peptideIt.hasNext()) {
+                    if (protAccesssions.equals(new HashSet<Accession>(peptideIt.next().getAccessions()))) {
+                        nrGroupUnique++;
+                    }
+                }
+
+                return nrGroupUnique;
+            } else if (o instanceof Number) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof ReportProtein);
+        }
+    },
+
+    /*
+     * The score and top identifications filters are special types of filters
+     */
+    PSM_SCORE_FILTER(FilterType.numerical, Number.class, "Score Filter", "Score (PSM)") {
+        @Override
+        public PSMScoreFilter newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            throw new NullPointerException("Wrong way to instantiate PSMScoreFilter. "
+                    + "Instantiate directly!");
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            throw new NullPointerException("This should never be called. "
+                    + "PSMScoreFilter must overwrite getObjectsValue() method.");
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            throw new NullPointerException("This should never be called. "
+                    + "PSMScoreFilter must overwrite supportsClass() method.");
+        }
+    },
+    PSM_TOP_IDENTIFICATION_FILTER(FilterType.numerical, Number.class, "Top Identifications for PSMs", "PSM Top Identifications") {
+        @Override
+        public PSMScoreFilter newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            throw new NullPointerException("Wrong way to instantiate PSMTopIdentificationFilter. "
+                    + "Instantiate directly!");
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            throw new NullPointerException("This should never be called. "
+                    + "PSMTopIdentificationFilter must overwrite getObjectsValue() method.");
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            throw new NullPointerException("This should never be called. "
+                    + "PSMTopIdentificationFilter must overwrite supportsClass() method.");
+        }
+    },
+    PEPTIDE_SCORE_FILTER(FilterType.numerical, Number.class, "Score Filter", "Score (peptide)") {
+        @Override
+        public Object getObjectsValue(Object o) {
+            throw new NullPointerException("Wrong way to instantiate PeptideScoreFilter. "
+                    + "Instantiate directly!");
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            throw new NullPointerException("This should never be called. "
+                    + "PeptideScoreFilter must overwrite getObjectsValue() method.");
+        }
+
+        @Override
+        public AbstractFilter newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            throw new NullPointerException("This should never be called. "
+                    + "PeptideScoreFilter must overwrite getObjectsValue() method.");
+        }
+
+    },
+    ;
+
+
+    /** the actual {@link FilterType} of this filter */
+    private FilterType filterType;
+
+    /** the values which are compared by his filter */
+    private Class<?> valueInstance;
+
+    /** a longer, more descriptive name */
+    private String longName;
+
+    /** getter for the name, which should be displayed at a filter list */
+    private String filteringListName;
+
+    /** list of filters for PSMs */
+    private static List<RegisteredFilters> psmFilters = Arrays.asList(
+            new RegisteredFilters[]{
+                    CHARGE_FILTER,
+                    DELTA_MASS_FILTER,
+                    DELTA_PPM_FILTER,
+                    MZ_FILTER,
+                    PSM_ACCESSIONS_FILTER,
+                    PSM_DESCRIPTION_FILTER,
+                    PSM_FILE_LIST_FILTER,
+                    PSM_MISSED_CLEAVAGES_FILTER,
+                    PSM_MODIFICATIONS_FILTER,
+                    PSM_RANK_FILTER,
+                    PSM_SEQUENCE_FILTER,
+                    PSM_UNIQUE_FILTER,
+                    PSM_SOURCE_ID_FILTER,
+                    NR_ACCESSIONS_PER_PSM_FILTER,
+                    NR_PSMS_PER_PSM_SET_FILTER,
+            });
+
+    /** list of filters for peptides */
+    private static List<RegisteredFilters> peptideFilters = Arrays.asList(
+            new RegisteredFilters[]{
+                    PEPTIDE_ACCESSIONS_FILTER,
+                    PEPTIDE_DESCRIPTION_FILTER,
+                    PEPTIDE_FILE_LIST_FILTER,
+                    PEPTIDE_MISSED_CLEAVAGES_FILTER,
+                    PEPTIDE_MODIFICATIONS_FILTER,
+                    PEPTIDE_SEQUENCE_FILTER,
+                    PEPTIDE_SOURCE_ID_LIST_FILTER,
+                    PEPTIDE_UNIQUE_FILTER,
+                    NR_PSMS_PER_PEPTIDE_FILTER,
+                    NR_SPECTRA_PER_PEPTIDE_FILTER,
+            });
+
+    /** list of filters for proteins */
+    private static List<RegisteredFilters> proteinFilters = Arrays.asList(
+            new RegisteredFilters[]{
+                    PROTEIN_SCORE_FILTER,
+                    PROTEIN_RANK_FILTER,
+                    NR_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER,
+                    NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER,
+                    PROTEIN_ACCESSIONS_FILTER,
+                    PROTEIN_DESCRIPTION_FILTER,
+                    PROTEIN_FILE_LIST_FILTER,
+                    PROTEIN_MODIFICATIONS_FILTER,
+                    PROTEIN_SEQUENCE_LIST_FILTER,
+                    NR_PEPTIDES_PER_PROTEIN_FILTER,
+                    NR_PSMS_PER_PROTEIN_FILTER,
+                    NR_SPECTRA_PER_PROTEIN_FILTER,
+            });
+
+
+    /**
+     * Basic constructor for a filter
+     * @param filterType
+     * @param valueInstance
+     * @param longName
+     * @param filteringListName
+     */
+    private RegisteredFilters(FilterType filterType, Class<?> valueInstance,
+            String longName, String filteringListName) {
+        this.filterType = filterType;
+        this.valueInstance = valueInstance;
+        this.longName = longName;
+        this.filteringListName = filteringListName;
+    }
+
+
+    /**
+     * Returns the short name of this filter.
+     * @return
+     */
+    public final String getShortName() {
+        return this.name().toLowerCase();
+    }
+
+
+    /**
+     * getter for a longer, more descriptive name
+     * @return
+     */
+    public final String getLongName() {
+        return longName;
+    }
+
+
+    /**
+     * getter for the name, which should be displayed at a filter list
+     * @return
+     */
+    public final String getFilteringListName() {
+        return filteringListName;
+    }
+
+
+    /**
+     * Returns the {@link FilterType} of this filter.
+     * @return
+     */
+    public final FilterType getFilterType() {
+        return filterType;
+    }
+
+
+    /**
+     * Checks whether the given value has the correct instance type for this
+     * filter.
+     *
+     * @return
+     */
+    public final boolean isCorrectValueInstance(Object value) {
+        return valueInstance.isInstance(value);
+    }
+
+
+    /**
+     * Returns the value of the Object o, which will be used for filtering. E.g.
+     * it returns the actual numerical value for the "charge" of a PSM, if the
+     * charge should be filtered.
+     *
+     * @param o the object, containing the variable which should be filtered
+     *
+     * @return the value of the object's variable
+     */
+    public abstract Object getObjectsValue(Object o);
+
+
+    /**
+     * Returns, whether the class of the given object is valid for an instance
+     * of this filter.
+     *
+     * @param c
+     * @return
+     */
+    public abstract boolean supportsClass(Object c);
+
+
+    /**
+     * returns true, if the objects need file refinement (e.g. filtering the
+     * accessions).
+     *
+     * @return
+     */
+    public boolean valueNeedsFileRefinement() {
+        return false;
+    }
+
+
+    /**
+     * performs the file refinement an the given object and returns the
+     * refined object.
+     *
+     * @return
+     */
+    public Object doFileRefinement(Long fileID, Object o) {
+        return null;
+    }
+
+
+    /**
+     * Builds a new instance of this filter type.</br>
+     * The arg must be a {@link FilterComparator} valid for this filter
+     * type and the value of a valid type.
+     *
+     * @param arg
+     * @param value
+     * @param negate
+     * @return
+     */
+    public abstract AbstractFilter newInstanceOf(FilterComparator arg,
+            Object value, boolean negate);
+
+
+    /**
+     * Returns a set of registered filters for the PSM level
+     */
+    public final static List<RegisteredFilters> getPSMFilters() {
+        return psmFilters;
+    }
+
+
+    /**
+     * Returns a set of (descriptive) shorts for the registered PSM filters.
+     * These are only used to print the help.
+     */
+    public final static List<String> getPSMFilterShortsForHelp() {
+        List<String> filterShorts = new ArrayList<String>();
+
+        filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
+        filterShorts.add(PSMTopIdentificationFilter.prefix + "[scoreShort]");
+
+        for (RegisteredFilters filter : getPSMFilters()) {
+            filterShorts.add(filter.getShortName());
+        }
+
+        return filterShorts;
+    }
+
+
+    /**
+     * Returns a set of registered filters for the peptide level
+     */
+    public final static List<RegisteredFilters> getPeptideFilters() {
+        return peptideFilters;
+    }
+
+
+    /**
+     * Returns a set of (descriptive) shorts for the registered peptide filters.
+     * These are only used to print the help.
+     */
+    public final static Set<String> getPeptideFilterShortsForHelp() {
+        Set<String> filterShorts = new HashSet<String>();
+
+        filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
+        filterShorts.add(PSMTopIdentificationFilter.prefix + "[scoreShort]");
+        filterShorts.add(PeptideScoreFilter.prefix + "[scoreShort]");
+
+        for (RegisteredFilters filter : getPeptideFilters()) {
+            filterShorts.add(filter.getShortName());
+        }
+
+        return filterShorts;
+    }
+
+
+    /**
+     * Returns a set of registered filters for the protein level
+     */
+    public final static List<RegisteredFilters> getProteinFilters() {
+        return proteinFilters;
+    }
+
+
+    /**
+     * Returns a set of (descriptive) shorts for the registered protein filters.
+     * These are only used to print the help.
+     */
+    public final static Set<String> getProteinFilterShortsForHelp() {
+        Set<String> filterShorts = new HashSet<String>();
+
+        filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
+
+        for (RegisteredFilters filter : getProteinFilters()) {
+            filterShorts.add(filter.getShortName());
+        }
+
+        return filterShorts;
+    }
 }
