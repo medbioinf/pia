@@ -11,7 +11,6 @@ import javax.xml.stream.XMLStreamException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-<<<<<<< HEAD
 import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
@@ -25,22 +24,6 @@ public class PIAModellerTest {
     @BeforeClass
     public static void initialize() {
         piaFile = new File(PIAModellerTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
-=======
-import de.mpc.pia.intermediate.compiler.PIACompilerTest;
-import de.mpc.pia.modeller.report.filter.FilterComparator;
-import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
-import de.mpc.pia.modeller.score.ScoreModelEnum;
-
-
-public class PIAModellerTest {
-
-    public static File piaFile;
-
-
-    @BeforeClass
-    public static void initialize() {
-        piaFile = new File(PIACompilerTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
->>>>>>> branch 'master' of https://github.com/mpc-bioinformatics/pia.git
     }
 
 
