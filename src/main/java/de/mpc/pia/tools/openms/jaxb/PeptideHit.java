@@ -168,7 +168,7 @@ public class PeptideHit {
     public String getAaBefore(String protRef) {
         int idx = findProteinHitIndexById(protRef);
         if (idx > -1) {
-            String[] aaArr = aaAfter.split(" ");
+            String[] aaArr = aaBefore.split(" ");
             if (aaArr.length > 1) {
                 return aaAfter.split(" ")[idx];
             } else {

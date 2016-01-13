@@ -1,7 +1,9 @@
 package de.mpc.pia.intermediate.compiler.parser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -33,6 +35,7 @@ import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
+import de.mpc.pia.tools.PIATools;
 import de.mpc.pia.tools.openms.IdXMLParser;
 import de.mpc.pia.tools.openms.jaxb.FixedModification;
 import de.mpc.pia.tools.openms.jaxb.IdentificationRun;
@@ -369,7 +372,7 @@ public class IdXMLFileParser {
                         continue;
                     }
 
-                    String sequence = pepHit.getSequence();
+                    String sequence = pepHit.getSequence().toUpperCase();
                     int charge = pepHit.getCharge().intValue();
 
                     Map<Integer, Modification> modifications =
@@ -503,7 +506,6 @@ public class IdXMLFileParser {
                         }
 
                         ProteinHit protHit = (ProteinHit)protRef;
-                        String protHitId = protHit.getId();
 
                         FastaHeaderInfos fastaInfo =
                                 FastaHeaderInfos.parseHeaderInfos(
@@ -536,40 +538,14 @@ public class IdXMLFileParser {
                         // add the searchDB to the accession
                         acc.addSearchDatabaseRef(searchDatabase.getId());
 
-
-                        // get and add the accession occurrence to the peptide
-                        StringBuilder fragSeq = new StringBuilder(sequence.length()+2);
-
-                        String aaBefore = pepHit.getAaBefore(protHitId);
-                        if ((aaBefore != null) &&
-                                (!(aaBefore.equals("[") || aaBefore.equals("-") || aaBefore.trim().equals("")))) {
-                            fragSeq.append(aaBefore);
-                        }
-
-                        fragSeq.append(sequence);
-
-                        String aaAfter = pepHit.getAaAfter(protHitId);
-                        if ((aaAfter != null) &&
-                                (!(aaAfter.equals("]") || aaAfter.equals("-") || aaAfter.trim().equals("")))) {
-                            fragSeq.append(aaAfter);
-                        }
-
-                        Matcher matcher;
-                        matcher = Pattern.compile(fragSeq.toString()).
-                                matcher(acc.getDbSequence());
-                        while (matcher.find()) {
-                            int start;
-
-                            if ((aaAfter == null) ||
-                                    aaAfter.equals("[") || aaAfter.equals("-") || aaAfter.trim().equals("")) {
-                                start = matcher.start() + 1;
-                            } else {
-                                start = matcher.start() + 2;
-                            }
+                        // get the occurrences of the peptide
+                        List<Integer> startSites = getStartSites(sequence, acc.getDbSequence());
+                        for (Integer start : startSites) {
+                            Integer corrStart = start;
 
                             peptide.addAccessionOccurrence(acc,
-                                    start,
-                                    start + sequence.length() - 1);
+                                    corrStart,
+                                    corrStart + sequence.length() - 1);
                         }
 
                         // now insert the peptide and the accession into the accession peptide map
@@ -753,5 +729,54 @@ public class IdXMLFileParser {
         }
         sequence.append(modificationsSequence);
         return sequence.toString();
+    }
+
+    /**
+     * Getter for the start sites of a given peptide in the given protein
+     * sequence.
+     *
+     * @param peptideSeq
+     * @param proteinSeq
+     * @return
+     */
+    private static List<Integer> getStartSites(String peptideSeq, String proteinSeq) {
+        List<Integer> startSites = new ArrayList<Integer>();
+        proteinSeq = proteinSeq.toUpperCase();
+
+        if (peptideSeq.contains("X")) {
+            // replace the X by "." for regular expression matching
+            peptideSeq = peptideSeq.replaceAll("X", ".");
+        }
+
+        Matcher matcher;
+        matcher = Pattern.compile(peptideSeq).matcher(proteinSeq);
+        while (matcher.find()) {
+            startSites.add(matcher.start() + 2);
+        }
+
+        if (proteinSeq.contains("X")) {
+            // needs to match around the X
+            matcher = Pattern.compile("X").matcher(proteinSeq);
+            while (matcher.find()) {
+                int subStart = Math.max(0, matcher.start() - peptideSeq.length() + 1);
+                int subEnd = Math.min(proteinSeq.length(), matcher.end() + peptideSeq.length() - 1);
+
+                String subProteinSeq = proteinSeq.substring(subStart, subEnd);
+                Integer pos = PIATools.longestCommonPeptide(peptideSeq, subProteinSeq);
+
+                if (pos > -1) {
+                    pos = subStart + pos;
+                    if (!startSites.contains(pos)) {
+                        startSites.add(pos);
+                    }
+                }
+            }
+        }
+
+        if (startSites.size() < 1) {
+            logger.warn("no occurrences for " + peptideSeq + "    dbSeq: " + proteinSeq);
+        }
+
+        return startSites;
     }
 }
