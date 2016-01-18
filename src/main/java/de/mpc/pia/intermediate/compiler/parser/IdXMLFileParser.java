@@ -372,7 +372,7 @@ public class IdXMLFileParser {
                         continue;
                     }
 
-                    String sequence = pepHit.getSequence().toUpperCase();
+                    String sequence = pepHit.getSequence();
                     int charge = pepHit.getCharge().intValue();
 
                     Map<Integer, Modification> modifications =
@@ -714,7 +714,7 @@ public class IdXMLFileParser {
                 Modification mod = new Modification(
                         residue.charAt(0),
                         unimod.getDelta().getMonoMass(),
-                        modName.toString(),
+                        unimod.getTitle(),
                         "UNIMOD:" + unimod.getRecordId());
 
                 modifications.put(sequence.length(), mod);
@@ -728,7 +728,7 @@ public class IdXMLFileParser {
                     modificationsSequence.substring(modName.length() + 2);
         }
         sequence.append(modificationsSequence);
-        return sequence.toString();
+        return sequence.toString().toUpperCase();
     }
 
     /**
