@@ -29,8 +29,7 @@ public class IdXMLExporterTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        //piaFile = new File(PIAModellerTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
-        piaFile = new File("/mnt/data/uniNOBACKUP/inference_comparison/testruns/new_after_review/01-iPRG2008/testing/test2.pia.xml");
+        piaFile = new File(PIAModellerTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
     }
 
     @Before
@@ -44,19 +43,16 @@ public class IdXMLExporterTest {
         piaModeller.setCreatePSMSets(true);
 
         piaModeller.getPSMModeller().setAllDecoyPattern("Rnd.*");
-        piaModeller.getPSMModeller().setAllDecoyPattern("RRRRR.*");
         piaModeller.getPSMModeller().setAllTopIdentifications(1);
 
         piaModeller.getPSMModeller().calculateAllFDR();
         piaModeller.getPSMModeller().calculateCombinedFDRScore();
 
-
-
         // protein level
         SpectrumExtractorInference seInference = new SpectrumExtractorInference();
 
         seInference.addFilter(
-                new PSMScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()));
+                new PSMScoreFilter(FilterComparator.less_equal, false, 0.5, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()));
 
         seInference.setScoring(new MultiplicativeScoring(new HashMap<String, String>()));
         seInference.getScoring().setSetting(AbstractScoring.scoringSettingID, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName());
@@ -64,10 +60,8 @@ public class IdXMLExporterTest {
 
         piaModeller.getProteinModeller().infereProteins(seInference);
 
-
-
+        // simple exporting
         IdXMLExporter exporter = new IdXMLExporter(piaModeller);
-
         File exportFile = File.createTempFile("pia_idXmlExportTest", ".idXML");
         exporter.exportToIdXML(0L, exportFile, true);
     }
