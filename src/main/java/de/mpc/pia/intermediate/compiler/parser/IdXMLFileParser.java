@@ -539,13 +539,15 @@ public class IdXMLFileParser {
                         acc.addSearchDatabaseRef(searchDatabase.getId());
 
                         // get the occurrences of the peptide
-                        List<Integer> startSites = getStartSites(sequence, acc.getDbSequence());
-                        for (Integer start : startSites) {
-                            Integer corrStart = start;
+                        if ((acc.getDbSequence() != null) && (acc.getDbSequence().trim().length() > 0)) {
+                            List<Integer> startSites = getStartSites(sequence, acc.getDbSequence());
+                            for (Integer start : startSites) {
+                                Integer corrStart = start;
 
-                            peptide.addAccessionOccurrence(acc,
-                                    corrStart,
-                                    corrStart + sequence.length() - 1);
+                                peptide.addAccessionOccurrence(acc,
+                                        corrStart,
+                                        corrStart + sequence.length() - 1);
+                            }
                         }
 
                         // now insert the peptide and the accession into the accession peptide map
