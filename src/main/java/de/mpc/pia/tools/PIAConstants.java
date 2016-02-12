@@ -151,43 +151,107 @@ public class PIAConstants {
 	public static final String CV_INTERMEDIATE_PSM_LIST_ACCESSION = "MS:1002440";
 	/** name for the "intermediate PSM list" in PSI-MS */
 	public static final String CV_INTERMEDIATE_PSM_LIST_NAME = "intermediate PSM list";
-	
+
+
+	/** SEQUEST **/
 	
 	/** accession for "SEQUEST:probability" in PSI-MS */
 	public static final String CV_SEQUEST_PROBABILITY_ACCESSION = "MS:1001154";
+	/** Todo: We need to fin here in http://www.ebi.ac.uk/ontology-lookup/browse.do?ontName=PRIDE&termId=PRIDE:0000045&termName=Sequest the synonyms */
+
 	/** name for "SEQUEST:probability" in PSI-MS */
 	public static final String CV_SEQUEST_PROBABILITY_NAME = "SEQUEST:probability";
 	
 	/** accession for "SEQUEST:xcorr" in PSI-MS */
 	public static final String CV_SEQUEST_XCORR_ACCESSION = "MS:1001155";
+	/** accession SEQUEST CORR in PRIDE **/
+	public static final String CV_PRIDE_SEQUEST_XCORR_ACCESSION = "PRIDE:0000053";
 	/** name for "SEQUEST:xcorr" in PSI-MS */
 	public static final String CV_SEQUEST_XCORR_NAME = "SEQUEST:xcorr";
 	
 	/** accession for "SEQUEST:sp" in PSI-MS */
 	public static final String CV_SEQUEST_SP_ACCESSION = "MS:1001157";
+	/** accession for SEQUEST:sp in PRIDE **/
+	public static final String CV_PRIDE_SEQUEST_SP_ACCESSION = "PRIDE:0000054";
 	/** name for "SEQUEST:sp" in PSI-MS */
 	public static final String CV_SEQUEST_SP_NAME = "SEQUEST:sp";
 
+    /** Mascot **/
+
 	/** accession for "Mascot:score" in PSI-MS */
 	public static final String CV_MASCOT_SCORE_ACCESSION = "MS:1001171";
+    /** accession for Mascot score in PRIDE ontology **/
+	public static final String CV_PRIDE_MASCOT_SCORE_ACCESSION = "PRIDE:0000069";
 	/** name for "Mascot:score" in PSI-MS */
 	public static final String CV_MASCOT_SCORE_NAME = "Mascot:score";
 	
 	/** accession for "Mascot:expectation value" in PSI-MS */
 	public static final String CV_MASCOT_EXPECTATION_VALUE_ACCESSION = "MS:1001172";
+	/** accession for "PRIDE accession for mascot scroe" */
+	public static final String CV_PRIDE_MASCOT_EXPECTATION_VALUE_ACCESSION = "PRIDE:0000212";
 	/** name for "Mascot:expectation value" in PSI-MS */
 	public static final String CV_MASCOT_EXPECTATION_VALUE_NAME = "Mascot:expectation value";
+
+
+	/** XTandem **/
 	
 	/** accession for "X!Tandem:expect" in PSI-MS */
 	public static final String CV_XTANDEM_EXPECT_ACCESSION = "MS:1001330";
+	/** accession XTandem:expect value in PRIDE */
+	public static final String CV_PRIDE_XTANDEM_EXPECT_ACCESSION  = "PRIDE:0000183";
 	/** name for "X!Tandem:expect" in PSI-MS */
 	public static final String CV_XTANDEM_EXPECT_NAME = "X!Tandem:expect";
 	
 	/** accession for "X!Tandem:hyperscore" in PSI-MS */
 	public static final String CV_XTANDEM_HYPERSCORE_ACCESSION = "MS:1001331";
+	/** accession XTadenm hyperscore in PRIDE **/
+	public static final String CV_PRIDE_XTANDEM_HYPERSCORE_ACCESSION = "PRIDE:0000176";
 	/** name for "X!Tandem:hyperscore" in PSI-MS */
 	public static final String CV_XTANDEM_HYPERSCORE_NAME = "X!Tandem:hyperscore";
-	
+
+	public static final String CV_PRIDE_XTANDEM_Z_SCORE_ACCESSION = "PRIDE:0000182";
+	public static final String CV_Z_SCORE_ACCESSION = "MS:1001952";
+	public static final String CV_Z_SCORE_NAME      = "ZCore:probScore";
+
+
+	/** End XTandem **/
+
+
+	/** Begining of OMSSA **/
+
+	public static final String CV_PRIDE_OMSSA_E_VALUE_ACCESSION = "PRIDE:0000185";
+	public static final String CV_OMSSA_E_VALUE_ACCESSION = "MS:1001328";
+	public static final String CV_OMSSA_E_VALUE_NAME = "OMSSA:evalue";
+
+	public static final String CV_PRIDE_OMSSA_P_VALUE_ACCESSION = "PRIDE:0000186";
+	public static final String CV_OMSSA_P_VALUE_ACCESSION       = "MS:1001329";
+	public static final String CV_OMSSA_P_VALUE_NAME            = "OMSSA:pvalue";
+
+
+	/** MSGF+ **/
+
+	/** accession for "MS-GF:RawScore" in PSI-MS */
+	public static final String CV_MSGF_RAWSCORE_ACCESSION = "MS:1002049";
+	/** name for "MS-GF:RawScore" in PSI-MS */
+	public static final String CV_MSGF_RAWSCORE_NAME = "MS-GF:RawScore";
+
+	/** accession for "MS-GF:DeNovoScore" in PSI-MS */
+	public static final String CV_MSGF_DENOVOSCORE_ACCESSION = "MS:1002050";
+	/** name for "MS-GF:DeNovoScore" in PSI-MS */
+	public static final String CV_MSGF_DENOVOSCORE_NAME = "MS-GF:DeNovoScore";
+
+	/** accession for "MS-GF:SpecEValue" in PSI-MS */
+	public static final String CV_MSGF_SPECEVALUE_ACCESSION = "MS:1002052";
+	/** name for "MS-GF:SpecEValue" in PSI-MS */
+	public static final String CV_MSGF_SPECEVALUE_NAME = "MS-GF:SpecEValue";
+
+	/** accession for "MS-GF:EValue" in PSI-MS */
+	public static final String CV_MSGF_EVALUE_ACCESSION = "MS:1002053";
+	/** name for "MS-GF:EValue" in PSI-MS */
+	public static final String CV_MSGF_EVALUE_NAME = "MS-GF:EValue";
+
+    /** End MSGF+ **/
+
 	/** accession for "modification specificity peptide N-term" in PSI-MS */
 	public static final String CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION = "MS:1001189";
 	/** name for "modification specificity peptide N-term" in PSI-MS */
@@ -223,26 +287,7 @@ public class PIAConstants {
 	/** name for "MS-GF:RawScore" in PSI-MS */
 	public static final String CV_MYRIMATCH_MVH_NAME = "MyriMatch:MVH";
 	
-	/** accession for "MS-GF:RawScore" in PSI-MS */
-	public static final String CV_MSGF_RAWSCORE_ACCESSION = "MS:1002049";
-	/** name for "MS-GF:RawScore" in PSI-MS */
-	public static final String CV_MSGF_RAWSCORE_NAME = "MS-GF:RawScore";
-	
-	/** accession for "MS-GF:DeNovoScore" in PSI-MS */
-	public static final String CV_MSGF_DENOVOSCORE_ACCESSION = "MS:1002050";
-	/** name for "MS-GF:DeNovoScore" in PSI-MS */
-	public static final String CV_MSGF_DENOVOSCORE_NAME = "MS-GF:DeNovoScore";
-	
-	/** accession for "MS-GF:SpecEValue" in PSI-MS */
-	public static final String CV_MSGF_SPECEVALUE_ACCESSION = "MS:1002052";
-	/** name for "MS-GF:SpecEValue" in PSI-MS */
-	public static final String CV_MSGF_SPECEVALUE_NAME = "MS-GF:SpecEValue";
-	
-	/** accession for "MS-GF:EValue" in PSI-MS */
-	public static final String CV_MSGF_EVALUE_ACCESSION = "MS:1002053";
-	/** name for "MS-GF:EValue" in PSI-MS */
-	public static final String CV_MSGF_EVALUE_NAME = "MS-GF:EValue";
-	
+
 	/** accession for "Amanda Score" in PSI-MS */
 	public static final String CV_AMANDA_SCORE_ACCESSION = "MS:1002319";
 	/** name for "Amanda Score" in PSI-MS */

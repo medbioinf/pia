@@ -83,27 +83,27 @@ public class InputFileParserFactory {
 			}
 		},
 
-        PRIDEXML_INPUT{
+        MZTAB_INPUT {
 
             @Override
             public String getFileSuffix() {
-                return "xml";
+                return "mztab";
             }
 
             @Override
             public String getFileTypeName() {
-                return "Pride XML";
+                return "MzTab File";
             }
 
             @Override
             public String getFileTypeShort() {
-                return "xml";
+                return "mztab";
             }
 
             @Override
             public boolean parseFile(String name, String fileName,
                                      PIACompiler compiler, String additionalInfoFileName) {
-                return PrideXMLParser.getDataFromPrideXMLFile(name, fileName,
+                return MzTabParser.getDataFromMzTabLFile(name, fileName,
                         compiler);
             }
 

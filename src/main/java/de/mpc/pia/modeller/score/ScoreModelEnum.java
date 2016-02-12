@@ -2,6 +2,7 @@ package de.mpc.pia.modeller.score;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import de.mpc.pia.modeller.psm.PSMReportItemComparator;
@@ -48,6 +49,11 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
         public List<String> getValidDescriptors() {
             return new ArrayList<String>();
         }
@@ -79,6 +85,11 @@ public enum ScoreModelEnum {
         @Override
         public Boolean higherScoreBetter() {
             return false;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
         }
 
         @Override
@@ -131,6 +142,11 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<String>();
 
@@ -178,6 +194,11 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<String>();
 
@@ -220,6 +241,11 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<String>();
 
@@ -234,6 +260,9 @@ public enum ScoreModelEnum {
             return descs;
         }
     },
+
+    /** Beginning of Mascot Scores  **/
+
     /**
      *  This Score implements the Mascot expectation value
      */
@@ -264,6 +293,13 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            List<String> accessions = new ArrayList<String>();
+            accessions.add(PIAConstants.CV_PRIDE_MASCOT_EXPECTATION_VALUE_ACCESSION);
+            return accessions;
+        }
+
+        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<String>();
 
@@ -274,6 +310,7 @@ public enum ScoreModelEnum {
             descs.add(getCvName());
             descs.add("Mascot expect");
             descs.add("Mascot_EValue");
+            descs.addAll(getAdditionalAccessions());
 
             return descs;
         }
@@ -308,6 +345,13 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            List<String> accessions = new ArrayList<String>();
+            accessions.add(PIAConstants.CV_PRIDE_MASCOT_SCORE_ACCESSION);
+            return accessions;
+        }
+
+        @Override
         public Boolean isSearchengineMainScore() {
             return true;
         }
@@ -327,10 +371,14 @@ public enum ScoreModelEnum {
             descs.add(getShortName());
             descs.add(getCvAccession());
             descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
 
             return descs;
         }
     },
+
+    /** End of Mascot Scores**/
+
     /**
      *  This Score implements the Sequest Probability.
      */
@@ -359,6 +407,11 @@ public enum ScoreModelEnum {
         public Boolean higherScoreBetter() {
             // no transformation needed
             return false;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
         }
 
         @Override
@@ -406,6 +459,13 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            List<String> accessions = new ArrayList<String>();
+            accessions.add(PIAConstants.CV_PRIDE_SEQUEST_SP_ACCESSION);
+            return accessions;
+        }
+
+        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<String>();
 
@@ -416,6 +476,7 @@ public enum ScoreModelEnum {
             descs.add(getShortName());
             descs.add(getCvAccession());
             descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
 
             return descs;
         }
@@ -450,6 +511,13 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            List<String> accessions = new ArrayList<String>();
+            accessions.add(PIAConstants.CV_PRIDE_SEQUEST_XCORR_ACCESSION);
+            return accessions;
+        }
+
+        @Override
         public Boolean isSearchengineMainScore() {
             return true;
         }
@@ -465,6 +533,7 @@ public enum ScoreModelEnum {
             descs.add(getShortName());
             descs.add(getCvAccession());
             descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
 
             return descs;
         }
@@ -499,6 +568,13 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            List<String> accessions = new ArrayList<String>();
+            accessions.add(PIAConstants.CV_PRIDE_XTANDEM_EXPECT_ACCESSION);
+            return accessions;
+        }
+
+        @Override
         public Boolean isSearchengineMainScore() {
             return true;
         }
@@ -516,6 +592,7 @@ public enum ScoreModelEnum {
             descs.add(getShortName());
             descs.add(getCvAccession());
             descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
 
             return descs;
         }
@@ -550,6 +627,13 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            List<String> accessions = new ArrayList<String>();
+            accessions.add(PIAConstants.CV_PRIDE_XTANDEM_HYPERSCORE_ACCESSION);
+            return accessions;
+        }
+
+        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<String>();
 
@@ -565,10 +649,14 @@ public enum ScoreModelEnum {
             descs.add(getShortName());
             descs.add(getCvAccession());
             descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
 
             return descs;
         }
     },
+
+    /** Beginning of MSGF+ Scores **/
+
     /**
      * The MS-GF+ RawScore
      */
@@ -596,6 +684,11 @@ public enum ScoreModelEnum {
         @Override
         public Boolean higherScoreBetter() {
             return true;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
         }
 
         @Override
@@ -641,6 +734,11 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<String>();
 
@@ -680,6 +778,11 @@ public enum ScoreModelEnum {
         @Override
         public Boolean higherScoreBetter() {
             return false;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
         }
 
         @Override
@@ -732,6 +835,11 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<String>();
 
@@ -744,6 +852,10 @@ public enum ScoreModelEnum {
             return descs;
         }
     },
+
+    /** End of MSGF+ Scores **/
+
+    /** Beginning of MS-Amanda Scores **/
 
     /**
      * The Amanda score
@@ -775,6 +887,11 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
         public Boolean isSearchengineMainScore() {
             return true;
         }
@@ -793,6 +910,8 @@ public enum ScoreModelEnum {
             return descs;
         }
     },
+
+    /** End of the MS-Amanda Scores **/
 
     /**
      * The MyriMatch MVH
@@ -821,6 +940,11 @@ public enum ScoreModelEnum {
         @Override
         public Boolean higherScoreBetter() {
             return true;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
         }
 
         @Override
@@ -873,6 +997,11 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<String>();
 
@@ -913,6 +1042,11 @@ public enum ScoreModelEnum {
         @Override
         public Boolean higherScoreBetter() {
             return true;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
         }
 
         @Override
@@ -959,6 +1093,11 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<String>();
 
@@ -1002,6 +1141,11 @@ public enum ScoreModelEnum {
         }
 
         @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<String>();
 
@@ -1041,6 +1185,11 @@ public enum ScoreModelEnum {
         @Override
         public Boolean higherScoreBetter() {
             return true;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
         }
 
         @Override
@@ -1090,6 +1239,11 @@ public enum ScoreModelEnum {
                     + getName() +
                     "' as it depends on the scores and scoring method used in the protein inference");
             return null;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
         }
 
         @Override
@@ -1170,6 +1324,14 @@ public enum ScoreModelEnum {
      * @return
      */
     public abstract Boolean higherScoreBetter();
+
+    /**
+     * Some of the scores has different synonyms in PRIDE Database or other databases
+     * and should be handle in the same way. For example the Mascot score can be found as
+     * PRIDE:0000069 and MS:1001171. The additional values will be handle here.
+     * @return
+     */
+    public abstract List<String> getAdditionalAccessions();
 
 
     /**

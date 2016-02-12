@@ -53,6 +53,7 @@ import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
 import de.mpc.pia.tools.obo.OBOMapper;
 import de.mpc.pia.tools.unimod.UnimodParser;
+import uk.ac.ebi.pridemod.ModReader;
 
 /**
  * This class is used to read in one or several input files and compile them
@@ -116,7 +117,10 @@ public class PIACompiler {
     private Map<String, AnalysisSoftware> softwareMap;
 
     /** UnimodParser to get additional information from the unimod */
+    /** We can deprecated this and use instead the pride-mod library **/
     private UnimodParser unimodParser;
+
+    private ModReader modReader;
 
     /** the OBO mapper, to get additional data */
     private OBOMapper oboMapper;
@@ -157,6 +161,9 @@ public class PIACompiler {
         clusterIterator = null;
 
         unimodParser = null;
+
+        modReader = null;
+
         oboMapper = null;
 
         numThreads = 0;
@@ -187,6 +194,22 @@ public class PIACompiler {
             unimodParser = new UnimodParser();
         }
         return unimodParser;
+    }
+
+    /**
+     * Getter for the Pride Mod Reader allowing to retrieve information from UNIMOD and PSI-MOD
+     * at the same time.
+     *
+     * Unimod and PSI-MOD
+     *
+     * @return
+     */
+    public ModReader getModReader() {
+        if (unimodParser == null) {
+            logger.info("Initializing unimod parser...");
+            unimodParser = new UnimodParser();
+        }
+        return modReader;
     }
 
 
@@ -224,8 +247,8 @@ public class PIACompiler {
     /**
      * Inserts a new file into the map of file and return a reference to it.
      *
+     * @param name
      * @param fileName
-     * @param searchEngineName
      * @return
      */
     public PIAInputFile insertNewFile(String name, String fileName,
@@ -313,6 +336,32 @@ public class PIACompiler {
         psm = new PeptideSpectrumMatch(id, charge, massToCharge, deltaMass, rt,
                 sequence, missed, sourceID, spectrumTitle,
                 file, spectrumID);
+
+        if (!spectra.add(psm)) {
+            // TODO: better warning / error
+            logger.error("ERROR: spectrum was already in list, this should not have happened! " +
+                    psm.getSequence());
+        }
+
+        return psm;
+    }
+
+    /**
+     * Inserts a new PSM with the given data into the spectra set.
+     *
+     * @return the newly created PSM
+     */
+    public PeptideSpectrumMatch insertNewSpectrum(int charge,
+                                                  double massToCharge, double theoreticalMass, double deltaMass, Double rt, String sequence,
+                                                  int missed, String sourceID, String spectrumTitle,
+                                                  PIAInputFile file, SpectrumIdentification spectrumID) {
+        PeptideSpectrumMatch psm;
+        Long id = spectra.size() + 1L;
+
+        psm = new PeptideSpectrumMatch(id, charge, massToCharge, deltaMass, rt,
+                sequence, missed, sourceID, spectrumTitle,
+                file, spectrumID);
+
 
         if (!spectra.add(psm)) {
             // TODO: better warning / error
