@@ -307,6 +307,12 @@ public class MzTabParser {
                             piaFile,
                             spectrumIDMap.get(spectraRef.getMsRun()));
 
+                    if(mzTabPSM.getOptionColumnValue("cv_MS:1002217_decoy_peptide") != null)
+                        if(mzTabPSM.getOptionColumnValue("cv_MS:1002217_decoy_peptide").equalsIgnoreCase("1"))
+                            psm.setIsDecoy(true);
+                        else
+                            psm.setIsDecoy(false);
+
                     // get the peptide or create it
                     peptide = compiler.getPeptide(sequence);
                     if (peptide == null) {
