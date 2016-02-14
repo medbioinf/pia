@@ -108,6 +108,32 @@ public class InputFileParserFactory {
             }
 
         },
+
+		PRIDEXML_INPUT {
+
+			@Override
+			public String getFileSuffix() {
+				return "xml";
+			}
+
+			@Override
+			public String getFileTypeName() {
+				return "PRIDE XML File";
+			}
+
+			@Override
+			public String getFileTypeShort() {
+				return "xml";
+			}
+
+			@Override
+			public boolean parseFile(String name, String fileName,
+									 PIACompiler compiler, String additionalInfoFileName) {
+				return PrideXMLParser.getDataFromPrideXMLFile(name, fileName,
+						compiler);
+			}
+
+		},
 		/**
 		 * the input file is a Mascot dat file
 		 */
