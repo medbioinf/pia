@@ -338,7 +338,11 @@ public class PIAConstants {
 	/** name for "protein group passes thresholde" in PSI-MS */
 	public static final String CV_PROTEIN_GROUP_PASSES_THRESHOLD_NAME = "protein group passes threshold";
 
-	
+	/** PRIDE CVTerms **/
+	public static final String PRIDE_DECOY_HIT = "PRIDE:0000303";
+
+	public static final String PRIDE_DECOY_HIT_DESC = "Decoy";
+
 	/**
 	 * We don't ever want to instantiate this class
 	 */

@@ -1,22 +1,17 @@
 package de.mpc.pia.intermediate.compiler.parser;
 
 import de.mpc.pia.intermediate.*;
-import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
-import de.mpc.pia.tools.MzIdentMLTools;
-import de.mpc.pia.tools.MzTabTools;
+import de.mpc.pia.tools.PRIDETools;
 import de.mpc.pia.tools.obo.OBOMapper;
-import de.mpc.pia.tools.openms.jaxb.SearchParameters;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
 import uk.ac.ebi.jmzidml.model.mzidml.*;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
-import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 import uk.ac.ebi.pride.jaxb.model.*;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.model.Contact;
@@ -27,7 +22,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Matcher;
 
 /**
  * This class read the MzTab Files and Map the to the PIA Intermediate File format
@@ -111,11 +105,11 @@ public class MzTabParser {
                 SpectraData newSpectraData = new SpectraData();
 
                 SpectrumIDFormat formatID = new SpectrumIDFormat();
-                formatID.setCvParam(MzTabTools.convertCvParam(msRun.getIdFormat()));
+                formatID.setCvParam(PRIDETools.convertCvParam(msRun.getIdFormat()));
                 newSpectraData.setSpectrumIDFormat(formatID);
 
                 FileFormat newFileFormat = new FileFormat();
-                newFileFormat.setCvParam(MzTabTools.convertCvParam(msRun.getFormat()));
+                newFileFormat.setCvParam(PRIDETools.convertCvParam(msRun.getFormat()));
                 newSpectraData.setFileFormat(newFileFormat);
 
                 newSpectraData.setLocation(msRun.getLocation().toString());
@@ -178,7 +172,7 @@ public class MzTabParser {
                 Software software = metadata.getSoftwareMap().get(softwareKey);
                 AnalysisSoftware newSoftware = new AnalysisSoftware();
 
-                newSoftware.setSoftwareName(MzTabTools.convertParam(software.getParam()));
+                newSoftware.setSoftwareName(PRIDETools.convertParam(software.getParam()));
 
                 newSoftware.setId(softwareKey.toString());
 
@@ -406,7 +400,7 @@ public class MzTabParser {
                 searchDatabase.setVersion(protein.getDatabaseVersion());
                 searchDatabase.setName(protein.getDatabase());
                 dbSequence.setSearchDatabase(searchDatabase);
-                dbSequence.setSeq(protein.getOptionColumnValue(MzTabTools.OPTIONAL_SEQUENCE_COLUMN));
+                dbSequence.setSeq(protein.getOptionColumnValue(PRIDETools.OPTIONAL_SEQUENCE_COLUMN));
                 dbSequenceMap.put(dbSequence.getAccession(), dbSequence);
             }
         }
@@ -427,7 +421,7 @@ public class MzTabParser {
             for(FixedMod fixed: metadata.getFixedModMap().values()){
                 SearchModification searchModification = new SearchModification();
                 searchModification.setFixedMod(true);
-                searchModification.getCvParam().add(MzTabTools.convertCvParam(fixed.getParam()));
+                searchModification.getCvParam().add(PRIDETools.convertCvParam(fixed.getParam()));
                 float valueDeltaMass = (fixed.getParam().getValue()!= null)? new Float(fixed.getParam().getValue()): new Float(-1.0) ;
                 searchModification.setMassDelta(valueDeltaMass);
                 modifications.getSearchModification().add(searchModification);
@@ -438,7 +432,7 @@ public class MzTabParser {
             for(VariableMod variableMod: metadata.getVariableModMap().values()){
                 SearchModification searchModification = new SearchModification();
                 searchModification.setFixedMod(false);
-                searchModification.getCvParam().add(MzTabTools.convertCvParam(variableMod.getParam()));
+                searchModification.getCvParam().add(PRIDETools.convertCvParam(variableMod.getParam()));
                 float valueDeltaMass = (variableMod.getParam().getValue()!= null)? new Float(variableMod.getParam().getValue()): new Float(-1.0) ;
                 searchModification.setMassDelta(valueDeltaMass);
                 modifications.getSearchModification().add(searchModification);

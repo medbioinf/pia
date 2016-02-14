@@ -5,6 +5,7 @@ import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.tools.MzIdentMLTools;
+import de.mpc.pia.tools.PRIDETools;
 import org.apache.log4j.Logger;
 import uk.ac.ebi.jmzidml.model.mzidml.*;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
@@ -131,6 +132,8 @@ public class PrideXMLParser {
                         null,
                         file,
                         spectrumID);
+
+                psm.setIsDecoy(PRIDETools.isDecoyHit(identification));
 
                 // get the peptide or create it
                 peptide = compiler.getPeptide(sequence);
