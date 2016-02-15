@@ -202,12 +202,13 @@ public class PrideXMLParser {
             Map<Integer, de.mpc.pia.intermediate.Modification> modificationMap = new HashMap<Integer, de.mpc.pia.intermediate.Modification>();
             for(ModificationItem mod: modificationItem){
                 Double mass = null;
+                Character charMod = (mod.getModLocation().intValue() == 0 || mod.getModLocation().intValue() > sequence.length())?'.':sequence.charAt(mod.getModLocation().intValue() -1);
                 if(mod.getModMonoDelta() != null && mod.getModMonoDelta().get(0) != null)
                     mass = new Double(mod.getModMonoDelta().get(0));
                 else if(mod.getModAvgDelta() != null && mod.getModAvgDelta().get(0) != null)
                     mass = new Double(mod.getModAvgDelta().get(0));
                 de.mpc.pia.intermediate.Modification modification =
-                        new de.mpc.pia.intermediate.Modification(sequence.charAt(mod.getModLocation().intValue() -1),mass,mod.getModDatabase(),mod.getModAccession());
+                        new de.mpc.pia.intermediate.Modification(charMod,mass,mod.getModDatabase(),mod.getModAccession());
                 modificationMap.put(mod.getModLocation().intValue(), modification);
             }
             return modificationMap;
