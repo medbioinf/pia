@@ -760,4 +760,16 @@ public class PeptideSpectrumMatch implements Serializable {
 	public void setTheoreticalMz(double theoreticalMz) {
 		this.theoreticalMz = theoreticalMz;
 	}
+
+	/**
+	 * Add a list of PSMS scores, best performance than one by one.
+	 * @param scores
+     */
+	public void addAllScores(List<ScoreModel> scores) {
+		if(scores != null){
+			if(this.scores == null)
+				this.scores = new ArrayList<ScoreModel>();
+			this.scores.addAll(scores);
+		}
+	}
 }

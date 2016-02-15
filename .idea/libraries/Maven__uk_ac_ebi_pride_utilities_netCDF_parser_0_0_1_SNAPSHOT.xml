@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: uk.ac.ebi.pride.utilities:netCDF-parser:0.0.1-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/uk/ac/ebi/pride/utilities/netCDF-parser/0.0.1-SNAPSHOT/netCDF-parser-0.0.1-20160107.140950-3.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/uk/ac/ebi/pride/utilities/netCDF-parser/0.0.1-SNAPSHOT/netCDF-parser-0.0.1-20160107.140950-3-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/uk/ac/ebi/pride/utilities/netCDF-parser/0.0.1-SNAPSHOT/netCDF-parser-0.0.1-20160107.140950-3-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

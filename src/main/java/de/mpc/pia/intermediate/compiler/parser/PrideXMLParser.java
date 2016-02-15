@@ -4,7 +4,10 @@ import de.mpc.pia.intermediate.*;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
+import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.MzIdentMLTools;
+import de.mpc.pia.tools.PIAConstants;
+import de.mpc.pia.tools.PIATools;
 import de.mpc.pia.tools.PRIDETools;
 import org.apache.log4j.Logger;
 import uk.ac.ebi.jmzidml.model.mzidml.*;
@@ -135,6 +138,10 @@ public class PrideXMLParser {
 
                 psm.setIsDecoy(PRIDETools.isDecoyHit(identification));
 
+                List<ScoreModel> scores = transformScoreModels(peptideItem.getAdditional());
+
+                psm.addAllScores(scores);
+
                 // get the peptide or create it
                 peptide = compiler.getPeptide(sequence);
                 if (peptide == null) {
@@ -189,6 +196,27 @@ public class PrideXMLParser {
             }
         }
         return true;
+    }
+
+    /**
+     * Retriving the score at PSM level from PRIDE XMLs
+     * @param additional
+     * @return
+     */
+    private static List<ScoreModel> transformScoreModels(uk.ac.ebi.pride.jaxb.model.Param additional) {
+        List<ScoreModel> scoreModels = new ArrayList<ScoreModel>();
+
+        for (uk.ac.ebi.pride.jaxb.model.CvParam cvParam : additional.getCvParam()) {
+            ScoreModelEnum model = ScoreModelEnum.getModelByDescription(cvParam.getAccession());
+            if(model == null){
+                model = ScoreModelEnum.getModelByDescription(cvParam.getName());
+            }
+            if (model != null && model != ScoreModelEnum.UNKNOWN_SCORE) {
+                Double value = new Double(cvParam.getValue());
+                scoreModels.add(new ScoreModel(value,model));
+            }
+        }
+        return scoreModels;
     }
 
     /**

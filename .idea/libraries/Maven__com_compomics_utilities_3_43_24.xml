@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.compomics:utilities:3.43.24">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/compomics/utilities/3.43.24/utilities-3.43.24.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/compomics/utilities/3.43.24/utilities-3.43.24-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/compomics/utilities/3.43.24/utilities-3.43.24-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

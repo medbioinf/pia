@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: uk.ac.ebi.jmzidml:jmzidentml:1.1.9.pride">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/uk/ac/ebi/jmzidml/jmzidentml/1.1.9.pride/jmzidentml-1.1.9.pride.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/uk/ac/ebi/jmzidml/jmzidentml/1.1.9.pride/jmzidentml-1.1.9.pride-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/uk/ac/ebi/jmzidml/jmzidentml/1.1.9.pride/jmzidentml-1.1.9.pride-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
