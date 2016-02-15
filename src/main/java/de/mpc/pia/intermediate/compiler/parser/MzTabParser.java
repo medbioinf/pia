@@ -15,6 +15,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.pride.jaxb.model.*;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.model.Contact;
+import uk.ac.ebi.pride.jmztab.model.Modification;
 import uk.ac.ebi.pride.jmztab.model.Param;
 import uk.ac.ebi.pride.jmztab.model.Software;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileParser;
@@ -466,12 +467,11 @@ public class MzTabParser {
 
         for (uk.ac.ebi.pride.jmztab.model.Modification oldMod: mzTabMods) {
             for(Integer pos: oldMod.getPositionMap().keySet()){
-                System.out.println(sequence);
-                System.out.println(pos);
+                String oldAccession = (oldMod.getType() == Modification.Type.MOD && !oldMod.getAccession().startsWith("MOD"))? "MOD:" + oldMod.getAccession(): oldMod.getAccession();
                 Character charMod = (pos == 0 || pos > sequence.length())?'.':sequence.charAt(pos-1);
                 de.mpc.pia.intermediate.Modification mod = new de.mpc.pia.intermediate.Modification(charMod,
-                        compiler.getModReader().getPTMbyAccession(oldMod.getAccession()).getMonoDeltaMass(),
-                        allModsTab.get(oldMod.getAccession()),
+                        compiler.getModReader().getPTMbyAccession(oldAccession).getMonoDeltaMass(),
+                        allModsTab.get(oldAccession),
                         oldMod.getAccession());
                 modifications.put(pos, mod);
 

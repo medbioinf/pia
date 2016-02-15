@@ -47,7 +47,7 @@ public class MzTabParserTest {
 
         compiler = new PIACompiler();
 
-        java.net.URI uri = PrideXMLParserTest.class.getClassLoader().getResource("PXD000764_34937_combined_fdr.mztab").toURI();
+        java.net.URI uri = PrideXMLParserTest.class.getClassLoader().getResource("PRIDE_Exp_Complete_Ac_16649.mzTab").toURI();
 
         mzTabFile = new File(uri);
 
@@ -91,7 +91,7 @@ public class MzTabParserTest {
 
         List<ReportProtein> proteins = piaModeller.getProteinModeller().getFilteredReportProteins(null);
 
-        Assert.assertTrue(reader.getMZTabFile().getProteins().size() - 1 == proteins.size());
+        Assert.assertTrue(1146 == proteins.size());
 
     }
 
