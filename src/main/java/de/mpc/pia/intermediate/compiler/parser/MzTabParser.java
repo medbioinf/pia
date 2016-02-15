@@ -80,7 +80,7 @@ public class MzTabParser {
 
             Map<String, String> allModStringMap = retrieveStringMod(metadata);
 
-            Map<String, DBSequence> sequences = convertDBSequences(tabParser.getMZTabFile().getProteins());
+            Map<String, DBSequence> dbSequences = convertDBSequences(tabParser.getMZTabFile().getProteins());
 
             /**
              * Convert MsRun data information to SpectraData Objects some things needs to be refined to do not loost the original information
@@ -196,8 +196,6 @@ public class MzTabParser {
             Collection<PSM> psms = tabParser.getMZTabFile().getPSMs();
 
             // maps from the ID to the DBSequence, this is important and should be filled using the Protein Section
-
-            Map<String, DBSequence> dbSequences = new HashMap<String, DBSequence>();
 
             // maps from the ID to the Protein
             Map<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide> peptides = new HashMap<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide>();
@@ -329,8 +327,9 @@ public class MzTabParser {
                     String accession = mzTabPSM.getAccession();
                     Accession acc = compiler.getAccession(accession);
                     if (acc == null) {
+                        String sequenceDB = (dbSequences.get(accession) != null)?dbSequences.get(accession).getSeq():null;
                         // optional the information about the sequence
-                        acc = compiler.insertNewAccession(accession, dbSequences.get(acc).getSeq());
+                        acc = compiler.insertNewAccession(accession, sequenceDB);
                         accNr++;
                     }
                     acc.addFile(piaFile.getID());
@@ -397,6 +396,7 @@ public class MzTabParser {
                 DBSequence dbSequence = new DBSequence();
                 dbSequence.setAccession(protein.getAccession());
                 SearchDatabase searchDatabase = new SearchDatabase();
+                searchDatabase.setId("DB=" + protein.getDatabase());
                 searchDatabase.setVersion(protein.getDatabaseVersion());
                 searchDatabase.setName(protein.getDatabase());
                 dbSequence.setSearchDatabase(searchDatabase);
@@ -465,9 +465,11 @@ public class MzTabParser {
         }
 
         for (uk.ac.ebi.pride.jmztab.model.Modification oldMod: mzTabMods) {
-
             for(Integer pos: oldMod.getPositionMap().keySet()){
-                de.mpc.pia.intermediate.Modification mod = new de.mpc.pia.intermediate.Modification(sequence.charAt(pos),
+                System.out.println(sequence);
+                System.out.println(pos);
+                Character charMod = (pos == 0 || pos > sequence.length())?'.':sequence.charAt(pos-1);
+                de.mpc.pia.intermediate.Modification mod = new de.mpc.pia.intermediate.Modification(charMod,
                         compiler.getModReader().getPTMbyAccession(oldMod.getAccession()).getMonoDeltaMass(),
                         allModsTab.get(oldMod.getAccession()),
                         oldMod.getAccession());

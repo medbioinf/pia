@@ -205,9 +205,9 @@ public class PIACompiler {
      * @return
      */
     public ModReader getModReader() {
-        if (unimodParser == null) {
+        if (modReader == null) {
             logger.info("Initializing unimod parser...");
-            unimodParser = new UnimodParser();
+            modReader = ModReader.getInstance();
         }
         return modReader;
     }

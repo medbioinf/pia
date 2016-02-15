@@ -171,6 +171,7 @@ public class PrideXMLParser {
                 specNr++;
 
             }
+
             Accession acc = compiler.insertNewAccession(identification.getAccession(), null);
             accNr++;
             acc.addFile(file.getID());
