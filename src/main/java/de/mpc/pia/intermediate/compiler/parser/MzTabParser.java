@@ -290,7 +290,6 @@ public class MzTabParser {
                     psm = compiler.insertNewSpectrum(
                             charge,
                             precursorMZ,
-                            theoreticalMass,
                             deltaMass,
                             rt,
                             sequence,

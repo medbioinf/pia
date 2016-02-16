@@ -89,8 +89,6 @@ public class PeptideSpectrumMatch implements Serializable {
 	/** caches the identification keys */
 	private Map<String, String> identificationKeys;
 
-	private double theoreticalMz;
-
 	/** the finished peptide, only used after reading in a PIA file */
 	private Peptide peptide;
 	
@@ -151,8 +149,6 @@ public class PeptideSpectrumMatch implements Serializable {
 		this.paramList = new ArrayList<AbstractParam>();
 		this.modificationChanged = true;
 		this.identificationKeys = new HashMap<String, String>(2);
-		this.theoreticalMz = theoreticalMz;
-
 		this.peptide = null;
 	}
 	
@@ -743,22 +739,6 @@ public class PeptideSpectrumMatch implements Serializable {
 	 */
 	public Peptide getPeptide() {
 		return peptide;
-	}
-
-	/**
-	 * Get the theoretical MZ value of an specific sequence
-	 * @return
-     */
-	public double getTheoreticalMz() {
-		return theoreticalMz;
-	}
-
-	/**
-	 * Set the mz value for the PSM
-	 * @param theoreticalMz
-     */
-	public void setTheoreticalMz(double theoreticalMz) {
-		this.theoreticalMz = theoreticalMz;
 	}
 
 	/**
