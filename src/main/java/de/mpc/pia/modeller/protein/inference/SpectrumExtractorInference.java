@@ -26,9 +26,6 @@ import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterFactory;
 import de.mpc.pia.modeller.report.filter.RegisteredFilters;
-import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
-import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
-import de.mpc.pia.tools.LabelValueContainer;
 
 
 /**
@@ -149,61 +146,42 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 
 
     @Override
-    public List<LabelValueContainer<String>> getFilterTypes() {
-        List<LabelValueContainer<String>> filters = new ArrayList<LabelValueContainer<String>>();
+    public List<RegisteredFilters> getAvailablePSMFilters() {
+        List<RegisteredFilters> filters =
+                new ArrayList<RegisteredFilters>(RegisteredFilters.getPSMFilters());
 
-        // PSM filters
-        filters.add(new LabelValueContainer<String>(null, "--- PSM ---"));
-        for (Map.Entry<String, String>  scoreIt
-                : getAvailableScoreShorts().entrySet()) {
-            String[] filterNames = PSMScoreFilter.getShortAndFilteringName(
-                    scoreIt.getKey(), scoreIt.getValue());
-
-            if (filterNames != null) {
-                filters.add(new LabelValueContainer<String>(filterNames[0], filterNames[1]));
-            }
-        }
-
-        for(RegisteredFilters filter : RegisteredFilters.getPSMFilters()) {
-            filters.add(new LabelValueContainer<String>(filter.getShortName(),
-                    filter.getFilteringListName()));
-        }
-
-        // peptide filters
-        filters.add(new LabelValueContainer<String>(null, "--- Peptide ---"));
-        for (Map.Entry<String, String>  scoreIt
-                : getAvailableScoreShorts().entrySet()) {
-            String[] filterNames = PeptideScoreFilter.getShortAndFilteringName(
-                    scoreIt.getKey(), scoreIt.getValue());
-            if (filterNames != null) {
-                filters.add(new LabelValueContainer<String>(filterNames[0], filterNames[1]));
-            }
-        }
-        filters.add(new LabelValueContainer<String>(RegisteredFilters.NR_PSMS_PER_PEPTIDE_FILTER.getShortName(),
-                RegisteredFilters.NR_PSMS_PER_PEPTIDE_FILTER.getFilteringListName()));
-        filters.add(new LabelValueContainer<String>(RegisteredFilters.NR_SPECTRA_PER_PEPTIDE_FILTER.getShortName(),
-                RegisteredFilters.NR_SPECTRA_PER_PEPTIDE_FILTER.getFilteringListName()));
-        filters.add(new LabelValueContainer<String>(RegisteredFilters.PEPTIDE_FILE_LIST_FILTER.getShortName(),
-                RegisteredFilters.PEPTIDE_FILE_LIST_FILTER.getFilteringListName()));
-
-        // protein filters
-        filters.add(new LabelValueContainer<String>(null, "--- Protein ---"));
-        filters.add(new LabelValueContainer<String>(RegisteredFilters.NR_SPECTRA_PER_PROTEIN_FILTER.getShortName(),
-                RegisteredFilters.NR_SPECTRA_PER_PROTEIN_FILTER.getFilteringListName()));
-        filters.add(new LabelValueContainer<String>(RegisteredFilters.NR_PSMS_PER_PROTEIN_FILTER.getShortName(),
-                RegisteredFilters.NR_PSMS_PER_PROTEIN_FILTER.getFilteringListName()));
-        filters.add(new LabelValueContainer<String>(RegisteredFilters.NR_PEPTIDES_PER_PROTEIN_FILTER.getShortName(),
-                RegisteredFilters.NR_PEPTIDES_PER_PROTEIN_FILTER.getFilteringListName()));
-        filters.add(new LabelValueContainer<String>(RegisteredFilters.PROTEIN_SCORE_FILTER.getShortName(),
-                RegisteredFilters.PROTEIN_SCORE_FILTER.getFilteringListName()));
-        filters.add(new LabelValueContainer<String>(RegisteredFilters.NR_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER.getShortName(),
-                RegisteredFilters.NR_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER.getFilteringListName()));
-        filters.add(new LabelValueContainer<String>(RegisteredFilters.NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER.getShortName(),
-                RegisteredFilters.NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER.getFilteringListName()));
+        filters.add(RegisteredFilters.PSM_SCORE_FILTER);
 
         return filters;
     }
 
+    @Override
+    public List<RegisteredFilters> getAvailablePeptideFilters() {
+        List<RegisteredFilters> filters = new ArrayList<RegisteredFilters>();
+
+        filters.add(RegisteredFilters.NR_PSMS_PER_PEPTIDE_FILTER);
+        filters.add(RegisteredFilters.NR_SPECTRA_PER_PEPTIDE_FILTER);
+        filters.add(RegisteredFilters.PEPTIDE_FILE_LIST_FILTER);
+
+        filters.add(RegisteredFilters.PEPTIDE_SCORE_FILTER);
+
+        return filters;
+    }
+
+    @Override
+    public List<RegisteredFilters> getAvailableProteinFilters() {
+        List<RegisteredFilters> filters = new ArrayList<RegisteredFilters>();
+
+        filters.add(RegisteredFilters.NR_SPECTRA_PER_PROTEIN_FILTER);
+        filters.add(RegisteredFilters.NR_PSMS_PER_PROTEIN_FILTER);
+        filters.add(RegisteredFilters.NR_PEPTIDES_PER_PROTEIN_FILTER);
+        filters.add(RegisteredFilters.NR_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER);
+        filters.add(RegisteredFilters.NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER);
+
+        filters.add(RegisteredFilters.PROTEIN_SCORE_FILTER);
+
+        return filters;
+    }
 
     @Override
     public List<ReportProtein> calculateInference(Map<Long, Group> groupMap,

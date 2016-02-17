@@ -1355,7 +1355,7 @@ public enum RegisteredFilters {
     private String filteringListName;
 
     /** list of filters for PSMs */
-    private static List<RegisteredFilters> psmFilters = Arrays.asList(
+    private static final List<RegisteredFilters> psmFilters = Arrays.asList(
             new RegisteredFilters[]{
                     CHARGE_FILTER,
                     DELTA_MASS_FILTER,
@@ -1375,7 +1375,7 @@ public enum RegisteredFilters {
             });
 
     /** list of filters for peptides */
-    private static List<RegisteredFilters> peptideFilters = Arrays.asList(
+    private static final List<RegisteredFilters> peptideFilters = Arrays.asList(
             new RegisteredFilters[]{
                     PEPTIDE_ACCESSIONS_FILTER,
                     PEPTIDE_DESCRIPTION_FILTER,
@@ -1390,7 +1390,7 @@ public enum RegisteredFilters {
             });
 
     /** list of filters for proteins */
-    private static List<RegisteredFilters> proteinFilters = Arrays.asList(
+    private static final List<RegisteredFilters> proteinFilters = Arrays.asList(
             new RegisteredFilters[]{
                     PROTEIN_SCORE_FILTER,
                     PROTEIN_RANK_FILTER,
@@ -1531,7 +1531,7 @@ public enum RegisteredFilters {
     /**
      * Returns a set of registered filters for the PSM level
      */
-    public final static List<RegisteredFilters> getPSMFilters() {
+    public static final List<RegisteredFilters> getPSMFilters() {
         return psmFilters;
     }
 
@@ -1540,7 +1540,7 @@ public enum RegisteredFilters {
      * Returns a set of (descriptive) shorts for the registered PSM filters.
      * These are only used to print the help.
      */
-    public final static List<String> getPSMFilterShortsForHelp() {
+    public static final List<String> getPSMFilterShortsForHelp() {
         List<String> filterShorts = new ArrayList<String>();
 
         filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
@@ -1557,7 +1557,7 @@ public enum RegisteredFilters {
     /**
      * Returns a set of registered filters for the peptide level
      */
-    public final static List<RegisteredFilters> getPeptideFilters() {
+    public static final List<RegisteredFilters> getPeptideFilters() {
         return peptideFilters;
     }
 
@@ -1566,7 +1566,7 @@ public enum RegisteredFilters {
      * Returns a set of (descriptive) shorts for the registered peptide filters.
      * These are only used to print the help.
      */
-    public final static Set<String> getPeptideFilterShortsForHelp() {
+    public static final Set<String> getPeptideFilterShortsForHelp() {
         Set<String> filterShorts = new HashSet<String>();
 
         filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
@@ -1584,7 +1584,7 @@ public enum RegisteredFilters {
     /**
      * Returns a set of registered filters for the protein level
      */
-    public final static List<RegisteredFilters> getProteinFilters() {
+    public static final List<RegisteredFilters> getProteinFilters() {
         return proteinFilters;
     }
 
@@ -1593,7 +1593,7 @@ public enum RegisteredFilters {
      * Returns a set of (descriptive) shorts for the registered protein filters.
      * These are only used to print the help.
      */
-    public final static Set<String> getProteinFilterShortsForHelp() {
+    public static final Set<String> getProteinFilterShortsForHelp() {
         Set<String> filterShorts = new HashSet<String>();
 
         filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
