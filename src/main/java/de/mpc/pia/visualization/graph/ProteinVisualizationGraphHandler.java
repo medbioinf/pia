@@ -207,7 +207,7 @@ public class ProteinVisualizationGraphHandler {
             // show the proteins collapsed
             String proteinLabel = PROTEINS_OF_PREFIX + groupV.getLabel();
             VertexObject proteinsV =
-                    new VertexObject(proteinLabel, group.getAccessions());
+                    new VertexObject(proteinLabel, group.getAccessions().values());
 
             graph.addVertex(proteinsV);
             proteins.add(proteinsV);
@@ -251,7 +251,7 @@ public class ProteinVisualizationGraphHandler {
         if (collapsed && (group.getPeptides().size() > 1)) {
             // show the peptides collapsed
             String peptidesLabel = PEPTIDES_OF_PREFIX + groupV.getLabel();
-            VertexObject peptidesV = new VertexObject(peptidesLabel, group.getPeptides());
+            VertexObject peptidesV = new VertexObject(peptidesLabel, group.getPeptides().values());
 
             graph.addVertex(peptidesV);
             peptides.add(peptidesV);
