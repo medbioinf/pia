@@ -128,8 +128,7 @@ public class TideTXTFileParser {
 				}
 			}
 			
-			PIAInputFile file = compiler.insertNewFile(name, fileName,
-					InputFileParserFactory.InputFileTypes.TIDE_TXT_INPUT.getFileSuffix());
+			PIAInputFile file = compiler.insertNewFile(name, fileName, InputFileParserFactory.InputFileTypes.TIDE_TXT_INPUT.getFileSuffix());
 			
 			// create the analysis software and add it to the compiler
 			AnalysisSoftware tide = new AnalysisSoftware();

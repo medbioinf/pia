@@ -82,6 +82,58 @@ public class InputFileParserFactory {
 						compiler);
 			}
 		},
+
+        MZTAB_INPUT {
+
+            @Override
+            public String getFileSuffix() {
+                return "mztab";
+            }
+
+            @Override
+            public String getFileTypeName() {
+                return "MzTab File";
+            }
+
+            @Override
+            public String getFileTypeShort() {
+                return "mztab";
+            }
+
+            @Override
+            public boolean parseFile(String name, String fileName,
+                                     PIACompiler compiler, String additionalInfoFileName) {
+                return MzTabParser.getDataFromMzTabLFile(name, fileName,
+                        compiler);
+            }
+
+        },
+
+		PRIDEXML_INPUT {
+
+			@Override
+			public String getFileSuffix() {
+				return "xml";
+			}
+
+			@Override
+			public String getFileTypeName() {
+				return "PRIDE XML File";
+			}
+
+			@Override
+			public String getFileTypeShort() {
+				return "xml";
+			}
+
+			@Override
+			public boolean parseFile(String name, String fileName,
+									 PIACompiler compiler, String additionalInfoFileName) {
+				return PrideXMLParser.getDataFromPrideXMLFile(name, fileName,
+						compiler);
+			}
+
+		},
 		/**
 		 * the input file is a Mascot dat file
 		 */

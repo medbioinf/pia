@@ -88,7 +88,7 @@ public class PeptideSpectrumMatch implements Serializable {
 	
 	/** caches the identification keys */
 	private Map<String, String> identificationKeys;
-	
+
 	/** the finished peptide, only used after reading in a PIA file */
 	private Peptide peptide;
 	
@@ -120,6 +120,35 @@ public class PeptideSpectrumMatch implements Serializable {
 		this.modificationChanged = true;
 		this.identificationKeys = new HashMap<String, String>(2);
 		
+		this.peptide = null;
+	}
+
+	/**
+	 * A new property has been added
+	 */
+	public PeptideSpectrumMatch(long id, int charge, double massToCharge, double theoreticalMz,
+								double deltaMass, Double rt, String sequence, int missed,
+								String sourceID, String title, PIAInputFile file,
+								SpectrumIdentification spectrumID) {
+		this.ID = id;
+		this.charge = charge;
+		this.massToCharge = massToCharge;
+		this.deltaMass = deltaMass;
+		this.retentionTime = rt;
+		this.sequence = sequence;
+		this.missed = missed;
+		this.sourceID = sourceID;
+		this.spectrumTitle = title;
+		this.pFile = file;
+		this.spectrumID = spectrumID;
+		this.isUnique = null;
+		this.isDecoy = null;
+
+		this.scores = new ArrayList<ScoreModel>();
+		this.modifications = new TreeMap<Integer, Modification>();
+		this.paramList = new ArrayList<AbstractParam>();
+		this.modificationChanged = true;
+		this.identificationKeys = new HashMap<String, String>(2);
 		this.peptide = null;
 	}
 	
@@ -710,5 +739,17 @@ public class PeptideSpectrumMatch implements Serializable {
 	 */
 	public Peptide getPeptide() {
 		return peptide;
+	}
+
+	/**
+	 * Add a list of PSMS scores, best performance than one by one.
+	 * @param scores
+     */
+	public void addAllScores(List<ScoreModel> scores) {
+		if(scores != null){
+			if(this.scores == null)
+				this.scores = new ArrayList<ScoreModel>();
+			this.scores.addAll(scores);
+		}
 	}
 }

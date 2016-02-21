@@ -53,6 +53,7 @@ import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
 import de.mpc.pia.tools.obo.OBOMapper;
 import de.mpc.pia.tools.unimod.UnimodParser;
+import uk.ac.ebi.pridemod.ModReader;
 
 /**
  * This class is used to read in one or several input files and compile them
@@ -116,7 +117,10 @@ public class PIACompiler {
     private Map<String, AnalysisSoftware> softwareMap;
 
     /** UnimodParser to get additional information from the unimod */
+    /** We can deprecated this and use instead the pride-mod library **/
     private UnimodParser unimodParser;
+
+    private ModReader modReader;
 
     /** the OBO mapper, to get additional data */
     private OBOMapper oboMapper;
@@ -157,6 +161,9 @@ public class PIACompiler {
         clusterIterator = null;
 
         unimodParser = null;
+
+        modReader = null;
+
         oboMapper = null;
 
         numThreads = 0;
@@ -187,6 +194,22 @@ public class PIACompiler {
             unimodParser = new UnimodParser();
         }
         return unimodParser;
+    }
+
+    /**
+     * Getter for the Pride Mod Reader allowing to retrieve information from UNIMOD and PSI-MOD
+     * at the same time.
+     *
+     * Unimod and PSI-MOD
+     *
+     * @return
+     */
+    public ModReader getModReader() {
+        if (modReader == null) {
+            logger.info("Initializing unimod parser...");
+            modReader = ModReader.getInstance();
+        }
+        return modReader;
     }
 
 
@@ -224,8 +247,8 @@ public class PIACompiler {
     /**
      * Inserts a new file into the map of file and return a reference to it.
      *
+     * @param name
      * @param fileName
-     * @param searchEngineName
      * @return
      */
     public PIAInputFile insertNewFile(String name, String fileName,
@@ -254,9 +277,8 @@ public class PIACompiler {
 
     /**
      * Inserts a new accession into the map of accessions.
-     *
-     * @param accession
-     * @param fileID
+     * @param accession new protein assession
+     * @param dbSequence sequence
      * @return
      */
     public Accession insertNewAccession(String accession, String dbSequence) {
@@ -323,6 +345,32 @@ public class PIACompiler {
         return psm;
     }
 
+    /**
+     * Inserts a new PSM with the given data into the spectra set.
+     *
+     * @return the newly created PSM
+     */
+    public PeptideSpectrumMatch insertNewSpectrum(int charge,
+                                                  double massToCharge, double theoreticalMass, double deltaMass, Double rt, String sequence,
+                                                  int missed, String sourceID, String spectrumTitle,
+                                                  PIAInputFile file, SpectrumIdentification spectrumID) {
+        PeptideSpectrumMatch psm;
+        Long id = spectra.size() + 1L;
+
+        psm = new PeptideSpectrumMatch(id, charge, massToCharge, deltaMass, rt,
+                sequence, missed, sourceID, spectrumTitle,
+                file, spectrumID);
+
+
+        if (!spectra.add(psm)) {
+            // TODO: better warning / error
+            logger.error("ERROR: spectrum was already in list, this should not have happened! " +
+                    psm.getSequence());
+        }
+
+        return psm;
+    }
+
 
     /**
      * Returns the Set of {@link Peptide}s from the accPepMap for the given key.
@@ -348,7 +396,7 @@ public class PIACompiler {
 
     /**
      * Returns the Set of {@link Accession}s from the pepAccMap for the given key.
-     * @param acc
+     * @param pep
      * @return
      */
     public Set<Accession> getFromPepAccMap(String pep) {
@@ -360,7 +408,7 @@ public class PIACompiler {
      * Puts the given Set into the pepAccMap with the given key.
      *
      * @param key
-     * @param peps
+     * @param accs
      * @return
      */
     public Set<Accession> putIntoPepAccMap(String key, Set<Accession> accs) {
@@ -545,7 +593,7 @@ public class PIACompiler {
      * each entry in the list may be processed in parallel.
      * <p>
      * Before calling this method, some data should be read in by
-     * {@link PIACompiler#getDataFromFile(String)}.
+     * {@link PIACompiler#getDataFromFile(String, String, String, String)}.
      */
     public void buildClusterList() {
         logger.info("start sorting clusters");
@@ -585,10 +633,10 @@ public class PIACompiler {
      * map cluster.<br/>
      * This method should only be called by {@link PIACompiler#buildClusterList()}.
      *
-     * @param pepAccMapCluster
      * @param accession
      * @param peptidesDone
      * @param accessionsDone
+     * @return
      */
     private Map<String,Map<String,Accession>> createCluster(String accession,
             Set<String> peptidesDone, Set<String> accessionsDone) {
@@ -793,7 +841,6 @@ public class PIACompiler {
 
     /**
      * Gets the number of used threads
-     * @param threads
      */
     public int getNrThreads() {
         return numThreads;
@@ -803,10 +850,108 @@ public class PIACompiler {
     /**
      * Write out the intermediate structure into an XML file.
      *
+     * @param piaFile
+     * @throws FileNotFoundException
+     */
+    public void writeOutXML(File piaFile) {
+
+        logger.info("start writing the XML file "+ piaFile.getName());
+
+        JPiaXML piaXML = new JPiaXML();
+        piaXML.setName(compilationName);
+        piaXML.setDate(startDate);
+
+        // filesList
+        FilesListXML fileslistXML = new FilesListXML();
+        if (files.size() > 0) {
+            for (PIAInputFile file : files.values()) {
+                PIAInputFileXML fileXML = new PIAInputFileXML();
+
+                fileXML.setId(file.getID());
+                fileXML.setName(file.getName());
+                fileXML.setFileName(file.getFileName());
+                fileXML.setFormat(file.getFormat());
+
+                fileXML.setAnalysisCollection(file.getAnalysisCollection());
+                fileXML.setAnalysisProtocolCollection(file.getAnalysisProtocolCollection());
+
+                fileslistXML.getFiles().add(fileXML);
+            }
+        }
+        piaXML.setFilesList(fileslistXML);
+
+        // inputs
+        Inputs inputs = new Inputs();
+        inputs.getSearchDatabase().addAll(searchDatabasesMap.values());
+        inputs.getSpectraData().addAll(spectraDataMap.values());
+        piaXML.setInputs(inputs);
+
+        // analysisSoftwareList
+        AnalysisSoftwareList softwareList = new AnalysisSoftwareList();
+        softwareList.getAnalysisSoftware().addAll(softwareMap.values());
+        piaXML.setAnalysisSoftwareList(softwareList);
+
+        // spectraList
+        SpectraListXML spectraList = new SpectraListXML();
+        for (PeptideSpectrumMatch psm : spectra) {
+            spectraList.getSpectraList().add(new SpectrumMatchXML(psm));
+        }
+        piaXML.setSpectraList(spectraList);
+
+        // accessionsList
+        AccessionsListXML accessionsList = new AccessionsListXML();
+        for (Accession acc : accessions.values()) {
+            accessionsList.getAccessionsList().add(new AccessionXML(acc));
+        }
+        piaXML.setAccessionsList(accessionsList);
+
+        // peptidesList
+        PeptidesListXML peptidesList = new PeptidesListXML();
+        for (Peptide pep : peptides.values()) {
+            peptidesList.getPeptidesList().add(new PeptideXML(pep));
+        }
+        piaXML.setPeptidesList(peptidesList);
+
+        // groupsList
+        GroupsListXML groupsList = new GroupsListXML();
+        for (Group group : groups.values()) {
+            groupsList.getGroups().add(new GroupXML(group));
+        }
+        piaXML.setGroupsList(groupsList);
+
+        // write the model with JaxB
+        Writer w = null;
+        try {
+            JAXBContext context = JAXBContext.newInstance(JPiaXML.class);
+            Marshaller m = context.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            w = new FileWriter(piaFile);
+            m.marshal(piaXML, w);
+        } catch (Exception e) {
+            // TODO: better error / exception
+            logger.error("Error writing the file '"+piaFile.getName()+"'!", e);
+        } finally {
+            try {
+                if (w != null) {
+                    w.close();
+                }
+            } catch (Exception e) {
+                // TODO: better error / exception
+                logger.error("Error closing the file '"+piaFile.getName()+"'!", e);
+            }
+        }
+
+        logger.info("writing done");
+    }
+
+    /**
+     * Write out the intermediate structure into an XML file.
+     *
      * @param fileName
      * @throws FileNotFoundException
      */
     public void writeOutXML(String fileName) {
+
         logger.info("start writing the XML file "+fileName);
 
         JPiaXML piaXML = new JPiaXML();
@@ -895,6 +1040,8 @@ public class PIACompiler {
 
         logger.info("writing done");
     }
+
+
 
 
     @SuppressWarnings("static-access")

@@ -1,45 +1,5 @@
 package de.mpc.pia.intermediate.compiler.parser;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.log4j.Logger;
-import org.biojava.nbio.ontology.Term;
-import org.biojava.nbio.ontology.Triple;
-
-import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
-import uk.ac.ebi.jmzidml.model.mzidml.AnalysisCollection;
-import uk.ac.ebi.jmzidml.model.mzidml.AnalysisData;
-import uk.ac.ebi.jmzidml.model.mzidml.AnalysisProtocolCollection;
-import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
-import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftwareList;
-import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
-import uk.ac.ebi.jmzidml.model.mzidml.DBSequence;
-import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
-import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
-import uk.ac.ebi.jmzidml.model.mzidml.InputSpectra;
-import uk.ac.ebi.jmzidml.model.mzidml.Inputs;
-import uk.ac.ebi.jmzidml.model.mzidml.Modification;
-import uk.ac.ebi.jmzidml.model.mzidml.ParamList;
-import uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence;
-import uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidenceRef;
-import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
-import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabaseRef;
-import uk.ac.ebi.jmzidml.model.mzidml.SequenceCollection;
-import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
-import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
-import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationItem;
-import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationList;
-import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
-import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationResult;
-import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
-import uk.ac.ebi.jmzidml.xml.io.MzIdentMLUnmarshaller;
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
@@ -48,6 +8,16 @@ import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.obo.OBOMapper;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.log4j.Logger;
+import org.biojava.nbio.ontology.Term;
+import org.biojava.nbio.ontology.Triple;
+import uk.ac.ebi.jmzidml.model.mzidml.*;
+import uk.ac.ebi.jmzidml.xml.io.MzIdentMLUnmarshaller;
+
+import java.io.File;
+import java.util.*;
+import java.util.regex.Matcher;
 
 
 /**
