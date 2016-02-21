@@ -15,7 +15,7 @@
 *.dmg
 *.gz
 *.iso
-*.jar
+# *.jar   still have some libraries in the repo, un-comment when they are in own maven or something
 *.rar
 *.tar
 *.zip
@@ -49,5 +49,6 @@ Thumbs.db
 # Directory to ignore #
 #####################
 log/
+logs/
 target/
 .idea/
