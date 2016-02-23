@@ -15,14 +15,14 @@
 *.dmg
 *.gz
 *.iso
-*.jar
+# *.jar   still have some libraries in the repo, un-comment when they are in own maven or something
 *.rar
 *.tar
 *.zip
   
 # Logs and databases #
 ######################
-*.log
+*.log*
 *.sql
 *.sqlite
    
@@ -49,5 +49,6 @@ Thumbs.db
 # Directory to ignore #
 #####################
 log/
+logs/
 target/
 .idea/

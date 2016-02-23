@@ -464,13 +464,17 @@ public class ProteinModeller {
      * the FDRData.
      */
     public void updateDecoyStates() {
-        logger.info("updateDecoyStates ");
+        logger.info("updateDecoyStates");
         Pattern p = Pattern.compile(fdrData.getDecoyPattern());
 
-        for (ReportProtein protein : reportProteins) {
-            // dump all FDR data
-            protein.dumpFDRCalculation();
-            protein.updateDecoyStatus(fdrData.getDecoyStrategy(), p);
+        if (reportProteins != null) {
+            for (ReportProtein protein : reportProteins) {
+                // dump all FDR data
+                protein.dumpFDRCalculation();
+                protein.updateDecoyStatus(fdrData.getDecoyStrategy(), p);
+            }
+        } else {
+            logger.error("Proteins must be inferred before calling updateDecoyStates");
         }
     }
 

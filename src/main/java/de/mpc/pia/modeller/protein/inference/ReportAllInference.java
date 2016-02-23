@@ -15,8 +15,6 @@ import de.mpc.pia.modeller.protein.ReportProtein;
 import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.modeller.report.filter.FilterFactory;
 import de.mpc.pia.modeller.report.filter.RegisteredFilters;
-import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
-import de.mpc.pia.tools.LabelValueContainer;
 
 
 /**
@@ -43,24 +41,30 @@ public class ReportAllInference extends AbstractProteinInference {
     private static final Logger logger= Logger.getLogger(ReportAllInference.class);
 
 
+
     @Override
-    public List<LabelValueContainer<String>> getFilterTypes() {
-        List<LabelValueContainer<String>> filters = new ArrayList<LabelValueContainer<String>>();
+    public List<RegisteredFilters> getAvailablePSMFilters() {
+        List<RegisteredFilters> filters =
+                new ArrayList<RegisteredFilters>(RegisteredFilters.getPSMFilters());
 
-        filters.add(new LabelValueContainer<String>(null, "--- PSM ---"));
-        for (Map.Entry<String, String>  scoreIt
-                : getAvailableScoreShorts().entrySet()) {
-            String[] filterNames = PSMScoreFilter.getShortAndFilteringName(
-                    scoreIt.getKey(), scoreIt.getValue());
-
-            if (filterNames != null) {
-                filters.add(new LabelValueContainer<String>(filterNames[0], filterNames[1]));
-            }
-        }
-        filters.add(new LabelValueContainer<String>(RegisteredFilters.NR_PSMS_PER_PSM_SET_FILTER.getShortName(),
-                RegisteredFilters.NR_PSMS_PER_PSM_SET_FILTER.getFilteringListName()));
+        filters.add(RegisteredFilters.PSM_SCORE_FILTER);
 
         return filters;
+    }
+
+    @Override
+    public List<RegisteredFilters> getAvailablePeptideFilters() {
+        List<RegisteredFilters> filters =
+                new ArrayList<RegisteredFilters>(RegisteredFilters.getPeptideFilters());
+
+        filters.add(RegisteredFilters.PEPTIDE_SCORE_FILTER);
+
+        return filters;
+    }
+
+    @Override
+    public List<RegisteredFilters> getAvailableProteinFilters() {
+        return RegisteredFilters.getProteinFilters();
     }
 
     @Override

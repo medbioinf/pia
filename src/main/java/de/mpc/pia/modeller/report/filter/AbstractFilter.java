@@ -50,7 +50,7 @@ public abstract class AbstractFilter {
      * @return
      */
     public final String getFilteringListName() {
-        return filter.getLongName();
+        return filter.getFilteringListName();
     }
 
 
