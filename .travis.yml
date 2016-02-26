@@ -9,7 +9,7 @@ after_success:
 - bash <(curl -s https://codecov.io/bash)
 
 before_deploy:
-  - export RELEASE_ZIP_FILE=$(ls pia-*.zip)
+  - export RELEASE_ZIP_FILE=$(ls target/pia-*.zip)
   - echo "deploying $RELEASE_PKG_FILE to GitHub releases"
 deploy:
   provider: releases
