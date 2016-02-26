@@ -6,9 +6,6 @@ jdk:
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 
-#script:
-  # This command generates a release.zip file.
-  #- make dist
 deploy:
   provider: releases
     api_key:
