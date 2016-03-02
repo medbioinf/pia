@@ -103,7 +103,7 @@ public class InputFileParserFactory {
             @Override
             public boolean parseFile(String name, String fileName,
                                      PIACompiler compiler, String additionalInfoFileName) {
-                return MzTabParser.getDataFromMzTabLFile(name, fileName,
+                return MzTabParser.getDataFromMzTabFile(name, fileName,
                         compiler);
             }
 
