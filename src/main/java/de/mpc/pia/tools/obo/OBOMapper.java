@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -27,7 +28,7 @@ public class OBOMapper {
     private Ontology shippedOntology;
 
     /** the URL to the current OBO file */
-    public final String urlToOBO = "https://raw.githubusercontent.com/HUPO-PSI/mzML/master/cv/psi-ms.obo";
+    public final String urlToOBO = "https://raw.githubusercontent.com/HUPO-PSI/psi-ms-CV/master/psi-ms.obo";
 
     public static final String obo_cleavageAgentNameID = "MS:1001045";
     public static final String obo_relationship = "relationship";
@@ -92,17 +93,17 @@ public class OBOMapper {
 
 
     /**
-     * Fetch {@link Term} with specified name
+     * Fetch {@link Term} with specified accession
      *
-     * @param name
+     * @param accession
      * @return
      */
-    public Term getTerm(String name) {
+    public Term getTerm(String accession) {
         try {
             if (onlineOntology != null) {
-                return onlineOntology.getTerm(name);
+                return onlineOntology.getTerm(accession);
             } else {
-                return shippedOntology.getTerm(name);
+                return shippedOntology.getTerm(accession);
             }
         } catch (NoSuchElementException e) {
             logger.warn(e);
@@ -146,5 +147,26 @@ public class OBOMapper {
         } else {
             return shippedOntology.getTriples(subject, object, predicate);
         }
+    }
+
+
+    /**
+     * Gets the entry in the OBO with the given name. If none is found, returns
+     * null.
+     *
+     * @param name
+     * @return
+     */
+    public Term getTermByName(String name) {
+        Set<Term> keys = getTerms();
+        Iterator<Term> iter = keys.iterator();
+        while (iter.hasNext()){
+            Term term = iter.next();
+            if (name.equals(term.getDescription())) {
+                return term;
+            }
+        }
+
+        return null;
     }
 }

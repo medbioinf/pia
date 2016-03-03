@@ -12,7 +12,6 @@ import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.score.FDRData;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import org.apache.log4j.Logger;
-import org.apache.xerces.util.URI;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,7 +42,7 @@ public class PrideXMLParserTest {
 
     PrideXmlReader reader;
 
-    String piaIntermediateFileName = "PiaIntermediateFile.xml";
+    String piaIntermediateFileName = "PrideParser.pia.xml";
 
     @Before
     public void setUp() throws Exception {
