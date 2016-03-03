@@ -1,7 +1,12 @@
-package de.mpc.pia.tools;
+package de.mpc.pia.tools.pride;
 
+import de.mpc.pia.tools.MzIdentMLTools;
+import de.mpc.pia.tools.PIAConstants;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
+import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
+import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
 import uk.ac.ebi.pride.jaxb.model.Identification;
+import uk.ac.ebi.pride.jaxb.model.Protocol;
 import uk.ac.ebi.pride.jmztab.model.Param;
 
 /**
@@ -10,7 +15,15 @@ import uk.ac.ebi.pride.jmztab.model.Param;
  */
 public class PRIDETools {
 
+    /** PRIDE OBO accession for an enzyme */
+    public static String PRIDE_OBO_ENZYME_ACCESSION = "PRIDE:0000160";
+
+    /** SEP OBO accession for an enzyme */
+    public static String SEPERATION_OBO_ENZYME_ACCESSION = "sep:00142";
+
+
     public static String OPTIONAL_SEQUENCE_COLUMN = "protein_sequence";
+
 
     /**
      * Convert Param from mzTab to mzIdentML format
@@ -70,5 +83,35 @@ public class PRIDETools {
     }
 
 
+    /**
+     * Tries to get enzyme information from the protocolpart of the PRIDE XML
+     *
+     * @param prideProtocol
+     * @return
+     */
+    public static Enzymes getEnzymesFromProtocol(Protocol prideProtocol) {
+        Enzymes enzymes = new Enzymes();
 
+        boolean enzymeFound = false;
+
+        for (uk.ac.ebi.pride.jaxb.model.Param stepDesc : prideProtocol.getProtocolSteps().getStepDescription()) {
+            for (uk.ac.ebi.pride.jaxb.model.CvParam cvParam : stepDesc.getCvParam()) {
+                Enzyme enzyme = null;
+
+                if (cvParam.getAccession().equals(PRIDE_OBO_ENZYME_ACCESSION) ||
+                        cvParam.getAccession().equals(SEPERATION_OBO_ENZYME_ACCESSION) ||
+                        cvParam.getName().contains("enzyme") || cvParam.getName().contains("Enzyme")) {
+                    // this is an enzyme, get the respective cleavage agent
+                    enzyme = MzIdentMLTools.getEnzymeFromName(cvParam.getValue());
+                }
+
+                if (enzyme != null) {
+                    enzymes.getEnzyme().add(enzyme);
+                    enzymeFound = true;
+                }
+            }
+        }
+
+        return enzymeFound ? enzymes : null;
+    }
 }
