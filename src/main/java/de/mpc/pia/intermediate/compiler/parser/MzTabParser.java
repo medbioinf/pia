@@ -6,8 +6,9 @@ import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.MzIdentMLTools;
-import de.mpc.pia.tools.PRIDETools;
 import de.mpc.pia.tools.obo.OBOMapper;
+import de.mpc.pia.tools.pride.PRIDETools;
+
 import org.apache.log4j.Logger;
 import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
