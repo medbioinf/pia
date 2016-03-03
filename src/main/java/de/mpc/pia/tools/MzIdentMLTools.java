@@ -1,15 +1,25 @@
 package de.mpc.pia.tools;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.biojava.nbio.ontology.Term;
+import org.biojava.nbio.ontology.Triple;
+
+import de.mpc.pia.tools.obo.OBOMapper;
 import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
+import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
 import uk.ac.ebi.jmzidml.model.mzidml.FileFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.Param;
 import uk.ac.ebi.jmzidml.model.mzidml.ParamList;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
+import uk.ac.ebi.jmzidml.model.mzidml.Tolerance;
 import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 
 
@@ -284,5 +294,200 @@ public class MzIdentMLTools {
      */
     public static Cv getUnitOntology() {
         return unitOntology;
+    }
+
+
+    /**
+     * Shortcut function to create a {@link CvParam} without unit information.
+     *
+     * @return
+     */
+    public static CvParam createCvParam(String cvAccession, Cv cv, String name,
+            String value) {
+        return createCvParam(cvAccession, cv, name, value, null, null, null);
+    }
+
+
+    /**
+     * Shortcut function to create a {@link CvParam}.
+     *
+     * @return
+     */
+    public static CvParam createCvParam(String cvAccession, Cv cv, String name,
+            String value, String unitAccession, Cv unitCv, String unitName) {
+        CvParam cvParam = new CvParam();
+
+        if ((cvAccession != null) && !cvAccession.isEmpty()) {
+            cvParam.setAccession(cvAccession);
+        }
+
+        if (cv != null) {
+            cvParam.setCv(cv);
+        }
+
+        if ((name != null) && !name.isEmpty()) {
+            cvParam.setName(name);
+        }
+
+        if ((value != null) && !value.isEmpty()) {
+            cvParam.setValue(value);
+        }
+
+        if ((unitAccession != null) && !unitAccession.isEmpty()) {
+            cvParam.setUnitAccession(unitAccession);
+        }
+
+        if (unitCv != null) {
+            cvParam.setUnitCv(unitCv);
+        }
+
+        if ((unitName != null) && !unitName.isEmpty()) {
+            cvParam.setUnitName(unitName);
+        }
+
+        return cvParam;
+    }
+
+
+    /**
+     * Shortcut function to create a {@link UserParam} without unit information.
+     *
+     * @return
+     */
+    public static UserParam createUserParam(String name, String value, String type) {
+        return createUserParam(name, value, type, null, null, null);
+    }
+
+
+    /**
+     * Shortcut function to create a {@link UserParam}.
+     *
+     * @return
+     */
+    public static UserParam createUserParam(String name, String value, String type,
+            String unitAccession, Cv unitCv, String unitName) {
+        UserParam userParam = new UserParam();
+
+        userParam.setType(value);
+
+        if ((name != null) && !name.isEmpty()) {
+            userParam.setName(name);
+        }
+
+        if ((value != null) && !value.isEmpty()) {
+            userParam.setValue(value);
+        }
+
+        if ((type != null) && !type.isEmpty()) {
+            userParam.setType(type);
+        }
+
+        if ((unitAccession != null) && !unitAccession.isEmpty()) {
+            userParam.setUnitAccession(unitAccession);
+        }
+
+        if (unitCv != null) {
+            userParam.setUnitCv(unitCv);
+        }
+
+        if ((unitName != null) && !unitName.isEmpty()) {
+            userParam.setUnitName(unitName);
+        }
+
+        return userParam;
+    }
+
+
+    /**
+     * Creates a search tolerance with the given toleranceValue as plus and
+     * minus tolerance value and the given unit.
+     *
+     * @param toleranceValue
+     * @param unit
+     * @return
+     */
+    public static Tolerance createSearchTolerance(String toleranceValue, String unit) {
+        if (toleranceValue == null) {
+            return null;
+        }
+
+        Tolerance tolerance = new Tolerance();
+
+        AbstractParam abstractParam = MzIdentMLTools.createCvParam(
+                "MS:1001412",
+                MzIdentMLTools.getCvPSIMS(),
+                "search tolerance plus value",
+                toleranceValue);
+        MzIdentMLTools.setUnitParameterFromString(unit, abstractParam);
+        tolerance.getCvParam().add((CvParam)abstractParam);
+
+        abstractParam = MzIdentMLTools.createCvParam(
+                "MS:1001413",
+                MzIdentMLTools.getCvPSIMS(),
+                "search tolerance minus value",
+                toleranceValue);
+        MzIdentMLTools.setUnitParameterFromString(unit, abstractParam);
+        tolerance.getCvParam().add((CvParam)abstractParam);
+
+        return tolerance;
+    }
+
+
+    /**
+     *
+     * @param sequence
+     * @param enzymes
+     * @param enzymesToRegexes
+     * @return
+     */
+    public static int calculateMissedCleavages(String sequence, Enzymes enzymes,
+            Map<String, String> enzymesToRegexes, OBOMapper oboMapper) {
+        int missed = 0;
+        if (enzymes != null) {
+            for (Enzyme enzyme : enzymes.getEnzyme()) {
+                String regExp = enzyme.getSiteRegexp();
+
+                ParamList enzymeName = enzyme.getEnzymeName();
+                if ((regExp == null) && (enzymeName != null)) {
+                    // no siteRegexp given, but enzymeName
+                    List<AbstractParam> paramList = enzymeName.getParamGroup();
+                    if (paramList.size() > 0) {
+                        if (paramList.get(0) instanceof CvParam) {
+                            String oboID = ((CvParam)(paramList.get(0))).getAccession();
+                            regExp = enzymesToRegexes.get(oboID);
+
+                            if (regExp == null) {
+                                // try to get the regular expression for this enzyme and put it into the map
+                                Term oboTerm = oboMapper.getTerm(oboID);
+                                if (oboTerm != null) {
+                                    Set<Triple> tripleSet = oboMapper.getTriples(oboTerm, null, null);
+
+                                    for (Triple triple : tripleSet) {
+                                        if (triple.getPredicate().getName().equals(OBOMapper.obo_relationship) &&
+                                                triple.getObject().getName().startsWith(OBOMapper.obo_has_regexp)) {
+                                            String regExpID = triple.getObject().getName().substring(11).trim();
+                                            Term regExpTerm = oboMapper.getTerm(regExpID);
+                                            if (regExpTerm != null) {
+                                                regExp = StringEscapeUtils.unescapeJava(regExpTerm.getDescription());
+                                                enzymesToRegexes.put(oboID, regExp);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (regExp == null) {
+                    // no regexp found -> set the missed cleavages to -1, because it is not calculable
+                    return -1;
+                }
+
+                missed += sequence.split(regExp).length - 1;
+            }
+        }
+
+        return missed;
     }
 }
