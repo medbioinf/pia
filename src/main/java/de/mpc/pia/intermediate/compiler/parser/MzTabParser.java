@@ -39,6 +39,11 @@ public class MzTabParser {
     /** logger for this class */
     private static final Logger logger = Logger.getLogger(MzTabParser.class);
 
+
+    /** optional column header for protein sequences */
+    public static final String OPTIONAL_SEQUENCE_COLUMN = "protein_sequence";
+
+
     /**
      * We don't ever want to instantiate this class
      */
@@ -418,7 +423,7 @@ public class MzTabParser {
                 searchDatabase.setVersion(protein.getDatabaseVersion());
                 searchDatabase.setName(protein.getDatabase());
                 dbSequence.setSearchDatabase(searchDatabase);
-                dbSequence.setSeq(protein.getOptionColumnValue(PRIDETools.OPTIONAL_SEQUENCE_COLUMN));
+                dbSequence.setSeq(protein.getOptionColumnValue(OPTIONAL_SEQUENCE_COLUMN));
                 dbSequenceMap.put(dbSequence.getAccession(), dbSequence);
             }
         }
