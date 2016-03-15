@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,22 +30,22 @@ import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 
 public class FastaFileParser {
-	
+
 	/** logger for this class */
 	private static final Logger logger = Logger.getLogger(FastaFileParser.class);
-	
+
 	/**
 	 * We don't ever want to instantiate this class
 	 */
 	private FastaFileParser() {
 		throw new AssertionError();
 	}
-	
-	
+
+
 	/**
 	 * Parses the data from a FASTA file, the proteins are digested by the
 	 * enzymePattern allowing for up to missedCleavages misses.
-	 * 
+	 *
 	 * @return
 	 */
 	public static boolean getDataFromFastaFile(String name, String fileName,
@@ -54,26 +55,26 @@ public class FastaFileParser {
 			logger.warn("You allowed for all possible missed cleavages, this " +
 					"may result in a massive file and take very long!");
 		}
-		
+
 		try {
 			FileInputStream fileStream = new FileInputStream(fileName);
-			
+
 			DataInputStream in = new DataInputStream(fileStream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			
+
 			Cv psiMS = new Cv();
 			psiMS.setId("PSI-MS");
 			psiMS.setFullName("PSI-MS");
 			psiMS.setUri("http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
-			
+
 			PIAInputFile inputFile =
 					compiler.insertNewFile(name, fileName, "FASTA");
-			
+
 			// add the searchDB (actually, this FASTA file)
 			SearchDatabase searchDatabase = new SearchDatabase();
 			searchDatabase.setId("fastaFile");
 			searchDatabase.setLocation(fileName);
-			
+
 			FileFormat fileFormat = new FileFormat();
 			AbstractParam abstractParam = new CvParam();
 			((CvParam)abstractParam).setAccession("MS:1001348");
@@ -81,35 +82,35 @@ public class FastaFileParser {
 			abstractParam.setName("FASTA format");
 			fileFormat.setCvParam((CvParam)abstractParam);
 			searchDatabase.setFileFormat(fileFormat);
-			
+
 			searchDatabase = compiler.putIntoSearchDatabasesMap(searchDatabase);
-			
+
 			// add the spectrumIdentificationProtocol
 			SpectrumIdentificationProtocol spectrumIDProtocol =
 					new SpectrumIdentificationProtocol();
 			spectrumIDProtocol.setId("fastaParsing");
 			// TODO: set this: spectrumIDProtocol.setAnalysisSoftware(PIA);
 			inputFile.addSpectrumIdentificationProtocol(spectrumIDProtocol);
-			
+
 			// add the spectrum identification
 			SpectrumIdentification spectrumID = new SpectrumIdentification();
 			spectrumID.setId("fastaParsing");
 			spectrumID.setSpectrumIdentificationList(null);
 			spectrumID.setSpectrumIdentificationProtocol(spectrumIDProtocol);
-			
+
 			SearchDatabaseRef searchDBRef = new SearchDatabaseRef();
 			searchDBRef.setSearchDatabase(searchDatabase);
 			spectrumID.getSearchDatabaseRef().add(searchDBRef);
-			
+
 			inputFile.addSpectrumIdentification(spectrumID);
-			
-			
+
+
 			String strLine;
 			int spectrumOffset = 0;
 			int accessions = 0;
 			FastaHeaderInfos headerInfos = null;
 			StringBuffer dbSequenceBuffer = null;
-			
+
 			while ((strLine = br.readLine()) != null) {
 				if (strLine.startsWith(">")) {
 					if ((headerInfos != null) && (dbSequenceBuffer != null) &&
@@ -127,12 +128,12 @@ public class FastaFileParser {
 								missedCleavages,
 								spectrumOffset);
 						accessions++;
-						
+
 						if (accessions % 100000 == 0) {
 							logger.info(accessions + " accessions processed");
 						}
 					}
-					
+
 					// start of a new protein
 					headerInfos = FastaHeaderInfos.parseHeaderInfos(strLine);
 					dbSequenceBuffer = new StringBuffer();
@@ -141,7 +142,7 @@ public class FastaFileParser {
 					dbSequenceBuffer.append(strLine.trim());
 				}
 			}
-			
+
 			if ((headerInfos != null) && (dbSequenceBuffer != null) &&
 					(dbSequenceBuffer.length() > 0)) {
 				// the last protein can be inserted and digested
@@ -157,19 +158,19 @@ public class FastaFileParser {
 						missedCleavages,
 						spectrumOffset);
 			}
-			
+
 			in.close();
 		} catch (Exception e) {
 			logger.error("Error while parsing the FASTA file", e);
 		}
-		
+
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * Inserts the peptides of the given protein into the compiler.
-	 * 
+	 *
 	 * @param fastaHeader
 	 * @param dbSequence
 	 * @param compiler
@@ -180,7 +181,7 @@ public class FastaFileParser {
 			String enzymePattern, int minPepLength, int maxPepLength,
 			int missedCleavages, int spectrumCountOffset) {
 		Accession accession;
-		
+
 		// first, look if the accession is already in the compilation (this should not be the case!)
 		accession = compiler.getAccession(fastaHeader.getAccession());
 		if (accession != null) {
@@ -189,30 +190,30 @@ public class FastaFileParser {
 					"of the first accession.");
 			return 0;
 		}
-		
+
 		// put the new accession into the compiler
 		accession = compiler.insertNewAccession(fastaHeader.getAccession(),
 				dbSequence);
-		
+
 		accession.addFile(inputFile.getID());
-		
+
 		accession.addDescription(inputFile.getID(),
 				fastaHeader.getDescription());
-		
+
 		accession.addSearchDatabaseRef(searchDBRef);;
-		
+
 		// digest the protein
 		String peptides[] = dbSequence.split(enzymePattern);
-		
+
 		// if the missedCleavages is below 0, allow for all possible missed cleavages
 		if (missedCleavages < 0) {
 			missedCleavages = peptides.length - 1;
 		}
-		
+
 		// get the peptides
 		int spectra_count = 1;
 		for (int missed=0; missed <= missedCleavages; missed++) {
-			
+
 			int start = 0;
 			for (int i = 0; i < peptides.length-missed; i++) {
 				// build the sequence with misses
@@ -220,7 +221,7 @@ public class FastaFileParser {
 				for (int miss=1; miss <= missed; miss++) {
 					sequence.append(peptides[i+miss]);
 				}
-				
+
 				if ((sequence.length() >= minPepLength) &&
 						(sequence.length() <= maxPepLength)) {
 					addSequence(sequence.toString(),
@@ -232,17 +233,17 @@ public class FastaFileParser {
 							spectrumID,
 							spectrumCountOffset+spectra_count);
 				}
-				
+
 				start += peptides[i].length();
 				spectra_count++;
 			}
-			
+
 		}
-		
+
 		return spectra_count;
 	}
-	
-	
+
+
 	/**
 	 * Adds the sequence to the compiler.
 	 */
@@ -250,17 +251,17 @@ public class FastaFileParser {
 			int start, int missed, PIACompiler compiler, PIAInputFile inputFile,
 			SpectrumIdentification spectrumID, int spectrumCount) {
 		Peptide peptide = compiler.getPeptide(sequence);
-		
+
 		if (peptide == null) {
 			peptide = compiler.insertNewPeptide(sequence);
-			
+
 			// only add one PSM for one peptide-sequence
 			// TODO: calculate the mass
 			double massToCharge = sequence.length();
-			
+
 			String sourceID = "index=" + spectrumCount;
 			String spectrumTitle = sequence;
-			
+
 			PeptideSpectrumMatch psm;
 			psm = compiler.insertNewSpectrum(
 					2,					// just a pseudo-charge
@@ -273,14 +274,14 @@ public class FastaFileParser {
 					spectrumTitle,
 					inputFile,
 					spectrumID);
-			
+
 			peptide.addSpectrum(psm);
-			
+
 			// add the "FASTA Sequence Count" score
 			ScoreModel score = new ScoreModel(1.0,
 					ScoreModelEnum.FASTA_SEQUENCE_COUNT);
 			psm.addScore(score);
-			
+
 			// add the "FASTA Accession Count" score
 			score = new ScoreModel(0.0,
 					ScoreModelEnum.FASTA_ACCESSION_COUNT);
@@ -288,15 +289,15 @@ public class FastaFileParser {
 		} else {
 			// increase the "FASTA Sequence Count" score
 			for (PeptideSpectrumMatch psm : peptide.getSpectra()) {
-				ScoreModel score = 
+				ScoreModel score =
 						psm.getScore(ScoreModelEnum.FASTA_SEQUENCE_COUNT.getShortName());
-				
+
 				Double value = score.getValue();
 				score.setValue(value + 1);
 				break;
 			}
 		}
-		
+
 		boolean increaseAccessionCount = true;
 		for (AccessionOccurrence occ : peptide.getAccessionOccurrences()) {
 			// only count the accessions once for the "FASTA Accession Count"
@@ -308,19 +309,19 @@ public class FastaFileParser {
 		if (increaseAccessionCount) {
 			// increase the "FASTA Accession Count" score
 			for (PeptideSpectrumMatch psm : peptide.getSpectra()) {
-				ScoreModel score = 
+				ScoreModel score =
 						psm.getScore(ScoreModelEnum.FASTA_ACCESSION_COUNT.getShortName());
-				
+
 				Double value = score.getValue();
 				score.setValue(value + 1);
 				break;
 			}
 		}
-		
+
 		peptide.addAccessionOccurrence(accession,
 				start,
 				start+sequence.length()-1);
-		
+
 		// now insert the peptide and the accession into the accession peptide map
 		Set<Peptide> accsPeptides =
 				compiler.getFromAccPepMap(accession.getAccession());
@@ -329,7 +330,7 @@ public class FastaFileParser {
 			compiler.putIntoAccPepMap(accession.getAccession(), accsPeptides);
 		}
 		accsPeptides.add(peptide);
-		
+
 		// and also insert them into the peptide accession map
 		Set<Accession> pepsAccessions =
 				compiler.getFromPepAccMap(peptide.getSequence());
@@ -340,28 +341,28 @@ public class FastaFileParser {
 		}
 		pepsAccessions.add(accession);
 	}
-	
-	
-	
-	public static void main(String[] args) {
-		
+
+
+	// TODO: move to the tests
+	public static void main(String[] args) throws FileNotFoundException {
+
 		// filename missed minPepLength maxPepLength enzymePattern outfile
-		
+
 		if (args.length > 5) {
 			PIACompiler piaCompiler = new PIACompiler();
-			
+
 			String fileName = args[0];
 			String name = (new File(fileName).getName());
-			
+
 			Integer missedCleavages = Integer.parseInt(args[1]);
-			
+
 			Integer minPepLength = Integer.parseInt(args[2]);
 			Integer maxPepLength = Integer.parseInt(args[3]);
-			
+
 			String enzymePattern = args[4];
-			
+
 			String outFile = args[5];
-			
+
 			getDataFromFastaFile(name,
 					fileName,
 					piaCompiler,
@@ -369,11 +370,11 @@ public class FastaFileParser {
 					minPepLength,
 					maxPepLength,
 					missedCleavages);
-			
+
 			piaCompiler.buildClusterList();
-			
+
 			piaCompiler.buildIntermediateStructure();
-			
+
 			piaCompiler.setName(name);
 			piaCompiler.writeOutXML(outFile);
 		} else {
