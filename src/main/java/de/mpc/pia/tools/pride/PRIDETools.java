@@ -16,13 +16,10 @@ import uk.ac.ebi.pride.jmztab.model.Param;
 public class PRIDETools {
 
     /** PRIDE OBO accession for an enzyme */
-    public static String PRIDE_OBO_ENZYME_ACCESSION = "PRIDE:0000160";
+    public static final String PRIDE_OBO_ENZYME_ACCESSION = "PRIDE:0000160";
 
     /** SEP OBO accession for an enzyme */
-    public static String SEPERATION_OBO_ENZYME_ACCESSION = "sep:00142";
-
-
-    public static String OPTIONAL_SEQUENCE_COLUMN = "protein_sequence";
+    public static final String SEPERATION_OBO_ENZYME_ACCESSION = "sep:00142";
 
 
     /**

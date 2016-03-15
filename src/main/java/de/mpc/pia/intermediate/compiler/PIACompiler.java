@@ -2,7 +2,9 @@ package de.mpc.pia.intermediate.compiler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
@@ -853,96 +855,17 @@ public class PIACompiler {
      * @param piaFile
      * @throws FileNotFoundException
      */
-    public void writeOutXML(File piaFile) {
-
+    public void writeOutXML(File piaFile) throws FileNotFoundException {
         logger.info("start writing the XML file "+ piaFile.getName());
 
-        JPiaXML piaXML = new JPiaXML();
-        piaXML.setName(compilationName);
-        piaXML.setDate(startDate);
+        FileOutputStream fos;
 
-        // filesList
-        FilesListXML fileslistXML = new FilesListXML();
-        if (files.size() > 0) {
-            for (PIAInputFile file : files.values()) {
-                PIAInputFileXML fileXML = new PIAInputFileXML();
-
-                fileXML.setId(file.getID());
-                fileXML.setName(file.getName());
-                fileXML.setFileName(file.getFileName());
-                fileXML.setFormat(file.getFormat());
-
-                fileXML.setAnalysisCollection(file.getAnalysisCollection());
-                fileXML.setAnalysisProtocolCollection(file.getAnalysisProtocolCollection());
-
-                fileslistXML.getFiles().add(fileXML);
-            }
-        }
-        piaXML.setFilesList(fileslistXML);
-
-        // inputs
-        Inputs inputs = new Inputs();
-        inputs.getSearchDatabase().addAll(searchDatabasesMap.values());
-        inputs.getSpectraData().addAll(spectraDataMap.values());
-        piaXML.setInputs(inputs);
-
-        // analysisSoftwareList
-        AnalysisSoftwareList softwareList = new AnalysisSoftwareList();
-        softwareList.getAnalysisSoftware().addAll(softwareMap.values());
-        piaXML.setAnalysisSoftwareList(softwareList);
-
-        // spectraList
-        SpectraListXML spectraList = new SpectraListXML();
-        for (PeptideSpectrumMatch psm : spectra) {
-            spectraList.getSpectraList().add(new SpectrumMatchXML(psm));
-        }
-        piaXML.setSpectraList(spectraList);
-
-        // accessionsList
-        AccessionsListXML accessionsList = new AccessionsListXML();
-        for (Accession acc : accessions.values()) {
-            accessionsList.getAccessionsList().add(new AccessionXML(acc));
-        }
-        piaXML.setAccessionsList(accessionsList);
-
-        // peptidesList
-        PeptidesListXML peptidesList = new PeptidesListXML();
-        for (Peptide pep : peptides.values()) {
-            peptidesList.getPeptidesList().add(new PeptideXML(pep));
-        }
-        piaXML.setPeptidesList(peptidesList);
-
-        // groupsList
-        GroupsListXML groupsList = new GroupsListXML();
-        for (Group group : groups.values()) {
-            groupsList.getGroups().add(new GroupXML(group));
-        }
-        piaXML.setGroupsList(groupsList);
-
-        // write the model with JaxB
-        Writer w = null;
-        try {
-            JAXBContext context = JAXBContext.newInstance(JPiaXML.class);
-            Marshaller m = context.createMarshaller();
-            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            w = new FileWriter(piaFile);
-            m.marshal(piaXML, w);
-        } catch (Exception e) {
-            // TODO: better error / exception
-            logger.error("Error writing the file '"+piaFile.getName()+"'!", e);
-        } finally {
-            try {
-                if (w != null) {
-                    w.close();
-                }
-            } catch (Exception e) {
-                // TODO: better error / exception
-                logger.error("Error closing the file '"+piaFile.getName()+"'!", e);
-            }
-        }
+        fos = new FileOutputStream(piaFile);
+        writeOutXML(fos);
 
         logger.info("writing done");
     }
+
 
     /**
      * Write out the intermediate structure into an XML file.
@@ -950,10 +873,18 @@ public class PIACompiler {
      * @param fileName
      * @throws FileNotFoundException
      */
-    public void writeOutXML(String fileName) {
+    public void writeOutXML(String fileName) throws FileNotFoundException {
+        File piaFile = new File(fileName);
+        writeOutXML(piaFile);
+    }
 
-        logger.info("start writing the XML file "+fileName);
 
+    /**
+     * Write out the intermediate structure into an XML file.
+     *
+     * @param fileName
+     */
+    public void writeOutXML(OutputStream outputStream) {
         JPiaXML piaXML = new JPiaXML();
         piaXML.setName(compilationName);
         piaXML.setDate(startDate);
@@ -1016,36 +947,32 @@ public class PIACompiler {
         }
         piaXML.setGroupsList(groupsList);
 
+
         // write the model with JaxB
         Writer w = null;
         try {
             JAXBContext context = JAXBContext.newInstance(JPiaXML.class);
             Marshaller m = context.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            w = new FileWriter(fileName);
+
+            w = new OutputStreamWriter(outputStream);
             m.marshal(piaXML, w);
         } catch (Exception e) {
-            // TODO: better error / exception
-            logger.error("Error writing the file '"+fileName+"'!", e);
+            logger.error("Error writing to the output stream.", e);
         } finally {
             try {
                 if (w != null) {
                     w.close();
                 }
             } catch (Exception e) {
-                // TODO: better error / exception
-                logger.error("Error closing the file '"+fileName+"'!", e);
+                logger.error("Error closing the output stream.", e);
             }
         }
-
-        logger.info("writing done");
     }
 
 
-
-
     @SuppressWarnings("static-access")
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         CommandLineParser parser = new GnuParser();
         Options options = new Options();
 
