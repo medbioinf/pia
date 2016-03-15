@@ -61,6 +61,7 @@ public class PIACompilerTest {
     }
     */
 
+    /*
     @Test
     public void testPIACompilerMzidFiles() throws IOException {
         PIACompiler piaCompiler = new PIACompiler();
@@ -90,4 +91,5 @@ public class PIACompilerTest {
         piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
         piaIntermediateFile.delete();
     }
+    */
 }
