@@ -10,7 +10,6 @@ import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Group;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
-import edu.uci.ics.jung.visualization.picking.PickedState;
 
 
 /**
@@ -24,9 +23,6 @@ public class ProteinVertexFillColorTransformer
 
     /** the graph handler which holds also information about the inferred proteins */
     private ProteinVisualizationGraphHandler graphHandler;
-
-    /** the currently picked protein */
-    private PickedState<VertexObject> pickedProtein;
 
     // some color values
     protected static final Color FADED_COLOR = Color.WHITE;
@@ -46,20 +42,14 @@ public class ProteinVertexFillColorTransformer
     /**
      * Constructor
      */
-    public ProteinVertexFillColorTransformer(ProteinVisualizationGraphHandler graphHandler, PickedState<VertexObject> pickedProtein) {
+    public ProteinVertexFillColorTransformer(ProteinVisualizationGraphHandler graphHandler) {
         this.graphHandler = graphHandler;
-        this.pickedProtein = pickedProtein;
     }
 
 
     @Override
     public Paint transform(VertexObject vertex) {
         Object vObject = vertex.getObject();
-
-        VertexObject proteinVertex = null;
-        if (pickedProtein.getPicked().size() > 0) {
-            proteinVertex = pickedProtein.getPicked().iterator().next();
-        }
 
         if (vObject instanceof Group) {
             return GROUP_COLOR;
@@ -69,7 +59,7 @@ public class ProteinVertexFillColorTransformer
             vObject = ((Collection<?>)vObject).iterator().next();
         }
 
-        VertexRelation relation = graphHandler.getProteinsRelation(proteinVertex, vertex);
+        VertexRelation relation = graphHandler.getVertexRelation(vertex);
 
         switch (relation) {
         case IN_SAME_PAG:

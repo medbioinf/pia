@@ -39,29 +39,20 @@ public class ProteinVisualizationGraphHandler {
     /** mapping from the peptide's label to whether its spectra a shown */
     private Map<String, Boolean> showPSMsMap;
 
-
     /** mapping from the group ID to the vertex in the graph */
     private Map<Long, VertexObject> groupVertices;
-
-
-    /** mapping from the vertices to relations of other vertices  */
-    private Map<VertexObject, Map<VertexObject, VertexRelation>> proteinRelationMaps;
-
 
 
     /** the protein ambiguity group, for which relations should be calculated (can be null) */
     private ReportProtein reportProteinGroup;
 
 
-    /** IDs of selected accessions */
-    private Set<Long> selectedAccessions;
-    private Set<Long> otherAccessions;
-    private Set<Long> selectedPeptides;
-    private Set<Long> otherPeptides;
-    private Set<Long> selectedSpectra;
-    private Set<Long> otherSpectra;
-
-
+    /** IDs of accessions, grouped by relations to selected PAG */
+    private Map<VertexRelation, Set<Long>> relationsAccessions;
+    /** IDs of peptides, grouped by relations to selected PAG */
+    private Map<VertexRelation, Set<Long>> relationsPeptides;
+    /** IDs of spectra, grouped by relations to selected PAG */
+    private Map<VertexRelation, Set<Long>> relationsSpectra;
 
 
 
@@ -70,19 +61,16 @@ public class ProteinVisualizationGraphHandler {
 
 
     public ProteinVisualizationGraphHandler(Group startGroup,
-            Set<Long> selectedAccessions, Set<Long> otherAccessions,
-            Set<Long> selectedPeptides, Set<Long> otherPeptides,
-            Set<Long> selectedSpectra, Set<Long> otherSpectra,
+            Map<VertexRelation, Set<Long>> relationsAccessions,
+            Map<VertexRelation, Set<Long>> relationsPeptides,
+            Map<VertexRelation, Set<Long>> relationsSpectra,
             ReportProtein reportProteinGroup) {
 
         this.reportProteinGroup = reportProteinGroup;
 
-        this.selectedAccessions = selectedAccessions;
-        this.otherAccessions = otherAccessions;
-        this.selectedPeptides = selectedPeptides;
-        this.otherPeptides = otherPeptides;
-        this.selectedSpectra = selectedSpectra;
-        this.otherSpectra = otherSpectra;
+        this.relationsAccessions = relationsAccessions;
+        this.relationsPeptides = relationsPeptides;
+        this.relationsSpectra = relationsSpectra;
 
         this.expandedAccessionsMap = new HashMap<String, Boolean>();
         this.expandedPeptidesMap = new HashMap<String, Boolean>();
@@ -354,7 +342,6 @@ public class ProteinVisualizationGraphHandler {
         }
 
         // add the proteins uncollapsed
-        proteinRelationMaps = new HashMap<VertexObject, Map<VertexObject,VertexRelation>>();
         return addAccessionVertices(groupV, false);
     }
 
@@ -386,7 +373,6 @@ public class ProteinVisualizationGraphHandler {
         }
 
         // add the proteins collapsed
-        proteinRelationMaps = new HashMap<VertexObject, Map<VertexObject,VertexRelation>>();
         return addAccessionVertices(groupV, true);
     }
 
@@ -415,7 +401,6 @@ public class ProteinVisualizationGraphHandler {
         }
 
         // add the peptides uncollapsed
-        proteinRelationMaps = new HashMap<VertexObject, Map<VertexObject,VertexRelation>>();
         return addPeptideVertices(groupV, false, false);
     }
 
@@ -449,7 +434,6 @@ public class ProteinVisualizationGraphHandler {
         }
 
         // add the peptides collapsed
-        proteinRelationMaps = new HashMap<VertexObject, Map<VertexObject,VertexRelation>>();
         return addPeptideVertices(groupV, true, false);
     }
 
@@ -466,7 +450,6 @@ public class ProteinVisualizationGraphHandler {
             return new ArrayList<VertexObject>();
         }
 
-        proteinRelationMaps = new HashMap<VertexObject, Map<VertexObject,VertexRelation>>();
         return addPSMVertices(peptideV);
     }
 
@@ -495,163 +478,84 @@ public class ProteinVisualizationGraphHandler {
         }
 
         showPSMsMap.put(peptideV.getLabel(), false);
-        proteinRelationMaps = new HashMap<VertexObject, Map<VertexObject,VertexRelation>>();
     }
 
 
     /**
-     * creates a mapping from each vertex in the graph to its relation to the
-     * given proteinVertex
+     * Gets the relation of the given proteinVertex to the selected PAG.
      *
-     * @param proteinVertex
-     * @return
-     */
-    private Map<VertexObject, VertexRelation> createProteinsRelationsMap(VertexObject proteinVertex) {
-        /* TODO reactivate this
-        // first get the PAG of the proteinVertex
-        IntermediateProtein protein;
-        Object vObject = proteinVertex.getObject();
-        if (vObject instanceof Collection) {
-            vObject = ((Collection<?>)vObject).iterator().next();
-        }
-        if (vObject instanceof IntermediateProtein) {
-            protein = (IntermediateProtein)vObject;
-        } else {
-            return null;
-        }
-
-        InferenceProteinGroup pag = getProteinsPAG(protein);
-        Map<VertexObject, VertexRelation> relations = new HashMap<VertexObject, ProteinVisualizationGraphHandler.VertexRelation>();
-        if (pag != null) {
-            for (VertexObject relatedVertex : graph.getVertices()) {
-                Object objElement = relatedVertex.getObject();
-                boolean done = false;
-
-                if (objElement instanceof IntermediateGroup) {
-                    // groups have no relation
-                    continue;
-                }
-
-                // check for same PAG
-                if (isObjectInPAG(objElement, pag)) {
-                    relations.put(relatedVertex, VertexRelation.IN_SAME_PAG);
-                    continue;
-                }
-
-                // check for sub-PAG
-                for (InferenceProteinGroup subPAG : pag.getSubGroups()) {
-                    if (isObjectInPAG(objElement, subPAG)) {
-                        relations.put(relatedVertex, VertexRelation.IN_SUB_PAG);
-                        done = true;
-                    }
-
-                    if (done) {
-                        break;
-                    }
-                }
-                if (!done) {
-                    VertexRelation highestRelation = VertexRelation.IN_NO_PAG;
-
-                    // check for super- and parallel-PAG
-                    for (InferenceProteinGroup mainPAG : piaModeller.getProteinModeller().getInferredProteins()) {
-                        if (mainPAG.getSubGroups().contains(pag)) {
-                            // check for super-PAG
-                            if (isObjectInPAG(objElement, mainPAG)) {
-                                relations.put(relatedVertex, VertexRelation.IN_SUPER_PAG);
-                                done = true;
-                            }
-
-                            // check for parallel-PAG
-                            for (InferenceProteinGroup parallelPAG : mainPAG.getSubGroups()) {
-                                if (isObjectInPAG(objElement, parallelPAG)) {
-                                    highestRelation = VertexRelation.IN_PARALLEL_PAG;
-                                }
-                            }
-                        }
-
-                        if (done) {
-                            break;
-                        }
-
-                        // record, if it is in any PAG at all
-                        if (highestRelation.equals(VertexRelation.IN_NO_PAG)) {
-                            if (isObjectInPAG(objElement, mainPAG)) {
-                                highestRelation = VertexRelation.IN_UNRELATED_PAG;
-                            }
-                            for (InferenceProteinGroup subPAG : mainPAG.getSubGroups()) {
-                                if (isObjectInPAG(objElement, subPAG)) {
-                                    highestRelation = VertexRelation.IN_UNRELATED_PAG;
-                                }
-                            }
-                        }
-                    }
-
-                    if (!done) {
-                        relations.put(relatedVertex, highestRelation);
-                    }
-                }
-            }
-        } else {
-            // no PAG for this vertex -> all vertices are either unrelated or in no PAG
-
-            for (VertexObject relatedVertex : graph.getVertices()) {
-                Object objElement = relatedVertex.getObject();
-                VertexRelation highestRelation = VertexRelation.IN_NO_PAG;
-
-                for (InferenceProteinGroup mainPAG : piaModeller.getProteinModeller().getInferredProteins()) {
-                    // check, if it is in any PAG at all
-                    if (highestRelation.equals(VertexRelation.IN_NO_PAG)) {
-                        if (isObjectInPAG(objElement, mainPAG)) {
-                            highestRelation = VertexRelation.IN_UNRELATED_PAG;
-                        }
-                        for (InferenceProteinGroup subPAG : mainPAG.getSubGroups()) {
-                            if (isObjectInPAG(objElement, subPAG)) {
-                                highestRelation = VertexRelation.IN_UNRELATED_PAG;
-                            }
-                        }
-                    } else {
-                        break;
-                    }
-                }
-
-                relations.put(relatedVertex, highestRelation);
-            }
-        }
-        */
-
-        return null;
-    }
-
-
-    /**
-     * gets the relation of the given proteinVertex to the other given vertex
-     *
-     * @param proteinVertex
      * @param relatedVertex
      * @return
      */
-    public VertexRelation getProteinsRelation(VertexObject proteinVertex, VertexObject relatedVertex) {
+    public VertexRelation getVertexRelation(VertexObject relatedVertex) {
         if (reportProteinGroup == null) {
             // there is no information -> everything is in same PAG
             return VertexRelation.IN_SAME_PAG;
         }
 
-        if (proteinVertex == null) {
-            // no vertex given
-            return VertexRelation.IN_NO_PAG;
-        }
+        VertexRelation relation = VertexRelation.IN_NO_PAG;
+        Object obj = relatedVertex.getObject();
 
-        Map<VertexObject, VertexRelation> relationsMap = proteinRelationMaps.get(proteinVertex);
-        if (relationsMap == null) {
-            relationsMap = createProteinsRelationsMap(proteinVertex);
-            proteinRelationMaps.put(proteinVertex, relationsMap);
-        }
+        if (obj instanceof Collection<?>) {
+            Iterator<?> iter = ((Collection<?>)obj).iterator();
 
-        if (relationsMap != null) {
-            return relationsMap.get(relatedVertex);
+            while (iter.hasNext()) {
+                VertexRelation newRelation = getObjectRelation(iter.next());
+
+                if (newRelation.ordinal() < relation.ordinal()) {
+                    relation = newRelation;
+                }
+                if (relation.ordinal() == 0) {
+                    return relation;
+                }
+            }
+
         } else {
-            return null;
+            relation =  getObjectRelation(obj);
         }
+
+        return relation;
+    }
+
+
+    /**
+     * Gets the relation of the given Object, which should be the value of a
+     * vertex.
+     *
+     * @param obj
+     * @return
+     */
+    private VertexRelation getObjectRelation(Object obj) {
+        Long vertexId = null;
+        Iterator<Map.Entry<VertexRelation, Set<Long>>> relIt = null;
+
+        if (obj instanceof Accession) {
+            vertexId = ((Accession) obj).getID();
+            if (relationsAccessions != null) {
+                relIt = relationsAccessions.entrySet().iterator();
+            }
+        } else if (obj instanceof Peptide) {
+            vertexId = ((Peptide) obj).getID();
+            if (relationsPeptides != null) {
+                relIt = relationsPeptides.entrySet().iterator();
+            }
+        } else if (obj instanceof PeptideSpectrumMatch) {
+            vertexId = ((PeptideSpectrumMatch) obj).getID();
+            if (relationsSpectra != null) {
+                relIt = relationsSpectra.entrySet().iterator();
+            }
+        }
+
+        if ((relIt != null) && (vertexId != null)) {
+            while (relIt.hasNext()) {
+                Map.Entry<VertexRelation, Set<Long>> mapping = relIt.next();
+                if (mapping.getValue().contains(vertexId)) {
+                    return mapping.getKey();
+                }
+            }
+        }
+
+        return VertexRelation.IN_NO_PAG;
     }
 
 
