@@ -170,12 +170,10 @@ public class ProteinVisualizationGraphHandler {
                 addAccessionVertices(groupV, true);
             }
 
-
             // add the peptides
             if ((group.getPeptides() != null) && (group.getPeptides().size() > 0)) {
-                addPeptideVertices(groupV, true, true);
+                addPeptideVertices(groupV, true, false);
             }
-
 
             // add children to toAdd, if not in groups
             for (Group childGroup : group.getChildren().values()) {
@@ -274,7 +272,7 @@ public class ProteinVisualizationGraphHandler {
 
                 showPSMsMap.put(peptideLabel, false);
 
-                if (showPSMs) {
+                if (showPSMs && !collapsed) {
                     showPSMs(peptideV);
                 }
             }
@@ -632,7 +630,7 @@ public class ProteinVisualizationGraphHandler {
      * @param relatedVertex
      * @return
      */
-    protected VertexRelation getProteinsRelation(VertexObject proteinVertex, VertexObject relatedVertex) {
+    public VertexRelation getProteinsRelation(VertexObject proteinVertex, VertexObject relatedVertex) {
         if (reportProteinGroup == null) {
             // there is no information -> everything is in same PAG
             return VertexRelation.IN_SAME_PAG;
@@ -654,5 +652,115 @@ public class ProteinVisualizationGraphHandler {
         } else {
             return null;
         }
+    }
+
+
+    /**
+     * A mouse doubleclick was detectedon the given vertex.
+     *
+     * @param v
+     */
+    public boolean doubleClickedOn(VertexObject v) {
+
+        VertexObject groupVertex = getGroupOf(v);
+
+        if (v.getLabel().startsWith(PEPTIDES_OF_PREFIX)) {
+            // double click on peptide collection ->  uncollapse
+            if (groupVertex != null) {
+                uncollapsePeptides(groupVertex);
+                return true;
+            }
+        } else if (v.getLabel().startsWith(PROTEINS_OF_PREFIX)) {
+            // double click on accessions collection ->  uncollapse
+            if (groupVertex != null) {
+                uncollapseAccessions(groupVertex);
+                return true;
+            }
+        } else if (v.getObject() instanceof Peptide) {
+            // clicked on a peptide -> show or hide PSMs
+            if (isExpandedPSMs(v)) {
+                hidePSMs(v);
+                return false;
+            } else {
+                showPSMs(v);
+                return true;
+            }
+        } else if (v.getObject() instanceof Group) {
+            // clicked on a group -> collapse peptides and accessions
+
+            int accessionCount = 0;
+            int peptideCount = 0;
+
+            for (VertexObject vertex : graph.getPredecessors(v)) {
+                if (vertex.getObject() instanceof Accession) {
+                    accessionCount++;
+                }
+            }
+            for (VertexObject vertex : graph.getSuccessors(v)) {
+                if (vertex.getObject() instanceof Peptide) {
+                    peptideCount++;
+                }
+            }
+
+            if (peptideCount > 1) {
+                collapsePeptides(v);
+            }
+            if (accessionCount > 1) {
+                collapseAccessions(v);
+            }
+            if ((peptideCount > 1) || (accessionCount > 1)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns the closest {@link VertexObject} representing a group for the
+     * given vertex.
+     *
+     * @param v
+     * @return
+     */
+    private VertexObject getGroupOf(VertexObject v) {
+
+        boolean lookInSuccessors = false;
+
+        if (v.getObject() instanceof Collection<?>) {
+            if (v.getLabel().startsWith(PEPTIDES_OF_PREFIX)) {
+                lookInSuccessors = false;
+            } else if (v.getLabel().startsWith(PROTEINS_OF_PREFIX)) {
+                lookInSuccessors = true;
+            }
+        } else if (v.getObject() instanceof Accession) {
+            lookInSuccessors = true;
+        } else if (v.getObject() instanceof Peptide) {
+            lookInSuccessors = false;
+        } else if (v.getObject() instanceof PeptideSpectrumMatch) {
+            for (VertexObject vertex : graph.getSuccessors(v)) {
+                if (vertex.getObject() instanceof Peptide) {
+                    v = vertex;
+                    break;
+                }
+            }
+            lookInSuccessors = false;
+        }
+
+        Collection<VertexObject> lookIn;
+        if (lookInSuccessors) {
+            lookIn = graph.getSuccessors(v);
+        } else {
+            lookIn = graph.getPredecessors(v);
+        }
+
+        for (VertexObject vertex : lookIn) {
+            if (vertex.getObject() instanceof Group) {
+                return  vertex;
+            }
+        }
+
+        return null;
     }
 }

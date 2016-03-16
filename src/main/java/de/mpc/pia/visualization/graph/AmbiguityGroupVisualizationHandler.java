@@ -5,6 +5,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.Set;
 
@@ -13,12 +14,18 @@ import de.mpc.pia.intermediate.Group;
 import de.mpc.pia.modeller.protein.ReportProtein;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
+import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
+import edu.uci.ics.jung.algorithms.layout.util.VisRunner;
+import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
+import edu.uci.ics.jung.visualization.layout.LayoutTransition;
 import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
+import edu.uci.ics.jung.visualization.util.Animator;
 
 /**
  * A panel for the visualization of protein groups in the complete intermediate
@@ -27,7 +34,7 @@ import edu.uci.ics.jung.visualization.picking.PickedState;
  * @author julian
  *
  */
-public class AmbiguityGroupVisualizationHandler implements ItemListener {
+public class AmbiguityGroupVisualizationHandler implements ItemListener, GraphMouseListener<VertexObject> {
 
     /** handler for the shown graph */
     private ProteinVisualizationGraphHandler visGraph;
@@ -106,6 +113,9 @@ public class AmbiguityGroupVisualizationHandler implements ItemListener {
             }
         });
 
+        // listen to mouse clicks
+        visualizationViewer.addGraphMouseListener(this);
+
         // let the pane listen to the vertex-picking
         pickedState = visualizationViewer.getPickedVertexState();
         pickedState.addItemListener(this);
@@ -141,6 +151,35 @@ public class AmbiguityGroupVisualizationHandler implements ItemListener {
     }
 
 
+    /**
+     * Recalculates the layout and visualization of the graph for the changed
+     * graph topology
+     */
+    private void recalculateAndAnimateGraphChanges() {
+        layout.setGraph(visGraph.getGraph());
+        layout.initialize();
+
+        if (layout instanceof IterativeContext) {
+            Relaxer relaxer = new VisRunner((IterativeContext)layout);
+            relaxer.stop();
+            relaxer.prerelax();
+        }
+
+        StaticLayout<VertexObject, String> staticLayout =
+                new StaticLayout<VertexObject, String>(visGraph.getGraph(), layout, layout.getSize());
+
+        LayoutTransition<VertexObject, String> lt =
+                new LayoutTransition<VertexObject, String>(visualizationViewer,
+                        visualizationViewer.getGraphLayout(),
+                        staticLayout);
+
+        Animator animator = new Animator(lt);
+        animator.start();
+
+        visualizationViewer.repaint();
+    }
+
+
     @Override
     public void itemStateChanged(ItemEvent e) {
         Object subject = e.getItem();
@@ -158,4 +197,32 @@ public class AmbiguityGroupVisualizationHandler implements ItemListener {
         }
     }
 
+
+    @Override
+    public void graphClicked(VertexObject v, MouseEvent me) {
+        if (me.getButton() == MouseEvent.BUTTON1 && me.getClickCount() == 2) {
+            boolean changeVisualisation = visGraph.doubleClickedOn(v);
+
+            if (changeVisualisation) {
+
+                pickedState.clear();
+                pickedState.pick(selectedVertex, true);
+                recalculateAndAnimateGraphChanges();
+
+            }
+        }
+        me.consume();
+    }
+
+
+    @Override
+    public void graphPressed(VertexObject v, MouseEvent me) {
+        // TODO Auto-generated method stub
+    }
+
+
+    @Override
+    public void graphReleased(VertexObject v, MouseEvent me) {
+        // TODO Auto-generated method stub
+    }
 }
