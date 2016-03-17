@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.AccessionOccurrence;
+import de.mpc.pia.modeller.IdentificationKeySettings;
 import de.mpc.pia.modeller.peptide.ReportPeptide;
 import de.mpc.pia.modeller.psm.PSMReportItem;
 import de.mpc.pia.modeller.psm.ReportPSM;
@@ -289,9 +290,38 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
     public Integer getNrSpectra() {
         Set<String> spectraIdentificationKeys = new HashSet<String>();
 
+        Map<String, Boolean> maximalSpectraIdentificationSettings = new HashMap<String, Boolean>(5);
+        maximalSpectraIdentificationSettings.put(
+                IdentificationKeySettings.MASSTOCHARGE.name(), true);
+        maximalSpectraIdentificationSettings.put(
+                IdentificationKeySettings.RETENTION_TIME.name(), true);
+        maximalSpectraIdentificationSettings.put(
+                IdentificationKeySettings.SOURCE_ID.name(), true);
+        maximalSpectraIdentificationSettings.put(
+                IdentificationKeySettings.SPECTRUM_TITLE.name(), true);
+        maximalSpectraIdentificationSettings.put(
+                IdentificationKeySettings.CHARGE.name(), true);
+
+        // adjust the maximal available PSM set settings
         for (ReportPeptide pep : peptideMap.values()) {
-            spectraIdentificationKeys.addAll(pep.getSpectraIdentificationKeys());
+            Map<String, Boolean> pepAvailables = pep.getAvailableIdentificationKeySettings();
+
+            Set<String> setAvailables = new HashSet<String>(maximalSpectraIdentificationSettings.keySet());
+
+            for (String setting : setAvailables) {
+                if (!pepAvailables.containsKey(setting) || !pepAvailables.get(setting) ) {
+                    maximalSpectraIdentificationSettings.remove(setting);
+                }
+            }
         }
+
+        maximalSpectraIdentificationSettings =
+                IdentificationKeySettings.noRedundantSettings(maximalSpectraIdentificationSettings);
+
+        for (ReportPeptide pep : peptideMap.values()) {
+            spectraIdentificationKeys.addAll(pep.getSpectraIdentificationKeys(maximalSpectraIdentificationSettings));
+        }
+
         return spectraIdentificationKeys.size();
     }
 
