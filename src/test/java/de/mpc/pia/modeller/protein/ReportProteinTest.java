@@ -42,8 +42,8 @@ public class ReportProteinTest {
 
     @Before
     public void setUp() throws URISyntaxException {
-        piaFile = new File(ReportProteinTest.class.getClassLoader().getResource("yeast-gold-015.pia.xml").toURI());
-        expectedFile = new File(ReportProteinTest.class.getClassLoader().getResource("yeast-gold-015-proteins.csv").toURI());
+        piaFile = new File(ReportProteinTest.class.getClassLoader().getResource("yeast-gold-015-filtered.pia.xml").toURI());
+        expectedFile = new File(ReportProteinTest.class.getClassLoader().getResource("yeast-gold-015-filtered-proteins.csv").toURI());
     }
 
 
