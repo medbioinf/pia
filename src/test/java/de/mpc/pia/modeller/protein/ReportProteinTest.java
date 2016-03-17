@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,18 +36,65 @@ import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 public class ReportProteinTest {
 
     private File piaFile;
+    private File expectedFile;
     private double scoreDelta = 0.000001;
-    private Map<String, List<Object>> expectedValues;
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws URISyntaxException {
         piaFile = new File(ReportProteinTest.class.getClassLoader().getResource("yeast-gold-015.pia.xml").toURI());
+        expectedFile = new File(ReportProteinTest.class.getClassLoader().getResource("yeast-gold-015-proteins.csv").toURI());
+    }
 
-        File expectedExportFile = new File(ReportProteinTest.class.getClassLoader().getResource("yeast-gold-015-proteins.csv").toURI());
-        expectedValues = new HashMap<String, List<Object>>();
 
-        BufferedReader br = new BufferedReader(new FileReader(expectedExportFile));
+    @After
+    public void tearDown() throws Exception {
+
+
+    }
+
+
+    @Test
+    public void testReportProteinValues() throws JAXBException, XMLStreamException, IOException, URISyntaxException {
+
+        PIAModeller piaModeller = new PIAModeller(piaFile.getAbsolutePath());
+
+        piaModeller.setCreatePSMSets(true);
+
+        piaModeller.getPSMModeller().setAllDecoyPattern("s.*");
+        piaModeller.getPSMModeller().setAllTopIdentifications(0);
+
+        piaModeller.getPSMModeller().calculateAllFDR();
+        piaModeller.getPSMModeller().calculateCombinedFDRScore();
+
+        piaModeller.setConsiderModifications(false);
+
+        // protein level
+        SpectrumExtractorInference seInference = new SpectrumExtractorInference();
+
+        seInference.addFilter(
+                new PSMScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName()));
+
+        seInference.setScoring(new MultiplicativeScoring(new HashMap<String, String>()));
+        seInference.getScoring().setSetting(AbstractScoring.scoringSettingID, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
+        seInference.getScoring().setSetting(AbstractScoring.scoringSpectraSettingID, PSMForScoring.ONLY_BEST.getShortName());
+
+        piaModeller.getProteinModeller().infereProteins(seInference);
+
+        piaModeller.getProteinModeller().updateFDRData(DecoyStrategy.ACCESSIONPATTERN, "s.*", 0.01);
+        piaModeller.getProteinModeller().updateDecoyStates();
+        piaModeller.getProteinModeller().calculateFDR();
+
+
+        List<AbstractFilter> filters = new ArrayList<AbstractFilter>();
+        filters.add(RegisteredFilters.NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER.newInstanceOf(
+                        FilterComparator.greater_equal, 2, false));
+
+
+        // get the expected values
+        Map<String, List<Object>> expectedValues = new HashMap<String, List<Object>>(426);
+
+        BufferedReader br = new BufferedReader(new FileReader(expectedFile));
         String line;
         int nrLine = 0;
         while ((line = br.readLine()) != null) {
@@ -68,52 +116,8 @@ public class ReportProteinTest {
             expectedValues.put(split[0].substring(1), entries);
         }
         br.close();
-    }
 
-
-    @After
-    public void tearDown() throws Exception {
-
-
-    }
-
-
-    @Test
-    public void testReportProteinValues() throws JAXBException, XMLStreamException, IOException {
-
-        PIAModeller piaModeller = new PIAModeller(piaFile.getAbsolutePath());
-
-        piaModeller.setCreatePSMSets(true);
-
-        piaModeller.getPSMModeller().setAllDecoyPattern("s.*");
-        piaModeller.getPSMModeller().setAllTopIdentifications(0);
-
-        piaModeller.getPSMModeller().calculateAllFDR();
-        piaModeller.getPSMModeller().calculateCombinedFDRScore();
-
-        piaModeller.setConsiderModifications(false);
-
-        // protein level
-        SpectrumExtractorInference seInference = new SpectrumExtractorInference();
-
-        seInference.addFilter(
-                new PSMScoreFilter(FilterComparator.less_equal, false, 0.1, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName()));
-
-        seInference.setScoring(new MultiplicativeScoring(new HashMap<String, String>()));
-        seInference.getScoring().setSetting(AbstractScoring.scoringSettingID, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
-        seInference.getScoring().setSetting(AbstractScoring.scoringSpectraSettingID, PSMForScoring.ONLY_BEST.getShortName());
-
-        piaModeller.getProteinModeller().infereProteins(seInference);
-
-        piaModeller.getProteinModeller().updateFDRData(DecoyStrategy.ACCESSIONPATTERN, "s.*", 0.01);
-        piaModeller.getProteinModeller().updateDecoyStates();
-        piaModeller.getProteinModeller().calculateFDR();
-
-
-        List<AbstractFilter> filters = new ArrayList<AbstractFilter>();
-        filters.add(RegisteredFilters.NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER.newInstanceOf(
-                        FilterComparator.greater_equal, 2, false));
-
+        // compare the values
         for (ReportProtein prot : piaModeller.getProteinModeller().getFilteredReportProteins(filters)) {
             StringBuffer accSb = new StringBuffer();
             for (Accession acc : prot.getAccessions()) {
