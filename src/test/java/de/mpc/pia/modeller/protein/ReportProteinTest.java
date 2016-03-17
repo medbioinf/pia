@@ -14,7 +14,8 @@ import java.util.Map;
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import de.mpc.pia.intermediate.Accession;
@@ -33,16 +34,16 @@ import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 
 public class ReportProteinTest {
 
-    private static File piaFile;
-    private static double scoreDelta = 0.000001;
-    private static Map<String, List<Object>> expectedValues;
+    private File piaFile;
+    private double scoreDelta = 0.000001;
+    private Map<String, List<Object>> expectedValues;
 
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        piaFile = new File(ReportProteinTest.class.getResource("/yeast-gold-015.pia.xml").getPath());
+    @Before
+    public void setUp() throws Exception {
+        piaFile = new File(ReportProteinTest.class.getClassLoader().getResource("yeast-gold-015.pia.xml").toURI());
 
-        File expectedExportFile = new File(ReportProteinTest.class.getResource("/yeast-gold-015-proteins.csv").getPath());
+        File expectedExportFile = new File(ReportProteinTest.class.getClassLoader().getResource("yeast-gold-015-proteins.csv").toURI());
         expectedValues = new HashMap<String, List<Object>>();
 
         BufferedReader br = new BufferedReader(new FileReader(expectedExportFile));
@@ -67,6 +68,13 @@ public class ReportProteinTest {
             expectedValues.put(split[0].substring(1), entries);
         }
         br.close();
+    }
+
+
+    @After
+    public void tearDown() throws Exception {
+
+
     }
 
 
@@ -126,5 +134,4 @@ public class ReportProteinTest {
             assertEquals("Wrong q-value for " + accSb.toString(), (Double)(values.get(6)), prot.getQValue(), scoreDelta);
         }
     }
-
 }
