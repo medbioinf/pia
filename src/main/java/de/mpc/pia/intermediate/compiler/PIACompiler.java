@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -955,7 +956,7 @@ public class PIACompiler {
             Marshaller m = context.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
-            w = new OutputStreamWriter(outputStream);
+            w = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
             m.marshal(piaXML, w);
         } catch (Exception e) {
             logger.error("Error writing to the output stream.", e);
