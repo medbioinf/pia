@@ -37,15 +37,17 @@ public class MzIdentMLTools {
     private static Cv psiMS = new Cv();
     private static Cv unitOntology = new Cv();
 
-    // static initialization
+    /**
+     * static initialization
+     */
     static {
         psiMS.setId("PSI-MS");
         psiMS.setFullName("PSI-MS");
-        psiMS.setUri("http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
-        psiMS.setVersion("3.74.0");
+        psiMS.setUri(OntologyConstants.PSI_MS_OBO_URL);
+        psiMS.setVersion(OntologyConstants.PSI_MS_OBO_VERSION);
 
         unitOntology.setId("UO");
-        unitOntology.setFullName("PSI-MS");
+        unitOntology.setFullName("Unit Ontology");
         unitOntology.setUri("http://unit-ontology.googlecode.com/svn/trunk/unit.obo");
     }
 
@@ -309,6 +311,21 @@ public class MzIdentMLTools {
 
 
     /**
+     * Shortcut function to create a {@link CvParam} from OntologyConstant for
+     * an accession inside the PSI ontology
+     *
+     * @return
+     */
+    public static CvParam createPSICvParam(OntologyConstants psiEntry, String value) {
+        return createCvParam(psiEntry.getPsiAccession(),
+                getCvPSIMS(),
+                psiEntry.getPsiName(),
+                value,
+                null, null, null);
+    }
+
+
+    /**
      * Shortcut function to create a {@link CvParam}.
      *
      * @return
@@ -413,18 +430,14 @@ public class MzIdentMLTools {
 
         Tolerance tolerance = new Tolerance();
 
-        AbstractParam abstractParam = MzIdentMLTools.createCvParam(
-                "MS:1001412",
-                MzIdentMLTools.getCvPSIMS(),
-                "search tolerance plus value",
+        AbstractParam abstractParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE,
                 toleranceValue);
         MzIdentMLTools.setUnitParameterFromString(unit, abstractParam);
         tolerance.getCvParam().add((CvParam)abstractParam);
 
-        abstractParam = MzIdentMLTools.createCvParam(
-                "MS:1001413",
-                MzIdentMLTools.getCvPSIMS(),
-                "search tolerance minus value",
+        abstractParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE,
                 toleranceValue);
         MzIdentMLTools.setUnitParameterFromString(unit, abstractParam);
         tolerance.getCvParam().add((CvParam)abstractParam);

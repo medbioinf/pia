@@ -1,7 +1,6 @@
 package de.mpc.pia.tools.pride;
 
 import de.mpc.pia.tools.MzIdentMLTools;
-import de.mpc.pia.tools.PIAConstants;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
@@ -20,6 +19,10 @@ public class PRIDETools {
 
     /** SEP OBO accession for an enzyme */
     public static final String SEPERATION_OBO_ENZYME_ACCESSION = "sep:00142";
+
+    // PRIDE CVTerms
+    public static final String PRIDE_DECOY_HIT_ACCESSION = "PRIDE:0000303";
+    public static final String PRIDE_DECOY_HIT_NAME = "Decoy";
 
 
     /**
@@ -61,7 +64,7 @@ public class PRIDETools {
     public static boolean isDecoyHit(Identification identification) {
         if (identification.getAdditional() != null) {
             for (uk.ac.ebi.pride.jaxb.model.CvParam param : identification.getAdditional().getCvParam()) {
-                if (param.getAccession().equals(PIAConstants.PRIDE_DECOY_HIT)) {
+                if (PRIDE_DECOY_HIT_ACCESSION.equals(param.getAccession())) {
                     return true;
                 }
             }
@@ -70,7 +73,7 @@ public class PRIDETools {
                 if ("Decoy Hit".equals(param.getName())) {
                     return true;
                 }
-                if(PIAConstants.PRIDE_DECOY_HIT_DESC.equals(param.getName())){
+                if (PRIDE_DECOY_HIT_NAME.equals(param.getName())){
                     return true;
                 }
             }

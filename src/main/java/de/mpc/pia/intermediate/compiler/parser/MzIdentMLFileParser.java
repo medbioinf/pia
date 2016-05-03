@@ -7,6 +7,7 @@ import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.tools.MzIdentMLTools;
+import de.mpc.pia.tools.OntologyConstants;
 import de.mpc.pia.tools.obo.OBOMapper;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -295,7 +296,7 @@ public class MzIdentMLFileParser {
 
                 for (AbstractParam param : specIdResult.getParamGroup()) {
                     if ((param instanceof CvParam) &&
-                            ((CvParam)param).getAccession().equals(OBOMapper.obo_spectrumTitleID)) {
+                            ((CvParam)param).getAccession().equals(OntologyConstants.SPECTRUM_TITLE.getPsiAccession())) {
                         // get the spectrum title, if it is given
                         spectrumTitle = param.getValue();
                     } else {
@@ -517,7 +518,7 @@ public class MzIdentMLFileParser {
 
                             for (Triple triple : tripleSet) {
                                 if (triple.getPredicate().getName().equals(OBOMapper.obo_is_a) &&
-                                        triple.getObject().getName().equals(OBOMapper.obo_psmScoreID)) {
+                                        triple.getObject().getName().equals(OntologyConstants.SEARCH_ENGINE_PSM_SCORE.getPsiAccession())) {
                                     // subject is a "search engine specific score for PSM"
                                     isScore = true;
                                     ScoreModel score;

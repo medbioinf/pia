@@ -19,13 +19,15 @@ import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Modification;
 
-import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.unimod.jaxb.ModT;
 import de.mpc.pia.tools.unimod.jaxb.SpecificityT;
 import de.mpc.pia.tools.unimod.jaxb.UnimodT;
 
 
 public class UnimodParser {
+
+    /** the mass tolerance for finding a modification by mass in Unimod */
+    public static Double unimod_mass_tolerance = 0.001;
 
     /** the path to the packaged unimod */
     private static String packagedUnimod =  "/de/mpc/pia/unimod.xml";
@@ -267,7 +269,7 @@ public class UnimodParser {
             }
 
             if (nameFound &&
-                    (Math.abs(mod.getDelta().getMonoMass() - massdelta) <= PIAConstants.unimod_mass_tolerance) &&
+                    (Math.abs(mod.getDelta().getMonoMass() - massdelta) <= unimod_mass_tolerance) &&
                     checkResidues(mod, residues)) {
                 return mod;
             }
@@ -301,8 +303,7 @@ public class UnimodParser {
      */
     public ModT getModificationByMass(Double massdelta, List<String> residues) {
         for (ModT mod : modifications) {
-            if (Math.abs(mod.getDelta().getMonoMass() - massdelta) <=
-                    PIAConstants.unimod_mass_tolerance) {
+            if (Math.abs(mod.getDelta().getMonoMass() - massdelta) <= unimod_mass_tolerance) {
                 if (checkResidues(mod, residues)) {
                     return mod;
                 }
