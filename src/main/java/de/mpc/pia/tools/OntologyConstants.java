@@ -26,6 +26,8 @@ public enum OntologyConstants {
     SEARCH_ENGINE_PSM_SCORE("search engine specific score for PSMs", "MS:1001143"),
     SPECTRUM_TITLE("spectrum title", "MS:1000796"),
     CLEAVAGE_AGENT_NAME("cleavage agent name", "MS:1001045"),
+    SEARCH_TOLERANCE_PLUS_VALUE("search tolerance plus value", "MS:1001412"),
+    SEARCH_TOLERANCE_MINUS_VALUE("search tolerance minus valu", "MS:1001413"),
 
     FINAL_PSM_LIST("final PSM list", "MS:1002439"),
     INTERMEDIATE_PSM_LIST("intermediate PSM list", "MS:1002440"),
@@ -45,13 +47,20 @@ public enum OntologyConstants {
     PROTEIN_LEVEL_LOCAL_FDR("protein-level local FDR", "MS:1002364"),
     PROTEIN_GROUP_LEVEL_Q_VALUE("protein group-level q-value", "MS:1002373"),
 
-    SEARCH_TOLERANCE_PLUS_VALUE("search tolerance plus value", "MS:1001412"),
-    SEARCH_TOLERANCE_MINUS_VALUE("search tolerance minus valu", "MS:1001413"),
     UNKNOWN_MODIFICATION("unknown modification", "MS:1001460"),
     MODIFICATION_SPECIFICITY_PEP_N_TERM("modification specificity peptide N-term", "MS:1001189"),
     MODIFICATION_SPECIFICITY_PEP_C_TERM("modification specificity peptide C-term", "MS:1001190"),
     MODIFICATION_SPECIFICITY_PROTEIN_N_TERM("modification specificity protein N-term", "MS:1002057"),
     MODIFICATION_SPECIFICITY_PROTEIN_C_TERM("modification specificity protein C-term", "MS:1002058"),
+
+    FASTA_FORMAT("FASTA format", "MS:1001348"),
+    MASCOT_DAT_FORMAT("Mascot DAT format", "MS:1001199"),
+    MASCOT_MGF_FORMAT("Mascot MGF format", "MS:1001062"),
+    PRIDE_XML("PRIDE XML", "MS:1002600"),
+    MASCOT_QUERY_NUMBER("Mascot query number", "MS:1001528"),
+
+    PROTEOMEXCHANGE_ACCESSION_NUMBER("ProteomeXchange accession number", "MS:1001919", "ProteomExchange project accession number", "PRIDE:0000216"),
+    PRIDE_PROJECT_NAME(null, null, "Project", "PRIDE:0000097"),
 
     // search engines
     AMANDA_SCORE("Amanda:AmandaScore", "MS:1002319"),
@@ -79,12 +88,15 @@ public enum OntologyConstants {
 
     /** URL to the current psi-ms.obo file */
     public static final String PSI_MS_OBO_URL = "https://raw.githubusercontent.com/HUPO-PSI/psi-ms-CV/master/psi-ms.obo";
-    /** current version of psi-ms.obo */
-    public static final String PSI_MS_OBO_VERSION = "3.86.2";
     /** the label for the PSI-MS ontology */
     public static final String CV_PSI_MS_LABEL = "MS";
-    /** the label for the PRIDE ontology */
-    public static final String CV_PRIDE_LABEL = "PRIDE";
+    /** current version of psi-ms.obo */
+    public static final String PSI_MS_OBO_VERSION = "3.86.2";
+
+    /** the label for the PRIDE CV */
+    public static final String PRIDE_CV_LABEL = "PRIDE";
+    /** the URL to the PRIDE CV */
+    public static final String PRIDE_CV_URL = "https://raw.githubusercontent.com/PRIDE-Utilities/pride-ontology/master/pride_cv.obo";
 
 
     /** name in PSI OBO*/

@@ -1,6 +1,8 @@
 package de.mpc.pia.tools.pride;
 
 import de.mpc.pia.tools.MzIdentMLTools;
+import de.mpc.pia.tools.OntologyConstants;
+import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
@@ -23,6 +25,27 @@ public class PRIDETools {
     // PRIDE CVTerms
     public static final String PRIDE_DECOY_HIT_ACCESSION = "PRIDE:0000303";
     public static final String PRIDE_DECOY_HIT_NAME = "Decoy";
+
+
+    private static Cv prideCV = new Cv();
+
+    /**
+     * static initialization
+     */
+    static {
+        prideCV.setId("PRIDE");
+        prideCV.setFullName("PRIDE Controlled Vocabulary");
+        prideCV.setUri(OntologyConstants.PRIDE_CV_URL);
+    }
+
+
+    /**
+     * getter for the PRIDE CV
+     * @return
+     */
+    public static Cv getPrideCV() {
+        return prideCV;
+    }
 
 
     /**

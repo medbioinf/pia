@@ -21,6 +21,9 @@ public class PIAConstants {
     /** the mass of one hydrogen ion (H+) */
     public static BigDecimal H_MASS = new BigDecimal("1.007276");
 
+    /** the mass of one water, when it is lost */
+    public static BigDecimal DEHYDRATION_MASS = new BigDecimal("18.010565");
+
     /** the location of the PIA source */
     public static final String PIA_REPOSITORY_LOCATION = "https://github.com/mpc-bioinformatics/pia";
 

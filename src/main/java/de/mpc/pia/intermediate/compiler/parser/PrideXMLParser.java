@@ -8,6 +8,8 @@ import de.mpc.pia.modeller.IdentificationKeySettings;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.MzIdentMLTools;
+import de.mpc.pia.tools.OntologyConstants;
+import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.pride.PRIDETools;
 import de.mpc.pia.tools.pride.PrideSoftwareList;
 import de.mpc.pia.tools.unimod.UnimodParser;
@@ -18,15 +20,20 @@ import org.biojava.nbio.ontology.Term;
 
 import uk.ac.ebi.jmzidml.model.mzidml.*;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
+import uk.ac.ebi.jmzidml.model.mzidml.Param;
 import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 import uk.ac.ebi.pride.jaxb.model.*;
+import uk.ac.ebi.pride.jaxb.model.SourceFile;
 import uk.ac.ebi.pride.jaxb.xml.PrideXmlReader;
+import uk.ac.ebi.pride.utilities.mol.MoleculeUtilities;
 
 import java.io.File;
 import java.util.*;
 
 /**
- * This class read the PRIDE Xml files and map the structure into a
+ * This class reads the PRIDE XML files and maps the structure into the PIA
+ * intermediate structure
+ *
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
  * @author julianu
  * @date 08/02/2016
@@ -53,6 +60,7 @@ public class PrideXMLParser {
             "PSI:1000016",
             "MS:1000016"}));
 
+
     /**
      * We don't ever want to instantiate this class
      */
@@ -75,43 +83,23 @@ public class PrideXMLParser {
         File prideFile = new File(fileName);
 
         if (!prideFile.canRead()) {
-            logger.error("could not read '" + fileName + "'.");
+            logger.error("could not read '" + fileName + "' for PRIDE XML parsing.");
             return false;
         }
 
         PrideXmlReader prideParser = new PrideXmlReader(prideFile);
 
         String name = prideParser.getExpShortLabel();
-        PIAInputFile file = compiler.insertNewFile(name, fileName,
+        PIAInputFile file = compiler.insertNewFile(name,
+                fileName,
                 InputFileParserFactory.InputFileTypes.PRIDEXML_INPUT.getFileTypeName());
 
 
-        // add the spectraData, it is the actual PRIDE XML file
+        // add the spectraData
+        // the spectra are from the original search file, e.g. mascot dat
         SpectraData spectraData = null;
         spectraData = new SpectraData();
-        spectraData.setId("prideFile");
-        spectraData.setLocation(prideFile.getAbsolutePath());
-
-        /* TODO: add the fileformat!
-        FileFormat fileFormat = new FileFormat();
-        AbstractParam abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001062");
-        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-        abstractParam.setName("Mascot MGF file");
-        fileFormat.setCvParam((CvParam)abstractParam);
-        spectraData.setFileFormat(fileFormat);
-        */
-
-        SpectrumIDFormat idFormat = new SpectrumIDFormat();
-        AbstractParam abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1000774");
-        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-        abstractParam.setName("multiple peak list nativeID format");
-        idFormat.setCvParam((CvParam)abstractParam);
-        spectraData.setSpectrumIDFormat(idFormat);
-
-        spectraData = compiler.putIntoSpectraDataMap(spectraData);
-
+        spectraData.setId("sourceFile");
 
         // define the spectrumIdentificationProtocol
         SpectrumIdentificationProtocol spectrumIDProtocol =
@@ -125,11 +113,18 @@ public class PrideXMLParser {
 
         // add all additional information
         ParamList additionalInformation = new ParamList();
+        StringBuilder sourceIdBuilder = new StringBuilder();
 
-        parseAdminInformations(prideParser.getAdmin(), additionalInformation);
+        prideParser.getAdditionalParams();
+        additionalInformation.getUserParam().add(
+                MzIdentMLTools.createUserParam("PRIDE XML conversion", null, null));
+
+        parseAdminInformations(prideParser.getAdmin(), additionalInformation,
+                spectraData, sourceIdBuilder);
         parseInstrumentInformations(prideParser.getInstrument(), additionalInformation, compiler);
         parseDataProcessingInformations(prideParser.getDataProcessing(),
                 spectrumIDProtocol, additionalInformation, compiler);
+        parseAdditionalInformations(prideParser.getAdditionalParams(), additionalInformation);
 
         spectrumIDProtocol.setAdditionalSearchParams(additionalInformation);
         file.addSpectrumIdentificationProtocol(spectrumIDProtocol);
@@ -140,13 +135,18 @@ public class PrideXMLParser {
         spectrumID.setSpectrumIdentificationList(null);
         spectrumID.setSpectrumIdentificationProtocol(spectrumIDProtocol);
 
-        if (spectraData != null) {
-                InputSpectra inputSpectra = new InputSpectra();
-                inputSpectra.setSpectraData(spectraData);
-                spectrumID.getInputSpectra().add(inputSpectra);
+        if ((spectraData.getLocation() != null) && !spectraData.getLocation().isEmpty()) {
+            spectraData = compiler.putIntoSpectraDataMap(spectraData);
+
+            InputSpectra inputSpectra = new InputSpectra();
+            inputSpectra.setSpectraData(spectraData);
+            spectrumID.getInputSpectra().add(inputSpectra);
         }
 
         file.addSpectrumIdentification(spectrumID);
+
+
+        String sourceIdBase = sourceIdBuilder.toString();
 
         int accNr = 0;
         int pepNr = 0;
@@ -167,6 +167,9 @@ public class PrideXMLParser {
         // mapping from the enzyme accessions to regular expressions of the enzyme
         Map<String, String> enzymesToRegexes = new HashMap<String, String>();
 
+        // stores the modifications
+        Set<Modification> foundModifications = new HashSet<Modification>();
+
         // go through the identifications (they refer to accessions)
         for (String identifier: prideParser.getIdentIds()) {
             Identification identification = prideParser.getIdentById(identifier);
@@ -185,20 +188,16 @@ public class PrideXMLParser {
                     acc.addDescription(file.getID(), descParam.getValue());
                 }
             }
-
             acc.addFile(file.getID());
 
             // add the searchDB to the accession
-            /* TODO: add database information (only in some PRIDE XMLs)
-            identification.getDatabase();
-            identification.getDatabaseVersion();
-
-            SearchDatabase sDB =
-                    searchDatabaseMap.get(pep.getFastaFilePath());
-            if (sDB != null) {
+            if ((identification.getDatabase() != null) &&
+                    !identification.getDatabase().isEmpty()) {
+                SearchDatabase sDB = createSearchDatabase(
+                        identification.getDatabase(), identification.getDatabaseVersion());
+                sDB = compiler.putIntoSearchDatabasesMap(sDB);
                 acc.addSearchDatabaseRef(sDB.getId());
             }
-            */
 
             for (PeptideItem peptideItem : identification.getPeptideItem()) {
                 String sequence = peptideItem.getSequence();
@@ -211,10 +210,12 @@ public class PrideXMLParser {
                 if (chargeStr != null) {
                     charge = Integer.parseInt(chargeStr);
                 }
-                String sourceID = "spectrum=" + spectrum.getId();
+                String sourceID = sourceIdBase + spectrum.getId();
 
                 Map<Integer, Modification> modifications =
                         transformModifications(sequence, peptideItem.getModificationItem(), compiler.getUnimodParser());
+
+                foundModifications.addAll(modifications.values());
 
                 String psmKey = PeptideSpectrumMatch.getIdentificationKey(
                         psmSetSettings,
@@ -234,14 +235,18 @@ public class PrideXMLParser {
                 if (psm == null) {
                     String mzStr = getValueFromSpectrumPrecursor(spectrumDesc, mzAccessions);
                     Double precursorMZ = null;
+                    double deltaMass = Double.NaN;
                     if (mzStr != null) {
                         precursorMZ = Double.parseDouble(mzStr);
+
+                        double theoreticalMass = MoleculeUtilities.calculateTheoreticalMass(sequence,
+                                getPtmMassesForTheoreticalMass(modifications));
+                        double precursorMass = precursorMZ*charge -
+                                charge*PIAConstants.H_MASS.doubleValue();
+                        deltaMass = precursorMass - theoreticalMass;
                     } else {
                         precursorMZ = Double.NaN;
                     }
-
-                    // TODO: implement some calculation for the deltaMass
-                    double deltaMass = Double.NaN;
 
                     Double rt = null;
                     String rtStr = getValueFromSpectrumPrecursor(spectrumDesc, rtAccessions);
@@ -342,6 +347,11 @@ public class PrideXMLParser {
             }
         }
 
+        // if any modifications were found, add them to the spectrumIDProtocol
+        if (!foundModifications.isEmpty()) {
+            spectrumIDProtocol.setModificationParams(
+                    createModificationParams(foundModifications, compiler.getUnimodParser()));
+        }
 
         // go through all PSMs and delete decoy information (if none were found)
         if (!decoysFound) {
@@ -379,6 +389,7 @@ public class PrideXMLParser {
         }
         return scoreModels;
     }
+
 
     /**
      * Converting the modification Items to intermediate modifications
@@ -430,6 +441,29 @@ public class PrideXMLParser {
         return Collections.emptyMap();
     }
 
+
+    /**
+     * Converting the modification Items to intermediate modifications
+     *
+     * @param sequence
+     * @param modificationItem
+     * @return
+     */
+    private static double[] getPtmMassesForTheoreticalMass(Map<Integer, Modification> modifications) {
+        if(modifications != null && !modifications.isEmpty()) {
+            double[] ptmMasses = new double[modifications.size()+1];
+
+            int i=0;
+            for (Modification mod : modifications.values()) {
+                ptmMasses[i++] = new Double(mod.getMass());
+            }
+
+            // add the ubiquous water loss
+            ptmMasses[i] = PIAConstants.DEHYDRATION_MASS.doubleValue();
+            return ptmMasses;
+        }
+        return new double[]{PIAConstants.DEHYDRATION_MASS.doubleValue()};
+    }
 
 
     /**
@@ -522,7 +556,8 @@ public class PrideXMLParser {
      * @param adminSection
      * @param additionalInformation
      */
-    private static void parseAdminInformations(Admin adminSection, ParamList additionalInformation) {
+    private static void parseAdminInformations(Admin adminSection,
+            ParamList additionalInformation, SpectraData spectraData, StringBuilder sourceIdBase) {
         AbstractParam abstractParam;
 
         // the sample name
@@ -552,23 +587,34 @@ public class PrideXMLParser {
 
         // the original source file
         if (adminSection.getSourceFile() != null) {
-            abstractParam = MzIdentMLTools.createUserParam(
-                    "original file name",
-                    adminSection.getSourceFile().getNameOfFile(),
-                    "string");
-            additionalInformation.getUserParam().add((UserParam)abstractParam);
 
-            abstractParam = MzIdentMLTools.createUserParam(
-                    "original file path",
-                    adminSection.getSourceFile().getPathToFile(),
-                    "string");
-            additionalInformation.getUserParam().add((UserParam)abstractParam);
+            SpectraData specData = spectraDataFromSourceFile(adminSection.getSourceFile(), sourceIdBase);
 
-            abstractParam = MzIdentMLTools.createUserParam(
-                    "original file type",
-                    adminSection.getSourceFile().getFileType(),
-                    "string");
-            additionalInformation.getUserParam().add((UserParam)abstractParam);
+            if (specData != null) {
+                spectraData.setLocation(adminSection.getSourceFile().getPathToFile());
+                spectraData.setName(adminSection.getSourceFile().getNameOfFile());
+                spectraData.setSpectrumIDFormat(specData.getSpectrumIDFormat());
+                spectraData.setFileFormat(specData.getFileFormat());
+            } else {
+                // it's no spectra data -> put into additional search params
+                abstractParam = MzIdentMLTools.createUserParam(
+                        "original file name",
+                        adminSection.getSourceFile().getNameOfFile(),
+                        "string");
+                additionalInformation.getUserParam().add((UserParam)abstractParam);
+
+                abstractParam = MzIdentMLTools.createUserParam(
+                        "original file path",
+                        adminSection.getSourceFile().getPathToFile(),
+                        "string");
+                additionalInformation.getUserParam().add((UserParam)abstractParam);
+
+                abstractParam = MzIdentMLTools.createUserParam(
+                        "original file type",
+                        adminSection.getSourceFile().getFileType(),
+                        "string");
+                additionalInformation.getUserParam().add((UserParam)abstractParam);
+            }
         }
 
         // contact information
@@ -596,6 +642,46 @@ public class PrideXMLParser {
                 additionalInformation.getCvParam().add((CvParam)abstractParam);
             }
         }
+    }
+
+
+    /**
+     * Checks whether the given sourceFile contains a valid fileType and
+     * creates an mzIdentML SpectraData if it is.
+     *
+     * @param fileType
+     * @return
+     */
+    private static SpectraData spectraDataFromSourceFile(SourceFile sourceFile,
+            StringBuilder sourceIdBase) {
+        SpectraData specData = null;
+
+        if (sourceFile.getFileType().equalsIgnoreCase("Mascot dat file")) {
+            specData = new SpectraData();
+
+            FileFormat fileFormat = new FileFormat();
+            CvParam cvParam = MzIdentMLTools.createPSICvParam(
+                    OntologyConstants.MASCOT_DAT_FORMAT,
+                    null
+                    );
+            fileFormat.setCvParam(cvParam);
+            specData.setFileFormat(fileFormat);
+
+            SpectrumIDFormat idFormat = new SpectrumIDFormat();
+            cvParam = MzIdentMLTools.createPSICvParam(
+                    OntologyConstants.MASCOT_QUERY_NUMBER,
+                    null
+                    );
+            idFormat.setCvParam(cvParam);
+            specData.setSpectrumIDFormat(idFormat);
+
+            if (sourceIdBase != null) {
+                sourceIdBase.delete(0, sourceIdBase.length());
+                sourceIdBase.append("query=");
+            }
+        }
+
+        return specData;
     }
 
 
@@ -655,8 +741,8 @@ public class PrideXMLParser {
 
         if (prideSoftware != null) {
             software = prideSoftware.getAnalysisSoftwareRepresentation();
-            software = compiler.putIntoSoftwareMap(software);
             software.setVersion(dataProcessingSection.getSoftware().getVersion());
+            software = compiler.putIntoSoftwareMap(software);
         } else {
             logger.warn("Could not parse software! Please contact developer and ask to implement software '"
                     + dataProcessingSection.getSoftware().getName() + "'");
@@ -709,5 +795,109 @@ public class PrideXMLParser {
                 additionalInformation.getUserParam().add((UserParam)abstractParam);
             }
         }
+    }
+
+
+    /**
+     * Parses the additional section of the PRIDE XML file
+     *
+     * @param adminSection
+     * @param additionalInformation
+     */
+    private static void parseAdditionalInformations(uk.ac.ebi.pride.jaxb.model.Param additionalParams,
+            ParamList additionalInformation) {
+
+        String pxdAccession = null;
+        //<cvParam cvLabel="MS" accession="MS:1001919" name="ProteomeXchange accession number" value="PXD000218"></cvParam>
+        String projectName = null;
+        //<cvParam cvLabel="PRIDE" accession="PRIDE:0000097" name="Project" value="System-level analysis of cancer and stomal cell specific proteomes reveals extensive reprogramming of phosphorylation networks by tumor microenvironment"></cvParam>
+
+        for (uk.ac.ebi.pride.jaxb.model.CvParam param : additionalParams.getCvParam()) {
+            if (param.getAccession().equals(OntologyConstants.PROTEOMEXCHANGE_ACCESSION_NUMBER.getPsiAccession()) ||
+                    param.getAccession().equals(OntologyConstants.PROTEOMEXCHANGE_ACCESSION_NUMBER.getPrideAccession())) {
+                pxdAccession = param.getValue();
+            } else if (param.getAccession().equals(OntologyConstants.PRIDE_PROJECT_NAME.getPrideAccession())) {
+                projectName = param.getValue();
+            }
+        }
+
+        if (pxdAccession != null) {
+            additionalInformation.getCvParam().add(MzIdentMLTools.createPSICvParam(
+                    OntologyConstants.PROTEOMEXCHANGE_ACCESSION_NUMBER,
+                    pxdAccession));
+        }
+        if (projectName != null) {
+            additionalInformation.getCvParam().add(
+                    MzIdentMLTools.createCvParam(
+                            OntologyConstants.PRIDE_PROJECT_NAME.getPrideAccession(),
+                            PRIDETools.getPrideCV(),
+                            OntologyConstants.PRIDE_PROJECT_NAME.getPrideName(),
+                            projectName));
+        }
+    }
+
+
+
+    /**
+     * Creates the {@link ModificationParams} for the
+     * SpectrumIdentificationProtocol using the identified modifications.
+     *
+     * @param modifications
+     * @param unimodParser
+     * @return
+     */
+    private static ModificationParams createModificationParams(Set<Modification> modifications,
+            UnimodParser unimodParser) {
+        ModificationParams modParams = new ModificationParams();
+        List<SearchModification> modList = modParams.getSearchModification();
+
+        for (Modification mod : modifications) {
+            SearchModification searchMod = new SearchModification();
+
+            searchMod.setFixedMod(false);
+            searchMod.setMassDelta(mod.getMass().floatValue());
+            searchMod.getResidues().add(mod.getResidue().toString());
+
+            ModT unimod = unimodParser.getModificationByNameAndMass(
+                    mod.getDescription(),
+                    mod.getMass(),
+                    searchMod.getResidues());
+            if (unimod != null) {
+                CvParam cvParam = new CvParam();
+                cvParam.setAccession("UNIMOD:" + unimod.getRecordId());
+                cvParam.setCv(UnimodParser.getCv());
+                cvParam.setName(unimod.getTitle());
+                searchMod.getCvParam().add(cvParam);
+            }
+
+            modList.add(searchMod);
+        }
+
+        return modParams;
+    }
+
+
+    private static SearchDatabase createSearchDatabase(String name, String version) {
+        SearchDatabase sDB = new SearchDatabase();
+        sDB.setId("prideDB");
+        sDB.setLocation(version);
+        sDB.setName(name);
+        sDB.setVersion(version);
+
+        if (name.contains(".fasta") || version.contains(".fasta")) {
+            // fileformat
+            FileFormat fileFormat = new FileFormat();
+            fileFormat.setCvParam(
+                    MzIdentMLTools.createPSICvParam(OntologyConstants.FASTA_FORMAT,
+                            null));
+            sDB.setFileFormat(fileFormat);
+        }
+
+        // databaseName
+        Param param = new Param();
+        param.setParam(MzIdentMLTools.createUserParam(name, null, "string"));
+        sDB.setDatabaseName(param);
+
+        return sDB;
     }
 }
