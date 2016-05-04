@@ -6,7 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.mpc.pia.intermediate.Modification;
-import de.mpc.pia.tools.PIAConstants;
+import de.mpc.pia.tools.unimod.UnimodParser;
+
 
 public abstract class AbstractFilter {
 
@@ -421,7 +422,7 @@ public abstract class AbstractFilter {
                     try {
                         Double mass = Double.parseDouble((String)getFilterValue());
 
-                        if (Math.abs(mod.getMass() - mass) <= PIAConstants.unimod_mass_tolerance) {
+                        if (Math.abs(mod.getMass() - mass) <= UnimodParser.unimod_mass_tolerance) {
                             has_mass = true;
                             break;
                         }

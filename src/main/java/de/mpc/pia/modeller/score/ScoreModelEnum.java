@@ -7,7 +7,7 @@ import java.util.List;
 
 import de.mpc.pia.modeller.psm.PSMReportItemComparator;
 import de.mpc.pia.modeller.psm.ReportPSMSet;
-import de.mpc.pia.tools.PIAConstants;
+import de.mpc.pia.tools.OntologyConstants;
 
 /**
  * This enumeration registers all {@link ScoreModel}s.
@@ -128,12 +128,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_PSM_LEVEL_COMBINED_FDRSCORE_ACCESSION;
+            return OntologyConstants.PSM_LEVEL_COMBINED_FDRSCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_PSM_LEVEL_COMBINED_FDRSCORE_NAME;
+            return OntologyConstants.PSM_LEVEL_COMBINED_FDRSCORE.getPsiName();
         }
 
         @Override
@@ -180,12 +180,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_PSM_LEVEL_FDRSCORE_ACCESSION;
+            return OntologyConstants.PSM_LEVEL_FDRSCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_PSM_LEVEL_FDRSCORE_NAME;
+            return OntologyConstants.PSM_LEVEL_FDRSCORE.getPsiName();
         }
 
         @Override
@@ -227,12 +227,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_PSM_LEVEL_QVALUE_ACCESSION;
+            return OntologyConstants.PSM_LEVEL_QVALUE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_PSM_LEVEL_QVALUE_NAME;
+            return OntologyConstants.PSM_LEVEL_QVALUE.getPsiName();
         }
 
         @Override
@@ -279,12 +279,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MASCOT_EXPECTATION_VALUE_ACCESSION;
+            return OntologyConstants.MASCOT_EXPECTATION_VALUE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MASCOT_EXPECTATION_VALUE_NAME;
+            return OntologyConstants.MASCOT_EXPECTATION_VALUE.getPsiName();
         }
 
         @Override
@@ -295,7 +295,7 @@ public enum ScoreModelEnum {
         @Override
         public List<String> getAdditionalAccessions(){
             List<String> accessions = new ArrayList<String>();
-            accessions.add(PIAConstants.CV_PRIDE_MASCOT_EXPECTATION_VALUE_ACCESSION);
+            accessions.add(OntologyConstants.MASCOT_EXPECTATION_VALUE.getPrideAccession());
             return accessions;
         }
 
@@ -331,12 +331,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MASCOT_SCORE_ACCESSION;
+            return OntologyConstants.MASCOT_SCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MASCOT_SCORE_NAME;
+            return OntologyConstants.MASCOT_SCORE.getPsiName();
         }
 
         @Override
@@ -347,7 +347,7 @@ public enum ScoreModelEnum {
         @Override
         public List<String> getAdditionalAccessions(){
             List<String> accessions = new ArrayList<String>();
-            accessions.add(PIAConstants.CV_PRIDE_MASCOT_SCORE_ACCESSION);
+            accessions.add(OntologyConstants.MASCOT_SCORE.getPrideAccession());
             return accessions;
         }
 
@@ -395,12 +395,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_SEQUEST_PROBABILITY_ACCESSION;
+            return OntologyConstants.SEQUEST_PROBABILITY.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_SEQUEST_PROBABILITY_NAME;
+            return OntologyConstants.SEQUEST_PROBABILITY.getPsiName();
         }
 
         @Override
@@ -445,12 +445,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_SEQUEST_SP_ACCESSION;
+            return OntologyConstants.SEQUEST_SP.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_SEQUEST_SP_NAME;
+            return OntologyConstants.SEQUEST_SP.getPsiName();
         }
 
         @Override
@@ -461,7 +461,7 @@ public enum ScoreModelEnum {
         @Override
         public List<String> getAdditionalAccessions(){
             List<String> accessions = new ArrayList<String>();
-            accessions.add(PIAConstants.CV_PRIDE_SEQUEST_SP_ACCESSION);
+            accessions.add(OntologyConstants.SEQUEST_SP.getPrideAccession());
             return accessions;
         }
 
@@ -497,12 +497,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_SEQUEST_XCORR_ACCESSION;
+            return OntologyConstants.SEQUEST_XCORR.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_SEQUEST_XCORR_NAME;
+            return OntologyConstants.SEQUEST_XCORR.getPsiName();
         }
 
         @Override
@@ -513,7 +513,7 @@ public enum ScoreModelEnum {
         @Override
         public List<String> getAdditionalAccessions(){
             List<String> accessions = new ArrayList<String>();
-            accessions.add(PIAConstants.CV_PRIDE_SEQUEST_XCORR_ACCESSION);
+            accessions.add(OntologyConstants.SEQUEST_XCORR.getPrideAccession());
             return accessions;
         }
 
@@ -554,12 +554,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_XTANDEM_EXPECT_ACCESSION;
+            return OntologyConstants.XTANDEM_EXPECT.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_XTANDEM_EXPECT_NAME;
+            return OntologyConstants.XTANDEM_EXPECT.getPsiName();
         }
 
         @Override
@@ -570,7 +570,7 @@ public enum ScoreModelEnum {
         @Override
         public List<String> getAdditionalAccessions(){
             List<String> accessions = new ArrayList<String>();
-            accessions.add(PIAConstants.CV_PRIDE_XTANDEM_EXPECT_ACCESSION);
+            accessions.add(OntologyConstants.XTANDEM_EXPECT.getPrideAccession());
             return accessions;
         }
 
@@ -613,12 +613,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_XTANDEM_HYPERSCORE_ACCESSION;
+            return OntologyConstants.XTANDEM_HYPERSCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_XTANDEM_HYPERSCORE_NAME;
+            return OntologyConstants.XTANDEM_HYPERSCORE.getPsiName();
         }
 
         @Override
@@ -629,7 +629,7 @@ public enum ScoreModelEnum {
         @Override
         public List<String> getAdditionalAccessions(){
             List<String> accessions = new ArrayList<String>();
-            accessions.add(PIAConstants.CV_PRIDE_XTANDEM_HYPERSCORE_ACCESSION);
+            accessions.add(OntologyConstants.XTANDEM_HYPERSCORE.getPrideAccession());
             return accessions;
         }
 
@@ -673,12 +673,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MSGF_RAWSCORE_ACCESSION;
+            return OntologyConstants.MSGF_RAWSCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MSGF_RAWSCORE_NAME;
+            return OntologyConstants.MSGF_RAWSCORE.getPsiName();
         }
 
         @Override
@@ -720,12 +720,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MSGF_DENOVOSCORE_ACCESSION;
+            return OntologyConstants.MSGF_DENOVOSCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MSGF_DENOVOSCORE_NAME;
+            return OntologyConstants.MSGF_DENOVOSCORE.getPsiName();
         }
 
         @Override
@@ -767,12 +767,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MSGF_SPECEVALUE_ACCESSION;
+            return OntologyConstants.MSGF_SPECEVALUE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MSGF_SPECEVALUE_NAME;
+            return OntologyConstants.MSGF_SPECEVALUE.getPsiName();
         }
 
         @Override
@@ -821,12 +821,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MSGF_EVALUE_ACCESSION;
+            return OntologyConstants.MSGF_EVALUE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MSGF_EVALUE_NAME;
+            return OntologyConstants.MSGF_EVALUE.getPsiName();
         }
 
         @Override
@@ -873,12 +873,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_AMANDA_SCORE_ACCESSION;
+            return OntologyConstants.AMANDA_SCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_AMANDA_SCORE_NAME;
+            return OntologyConstants.AMANDA_SCORE.getPsiName();
         }
 
         @Override
@@ -929,12 +929,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MYRIMATCH_MVH_ACCESSION;
+            return OntologyConstants.MYRIMATCH_MVH.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MYRIMATCH_MVH_NAME;
+            return OntologyConstants.MYRIMATCH_MVH.getPsiName();
         }
 
         @Override
@@ -1225,20 +1225,17 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION;
+            return OntologyConstants.PIA_PROTEIN_SCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_PIA_PROTEIN_SCORE_NAME;
+            return OntologyConstants.PIA_PROTEIN_SCORE.getPsiName();
         }
 
         @Override
         public Boolean higherScoreBetter() {
-            System.err.println("higherScoreBetter() is not implemented for '"
-                    + getName() +
-                    "' as it depends on the scores and scoring method used in the protein inference");
-            return null;
+            return true;
         }
 
         @Override

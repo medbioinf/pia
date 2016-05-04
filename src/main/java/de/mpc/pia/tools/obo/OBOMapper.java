@@ -15,6 +15,9 @@ import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
 import org.biojava.nbio.ontology.io.OboParser;
 
+import de.mpc.pia.tools.OntologyConstants;
+import de.mpc.pia.tools.PIAConstants;
+
 
 public class OBOMapper {
 
@@ -27,17 +30,12 @@ public class OBOMapper {
     /** the actual ontology in the OBO file */
     private Ontology shippedOntology;
 
-    /** the URL to the current OBO file */
-    public final String urlToOBO = "https://raw.githubusercontent.com/HUPO-PSI/psi-ms-CV/master/psi-ms.obo";
-
-    public static final String obo_cleavageAgentNameID = "MS:1001045";
+    // some statics
     public static final String obo_relationship = "relationship";
     public static final String obo_is_a = "is_a";
     public static final String obo_has_regexp = "has_regexp";
     public static final String obo_has_order_higherscorebetter = "has_order MS:1002108";
     public static final String obo_has_order_lowerscorebetter = "has_order MS:1002109";
-    public static final String obo_spectrumTitleID = "MS:1000796";
-    public static final String obo_psmScoreID = "MS:1001143";
 
     /**
      * Constructor for the OBOMapper. Uses the online OBO file (if accessible)
@@ -70,7 +68,7 @@ public class OBOMapper {
 
             // get the internet ontology
             if (useOnline) {
-                inStream = new URL(urlToOBO).openStream();
+                inStream = new URL(OntologyConstants.PSI_MS_OBO_URL).openStream();
 
                 parser = new OboParser();
                 oboFile = new BufferedReader(new InputStreamReader(inStream));

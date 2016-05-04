@@ -71,6 +71,7 @@ import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.modeller.score.comparator.RankCalculator;
 import de.mpc.pia.tools.MzIdentMLTools;
+import de.mpc.pia.tools.OntologyConstants;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.unimod.UnimodParser;
 
@@ -1001,10 +1002,9 @@ public class ProteinModeller {
 
         for (SpectrumIdentificationList sil : silMap.values()) {
             // the "intermediate PSM list" flag, the combined list below is always the final
-            CvParam tempCvParam = new CvParam();
-            tempCvParam.setAccession(PIAConstants.CV_INTERMEDIATE_PSM_LIST_ACCESSION);
-            tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
-            tempCvParam.setName(PIAConstants.CV_INTERMEDIATE_PSM_LIST_NAME);
+            CvParam tempCvParam = MzIdentMLTools.createPSICvParam(
+                    OntologyConstants.INTERMEDIATE_PSM_LIST,
+                    null);
             sil.getCvParam().add(tempCvParam);
         }
 
@@ -1026,46 +1026,37 @@ public class ProteinModeller {
         // TODO: use CVs for all the userParams below
 
         // the used inference method
-        CvParam cvParam = new CvParam();
-        cvParam.setAccession(PIAConstants.CV_PIA_PROTEIN_INFERENCE_ACCESSION);
-        cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-        cvParam.setName(PIAConstants.CV_PIA_PROTEIN_INFERENCE_NAME);
-        cvParam.setValue(getAppliedProteinInference().getShortName());
+        CvParam cvParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.PIA_PROTEIN_INFERENCE,
+                getAppliedProteinInference().getShortName());
         proteinDetectionProtocol.getAnalysisParams().getCvParam().add(cvParam);
 
         // inference filters
         for (AbstractFilter filter
                 : getAppliedProteinInference().getFilters()) {
-            cvParam = new CvParam();
-            cvParam.setAccession(PIAConstants.CV_PIA_PROTEIN_INFERENCE_FILTER_ACCESSION);
-            cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-            cvParam.setName(PIAConstants.CV_PIA_PROTEIN_INFERENCE_FILTER_NAME);
-            cvParam.setValue(filter.toString());
+            cvParam = MzIdentMLTools.createPSICvParam(
+                    OntologyConstants.PIA_PROTEIN_INFERENCE_FILTER,
+                    filter.toString());
+
             proteinDetectionProtocol.getAnalysisParams().getCvParam().add(cvParam);
         }
 
         // scoring method
-        cvParam = new CvParam();
-        cvParam.setAccession(PIAConstants.CV_PIA_PROTEIN_INFERENCE_SCORING_ACCESSION);
-        cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-        cvParam.setName(PIAConstants.CV_PIA_PROTEIN_INFERENCE_SCORING_NAME);
-        cvParam.setValue(getAppliedProteinInference().getScoring().getShortName());
+        cvParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.PIA_PROTEIN_INFERENCE_SCORING,
+                getAppliedProteinInference().getScoring().getShortName());
         proteinDetectionProtocol.getAnalysisParams().getCvParam().add(cvParam);
 
         // score used for scoring
-        cvParam = new CvParam();
-        cvParam.setAccession(PIAConstants.CV_PIA_PROTEIN_INFERENCE_USED_SCORE_ACCESSION);
-        cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-        cvParam.setName(PIAConstants.CV_PIA_PROTEIN_INFERENCE_USED_SCORE_NAME);
-        cvParam.setValue(getAppliedProteinInference().getScoring().getScoreSetting().getValue());
+        cvParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.PIA_PROTEIN_INFERENCE_USED_SCORE,
+                getAppliedProteinInference().getScoring().getScoreSetting().getValue());
         proteinDetectionProtocol.getAnalysisParams().getCvParam().add(cvParam);
 
         // PSMs used for scoring
-        cvParam = new CvParam();
-        cvParam.setAccession(PIAConstants.CV_PIA_PROTEIN_INFERENCE_USED_PSMS_ACCESSION);
-        cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-        cvParam.setName(PIAConstants.CV_PIA_PROTEIN_INFERENCE_USED_PSMS_NAME);
-        cvParam.setValue(getAppliedProteinInference().getScoring().getPSMForScoringSetting().getValue());
+        cvParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.PIA_PROTEIN_INFERENCE_USED_PSMS,
+                getAppliedProteinInference().getScoring().getPSMForScoringSetting().getValue());
         proteinDetectionProtocol.getAnalysisParams().getCvParam().add(cvParam);
 
         proteinDetectionProtocol.setThreshold(new ParamList());
@@ -1073,29 +1064,25 @@ public class ProteinModeller {
             for (AbstractFilter filter : getReportFilters()) {
                 if (RegisteredFilters.PROTEIN_SCORE_FILTER.getShortName().equals(filter.getShortName())) {
                     // if score filters are set, they are the threshold
-                    cvParam = new CvParam();
-                    cvParam.setAccession(PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION);
-                    cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                    cvParam.setName(PIAConstants.CV_PIA_PROTEIN_SCORE_NAME);
-                    cvParam.setValue(filter.getFilterValue().toString());
+                    cvParam = MzIdentMLTools.createPSICvParam(
+                            OntologyConstants.PIA_PROTEIN_SCORE,
+                            filter.getFilterValue().toString());
                     proteinDetectionProtocol.getThreshold().getCvParam().add(cvParam);
                 } else {
                     // all other report filters are AnalysisParams
-                    cvParam = new CvParam();
-                    cvParam.setAccession(PIAConstants.CV_PIA_FILTER_ACCESSION);
-                    cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                    cvParam.setName(PIAConstants.CV_PIA_FILTER_NAME);
-                    cvParam.setValue(filter.toString());
+                    cvParam = MzIdentMLTools.createPSICvParam(
+                            OntologyConstants.PIA_FILTER,
+                            filter.toString());
                     proteinDetectionProtocol.getAnalysisParams().getCvParam().add(cvParam);
                 }
             }
         }
         if ((proteinDetectionProtocol.getThreshold().getCvParam().size() < 1) &&
                 (proteinDetectionProtocol.getThreshold().getUserParam().size() < 1)) {
-            cvParam = new CvParam();
-            cvParam.setAccession("MS:1001494");
-            cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-            cvParam.setName("no threshold");
+            // no threshold was defined
+            cvParam = MzIdentMLTools.createPSICvParam(
+                    OntologyConstants.NO_THRESHOLD,
+                    null);
             proteinDetectionProtocol.getThreshold().getCvParam().add(cvParam);
         }
 
@@ -1126,18 +1113,14 @@ public class ProteinModeller {
                 thresholdPassingPAGcount++;
             }
 
-            cvParam = new CvParam();
-            cvParam.setAccession(PIAConstants.CV_PROTEIN_GROUP_PASSES_THRESHOLD_ACCESSION);
-            cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-            cvParam.setName(PIAConstants.CV_PROTEIN_GROUP_PASSES_THRESHOLD_NAME);
-            cvParam.setValue(passThreshold.toString());
+            cvParam = MzIdentMLTools.createPSICvParam(
+                    OntologyConstants.PROTEIN_GROUP_PASSES_THRESHOLD,
+                    passThreshold.toString());
             pag.getCvParam().add(cvParam);
 
-            cvParam = new CvParam();
-            cvParam.setAccession(PIAConstants.CV_CLUSTER_IDENTIFIER_ACCESSION);
-            cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-            cvParam.setName(PIAConstants.CV_CLUSTER_IDENTIFIER_NAME);
-            cvParam.setValue(Long.toString(protein.getAccessions().get(0).getGroup().getTreeID()));
+            cvParam = MzIdentMLTools.createPSICvParam(
+                    OntologyConstants.CLUSTER_IDENTIFIER,
+                    Long.toString(protein.getAccessions().get(0).getGroup().getTreeID()));
             pag.getCvParam().add(cvParam);
 
             StringBuilder leadingPDHids = new StringBuilder();
@@ -1148,10 +1131,9 @@ public class ProteinModeller {
                                 sequenceMap, peptideMap, pepEvidenceMap,
                                 combinedSpecIdItemMap, combinedSpecIdResMap);
 
-                cvParam = new CvParam();
-                cvParam.setAccession(PIAConstants.CV_LEADING_PROTEIN_ACCESSION);
-                cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                cvParam.setName(PIAConstants.CV_LEADING_PROTEIN_NAME);
+                cvParam = MzIdentMLTools.createPSICvParam(
+                        OntologyConstants.LEADING_PROTEIN,
+                        null);
                 pdh.getCvParam().add(cvParam);
 
                 leadingPDHids.append(pdh.getId());
@@ -1174,11 +1156,9 @@ public class ProteinModeller {
                         }
                     }
 
-                    cvParam = new CvParam();
-                    cvParam.setAccession(PIAConstants.CV_SEQUENCE_SAME_SET_PROTEIN_ACCESSION);
-                    cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                    cvParam.setName(PIAConstants.CV_SEQUENCE_SAME_SET_PROTEIN_NAME);
-                    cvParam.setValue(otherPDHs.toString().trim());
+                    cvParam = MzIdentMLTools.createPSICvParam(
+                            OntologyConstants.SEQUENCE_SAME_SET_PROTEIN,
+                            otherPDHs.toString().trim());
                     pdh.getCvParam().add(cvParam);
                 }
             }
@@ -1195,17 +1175,14 @@ public class ProteinModeller {
                                     sequenceMap, peptideMap, pepEvidenceMap,
                                     combinedSpecIdItemMap, combinedSpecIdResMap);
 
-                    cvParam = new CvParam();
-                    cvParam.setAccession(PIAConstants.CV_NON_LEADING_PROTEIN_ACCESSION);
-                    cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                    cvParam.setName(PIAConstants.CV_NON_LEADING_PROTEIN_NAME);
+                    cvParam = MzIdentMLTools.createPSICvParam(
+                            OntologyConstants.NON_LEADING_PROTEIN,
+                            null);
                     pdh.getCvParam().add(cvParam);
 
-                    cvParam = new CvParam();
-                    cvParam.setAccession(PIAConstants.CV_SEQUENCE_SUB_SET_PROTEIN_ACCESSION);
-                    cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                    cvParam.setName(PIAConstants.CV_SEQUENCE_SUB_SET_PROTEIN_NAME);
-                    cvParam.setValue(leadingPDHids.toString().trim());
+                    cvParam = MzIdentMLTools.createPSICvParam(
+                            OntologyConstants.SEQUENCE_SUB_SET_PROTEIN,
+                            leadingPDHids.toString().trim());
                     pdh.getCvParam().add(cvParam);
 
                     pag.getProteinDetectionHypothesis().add(pdh);
@@ -1226,22 +1203,18 @@ public class ProteinModeller {
                             }
                         }
 
-                        cvParam = new CvParam();
-                        cvParam.setAccession(PIAConstants.CV_SEQUENCE_SAME_SET_PROTEIN_ACCESSION);
-                        cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                        cvParam.setName(PIAConstants.CV_SEQUENCE_SAME_SET_PROTEIN_NAME);
-                        cvParam.setValue(otherPDHs.toString().trim());
+                        cvParam = MzIdentMLTools.createPSICvParam(
+                                OntologyConstants.SEQUENCE_SAME_SET_PROTEIN,
+                                otherPDHs.toString().trim());
                         pdh.getCvParam().add(cvParam);
                     }
                 }
             }
         }
 
-        cvParam = new CvParam();
-        cvParam.setAccession(PIAConstants.CV_COUNT_OF_IDENTIFIED_PROTEINS_ACCESSION);
-        cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-        cvParam.setName(PIAConstants.CV_COUNT_OF_IDENTIFIED_PROTEINS_NAME);
-        cvParam.setValue(thresholdPassingPAGcount.toString());
+        cvParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.COUNT_OF_IDENTIFIED_PROTEINS,
+                thresholdPassingPAGcount.toString());
         proteinDetectionList.getCvParam().add(cvParam);
 
         // create the combinedSil
@@ -1253,11 +1226,10 @@ public class ProteinModeller {
         }
 
         // the "final PSM list" flag
-        CvParam tempCvParam = new CvParam();
-        tempCvParam.setAccession(PIAConstants.CV_FINAL_PSM_LIST_ACCESSION);
-        tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
-        tempCvParam.setName(PIAConstants.CV_FINAL_PSM_LIST_NAME);
-        combinedSil.getCvParam().add(tempCvParam);
+        cvParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.FINAL_PSM_LIST,
+                null);
+        combinedSil.getCvParam().add(cvParam);
 
         silMap.put(0L, combinedSil);
         combinedSpecIdItemMap = null;
@@ -1468,11 +1440,9 @@ public class ProteinModeller {
             }
         }
 
-        CvParam cvParam = new CvParam();
-        cvParam.setAccession(PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION);
-        cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-        cvParam.setName(PIAConstants.CV_PIA_PROTEIN_SCORE_NAME);
-        cvParam.setValue(protein.getScore().toString());
+        CvParam cvParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.PIA_PROTEIN_SCORE,
+                protein.getScore().toString());
         pdh.getCvParam().add(cvParam);
 
         return pdh;
@@ -1508,9 +1478,9 @@ public class ProteinModeller {
 
         // add PIA to the list of used softwares
         int piaSoftwareNr = mtd.getSoftwareMap().size() + 1;
-        CVParam piaParam = new CVParam("MS",
-                PIAConstants.CV_PIA_ACCESSION,
-                PIAConstants.CV_PIA_NAME,
+        CVParam piaParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                OntologyConstants.PIA.getPsiAccession(),
+                OntologyConstants.PIA.getPsiName(),
                 PIAConstants.version);
         mtd.addSoftwareParam(piaSoftwareNr, piaParam);
 
@@ -1520,7 +1490,7 @@ public class ProteinModeller {
 
         if (psmModeller.isCombinedFDRScoreCalculated()) {
             mtd.addSoftwareSetting(piaSoftwareNr,
-                    PIAConstants.CV_PSM_LEVEL_COMBINED_FDRSCORE_NAME +
+                    OntologyConstants.PSM_LEVEL_COMBINED_FDRSCORE.getPsiName() +
                     " was calculated");
 
             for (Map.Entry<Long, FDRData> fdrIt
@@ -1542,9 +1512,9 @@ public class ProteinModeller {
         }
 
         // add the PIA protein score
-        mtd.addProteinSearchEngineScoreParam(1, new CVParam("MS",
-                PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION,
-                PIAConstants.CV_PIA_PROTEIN_SCORE_NAME,
+        mtd.addProteinSearchEngineScoreParam(1, new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                OntologyConstants.PIA_PROTEIN_SCORE.getPsiAccession(),
+                OntologyConstants.PIA_PROTEIN_SCORE.getPsiName(),
                 null));
 
         // write out the header
@@ -1623,11 +1593,11 @@ public class ProteinModeller {
                     msRunIt.getValue());
         }
 
-        // add the PIA score
+        // add the PIA protein score
         CVParam proteinScoreColumnParam =
-                new CVParam(PIAConstants.CV_PSI_MS_LABEL,
-                        PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION,
-                        PIAConstants.CV_PIA_PROTEIN_SCORE_NAME,
+                new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                        OntologyConstants.PIA_PROTEIN_SCORE.getPsiAccession(),
+                        OntologyConstants.PIA_PROTEIN_SCORE.getPsiName(),
                         null);
         columnFactory.addOptionalColumn(proteinScoreColumnParam, Double.class);
 
@@ -1637,15 +1607,15 @@ public class ProteinModeller {
         if (fdrData.getNrItems() != null) {
             columnFactory.addReliabilityOptionalColumn();
 
-            fdrColumnParam = new CVParam(PIAConstants.CV_PSI_MS_LABEL,
-                    "MS:1002364",
-                    "protein-level local FDR",
+            fdrColumnParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                    OntologyConstants.PROTEIN_LEVEL_LOCAL_FDR.getPsiAccession(),
+                    OntologyConstants.PROTEIN_LEVEL_LOCAL_FDR.getPsiName(),
                     null);
             columnFactory.addOptionalColumn(fdrColumnParam, Double.class);
 
-            qvalueColumnParam = new CVParam(PIAConstants.CV_PSI_MS_LABEL,
-                    "MS:1002373",
-                    "protein group-level q-value",
+            qvalueColumnParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                    OntologyConstants.PROTEIN_GROUP_LEVEL_Q_VALUE.getPsiAccession(),
+                    OntologyConstants.PROTEIN_GROUP_LEVEL_Q_VALUE.getPsiName(),
                     null);
             columnFactory.addOptionalColumn(qvalueColumnParam, Double.class);
         }

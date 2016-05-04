@@ -49,8 +49,10 @@ import de.mpc.pia.modeller.IdentificationKeySettings;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.MzIdentMLTools;
+import de.mpc.pia.tools.OntologyConstants;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
+import de.mpc.pia.tools.unimod.UnimodParser;
 import de.proteinms.xtandemparser.parser.XTandemParser;
 import de.proteinms.xtandemparser.xtandem.Domain;
 import de.proteinms.xtandemparser.xtandem.InputParams;
@@ -64,7 +66,7 @@ import de.proteinms.xtandemparser.xtandem.XTandemFile;
 /**
  * This class parses the data from a mzIdentML file for a given
  * {@link PIACompiler}.<br/>
- * 
+ *
  * @author julian
  *
  */
@@ -89,7 +91,7 @@ public class TandemFileParser {
     /**
      * Parses the data from an mzIdentML file given by its name into the given
      * {@link PIACompiler}.
-     * 
+     *
      * @param fileName name of the XTandem XML result file
      * @param compiler the PIACompiler
      * @param rtMapFileName maps from the spectrum ID to the retentionTime
@@ -128,18 +130,13 @@ public class TandemFileParser {
             }
         }
 
-
-        Cv psiMS = new Cv();
-        psiMS.setId("PSI-MS");
-        psiMS.setFullName("PSI-MS");
-        psiMS.setUri("http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
-
+        Cv psiMS = MzIdentMLTools.getCvPSIMS();
 
         // TODO: test for multiple databases!
         Map<String, SearchDatabase> searchDatabaseMap = // maps from the "sequence source" to the SearchDatabse object
                 new HashMap<String, SearchDatabase>();
         Param param;
-        AbstractParam abstractParam; 
+        AbstractParam abstractParam;
         FileFormat fileFormat;
 
         /* tandemParser.getPerformParamMap()
@@ -516,7 +513,7 @@ public class TandemFileParser {
 
         spectrumIDProtocol.setParentTolerance(tolerance);
 
-        /* TODO: tandem has the "output, maximum valid expectation value" and 
+        /* TODO: tandem has the "output, maximum valid expectation value" and
          * "output, maximum valid protein expectation" set, this is a threshold...
 		// no threshold set, take all PSMs from the file
 		paramList = new ParamList();
@@ -629,7 +626,7 @@ public class TandemFileParser {
             for (de.proteinms.xtandemparser.xtandem.Peptide pep : pepList) {
 
                 for (Domain domain : pep.getDomains()) {
-                    // a domain is a PSM in a protein, therefore this may be already in the compiler 
+                    // a domain is a PSM in a protein, therefore this may be already in the compiler
                     String sequence = domain.getDomainSequence();
 
                     // to check, whether the PSM is already there, the modifications
@@ -712,7 +709,7 @@ public class TandemFileParser {
                         // if the PSM is already in the compiler, the peptide must be there as well
                         peptide = compiler.getPeptide(sequence);
                         if (peptide == null) {
-                            logger.error("The peptide " + sequence + 
+                            logger.error("The peptide " + sequence +
                                     " was not found in the compiler!");
                             continue;
                         }
@@ -755,7 +752,7 @@ public class TandemFileParser {
                         if (acc.getDbSequence() != null)  {
                             if (!proteinSequence.equals(acc.getDbSequence())) {
                                 logger.warn("Different DBSequences found for same Accession, this is not suported!\n" +
-                                        "\t Accession: " + acc.getAccession() + 
+                                        "\t Accession: " + acc.getAccession() +
                                         "\t'" + proteinSequence + "'\n" +
                                         "\t'" + acc.getDbSequence() + "'");
                             }
@@ -814,7 +811,7 @@ public class TandemFileParser {
     /**
      * Adds the modifications in the tandem encoded strParam to the
      * {@link ModificationParams}.
-     * 
+     *
      * @param strParam modifications encoded as specified by the X!Tandem API
      * @param isFixed whether these are fixed or potential modifications
      * @param modParams the list of {@link SearchModification}s
@@ -843,15 +840,15 @@ public class TandemFileParser {
                     if (values[1].equals("[") || values[1].equals("]")) {
                         searchMod.getResidues().add(".");
 
-                        CvParam  specificity = new CvParam();
-                        specificity.setCv(psiMS);
+                        OntologyConstants modConstant;
                         if (values[1].equals("[")) {
-                            specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION);
-                            specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_NAME);
+                            modConstant = OntologyConstants.MODIFICATION_SPECIFICITY_PEP_N_TERM;
                         } else {
-                            specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION);
-                            specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_NAME);
+                            modConstant = OntologyConstants.MODIFICATION_SPECIFICITY_PEP_C_TERM;
                         }
+
+                        CvParam specificity = MzIdentMLTools.createPSICvParam(modConstant, null);
+
                         SpecificityRules specRules = new SpecificityRules();
                         specRules.getCvParam().add(specificity);
                         searchMod.getSpecificityRules().add(specRules);
@@ -869,7 +866,7 @@ public class TandemFileParser {
     /**
      * Create a List of {@link Modification}s with the given data from the
      * tandem file
-     * 
+     *
      * @param mods
      * @param peptideSequence
      * @param domainStart
@@ -905,8 +902,7 @@ public class TandemFileParser {
                         for (SpecificityRules rule
                                 : searchMod.getSpecificityRules()) {
                             for (CvParam cvParam : rule.getCvParam()) {
-                                if (cvParam.getAccession().equals(
-                                        PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION)) {
+                                if (cvParam.getAccession().equals(OntologyConstants.MODIFICATION_SPECIFICITY_PEP_N_TERM.getPsiAccession())) {
                                     loc = 0;
                                     break;
                                 }
@@ -916,7 +912,7 @@ public class TandemFileParser {
                 }
 
                 // the quick acetyl and quick pyrolidone are also n-terminal
-                if (Math.abs(mod.getMass() - 42.010565) < PIAConstants.unimod_mass_tolerance) {
+                if (Math.abs(mod.getMass() - 42.010565) < UnimodParser.unimod_mass_tolerance) {
                     // acetylation
                     Modification modification = new Modification('.',
                             42.0105647,
@@ -924,8 +920,8 @@ public class TandemFileParser {
                             "UNIMOD:1");
                     modifications.put(0, modification);
                     continue;
-                } else if ((Math.abs(mod.getMass() + 18.010565) < PIAConstants.unimod_mass_tolerance) ||
-                        (Math.abs(mod.getMass() + 17.026549) < PIAConstants.unimod_mass_tolerance)) {
+                } else if ((Math.abs(mod.getMass() + 18.010565) < UnimodParser.unimod_mass_tolerance) ||
+                        (Math.abs(mod.getMass() + 17.026549) < UnimodParser.unimod_mass_tolerance)) {
                     // pyrolidone
                     loc = 0;
                 }
@@ -939,7 +935,7 @@ public class TandemFileParser {
                         for (SpecificityRules rule
                                 : searchMod.getSpecificityRules()) {
                             for (CvParam cvParam : rule.getCvParam()) {
-                                if (cvParam.getAccession().equals(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION)) {
+                                if (cvParam.getAccession().equals(OntologyConstants.MODIFICATION_SPECIFICITY_PEP_C_TERM.getPsiAccession())) {
                                     loc = peptideSequence.length()+1;
                                     break;
                                 }

@@ -6,6 +6,7 @@ import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.MzIdentMLTools;
+import de.mpc.pia.tools.OntologyConstants;
 import de.mpc.pia.tools.obo.OBOMapper;
 import de.mpc.pia.tools.pride.PRIDETools;
 
@@ -270,7 +271,7 @@ public class MzTabParser {
                                 Set<Triple> tripleSet = compiler.getOBOMapper().getTriples(oboTerm, null, null);
                                 for (Triple triple : tripleSet) {
                                     if (triple.getPredicate().getName().equals(OBOMapper.obo_is_a) &&
-                                            triple.getObject().getName().equals(OBOMapper.obo_psmScoreID)) {
+                                            triple.getObject().getName().equals(OntologyConstants.SEARCH_ENGINE_PSM_SCORE.getPsiAccession())) {
                                         piaScore = new ScoreModel(mzTabPSM.getSearchEngineScore(searchEngineScoreKey), cvAccession, param.getName());
                                         scores.add(piaScore);
                                     }

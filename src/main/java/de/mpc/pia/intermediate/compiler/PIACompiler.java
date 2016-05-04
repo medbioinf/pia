@@ -429,7 +429,6 @@ public class PIACompiler {
     public AnalysisSoftware putIntoSoftwareMap(AnalysisSoftware software) {
         // go through the list of software and look for an equal software
         for (Map.Entry<String, AnalysisSoftware> swIt : softwareMap.entrySet()) {
-
             if (MzIdentMLTools.paramsEqual(software.getSoftwareName(),
                     swIt.getValue().getSoftwareName())) {
                 boolean equal = true;
@@ -443,7 +442,7 @@ public class PIACompiler {
                 equal &= PIATools.bothNullOrEqual(swIt.getValue().getVersion(),
                         software.getVersion());
 
-                // TODO: maybe check for the contact as well... for now, assume if everythin is equal, the contact does not matter
+                // TODO: maybe check for the contact as well... for now, assume if everything is equal, the contact does not matter
 
                 equal &= PIATools.bothNullOrEqual(swIt.getValue().getCustomizations(),
                         software.getCustomizations());

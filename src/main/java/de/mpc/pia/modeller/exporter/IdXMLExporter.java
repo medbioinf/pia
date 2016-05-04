@@ -37,6 +37,7 @@ import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.settings.Setting;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.CleavageAgent;
+import de.mpc.pia.tools.OntologyConstants;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.openms.jaxb.DigestionEnzyme;
 import de.mpc.pia.tools.openms.jaxb.MassType;
@@ -214,7 +215,7 @@ public class IdXMLExporter {
             searchEngine = "PIA";
             searchEngineVersion = PIAConstants.version;
 
-            proteinScore = PIAConstants.CV_PIA_PROTEIN_SCORE_NAME;
+            proteinScore = OntologyConstants.PIA_PROTEIN_SCORE.getPsiName();
             proteinScoreHigherBetter = true;
             proteinScoreSignificanceThreshold = 0.0;    // TODO: this might be set by filters
         } else {

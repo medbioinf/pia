@@ -15,9 +15,12 @@ import uk.ac.ebi.jmzidml.model.mzidml.Param;
  */
 public enum PrideSoftwareList {
 
-    MATRIX_SCIENCE_MASCOT("Matrix Science Mascot", "Mascot", "MS:1001207", "http://www.matrixscience.com/"),
+    MATRIX_SCIENCE_MASCOT("mascot", "Matrix Science Mascot", "Mascot", "MS:1001207", "http://www.matrixscience.com/"),
 
     ;
+
+    /** tha name, that will be put into the software element of mzIdentML */
+    private String shortName;
 
     /** the name in the PRIDE XML format */
     private String prideName;
@@ -35,13 +38,16 @@ public enum PrideSoftwareList {
     /**
      * basic constructor
      *
+     * @param shortName short description, used for the software element name in
+     * mzIdentML
      * @param prideName name in PRIDE XML files, must not be null
      * @param psiName name in PSI OBO, must not be null
      * @param psiAccession accession in PSI OBO, must not be null
      * @param uri URI to the software, may be null
      */
-    private PrideSoftwareList(String prideName, String psiName,
+    private PrideSoftwareList(String shortName, String prideName, String psiName,
             String psiAccession, String uri) {
+        this.shortName = shortName;
         this.prideName = prideName;
         this.psiName = psiName;
         this.psiAccession = psiAccession;
@@ -76,8 +82,8 @@ public enum PrideSoftwareList {
     public AnalysisSoftware getAnalysisSoftwareRepresentation() {
         AnalysisSoftware software = new AnalysisSoftware();
 
-        software.setId("prideSoftware");
-        software.setName("prideSoftware");
+        software.setId(shortName);
+        software.setName(shortName);
 
         if (uri != null) {
             software.setUri(uri);
