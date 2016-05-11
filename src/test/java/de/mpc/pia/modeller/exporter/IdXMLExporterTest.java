@@ -63,6 +63,7 @@ public class IdXMLExporterTest {
         // simple exporting
         IdXMLExporter exporter = new IdXMLExporter(piaModeller);
         File exportFile = File.createTempFile("pia_idXmlExportTest", ".idXML");
-        exporter.exportToIdXML(0L, exportFile, true);
+
+        assertTrue(exporter.exportToIdXML(0L, exportFile, true));
     }
 }
