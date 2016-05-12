@@ -36,7 +36,9 @@ import de.mpc.pia.modeller.protein.ProteinExecuteCommands;
 import de.mpc.pia.modeller.psm.PSMExecuteCommands;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
+import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 
 
 /**
@@ -398,7 +400,7 @@ public class PIAModeller {
 
 
     /**
-     * Getter for the Searchdatabases of the intermediate file.<br/>
+     * Getter for the {@link SearchDatabase}s of the intermediate file.<br/>
      * If no intermediate file is given, returns an empty map.
      *
      * @return
@@ -408,6 +410,36 @@ public class PIAModeller {
             return intermediateHandler.getSearchDatabase();
         } else {
             return new HashMap<String, SearchDatabase>(0);
+        }
+    }
+
+
+    /**
+     * Getter for the {@link AnalysisSoftware}s of the intermediate file.<br/>
+     * If no intermediate file is given, returns an empty map.
+     *
+     * @return
+     */
+    public Map<String, AnalysisSoftware> getAnalysisSoftwares() {
+        if (intermediateHandler != null) {
+            return intermediateHandler.getAnalysisSoftware();
+        } else {
+            return new HashMap<String, AnalysisSoftware>(0);
+        }
+    }
+
+
+    /**
+     * Getter for the {@link SpectraData} of the intermediate file.<br/>
+     * If no intermediate file is given, returns an empty map.
+     *
+     * @return
+     */
+    public Map<String, SpectraData> getSpectraData() {
+        if (intermediateHandler != null) {
+            return intermediateHandler.getSpectraData();
+        } else {
+            return new HashMap<String, SpectraData>(0);
         }
     }
 

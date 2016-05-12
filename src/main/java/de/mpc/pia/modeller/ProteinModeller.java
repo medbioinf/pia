@@ -986,6 +986,8 @@ public class ProteinModeller {
         Map<String, Peptide> peptideMap = new HashMap<String, Peptide>();
         Map<String, PeptideEvidence> pepEvidenceMap =
                 new HashMap<String, PeptideEvidence>();
+
+        // TODO: if only one SIL is ever reported, get rid of the map here!
         Map<Long, SpectrumIdentificationList> silMap =
                 new HashMap<Long, SpectrumIdentificationList>();
         AnalysisSoftware piaAnalysisSoftware = new AnalysisSoftware();
@@ -998,8 +1000,9 @@ public class ProteinModeller {
                 sequenceMap, peptideMap, pepEvidenceMap, silMap,
                 piaAnalysisSoftware, inputs,
                 analysisProtocolCollection, analysisCollection,
-                0L, false);
+                0L, false, true);
 
+        /*
         for (SpectrumIdentificationList sil : silMap.values()) {
             // the "intermediate PSM list" flag, the combined list below is always the final
             CvParam tempCvParam = MzIdentMLTools.createPSICvParam(
@@ -1007,6 +1010,7 @@ public class ProteinModeller {
                     null);
             sil.getCvParam().add(tempCvParam);
         }
+        */
 
         // create the ProteinDetectionProtocol for PIAs protein inference
         ProteinDetectionProtocol proteinDetectionProtocol =
@@ -1220,8 +1224,7 @@ public class ProteinModeller {
         // create the combinedSil
         SpectrumIdentificationList combinedSil = new SpectrumIdentificationList();
         combinedSil.setId("combined_inference_PSMs");
-        for (SpectrumIdentificationResult idResult
-                : combinedSpecIdResMap.values()) {
+        for (SpectrumIdentificationResult idResult : combinedSpecIdResMap.values()) {
             combinedSil.getSpectrumIdentificationResult().add(idResult);
         }
 
@@ -1242,6 +1245,7 @@ public class ProteinModeller {
 
         analysisCollection.getSpectrumIdentification().add(combiningId);
         combiningId.setSpectrumIdentificationList(combinedSil);
+        // TODO: set the "maximal/widest" parameters for the combiningId (all mods, widest tolerances... see doc)
 
         analysisProtocolCollection.getSpectrumIdentificationProtocol()
         .add(combiningId.getSpectrumIdentificationProtocol());
@@ -1272,6 +1276,7 @@ public class ProteinModeller {
         writer.write(m.createAnalysisDataStartTag() + "\n");
 
         // write out the spectrumIdentificationLists
+        // TODO: clean up, only export one final list from now on!
         for (SpectrumIdentificationList siList : silMap.values()) {
             m.marshal(siList, writer);
             writer.write("\n");
@@ -1329,11 +1334,10 @@ public class ProteinModeller {
 
         pdh.setPassThreshold(passThreshold);
 
-        String scoreShort =
-                appliedProteinInference.getScoring().getScoreSetting().getValue();
+        int nrInputFiles = psmModeller.getFiles().size()-1;
 
-        Map<String, PeptideHypothesis> peptideHypotheses =
-                new HashMap<String, PeptideHypothesis>();
+        String scoreShort = appliedProteinInference.getScoring().getScoreSetting().getValue();
+        Map<String, PeptideHypothesis> peptideHypotheses = new HashMap<String, PeptideHypothesis>();
 
         for (ReportPeptide pep : protein.getPeptides()) {
             for (PSMReportItem psmItem : pep.getPSMs()) {
@@ -1403,8 +1407,7 @@ public class ProteinModeller {
                     if (specIdItem == null) {
                         // if the spectrumIdentificationItem is not yet set,
                         // create it (and put it into the SpectrumIdentificationResult)
-                        specIdItem =
-                                psmModeller.putPsmInSpectrumIdentificationResultMap(
+                        specIdItem = psmModeller.putPsmInSpectrumIdentificationResultMap(
                                         psmItem,
                                         combinedSpecIdResMap,
                                         peptideMap,
@@ -1414,9 +1417,8 @@ public class ProteinModeller {
 
                         ScoreModel compareScore =
                                 psmItem.getCompareScore(scoreShort);
-                        if (compareScore != null) {
-                            if (!compareScore.getType().
-                                    equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+                        if ((compareScore != null) && (nrInputFiles > 1)) {
+                            if (!compareScore.getType().equals(ScoreModelEnum.UNKNOWN_SCORE)) {
                                 CvParam tempCvParam = new CvParam();
                                 tempCvParam.setAccession(compareScore.getAccession());
                                 tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());

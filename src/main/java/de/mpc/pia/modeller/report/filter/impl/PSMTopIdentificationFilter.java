@@ -116,4 +116,22 @@ public class PSMTopIdentificationFilter extends AbstractFilter {
             return false;
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder(getShortName());
+
+        str.append(" (" + getScoreShortName() + ")");
+        if (getFilterNegate()) {
+            str.append(" not");
+        }
+
+        str.append(" ");
+        str.append(getFilterComparator().toString());
+
+        str.append(" ");
+        str.append(getFilterValue());
+
+        return str.toString();
+    }
 }

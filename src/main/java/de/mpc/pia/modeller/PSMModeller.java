@@ -2169,7 +2169,7 @@ public class PSMModeller {
                 sequenceMap, peptideMap, pepEvidenceMap, silMap,
                 piaAnalysisSoftware, inputs,
                 analysisProtocolCollection, analysisCollection,
-                fileID, filterExport);
+                fileID, filterExport, false);
 
         for (SpectrumIdentificationList sil : silMap.values()) {
             if (fileID > 0) {
@@ -2224,6 +2224,7 @@ public class PSMModeller {
 
         writer.write(m.createAnalysisDataStartTag() + "\n");
 
+        // write out the spectrum identification lists
         for (SpectrumIdentificationList siList : silMap.values()) {
             m.marshal(siList, writer);
             writer.write("\n");
@@ -2280,12 +2281,13 @@ public class PSMModeller {
             Map<String, DBSequence> sequenceMap,
             Map<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide> peptideMap,
             Map<String, PeptideEvidence> pepEvidenceMap,
-            Map<Long, SpectrumIdentificationList> silMap,
+            Map<Long, SpectrumIdentificationList> silMap,       // TODO: get rid of the map, if decided to write only one SIL
             AnalysisSoftware piaAnalysisSoftware,
             Inputs inputs,
             AnalysisProtocolCollection analysisProtocolCollection,
             AnalysisCollection analysisCollection,
-            Long fileID, Boolean filterPSMs)
+            Long fileID, Boolean filterPSMs,
+            Boolean forProteinExport)   // TODO: this needs massive cleaning!
                     throws IOException {
 
         // the CV list
@@ -2396,8 +2398,10 @@ public class PSMModeller {
                         files.add(file.getID());
                     }
 
-                    analysisCollection.getSpectrumIdentification().add(specID);
-                    spectrumIdentificationMap.put(specID.getId(), specID);
+                    if (!forProteinExport) {
+                        analysisCollection.getSpectrumIdentification().add(specID);
+                        spectrumIdentificationMap.put(specID.getId(), specID);
+                    }
 
                     SpectrumIdentificationList sil =
                             new SpectrumIdentificationList();
@@ -2430,7 +2434,9 @@ public class PSMModeller {
                     sil.setId(silMap.get(file.getID()).getId());
                 }
 
-                silMap.put(file.getID(), sil);
+                if (!forProteinExport) {
+                    silMap.put(file.getID(), sil);
+                }
             }
         }
 
@@ -2457,158 +2463,162 @@ public class PSMModeller {
 
 
         // update and write the analysisCollection and the analysisProtocolCollection
-        for (PIAInputFile file : fileList) {
-            if (file.getID() > 0) {
-                // add all needed spectrum identification protocols
-                for (SpectrumIdentificationProtocol specIdProt
-                        : file.getAnalysisProtocolCollection().getSpectrumIdentificationProtocol()) {
-                    if ((specIdProt.getEnzymes() != null) &&
-                            (specIdProt.getEnzymes().getEnzyme().size() < 1)) {
-                        // no enzymes given, sad, but possible
-                        specIdProt.setEnzymes(null);
-                    } else if (specIdProt.getEnzymes() != null) {
-                        // if there are enzymes, check whether they can be given names by their regexp
-                        for (Enzyme enzyme : specIdProt.getEnzymes().getEnzyme()) {
-                            if ((enzyme.getEnzymeName() == null) && (enzyme.getSiteRegexp() != null)) {
-                                CleavageAgent agent = CleavageAgent.getBySiteRegexp(enzyme.getSiteRegexp());
-                                if (agent != null) {
-                                    ParamList enzymeNameList = new ParamList();
+        if (!forProteinExport) {
+            for (PIAInputFile file : fileList) {
+                if (file.getID() > 0) {
+                    // add all needed spectrum identification protocols
+                    for (SpectrumIdentificationProtocol specIdProt
+                            : file.getAnalysisProtocolCollection().getSpectrumIdentificationProtocol()) {
+                        if ((specIdProt.getEnzymes() != null) &&
+                                (specIdProt.getEnzymes().getEnzyme().size() < 1)) {
+                            // no enzymes given, sad, but possible
+                            specIdProt.setEnzymes(null);
+                        } else if (specIdProt.getEnzymes() != null) {
+                            // if there are enzymes, check whether they can be given names by their regexp
+                            for (Enzyme enzyme : specIdProt.getEnzymes().getEnzyme()) {
+                                if ((enzyme.getEnzymeName() == null) && (enzyme.getSiteRegexp() != null)) {
+                                    CleavageAgent agent = CleavageAgent.getBySiteRegexp(enzyme.getSiteRegexp());
+                                    if (agent != null) {
+                                        ParamList enzymeNameList = new ParamList();
 
-                                    CvParam cvParam = MzIdentMLTools.createCvParam(
-                                            agent.getAccession(),
-                                            MzIdentMLTools.getCvPSIMS(),
-                                            agent.getName(),
+                                        CvParam cvParam = MzIdentMLTools.createCvParam(
+                                                agent.getAccession(),
+                                                MzIdentMLTools.getCvPSIMS(),
+                                                agent.getName(),
+                                                null);
+
+                                        enzymeNameList.getCvParam().add(cvParam);
+                                        enzyme.setEnzymeName(enzymeNameList);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (specIdProt.getAdditionalSearchParams() == null) {
+                            specIdProt.setAdditionalSearchParams(new ParamList());
+                        }
+
+                        for (SearchModification mod
+                                : specIdProt.getModificationParams().getSearchModification()) {
+                            if (mod.getCvParam().size() < 1) {
+                                // the cvParam of the modification is not set, try to do so
+                                ModT unimod = unimodParser.
+                                        getModificationByMass(
+                                                Float.valueOf(mod.getMassDelta()).doubleValue(),
+                                                mod.getResidues());
+
+                                if (unimod != null) {
+                                    tempCvParam = MzIdentMLTools.createCvParam(
+                                            "UNIMOD:" + unimod.getRecordId(),
+                                            UnimodParser.getCv(),
+                                            unimod.getTitle(),
                                             null);
 
-                                    enzymeNameList.getCvParam().add(cvParam);
-                                    enzyme.setEnzymeName(enzymeNameList);
+                                    mod.getCvParam().add(tempCvParam);
+                                    mod.setMassDelta(
+                                            unimod.getDelta().getMonoMass().floatValue());
                                 }
                             }
                         }
-                    }
 
-                    if (specIdProt.getAdditionalSearchParams() == null) {
-                        specIdProt.setAdditionalSearchParams(new ParamList());
-                    }
-
-                    for (SearchModification mod
-                            : specIdProt.getModificationParams().getSearchModification()) {
-                        if (mod.getCvParam().size() < 1) {
-                            // the cvParam of the modification is not set, try to do so
-                            ModT unimod = unimodParser.
-                                    getModificationByMass(
-                                            Float.valueOf(mod.getMassDelta()).doubleValue(),
-                                            mod.getResidues());
-
-                            if (unimod != null) {
-                                tempCvParam = MzIdentMLTools.createCvParam(
-                                        "UNIMOD:" + unimod.getRecordId(),
-                                        UnimodParser.getCv(),
-                                        unimod.getTitle(),
-                                        null);
-
-                                mod.getCvParam().add(tempCvParam);
-                                mod.setMassDelta(
-                                        unimod.getDelta().getMonoMass().floatValue());
+                        if (isFDRCalculated(file.getID())) {
+                            if (getFileFDRData().get(file.getID()).
+                                    getDecoyStrategy().equals(FDRData.DecoyStrategy.ACCESSIONPATTERN)) {
+                                tempCvParam = new CvParam();
+                                tempCvParam.setAccession("MS:1001283");
+                                tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+                                tempCvParam.setName("decoy DB accession regexp");
+                                tempCvParam.setValue(getFileFDRData().get(file.getID()).getDecoyPattern());
+                            } else {
+                                tempCvParam = new CvParam();
+                                tempCvParam.setAccession("MS:1001454");
+                                tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+                                tempCvParam.setName("quality estimation with implicite decoy sequences");
                             }
-                        }
-                    }
 
-                    if (isFDRCalculated(file.getID())) {
-                        if (getFileFDRData().get(file.getID()).
-                                getDecoyStrategy().equals(FDRData.DecoyStrategy.ACCESSIONPATTERN)) {
-                            tempCvParam = new CvParam();
-                            tempCvParam.setAccession("MS:1001283");
-                            tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                            tempCvParam.setName("decoy DB accession regexp");
-                            tempCvParam.setValue(getFileFDRData().get(file.getID()).getDecoyPattern());
-                        } else {
-                            tempCvParam = new CvParam();
-                            tempCvParam.setAccession("MS:1001454");
-                            tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                            tempCvParam.setName("quality estimation with implicite decoy sequences");
-                        }
+                            specIdProt.getAdditionalSearchParams()
+                            .getCvParam().add(tempCvParam);
 
-                        specIdProt.getAdditionalSearchParams()
-                        .getCvParam().add(tempCvParam);
+                            tempCvParam = MzIdentMLTools.createPSICvParam(
+                                    OntologyConstants.PIA_USED_TOP_IDENTIFICATIONS,
+                                    fileTopIdentifications.get(file.getID()).toString());
+                            specIdProt.getAdditionalSearchParams().getCvParam().add(tempCvParam);
+                        }
 
                         tempCvParam = MzIdentMLTools.createPSICvParam(
-                                OntologyConstants.PIA_USED_TOP_IDENTIFICATIONS,
-                                fileTopIdentifications.get(file.getID()).toString());
+                                OntologyConstants.PIA_FDRSCORE_CALCULATED,
+                                isFDRCalculated(file.getID()).toString());
                         specIdProt.getAdditionalSearchParams().getCvParam().add(tempCvParam);
-                    }
 
-                    tempCvParam = MzIdentMLTools.createPSICvParam(
-                            OntologyConstants.PIA_FDRSCORE_CALCULATED,
-                            isFDRCalculated(file.getID()).toString());
-                    specIdProt.getAdditionalSearchParams().getCvParam().add(tempCvParam);
+                        if (fileID.equals(file.getID()) && filterPSMs) {
+                            // add the filters
+                            for (AbstractFilter filter : getFilters(fileID)) {
+                                if (filter instanceof PSMScoreFilter) {
+                                    // if score filters are set, they are the threshold
 
-                    if (fileID.equals(file.getID()) && filterPSMs) {
-                        // add the filters
-                        for (AbstractFilter filter : getFilters(fileID)) {
-                            if (filter instanceof PSMScoreFilter) {
-                                // if score filters are set, they are the threshold
+                                    ScoreModelEnum scoreModel =
+                                            ScoreModelEnum.getModelByDescription(
+                                                    ((PSMScoreFilter) filter).getScoreShortName());
 
-                                ScoreModelEnum scoreModel =
-                                        ScoreModelEnum.getModelByDescription(
-                                                ((PSMScoreFilter) filter).getScoreShortName());
+                                    if (specIdProt.getThreshold() == null) {
+                                        specIdProt.setThreshold(new ParamList());
+                                    }
 
-                                if (specIdProt.getThreshold() == null) {
-                                    specIdProt.setThreshold(new ParamList());
-                                }
+                                    if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
 
-                                if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+                                        tempCvParam = new CvParam();
+                                        tempCvParam.setAccession(scoreModel.getCvAccession());
+                                        tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+                                        tempCvParam.setName(scoreModel.getCvName());
+                                        tempCvParam.setValue(filter.getFilterValue().toString());
 
-                                    tempCvParam = new CvParam();
-                                    tempCvParam.setAccession(scoreModel.getCvAccession());
-                                    tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                                    tempCvParam.setName(scoreModel.getCvName());
-                                    tempCvParam.setValue(filter.getFilterValue().toString());
+                                        specIdProt.getThreshold().getCvParam().add(tempCvParam);
+                                    } else {
+                                        // TODO: also make scores from OBO available
+                                        UserParam userParam = new UserParam();
+                                        userParam.setName(((PSMScoreFilter) filter).getModelName());
+                                        userParam.setValue(filter.getFilterValue().toString());
 
-                                    specIdProt.getThreshold().getCvParam().add(tempCvParam);
+                                        specIdProt.getThreshold().getUserParam().add(userParam);
+                                    }
                                 } else {
-                                    // TODO: also make scores from OBO available
-                                    UserParam userParam = new UserParam();
-                                    userParam.setName(((PSMScoreFilter) filter).getModelName());
-                                    userParam.setValue(filter.getFilterValue().toString());
-
-                                    specIdProt.getThreshold().getUserParam().add(userParam);
+                                    // all other report filters are AdditionalSearchParams
+                                    tempCvParam = MzIdentMLTools.createPSICvParam(
+                                            OntologyConstants.PIA_FILTER,
+                                            filter.toString());
+                                    specIdProt.getAdditionalSearchParams().getCvParam().add(tempCvParam);
                                 }
-                            } else {
-                                // all other report filters are AdditionalSearchParams
-                                tempCvParam = MzIdentMLTools.createPSICvParam(
-                                        OntologyConstants.PIA_FILTER,
-                                        filter.toString());
-                                specIdProt.getAdditionalSearchParams().getCvParam().add(tempCvParam);
                             }
                         }
-                    }
 
-                    // check, if the threshold is set by now
-                    if ((specIdProt.getThreshold() == null) ||
-                            (specIdProt.getThreshold().getParamGroup().size() < 1)) {
-                        if (specIdProt.getThreshold() == null) {
-                            specIdProt.setThreshold(new ParamList());
+                        // check, if the threshold is set by now
+                        if ((specIdProt.getThreshold() == null) ||
+                                (specIdProt.getThreshold().getParamGroup().size() < 1)) {
+                            if (specIdProt.getThreshold() == null) {
+                                specIdProt.setThreshold(new ParamList());
+                            }
+
+                            tempCvParam = new CvParam();
+                            tempCvParam.setAccession("MS:1001494");
+                            tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
+                            tempCvParam.setName("no threshold");
+                            specIdProt.getThreshold().getCvParam().add(tempCvParam);
                         }
 
+                        // at the moment, PIA does "no special processing" as described in the OBO for
                         tempCvParam = new CvParam();
-                        tempCvParam.setAccession("MS:1001494");
+                        tempCvParam.setAccession("MS:1002495");
                         tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                        tempCvParam.setName("no threshold");
-                        specIdProt.getThreshold().getCvParam().add(tempCvParam);
+                        tempCvParam.setName("no special processing");
+                        specIdProt.getAdditionalSearchParams().getCvParam().add(tempCvParam);
+
+
+                        analysisProtocolCollection.getSpectrumIdentificationProtocol().add(specIdProt);
                     }
-
-                    // at the moment, PIA does "no special processing" as described in the OBO for
-                    tempCvParam = new CvParam();
-                    tempCvParam.setAccession("MS:1002495");
-                    tempCvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                    tempCvParam.setName("no special processing");
-                    specIdProt.getAdditionalSearchParams().getCvParam().add(tempCvParam);
-
-
-                    analysisProtocolCollection.getSpectrumIdentificationProtocol().add(specIdProt);
                 }
             }
+        } else {
+            silMap.clear();
         }
     }
 
@@ -2982,8 +2992,7 @@ public class PSMModeller {
             Boolean filterPSM) {
 
         // build the SpectrumIdentificationItem into its result
-        Long fileID = (psm instanceof ReportPSM) ? ((ReportPSM)psm).getFileID()
-                : 0L;
+        Long fileID = (psm instanceof ReportPSM) ? ((ReportPSM)psm).getFileID() : 0L;
         String psmIdentificationKey =
                 getSpectrumIdentificationResultID(psm, fileID);
 
@@ -3110,8 +3119,9 @@ public class PSMModeller {
             sii.getCvParam().add(tempCvParam);
         }
 
-        if ((psm instanceof ReportPSM) || !getCreatePSMSets()) {
-            // either a single PSM or the PSM sets are actually single PSMs
+        if (((psm instanceof ReportPSM) || !getCreatePSMSets()) ||
+                ((fileID == 0L) && (inputFiles.size() == 2 /* the overview counts */))) {
+            // either a single PSM, the PSM sets are actually single PSMs or there is only one input file
 
             ListIterator<AbstractParam> paramIt = null;
             ListIterator<ScoreModel> scoreIt = null;
@@ -3119,7 +3129,7 @@ public class PSMModeller {
             if (psm instanceof ReportPSM) {
                 paramIt = ((ReportPSM)psm).getSpectrum().getParams().listIterator();
                 scoreIt = ((ReportPSM) psm).getScores().listIterator();
-            } else if (psm instanceof ReportPSMSet){
+            } else if (psm instanceof ReportPSMSet) {
                 ReportPSM rPSM = ((ReportPSMSet)psm).getPSMs().get(0);
                 paramIt = rPSM.getSpectrum().getParams().listIterator();
                 scoreIt = rPSM.getScores().listIterator();
@@ -3158,6 +3168,7 @@ public class PSMModeller {
                 }
             }
         }
+
 
         if (psm.getRetentionTime() != null) {
             CvParam tempCvParam = new CvParam();
@@ -3198,6 +3209,28 @@ public class PSMModeller {
         }
 
         return sii;
+    }
+
+
+    /**
+     * Getter for the {@link AnalysisSoftware} with the given reference id.
+     *
+     * @param spectraDataRef
+     * @return
+     */
+    public AnalysisSoftware getAnalysisSoftware(String analysisSofwareRef) {
+        return analysisSoftware.get(analysisSofwareRef);
+    }
+
+
+    /**
+     * Getter for the {@link SpectraData} with the given reference id.
+     *
+     * @param spectraDataRef
+     * @return
+     */
+    public SpectraData getSpectraData(String spectraDataRef) {
+        return spectraData.get(spectraDataRef);
     }
 
 
@@ -4471,8 +4504,6 @@ public class PSMModeller {
                     }
                 }
     }
-
-
 
 
     /**

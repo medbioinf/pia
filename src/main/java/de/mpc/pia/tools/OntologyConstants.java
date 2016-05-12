@@ -41,17 +41,30 @@ public enum OntologyConstants {
     PROTEIN_GROUP_PASSES_THRESHOLD("protein group passes threshold", "MS:1002415"),
     NO_THRESHOLD("no threshold", "MS:1001494"),
 
+    DECOY_PEPTIDE("decoy peptide", "MS:1002217"),
     PSM_LEVEL_QVALUE("PSM-level q-value", "MS:1002354"),
     PSM_LEVEL_FDRSCORE("PSM-level FDRScore", "MS:1002355"),
     PSM_LEVEL_COMBINED_FDRSCORE("PSM-level combined FDRScore", "MS:1002356"),
     PROTEIN_LEVEL_LOCAL_FDR("protein-level local FDR", "MS:1002364"),
     PROTEIN_GROUP_LEVEL_Q_VALUE("protein group-level q-value", "MS:1002373"),
 
+    NO_FIXED_MODIFICATIONS_SEARCHED("No fixed modifications searched", "MS:1002453"),
+    NO_VARIABLE_MODIFICATIONS_SEARCHED("No variable modifications searched", "MS:1002454"),
     UNKNOWN_MODIFICATION("unknown modification", "MS:1001460"),
     MODIFICATION_SPECIFICITY_PEP_N_TERM("modification specificity peptide N-term", "MS:1001189"),
     MODIFICATION_SPECIFICITY_PEP_C_TERM("modification specificity peptide C-term", "MS:1001190"),
     MODIFICATION_SPECIFICITY_PROTEIN_N_TERM("modification specificity protein N-term", "MS:1002057"),
     MODIFICATION_SPECIFICITY_PROTEIN_C_TERM("modification specificity protein C-term", "MS:1002058"),
+
+    CONTACT_ATTRIBUTE("contact attribute", "MS:1000585"),
+    CONTACT_NAME("contact name", "MS:1000586"),
+    CONTACT_ADDRESS("contact address", "MS:1000587"),
+    CONTACT_URL("contact URL", "MS:1000588"),
+    CONTACT_EMAIL("contact email", "MS:1000589"),
+    CONTACT_AFFILIATION("contact affiliation", "MS:1000590"),
+
+    INSTRUMENT_MODEL("instrument model", "MS:1000031"),
+    SAMPLE_NAME("sample name", "MS:1000002"),
 
     FASTA_FORMAT("FASTA format", "MS:1001348"),
     MASCOT_DAT_FORMAT("Mascot DAT format", "MS:1001199"),
@@ -159,5 +172,25 @@ public enum OntologyConstants {
 
     public String getPrideAccession() {
         return prideAccession;
+    }
+
+
+    /**
+     * Returns the {@link OntologyConstants} with the provided accession (PSI or
+     * PRIDE) or null, if none is found.
+     *
+     * @param accession
+     * @return
+     */
+    public static OntologyConstants getByAccession(String accession) {
+        if (accession != null) {
+            for (OntologyConstants value : values()) {
+                if (accession.equals(value.getPsiAccession()) ||
+                        accession.equals(value.getPrideAccession())) {
+                    return value;
+                }
+            }
+        }
+        return null;
     }
 }

@@ -27,10 +27,10 @@ import de.mpc.pia.tools.unimod.jaxb.UnimodT;
 public class UnimodParser {
 
     /** the mass tolerance for finding a modification by mass in Unimod */
-    public static Double unimod_mass_tolerance = 0.001;
+    public static final Double unimod_mass_tolerance = 0.001;
 
     /** the path to the packaged unimod */
-    private static String packagedUnimod =  "/de/mpc/pia/unimod.xml";
+    private static final String packagedUnimod =  "/de/mpc/pia/unimod.xml";
 
     /** the CV for unimod */
     private static Cv cvUnimod;

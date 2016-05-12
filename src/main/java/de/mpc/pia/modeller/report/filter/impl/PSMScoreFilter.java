@@ -124,4 +124,22 @@ public class PSMScoreFilter extends AbstractFilter {
 
         return supports;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder(getShortName());
+
+        str.append(" (" + modelName + ")");
+        if (getFilterNegate()) {
+            str.append(" not");
+        }
+
+        str.append(" ");
+        str.append(getFilterComparator().toString());
+
+        str.append(" ");
+        str.append(getFilterValue());
+
+        return str.toString();
+    }
 }

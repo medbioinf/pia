@@ -1,12 +1,1480 @@
 package de.mpc.pia.modeller.exporter;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.log4j.Logger;
+
+import de.mpc.pia.intermediate.Accession;
+import de.mpc.pia.intermediate.AccessionOccurrence;
+import de.mpc.pia.intermediate.Modification;
+import de.mpc.pia.intermediate.PIAInputFile;
+import de.mpc.pia.modeller.PIAModeller;
+import de.mpc.pia.modeller.peptide.ReportPeptide;
+import de.mpc.pia.modeller.protein.ReportProtein;
+import de.mpc.pia.modeller.psm.PSMReportItem;
+import de.mpc.pia.modeller.psm.ReportPSM;
+import de.mpc.pia.modeller.psm.ReportPSMSet;
+import de.mpc.pia.modeller.report.filter.AbstractFilter;
+import de.mpc.pia.modeller.score.FDRData;
+import de.mpc.pia.modeller.score.ScoreModelEnum;
+import de.mpc.pia.tools.CleavageAgent;
+import de.mpc.pia.tools.MzIdentMLTools;
+import de.mpc.pia.tools.OntologyConstants;
+import de.mpc.pia.tools.PIAConstants;
+import de.mpc.pia.tools.unimod.UnimodParser;
+import de.mpc.pia.tools.unimod.jaxb.ModT;
+import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
+import uk.ac.ebi.jmzidml.model.mzidml.AnalysisProtocolCollection;
+import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
+import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
+import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
+import uk.ac.ebi.jmzidml.model.mzidml.InputSpectra;
+import uk.ac.ebi.jmzidml.model.mzidml.ModificationParams;
+import uk.ac.ebi.jmzidml.model.mzidml.Param;
+import uk.ac.ebi.jmzidml.model.mzidml.ParamList;
+import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
+import uk.ac.ebi.jmzidml.model.mzidml.SearchModification;
+import uk.ac.ebi.jmzidml.model.mzidml.SpecificityRules;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
+import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
+import uk.ac.ebi.pride.jmztab.model.CVParam;
+import uk.ac.ebi.pride.jmztab.model.Contact;
+import uk.ac.ebi.pride.jmztab.model.FixedMod;
+import uk.ac.ebi.pride.jmztab.model.Instrument;
+import uk.ac.ebi.pride.jmztab.model.MZBoolean;
+import uk.ac.ebi.pride.jmztab.model.MZTabColumnFactory;
+import uk.ac.ebi.pride.jmztab.model.MZTabConstants;
+import uk.ac.ebi.pride.jmztab.model.MZTabDescription;
+import uk.ac.ebi.pride.jmztab.model.Metadata;
+import uk.ac.ebi.pride.jmztab.model.Mod;
+import uk.ac.ebi.pride.jmztab.model.MsRun;
+import uk.ac.ebi.pride.jmztab.model.PSM;
+import uk.ac.ebi.pride.jmztab.model.PSMColumn;
+import uk.ac.ebi.pride.jmztab.model.Protein;
+import uk.ac.ebi.pride.jmztab.model.ProteinColumn;
+import uk.ac.ebi.pride.jmztab.model.Reliability;
+import uk.ac.ebi.pride.jmztab.model.Sample;
+import uk.ac.ebi.pride.jmztab.model.Section;
+import uk.ac.ebi.pride.jmztab.model.SpectraRef;
+import uk.ac.ebi.pride.jmztab.model.VariableMod;
+
 /**
- * This exporter will enable to export the results to mztab files. It will allow to merge different mztab
- * files into one big mztab and merge all the metadata related with it.
+ * This exporter will enable to export the results to mzTab files.
  *
- * @author Yasset Perez-Riverol (ypriverol@gmail.com)
- * @date 10/02/2016
+ * @author julian
  */
 public class MzTabExporter {
 
+    /** logger for this class */
+    private static final Logger logger = Logger.getLogger(MzTabExporter.class);
+
+    /** the modeller, that should be exported */
+    private PIAModeller piaModeller;
+
+    /** the writer used to export the mzTab file */
+    private BufferedWriter outWriter;
+
+    /** used unimod parser */
+    private UnimodParser unimodParser;
+
+    /** the software param for PIA */
+    private CVParam piaParam;
+
+    /** mapping from the spectrumIdentification_ref to the msRuns */
+    private Map<String, List<MsRun>> specIdRefToMsRuns;
+
+    /** mapping from the score's short_name to the score's ID in the Metadata */
+    private Map<String, Integer> psmScoreShortToId;
+
+    /** the mzTab {@link Metadata} for the exported file */
+    private Metadata metadata;
+
+
+    /**
+     * Basic constructor to export the
+     * @param modeller
+     */
+    public MzTabExporter(PIAModeller modeller) {
+        this.piaModeller = modeller;
+        this.unimodParser = null;
+    }
+
+
+
+    public boolean exportToMzTab(Long fileID, File exportFile,
+            boolean proteinLevel, boolean filterExport) {
+        try {
+            FileOutputStream fos;
+            fos = new FileOutputStream(exportFile);
+            return exportToMzTab(fileID, fos, proteinLevel, filterExport);
+        } catch (IOException ex) {
+            logger.error("Error writing  mzTab to " + exportFile.getAbsolutePath(), ex);
+            return false;
+        }
+    }
+
+
+    public boolean exportToMzTab(Long fileID, String exportFileName,
+            boolean proteinLevel, boolean filterExport) {
+        File piaFile = new File(exportFileName);
+        return exportToMzTab(fileID, piaFile, proteinLevel, filterExport);
+    }
+
+
+    /**
+     * Exports the data of the modeller using the data of the fileID (only
+     * relevant if not protein level) to the specified file. If protein level is
+     * selected as well, also this will be exported (and accordingly the PSMs of
+     * all merged files).
+     *
+     * @param fileID
+     * @param exportFile
+     * @param proteinLevel
+     * @param filterExport whether the export should be filtered (on any level)
+     * @return
+     */
+    public boolean exportToMzTab(Long fileID, OutputStream exportStream,
+            boolean proteinLevel, boolean filterExport) {
+        boolean error = false;
+
+        try {
+            outWriter = new BufferedWriter(new OutputStreamWriter(exportStream));
+
+            unimodParser = new UnimodParser();
+
+            piaParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                    OntologyConstants.PIA.getPsiAccession(),
+                    OntologyConstants.PIA.getPsiName(),
+                    PIAConstants.version);
+
+            // Setting version, mode, and type in MZTabDescription
+            MZTabDescription tabDescription;
+
+            if (proteinLevel) {
+                // PIA cannot give a "Complete" protein level export, as the
+                // protein scores of the used search engines is not known
+                tabDescription = new MZTabDescription(
+                        MZTabDescription.Mode.Summary,
+                        MZTabDescription.Type.Identification);
+            } else {
+                tabDescription = new MZTabDescription(
+                        MZTabDescription.Mode.Complete,
+                        MZTabDescription.Type.Identification);
+            }
+
+            specIdRefToMsRuns = new HashMap<String, List<MsRun>>();
+            psmScoreShortToId = new HashMap<String, Integer>();
+            metadata = createMetadataForMzTab(fileID, proteinLevel, filterExport,
+                    tabDescription);
+
+            // write out the metadata header
+            outWriter.append(metadata.toString());
+
+            // the PSMs, which will be in th export
+            List<PSMReportItem> reportPSMs = new ArrayList<PSMReportItem>();
+
+            boolean exportReliabilitycolumn = false;
+
+            if (proteinLevel) {
+                // write the report proteins
+                List<ReportProtein> proteinList;
+                proteinList = piaModeller.getProteinModeller().getFilteredReportProteins(
+                        filterExport ? piaModeller.getProteinModeller().getReportFilters() : null);
+
+                if (proteinList == null) {
+                    logger.warn("No report protein list, probably inference was not run.");
+                } else {
+                    Map<String, PSMReportItem> reportPSMsMap =
+                            new HashMap<String, PSMReportItem>();
+
+                    // write out the proteins
+                    outWriter.append(MZTabConstants.NEW_LINE);
+                    writeProteins(proteinList, reportPSMsMap);
+
+                    reportPSMs = new ArrayList<PSMReportItem>(reportPSMsMap.values());
+                    exportReliabilitycolumn = piaModeller.getPSMModeller().isCombinedFDRScoreCalculated();
+                }
+            } else {
+                // get the report PSMs
+                List<AbstractFilter> filters =
+                        filterExport ? piaModeller.getPSMModeller().getFilters(fileID) : null;
+
+                if (fileID > 0) {
+                    reportPSMs.addAll(piaModeller.getPSMModeller().getFilteredReportPSMs(fileID, filters));
+                    exportReliabilitycolumn = piaModeller.getPSMModeller().isFDRCalculated(fileID);
+                } else {
+                    reportPSMs.addAll(piaModeller.getPSMModeller().getFilteredReportPSMSets(filters));
+                    exportReliabilitycolumn = piaModeller.getPSMModeller().isCombinedFDRScoreCalculated();
+                }
+            }
+
+            // write out the PSMs
+            outWriter.append(MZTabConstants.NEW_LINE);
+            writePSMs(reportPSMs, exportReliabilitycolumn);
+
+            outWriter.flush();
+            outWriter.close();
+
+            logger.debug("exportToMzTab done");
+        } catch (IOException ex) {
+            logger.error("Error exporting mzTab", ex);
+        }
+
+        return !error;
+    }
+
+
+    /**
+     * This method creates the {@link Metadata} and fills it with the basic
+     * information for an export.
+     *
+     * @param fileID the ID of the exported file (0 for overview)
+     * @param proteinLevel whether the protein level should be exported
+     * @param filterExport whether the export should be filtered (on any level)
+     * @param tabDescription the prior generated {@link MZTabDescription}
+     *
+     * @return
+     *
+     * @throws MalformedURLException
+     */
+    private Metadata createMetadataForMzTab(Long fileID,
+            boolean proteinLevel,
+            boolean filterExport,
+            MZTabDescription tabDescription)
+                    throws MalformedURLException {
+        Metadata mtd = new Metadata(tabDescription);
+        mtd.setDescription("PIA export of " + piaModeller.getFileName());
+
+        List<InputSpectra> inputSpectraList = new ArrayList<InputSpectra>();
+        // all needed search modifications
+        List<SearchModification> searchModifications =
+                new ArrayList<SearchModification>();
+        // all needed analysis protocol collections (for the software in MTD)
+        List<AnalysisProtocolCollection> analysisProtocols =
+                new ArrayList<AnalysisProtocolCollection>();
+        // maps from the spectrumIdentification ID to the spectraData ID
+        Map<String, List<String>> spectrumIdentificationToSpectraData =
+                new HashMap<String, List<String>>();
+
+        if (fileID == 0) {
+            for (PIAInputFile file : piaModeller.getFiles().values()) {
+                if (file.getID() > 0) {
+                    SpectrumIdentification specID = file.getAnalysisCollection().
+                            getSpectrumIdentification().get(0);
+                    List<InputSpectra> inputSpectras = specID.getInputSpectra();
+                    if ((inputSpectras != null) && (inputSpectras.size() > 0)) {
+                        List<String> spectraDataRefs = new ArrayList<String>();
+                        for (InputSpectra inputSpectra : inputSpectras) {
+                            spectraDataRefs.add(
+                                    inputSpectra.getSpectraDataRef());
+                        }
+                        spectrumIdentificationToSpectraData.put( specID.getId(),
+                                spectraDataRefs);
+
+                        inputSpectraList.addAll(inputSpectras);
+                    }
+
+                    ModificationParams modParams =
+                            file.getAnalysisProtocolCollection().
+                            getSpectrumIdentificationProtocol().get(0).
+                            getModificationParams();
+                    if ((modParams != null) && (modParams.getSearchModification() != null)) {
+                        searchModifications.addAll(modParams.getSearchModification());
+                    }
+
+                    if (file.getAnalysisProtocolCollection() != null) {
+                        analysisProtocols.add(file.getAnalysisProtocolCollection());
+                    }
+                }
+
+                // add the scores of each file
+                for (String scoreShort : piaModeller.getPSMModeller().getScoreShortNames(file.getID())) {
+                    if (!psmScoreShortToId.containsKey(scoreShort)) {
+                        Integer scoreID = psmScoreShortToId.size() + 1;
+                        ScoreModelEnum scoreType =
+                                ScoreModelEnum.getModelByDescription(scoreShort);
+
+                        uk.ac.ebi.pride.jmztab.model.Param scoreParam = null;
+
+                        // do NOT add the PSM-level FDR for the overview
+                        if (!scoreType.equals(ScoreModelEnum.PSM_LEVEL_FDR_SCORE)) {
+                            if (scoreType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+                                scoreParam = new uk.ac.ebi.pride.jmztab.model.UserParam(
+                                        piaModeller.getPSMModeller().getScoreName(scoreShort),
+                                        "");
+                            } else {
+                                scoreParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                                        scoreType.getCvAccession(),
+                                        scoreType.getCvName(),
+                                        "");
+                            }
+
+                            mtd.addPsmSearchEngineScoreParam(scoreID, scoreParam);
+                            psmScoreShortToId.put(scoreShort, scoreID);
+                        }
+                    }
+                }
+            }
+        } else {
+            SpectrumIdentification specID = piaModeller.getFiles().get(fileID).
+                    getAnalysisCollection().getSpectrumIdentification().get(0);
+            List<InputSpectra> inputSpectras = specID.getInputSpectra();
+            if ((inputSpectras != null) && (inputSpectras.size() > 0)) {
+                List<String> spectraDataRefs = new ArrayList<String>();
+                for (InputSpectra inputSpectra : inputSpectras) {
+                    spectraDataRefs.add(inputSpectra.getSpectraDataRef());
+                }
+                spectrumIdentificationToSpectraData.put(specID.getId(), spectraDataRefs);
+
+                inputSpectraList.addAll(inputSpectras);
+            }
+
+            ModificationParams modParams =
+                    piaModeller.getFiles().get(fileID).getAnalysisProtocolCollection().
+                    getSpectrumIdentificationProtocol().get(0).
+                    getModificationParams();
+            if ((modParams != null) && (modParams.getSearchModification() != null)) {
+                searchModifications.addAll(
+                        modParams.getSearchModification());
+            }
+
+            if (piaModeller.getFiles().get(fileID).getAnalysisProtocolCollection() != null) {
+                analysisProtocols.add(piaModeller.getFiles().get(fileID).getAnalysisProtocolCollection());
+            }
+
+            // the the file's scores
+            for (String scoreShort : piaModeller.getPSMModeller().getScoreShortNames(fileID)) {
+                if (!psmScoreShortToId.containsKey(scoreShort)) {
+                    Integer scoreID = psmScoreShortToId.size() + 1;
+                    ScoreModelEnum scoreType =
+                            ScoreModelEnum.getModelByDescription(scoreShort);
+
+                    uk.ac.ebi.pride.jmztab.model.Param scoreParam = null;
+
+                    if (scoreType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+                        scoreParam = new uk.ac.ebi.pride.jmztab.model.UserParam(
+                                piaModeller.getPSMModeller().getScoreName(scoreShort),
+                                "");
+                    } else {
+                        scoreParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                                scoreType.getCvAccession(),
+                                scoreType.getCvName(),
+                                "");
+                    }
+
+                    mtd.addPsmSearchEngineScoreParam(scoreID, scoreParam);
+                    psmScoreShortToId.put(scoreShort, scoreID);
+                }
+            }
+        }
+
+        // associate the spectraData (msRuns) to integer IDs
+        Map<String, Integer> spectraDataID = new HashMap<String, Integer>();
+        for (InputSpectra inputSpectra : inputSpectraList) {
+            if (!spectraDataID.containsKey(inputSpectra.getSpectraDataRef())) {
+                // this inputSpectra is not yet in the list
+                Integer id = spectraDataID.size()+1;
+                spectraDataID.put(inputSpectra.getSpectraDataRef(), id);
+            }
+        }
+        inputSpectraList = null;
+
+        // add msRuns and samples
+        for (Map.Entry<String, Integer> spectraIt : spectraDataID.entrySet()) {
+            SpectraData sd = piaModeller.getSpectraData().get(spectraIt.getKey());
+
+            MsRun msRun = new MsRun(spectraIt.getValue());
+
+            // there are sometimes errors in the URl encoding of the files...
+            URL locationUrl = null;
+            try {
+                locationUrl = new URL(sd.getLocation());
+            } catch (MalformedURLException ex) {
+                locationUrl = new URL("file", "//", sd.getLocation());
+            }
+            msRun.setLocation(locationUrl);
+
+            if ((sd.getFileFormat() != null) &&
+                    (sd.getFileFormat().getCvParam() != null)) {
+                msRun.setFormat(new CVParam(sd.getFileFormat().getCvParam().getCvRef(),
+                        sd.getFileFormat().getCvParam().getAccession(),
+                        sd.getFileFormat().getCvParam().getName(),
+                        sd.getFileFormat().getCvParam().getValue()));
+            }
+
+            if ((sd.getSpectrumIDFormat() != null) &&
+                    (sd.getSpectrumIDFormat().getCvParam() != null)) {
+                msRun.setIdFormat(new CVParam(sd.getSpectrumIDFormat().getCvParam().getCvRef(),
+                        sd.getSpectrumIDFormat().getCvParam().getAccession(),
+                        sd.getSpectrumIDFormat().getCvParam().getName(),
+                        sd.getSpectrumIDFormat().getCvParam().getValue()));
+            }
+
+            mtd.addMsRun(msRun);
+        }
+
+        // this mapping is needed to reference reported PSMs to the MsRuns
+        specIdRefToMsRuns.clear();
+        for (Map.Entry<String, List<String>> iter : spectrumIdentificationToSpectraData.entrySet()) {
+            Set<MsRun> runSet = new HashSet<MsRun>();
+
+            for (String spectrumDataRef : iter.getValue()) {
+                runSet.add(mtd.getMsRunMap().get(spectraDataID.get(spectrumDataRef)));
+            }
+
+            specIdRefToMsRuns.put(iter.getKey(), new ArrayList<MsRun>(runSet));
+        }
+
+        // add modifications
+        int nrVariableMods = 0;
+        int nrFixedMods = 0;
+        Set<String> fixedMods = new HashSet<String>();
+        Set<String> variableMods = new HashSet<String>();
+        for (SearchModification searchMod : searchModifications) {
+            String modAccession = null;
+            String modName = null;
+
+            if ((searchMod.getCvParam() != null) &&
+                    (searchMod.getCvParam().size() > 0)) {
+                modAccession = searchMod.getCvParam().get(0).getAccession();
+                modName = searchMod.getCvParam().get(0).getName();
+            }
+
+            ModT uniMod = unimodParser.getModification(
+                    modAccession,
+                    modName,
+                    (double)searchMod.getMassDelta(),
+                    searchMod.getResidues());
+
+            List<String> positions = new ArrayList<String>();
+            for (SpecificityRules rule : searchMod.getSpecificityRules()) {
+                for (CvParam param : rule.getCvParam()) {
+                    if (OntologyConstants.MODIFICATION_SPECIFICITY_PEP_N_TERM.getPsiAccession().equals(param.getAccession())) {
+                        positions.add("Any N-term");
+                    } else if (OntologyConstants.MODIFICATION_SPECIFICITY_PROTEIN_N_TERM.getPsiAccession().equals(param.getAccession())) {
+                        positions.add("Protein N-term");
+                    } else if (OntologyConstants.MODIFICATION_SPECIFICITY_PEP_C_TERM.getPsiAccession().equals(param.getAccession())) {
+                        positions.add("Any C-term");
+                    } else if (OntologyConstants.MODIFICATION_SPECIFICITY_PROTEIN_C_TERM.getPsiAccession().equals(param.getAccession())) {
+                        positions.add("Protein C-term");
+                    }
+                }
+            }
+            if (positions.size() < 1) {
+                positions.add("Anywhere");
+            }
+
+            for (String site : searchMod.getResidues()) {
+                CVParam cvParam;
+
+                if (uniMod != null) {
+                    cvParam = new CVParam(UnimodParser.getCv().getId(),
+                            UnimodParser.getCv().getId() + ":" + uniMod.getRecordId(),
+                            uniMod.getTitle(),
+                            null);
+                } else {
+                    // build an "unknown modification"
+                    cvParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                            OntologyConstants.UNKNOWN_MODIFICATION.getPsiAccession(),
+                            OntologyConstants.UNKNOWN_MODIFICATION.getPsiName(),
+                            Float.toString(searchMod.getMassDelta()));
+                }
+
+                for (String position : positions) {
+                    Mod mod = null;
+
+                    if (searchMod.isFixedMod()) {
+                        mod = new FixedMod(nrFixedMods+1);
+                    } else {
+                        mod = new VariableMod(nrVariableMods+1);
+                    }
+
+                    mod.setParam(cvParam);
+
+                    if (!position.equals("Anywhere")) {
+                        if (position.contains("N-term")) {
+                            if (site.equals(".")) {
+                                site = "N-term";
+                            } else {
+                                site = "N-term " + site;
+                            }
+                        } else if (position.contains("C-term")) {
+                            if (site.equals(".")) {
+                                site = "C-term";
+                            } else {
+                                site = "C-term " + site;
+                            }
+                        }
+
+                        mod.setPosition(position);
+                    }
+                    mod.setSite(site);
+
+                    if (searchMod.isFixedMod()) {
+                        if (!fixedMods.contains(position + site + cvParam.toString())) {
+                            nrFixedMods++;
+                            mtd.addFixedMod((FixedMod)mod);
+                            fixedMods.add(position + site + cvParam.toString());
+                        }
+                    } else {
+                        if (!variableMods.contains(position + site + cvParam.toString())) {
+                            nrVariableMods++;
+                            mtd.addVariableMod((VariableMod)mod);
+                            variableMods.add(position + site + cvParam.toString());
+                        }
+                    }
+                }
+            }
+        }
+
+        if (nrFixedMods == 0) {
+            FixedMod fixedMod = new FixedMod(1);
+            fixedMod.setParam(new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                    OntologyConstants.NO_FIXED_MODIFICATIONS_SEARCHED.getPsiAccession(),
+                    OntologyConstants.NO_FIXED_MODIFICATIONS_SEARCHED.getPsiName(),
+                    null));
+            mtd.addFixedMod(fixedMod);
+        }
+        if (nrVariableMods == 0) {
+            VariableMod variableMod = new VariableMod(1);
+            variableMod.setParam(new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                    OntologyConstants.NO_VARIABLE_MODIFICATIONS_SEARCHED.getPsiAccession(),
+                    OntologyConstants.NO_VARIABLE_MODIFICATIONS_SEARCHED.getPsiName(),
+                    null));
+            mtd.addVariableMod(variableMod);
+        }
+
+        Map<String, AnalysisSoftware> softwareMap = new HashMap<String, AnalysisSoftware>();
+        Map<String, Integer> softwareToID = new HashMap<String, Integer>();
+        Set<String> enzymeNames = new HashSet<String>();
+
+        Integer softwareID = null;
+        for (AnalysisProtocolCollection protocol : analysisProtocols) {
+            SpectrumIdentificationProtocol specIdProtocol =
+                    protocol.getSpectrumIdentificationProtocol().get(0);
+
+            // adding the software(s)
+            AnalysisSoftware software;
+            if (softwareMap.containsKey(specIdProtocol.getAnalysisSoftwareRef())) {
+                software = softwareMap.get(specIdProtocol.getAnalysisSoftwareRef());
+                softwareID = softwareToID.get(specIdProtocol.getAnalysisSoftwareRef());
+            } else {
+                software = piaModeller.getAnalysisSoftwares().get(
+                        specIdProtocol.getAnalysisSoftwareRef());
+                softwareID = softwareMap.size()+1;
+
+                Param softwareName = software.getSoftwareName();
+                if ((softwareName != null) && (softwareName.getCvParam() != null)) {
+                    mtd.addSoftwareParam(softwareID,
+                            new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                                    softwareName.getCvParam().getAccession(),
+                                    softwareName.getCvParam().getName(),
+                                    software.getVersion()));
+
+                } else  {
+                    mtd.addSoftwareParam(softwareID,
+                            new CVParam(null,
+                                    null,
+                                    software.getName(),
+                                    software.getVersion()));
+                }
+
+                softwareMap.put(specIdProtocol.getAnalysisSoftwareRef(), software);
+                softwareToID.put(specIdProtocol.getAnalysisSoftwareRef(), softwareID);
+            }
+
+
+            // add tolerances
+            if (specIdProtocol.getFragmentTolerance() != null) {
+                for (CvParam param : specIdProtocol.getFragmentTolerance().getCvParam()) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("fragment ");
+                    sb.append(param.getName());
+                    sb.append(" = ");
+                    sb.append(param.getValue());
+                    if (param.getUnitName() != null) {
+                        sb.append(" ");
+                        sb.append(param.getUnitName());
+                    }
+
+                    mtd.addSoftwareSetting(softwareID, sb.toString());
+                }
+            }
+            if (specIdProtocol.getParentTolerance() != null) {
+                for (CvParam param : specIdProtocol.getParentTolerance().getCvParam()) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("parent ");
+                    sb.append(param.getName());
+                    sb.append(" = ");
+                    sb.append(param.getValue());
+                    if (param.getUnitName() != null) {
+                        sb.append(" ");
+                        sb.append(param.getUnitName());
+                    }
+
+                    mtd.addSoftwareSetting(softwareID, sb.toString());
+                }
+            }
+
+            // add additional search params
+            ParamList additionalSearchParams = preprocessAdditionalParams(
+                    specIdProtocol.getAdditionalSearchParams(), mtd, softwareID);
+
+            if (additionalSearchParams != null) {
+                for (CvParam param : additionalSearchParams.getCvParam()) {
+                    if (param.getValue() != null) {
+                        mtd.addSoftwareSetting(softwareID, param.getName() + " = " + param.getValue());
+                    } else {
+                        mtd.addSoftwareSetting(softwareID, param.getName());
+                    }
+                }
+                for (UserParam param : additionalSearchParams.getUserParam()) {
+                    if (param.getValue() != null) {
+                        mtd.addSoftwareSetting(softwareID, param.getName() + " = " + param.getValue());
+                    } else {
+                        mtd.addSoftwareSetting(softwareID, param.getName());
+                    }
+                }
+            }
+
+            // add the enzyme/s (if not already added)
+            if (specIdProtocol.getEnzymes() != null) {
+                for (Enzyme enzyme : specIdProtocol.getEnzymes().getEnzyme()) {
+                    List<AbstractParam> enzymeParams = new ArrayList<AbstractParam>();
+                    if (enzyme.getEnzymeName() != null) {
+                        enzymeParams.addAll(enzyme.getEnzymeName().getCvParam());
+                        enzymeParams.addAll(enzyme.getEnzymeName().getUserParam());
+                    } else if (enzyme.getSiteRegexp() != null) {
+                        CleavageAgent agent = CleavageAgent.getBySiteRegexp(enzyme.getSiteRegexp());
+
+                        if (agent != null) {
+                            enzymeParams.add(MzIdentMLTools.createCvParam(
+                                    agent.getAccession(),
+                                    MzIdentMLTools.getCvPSIMS(),
+                                    agent.getName(),
+                                    null));
+                        }
+                    }
+
+                    for (AbstractParam param : enzymeParams) {
+                        if (!enzymeNames.contains(param.getName())) {
+
+                            uk.ac.ebi.pride.jmztab.model.Param enzParam;
+
+                            if (param instanceof CvParam) {
+                                enzParam = new CVParam(
+                                        ((CvParam) param).getCvRef(),
+                                        ((CvParam) param).getAccession(),
+                                        param.getName(),
+                                        param.getValue());
+                            } else {
+                                enzParam = new uk.ac.ebi.pride.jmztab.model.UserParam(
+                                        param.getName(),
+                                        param.getValue());
+                            }
+
+                            mtd.addSampleProcessingParam(mtd.getSampleProcessingMap().size()+1,
+                                    enzParam);
+                            enzymeNames.add(param.getName());
+                        }
+                    }
+                }
+            }
+        }
+
+        // add PIA to the list of used softwares, with according settings
+        int piaSoftwareNr = mtd.getSoftwareMap().size() + 1;
+        mtd.addSoftwareParam(piaSoftwareNr, piaParam);
+
+        if (proteinLevel) {
+            mtd.addSoftwareSetting(piaSoftwareNr, "modifications are "
+                    + (piaModeller.getConsiderModifications() ? "" : "NOT ")
+                    + "taken into account for peptide distinction");
+
+            // add the PIA protein score
+            mtd.addProteinSearchEngineScoreParam(1, new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                    OntologyConstants.PIA_PROTEIN_SCORE.getPsiAccession(),
+                    OntologyConstants.PIA_PROTEIN_SCORE.getPsiName(),
+                    null));
+        } else {
+            if (fileID == 0) {
+                mtd.addSoftwareSetting(piaSoftwareNr, "mzTab export of PSMs for overview");
+            } else {
+                mtd.addSoftwareSetting(piaSoftwareNr, "mzTab export of PSMs for file " + fileID);
+            }
+        }
+
+        // PSM (combined) FDRScore
+        if ((proteinLevel || fileID == 0) &&
+                piaModeller.getPSMModeller().isCombinedFDRScoreCalculated()) {
+            mtd.addSoftwareSetting(piaSoftwareNr,
+                    OntologyConstants.PSM_LEVEL_COMBINED_FDRSCORE.getPsiName()
+                    + " was calculated");
+
+            for (Map.Entry<Long, FDRData> fdrIt : piaModeller.getPSMModeller().getFileFDRData().entrySet()) {
+                if (fdrIt.getKey() > 0) {
+                    mtd.addSoftwareSetting(piaSoftwareNr,
+                            "base score for FDR calculation for file "
+                            + fdrIt.getKey() + " = " + fdrIt.getValue().getScoreShortName());
+                }
+            }
+        } else if (!proteinLevel && (fileID > 0) && piaModeller.getPSMModeller().isFDRCalculated(fileID)) {
+            mtd.addSoftwareSetting(piaSoftwareNr,
+                    OntologyConstants.PSM_LEVEL_FDRSCORE.getPsiName() +
+                    " was calculated for file " + fileID);
+
+            mtd.addSoftwareSetting(piaSoftwareNr,
+                    "base score for FDR calculation for file "
+                    + fileID + " = "
+                    + piaModeller.getPSMModeller().getFileFDRData().get(fileID).getScoreShortName());
+        }
+
+        if (filterExport) {
+            List<AbstractFilter> filters = null;
+            if (proteinLevel) {
+                filters = piaModeller.getProteinModeller().getReportFilters();
+            } else {
+                filters = piaModeller.getPSMModeller().getFilters(fileID);
+            }
+
+            for (AbstractFilter filter : filters) {
+                mtd.addSoftwareSetting(piaSoftwareNr, "applied filter " +
+                        filter.toString());
+            }
+        }
+
+        return mtd;
+    }
+
+
+    /**
+     * Processed all additional search params and adds them to th esoftware
+     * settings, if the format for them is known.
+     *
+     * @param paramList
+     * @param mtd
+     * @param softwareID
+     * @return
+     */
+    private ParamList preprocessAdditionalParams(ParamList paramList,
+            Metadata mtd, Integer softwareID) {
+        if (paramList == null) {
+            return new ParamList();
+        }
+
+        // all the unprocessed params
+        ParamList unprocessedParams = new ParamList();
+
+        Set<String> contactNames = new HashSet<String>();
+        for (Contact contact : mtd.getContactMap().values()) {
+            contactNames.add(contact.getName());
+        }
+        Set<String> instrumentNames = new HashSet<String>();
+        for (Instrument instrument : mtd.getInstrumentMap().values()) {
+            instrumentNames.add(instrument.getName().getValue());
+        }
+        Set<String> sampleDescriptions = new HashSet<String>();
+        for (Sample sample : mtd.getSampleMap().values()) {
+            sampleDescriptions.add(sample.getDescription());
+        }
+
+        ListIterator<CvParam> cvIterator = paramList.getCvParam().listIterator();
+        while (cvIterator.hasNext()) {
+            CvParam param = cvIterator.next();
+            OntologyConstants ontologyEntry = OntologyConstants.getByAccession(param.getAccession());
+
+            if (ontologyEntry != null) {
+                switch (ontologyEntry) {
+                case CONTACT_NAME:
+                    // the first entry of a contact detail has to be the name
+                    Contact contact = processContactData(param.getValue(),
+                            cvIterator, contactNames.size()+1);
+                    if (!contactNames.contains(contact.getName())) {
+                        mtd.addContact(contact);
+                        contactNames.add(contact.getName());
+                    }
+                    break;
+
+                case INSTRUMENT_MODEL:
+                    if (!instrumentNames.contains(param.getValue())) {
+                        Instrument instrument = new Instrument(instrumentNames.size()+1);
+
+                        instrument.setName(new uk.ac.ebi.pride.jmztab.model.UserParam(
+                                "instrument model", param.getValue()));
+
+                        mtd.addInstrument(instrument);
+                        instrumentNames.add(param.getValue());
+                    }
+                    break;
+
+                case SAMPLE_NAME:
+                    // wenn "sample name" -> baue sample, mit enzyme und allen möglichen anderen beschreibungen (iTraq, alles was subsample im Namen hat...)
+                    if (!sampleDescriptions.contains(param.getValue())) {
+                        Sample sample = new Sample(sampleDescriptions.size()+1);
+                        sample.setDescription(param.getValue());
+                        mtd.addSample(sample);
+                        sampleDescriptions.add(param.getValue());
+                    }
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        }
+
+        /*
+        // TODO: process userParams
+        for (UserParam param : paramList.getUserParam()) {
+        }
+        */
+
+        return unprocessedParams;
+    }
+
+
+    /**
+     * Processes the subsequent cvParams in the additional search params, which
+     * belong to a contact.
+     *
+     * @param name name of the contact, which is always the first of the contact
+     * details in the list
+     * @param cvIterator Iterator over the cvParams
+     * @param id id of the created contact
+     * @return
+     */
+    private Contact processContactData(String name, ListIterator<CvParam> cvIterator, int id) {
+        // get the name again
+        Contact contact = new Contact(id);
+        contact.setName(name);
+
+        while (cvIterator.hasNext()) {
+            CvParam param = cvIterator.next();
+            OntologyConstants ontologyEntry = OntologyConstants.getByAccession(param.getAccession());
+
+            if (ontologyEntry != null) {
+                switch (ontologyEntry) {
+                case CONTACT_AFFILIATION:
+                    contact.setAffiliation(param.getValue());
+                    break;
+                case CONTACT_EMAIL:
+                    contact.setEmail(param.getValue());
+                    break;
+
+                case CONTACT_ATTRIBUTE:
+                case CONTACT_ADDRESS:
+                case CONTACT_URL:
+                    break;
+
+                default:
+                    // end on any other element
+                    cvIterator.previous();
+                    return contact;
+                }
+            }
+        }
+
+        return contact;
+    }
+
+
+    /**
+     * Writes out a PSM section for the list of PSMs (which can be either PSM
+     * sets or single PSMs).
+     *
+     * @param report a List of {@link PSMReportItem}s containing the PSMs to be
+     * reported
+     * @param reliabilityCol whether the reliability column should be written
+     *
+     * @throws IOException
+     */
+    private void writePSMs(List<PSMReportItem> report, boolean reliabilityCol)
+            throws IOException {
+        // initialize the columns
+        MZTabColumnFactory columnFactory =
+                MZTabColumnFactory.getInstance(Section.PSM_Header);
+
+        columnFactory.addDefaultStableColumns();
+
+        // add the score columns
+        for (Integer scoreID : psmScoreShortToId.values()) {
+            columnFactory.addSearchEngineScoreOptionalColumn(PSMColumn.SEARCH_ENGINE_SCORE, scoreID, null);
+        }
+
+        // add custom column for missed cleavages
+        columnFactory.addOptionalColumn(
+                PIAConstants.MZTAB_MISSED_CLEAVAGES_COLUMN_NAME, Integer.class);
+
+        // add optional column for decoys
+        CVParam decoyColumnParam =
+                new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                        OntologyConstants.DECOY_PEPTIDE.getPsiAccession(),
+                        OntologyConstants.DECOY_PEPTIDE.getPsiName(),
+                        null);
+        columnFactory.addOptionalColumn(decoyColumnParam, String.class);
+
+        // if it is set, write the reliability column
+        if (reliabilityCol) {
+            columnFactory.addReliabilityOptionalColumn();
+        }
+
+        outWriter.append(columnFactory.toString());
+        outWriter.append(MZTabConstants.NEW_LINE);
+
+        // cache the databaseRefs to an array with name and version
+        Map<String, String[]> dbRefToDbNameAndVersion =
+                new HashMap<String, String[]>();
+
+        // cache the softwareRefs to the Params
+        Map<String, uk.ac.ebi.pride.jmztab.model.Param> softwareParams =
+                new HashMap<String, uk.ac.ebi.pride.jmztab.model.Param>();
+
+
+        // now write the PSMs
+        int psmID = 0;
+        for (PSMReportItem psmItem : report) {
+            PSM mztabPsm = new PSM(columnFactory, metadata);
+
+            mztabPsm.setSequence(psmItem.getSequence());
+            Set<String> specIdRefs = new HashSet<String>();
+
+            Set<String> softwareRefs = new HashSet<String>();
+
+            if (psmItem instanceof ReportPSM) {
+                psmID = ((ReportPSM) psmItem).getId().intValue();
+
+                specIdRefs.add(((ReportPSM) psmItem).getSpectrum().
+                        getSpectrumIdentification().getId());
+
+                softwareRefs.add(((ReportPSM) psmItem).getFile().
+                        getAnalysisProtocolCollection().
+                        getSpectrumIdentificationProtocol().get(0).
+                        getAnalysisSoftwareRef());
+            } else if (psmItem instanceof ReportPSMSet) {
+                // in PSM sets, the ID does NOT represent the ID from the PIA
+                // file but is an incremental value
+                psmID++;
+
+                for (ReportPSM reportPSM : ((ReportPSMSet) psmItem).getPSMs()) {
+                    if (reportPSM.getSpectrum().
+                            getSpectrumIdentification().getId() != null) {
+                        specIdRefs.add(reportPSM.getSpectrum().
+                                getSpectrumIdentification().getId());
+                    }
+
+                    softwareRefs.add(reportPSM.getFile().
+                            getAnalysisProtocolCollection().
+                            getSpectrumIdentificationProtocol().get(0).
+                            getAnalysisSoftwareRef());
+                }
+            }
+            mztabPsm.setPSM_ID(psmID);
+
+            if (psmItem.getAccessions().size() > 1) {
+                mztabPsm.setUnique(MZBoolean.False);
+            } else {
+                mztabPsm.setUnique(MZBoolean.True);
+            }
+
+            for (Map.Entry<Integer, Modification> modIt
+                    : psmItem.getModifications().entrySet()) {
+                uk.ac.ebi.pride.jmztab.model.Modification mod;
+                ModT uniMod = unimodParser.getModification(
+                        modIt.getValue().getAccession(),
+                        modIt.getValue().getDescription(),
+                        modIt.getValue().getMass(),
+                        modIt.getValue().getResidue().toString());
+
+                if (uniMod != null) {
+                    mod = new uk.ac.ebi.pride.jmztab.model.Modification(
+                            Section.PSM,
+                            uk.ac.ebi.pride.jmztab.model.Modification.Type.UNIMOD,
+                            uniMod.getRecordId().toString());
+                } else {
+                    // not found in UNIMOD, create a CHEMMOD mass-shift
+                    mod = new uk.ac.ebi.pride.jmztab.model.Modification(
+                            Section.PSM,
+                            uk.ac.ebi.pride.jmztab.model.Modification.Type.CHEMMOD,
+                            modIt.getValue().getMass().toString());
+                }
+
+                mod.addPosition(modIt.getKey(), null);
+                mztabPsm.addModification(mod);
+            }
+
+            if (psmItem.getRetentionTime() != null) {
+                mztabPsm.setRetentionTime(
+                        psmItem.getRetentionTime().toString());
+            }
+
+            mztabPsm.setCharge(psmItem.getCharge());
+            mztabPsm.setExpMassToCharge(psmItem.getMassToCharge());
+            mztabPsm.setCalcMassToCharge(
+                    psmItem.getMassToCharge() - psmItem.getDeltaMass());
+
+            // There is no URI for the PSM
+            // mztabPsm.setURI("http://www.ebi.ac.uk/pride/link/to/peptide");
+
+            if (psmItem.getSourceID() != null) {
+                for (String specIdRef : specIdRefs) {
+                    List<MsRun> runList = specIdRefToMsRuns.get(specIdRef);
+                    if ((runList != null) && (runList.size() == 1)) {
+                        // TODO: what, if there is more than one msRun per file?
+                        SpectraRef specRef = new SpectraRef(runList.get(0),
+                                psmItem.getSourceID());
+                        mztabPsm.addSpectraRef(specRef);
+                    }
+                }
+            }
+
+            // add the search engines (i.e. analysisSoftwares)
+            for (String softwareRef : softwareRefs) {
+                uk.ac.ebi.pride.jmztab.model.Param softwareParam =
+                        softwareParams.get(softwareRef);
+
+                if (softwareParam == null) {
+                    AnalysisSoftware software = piaModeller.getAnalysisSoftwares().get(softwareRef);
+
+                    Param softwareName = software.getSoftwareName();
+                    if (softwareName != null) {
+                        if (softwareName.getCvParam() != null) {
+                            CvParam param = softwareName.getCvParam();
+
+                            softwareParam = new CVParam(param.getCvRef(),
+                                    param.getAccession(), param.getName(),
+                                    software.getVersion());
+                        } else if (softwareName.getUserParam() != null) {
+                            UserParam param = softwareName.getUserParam();
+
+                            softwareParam =
+                                    new uk.ac.ebi.pride.jmztab.model.UserParam(
+                                            param.getName(), software.getVersion());
+                        }
+                    }
+
+                    softwareParams.put(softwareRef, softwareParam);
+                }
+
+                mztabPsm.addSearchEngineParam(softwareParam);
+            }
+
+            // add the scores
+            Reliability reliability = null;
+            for (Map.Entry<String, Integer> scoreIt : psmScoreShortToId.entrySet()) {
+                Double scoreValue = null;
+
+                if (psmItem instanceof ReportPSM) {
+                    scoreValue = psmItem.getScore(scoreIt.getKey());
+                } else if (psmItem instanceof ReportPSMSet) {
+                    scoreValue = ((ReportPSMSet) psmItem).getBestScore(scoreIt.getKey());
+                    if (scoreValue.equals(Double.NaN)) {
+                        scoreValue = psmItem.getScore(scoreIt.getKey());
+                    }
+                }
+                if (scoreValue.equals(Double.NaN)) {
+                    scoreValue = null;
+                }
+                mztabPsm.setSearchEngineScore(scoreIt.getValue(), scoreValue);
+
+                ScoreModelEnum model = ScoreModelEnum.getModelByDescription(scoreIt.getKey());
+                if (reliabilityCol &&
+                        (model.equals(ScoreModelEnum.PSM_LEVEL_FDR_SCORE) ||
+                                model.equals(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE))) {
+                    if ((scoreValue != null) && (scoreValue <= 0.01)) {
+                        reliability = Reliability.High;
+                    } else if ((scoreValue != null) && (scoreValue <= 0.05)) {
+                        reliability = Reliability.Medium;
+                    } else {
+                        reliability = Reliability.Poor;
+                    }
+                }
+            }
+
+            // if the (combined) FDRScore is calculated, give the reliability
+            // 1: high reliability     (combined) FDRScore <= 0.01
+            // 2: medium reliability   (combined) FDRScore <= 0.05
+            // 3: poor reliability     (combined) FDRScore >  0.05
+            if (reliability != null) {
+                mztabPsm.setReliability(reliability);
+            }
+
+
+            mztabPsm.setOptionColumnValue(
+                    PIAConstants.MZTAB_MISSED_CLEAVAGES_COLUMN_NAME,
+                    psmItem.getMissedCleavages());
+
+            mztabPsm.setOptionColumnValue(decoyColumnParam,
+                    psmItem.getIsDecoy() ? "1" : "0");
+
+            // one line and some special info per accession
+            for (Accession accession : psmItem.getAccessions()) {
+                mztabPsm.setAccession(accession.getAccession());
+
+                // set the first available dbName and dbVersion
+                for (String dbRef :     accession.getSearchDatabaseRefs()) {
+                    String[] nameAndVersion =
+                            dbRefToDbNameAndVersion.get(dbRef);
+                    // cache the name and version of databases
+                    if (nameAndVersion == null) {
+                        SearchDatabase sDB = piaModeller.getSearchDatabases().get(dbRef);
+
+                        if (sDB.getDatabaseName() != null) {
+                            nameAndVersion = new String[2];
+                            if (sDB.getDatabaseName().getCvParam() != null) {
+                                nameAndVersion[0] =
+                                        sDB.getDatabaseName().getCvParam().getName();
+                            } else if (sDB.getDatabaseName().getUserParam() != null) {
+                                nameAndVersion[0] =
+                                        sDB.getDatabaseName().getUserParam().getName();
+                            }
+                            nameAndVersion[1] = sDB.getVersion();
+
+                        } else if (sDB.getName() != null) {
+                            nameAndVersion = new String[2];
+                            nameAndVersion[0] = sDB.getName();
+                            nameAndVersion[1] = sDB.getVersion();
+                        } else {
+                            nameAndVersion = new String[1];
+                            nameAndVersion[0] = null;
+                        }
+
+                        dbRefToDbNameAndVersion.put(dbRef, nameAndVersion);
+                    }
+
+                    if (nameAndVersion[0] != null) {
+                        mztabPsm.setDatabase(nameAndVersion[0]);
+                        mztabPsm.setDatabaseVersion(nameAndVersion[1]);
+                    }
+                }
+
+                for (AccessionOccurrence occurrence
+                        : psmItem.getPeptide().getAccessionOccurrences()) {
+
+                    if (accession.equals(occurrence.getAccession())) {
+                        String dbSequence = accession.getDbSequence();
+                        if (dbSequence != null) {
+                            if (occurrence.getStart() > 1) {
+                                mztabPsm.setPre(
+                                        dbSequence.substring(
+                                                occurrence.getStart()-2,
+                                                occurrence.getStart()-1));
+                            } else {
+                                mztabPsm.setPre("-");
+                            }
+
+
+                            if (occurrence.getEnd() < dbSequence.length()) {
+                                mztabPsm.setPost(
+                                        dbSequence.substring(
+                                                occurrence.getEnd(),
+                                                occurrence.getEnd()+1));
+                            } else {
+                                mztabPsm.setPost("-");
+                            }
+                        }
+
+                        mztabPsm.setStart(occurrence.getStart().toString());
+                        mztabPsm.setEnd(occurrence.getEnd().toString());
+                    }
+                    // TODO: multiple occurrences in the the same protein?
+                }
+
+                outWriter.append(mztabPsm.toString());
+                outWriter.append(MZTabConstants.NEW_LINE);
+            }
+        }
+    }
+
+
+
+    /**
+     * Writes the protein section into an mzTab file
+     *
+     * @param metadata
+     * @param report
+     * @param specIDRefToMsRuns
+     * @param reportPSMs
+     * @param writer
+     * @param unimodParser
+     * @throws IOException
+     */
+    private void writeProteins(List<ReportProtein> report,
+            Map<String, PSMReportItem> reportPSMs) throws IOException {
+        // initialize the columns
+        MZTabColumnFactory columnFactory =
+                MZTabColumnFactory.getInstance(Section.Protein_Header);
+
+        columnFactory.addDefaultStableColumns();
+
+        Map<String, Boolean> psmSetSettings = piaModeller.getPSMModeller().getPSMSetSettings();
+
+        // cache the msRuns
+        Map<Integer, MsRun> msRunMap = new HashMap<Integer, MsRun>();
+        for (List<MsRun> msRunList : specIdRefToMsRuns.values()) {
+            for (MsRun msRun : msRunList) {
+                msRunMap.put(msRun.getId(), msRun);
+            }
+        }
+
+        // add msRun specific information, where possible
+        for (MsRun msRun : msRunMap.values()) {
+            columnFactory.addOptionalColumn(ProteinColumn.NUM_PSMS, msRun);
+            columnFactory.addOptionalColumn(ProteinColumn.NUM_PEPTIDES_DISTINCT, msRun);
+        }
+
+        // add the PIA protein score
+        CVParam proteinScoreColumnParam =
+                new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                        OntologyConstants.PIA_PROTEIN_SCORE.getPsiAccession(),
+                        OntologyConstants.PIA_PROTEIN_SCORE.getPsiName(),
+                        null);
+        columnFactory.addOptionalColumn(proteinScoreColumnParam, Double.class);
+
+        // add FDR value, if calculated
+        CVParam fdrColumnParam = null;
+        CVParam qvalueColumnParam = null;
+        if (piaModeller.getProteinModeller().getFDRData().getNrItems() != null) {
+            columnFactory.addReliabilityOptionalColumn();
+
+            fdrColumnParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                    OntologyConstants.PROTEIN_LEVEL_LOCAL_FDR.getPsiAccession(),
+                    OntologyConstants.PROTEIN_LEVEL_LOCAL_FDR.getPsiName(),
+                    null);
+            columnFactory.addOptionalColumn(fdrColumnParam, Double.class);
+
+            qvalueColumnParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                    OntologyConstants.PROTEIN_GROUP_LEVEL_Q_VALUE.getPsiAccession(),
+                    OntologyConstants.PROTEIN_GROUP_LEVEL_Q_VALUE.getPsiName(),
+                    null);
+            columnFactory.addOptionalColumn(qvalueColumnParam, Double.class);
+        }
+
+        // add custom column for nr_peptides
+        CVParam nrPeptidesColumnParam =
+                new CVParam("MS", "MS:1001097", "distinct peptide sequences", null);
+        columnFactory.addOptionalColumn(nrPeptidesColumnParam, Integer.class);
+
+        // add custom column for nr_psms
+        columnFactory.addOptionalColumn(
+                PIAConstants.MZTAB_NR_PSMS_COLUMN_NAME, Integer.class);
+
+        // add custom column for nr_spectra
+        columnFactory.addOptionalColumn(
+                PIAConstants.MZTAB_NR_SPECTRA_COLUMN_NAME, Integer.class);
+
+        outWriter.append(columnFactory.toString());
+        outWriter.append(MZTabConstants.NEW_LINE);
+
+        // cache the databaseRefs to an array with name and version
+        Map<String, String[]> dbRefToDbNameAndVersion =
+                new HashMap<String, String[]>();
+
+        for (ReportProtein reportProtein : report) {
+            Protein mzTabProtein = new Protein(columnFactory);
+
+            Accession representative = reportProtein.getRepresentative();
+            mzTabProtein.setAccession(representative.getAccession());
+
+            // just take one description
+            for (String desc : representative.getDescriptions().values()) {
+                if (desc.trim().length() > 0) {
+                    mzTabProtein.setDescription(desc);
+                    break;
+                }
+            }
+
+            // taxID and species is (for now) not known in PIA
+            //mzTabProtein.setTaxid(null);
+            //mzTabProtein.setSpecies(null);
+
+            // set the first available dbName and dbVersion of the representative
+            for (String dbRef : representative.getSearchDatabaseRefs()) {
+                String[] nameAndVersion = dbRefToDbNameAndVersion.get(dbRef);
+                // cache the name and version of databases
+                if (nameAndVersion == null) {
+                    SearchDatabase sDB = piaModeller.getSearchDatabases().get(dbRef);
+
+                    if (sDB.getDatabaseName() != null) {
+                        nameAndVersion = new String[2];
+                        if (sDB.getDatabaseName().getCvParam() != null) {
+                            nameAndVersion[0] =
+                                    sDB.getDatabaseName().getCvParam().getName();
+                        } else if (sDB.getDatabaseName().getUserParam() != null) {
+                            nameAndVersion[0] =
+                                    sDB.getDatabaseName().getUserParam().getName();
+                        }
+                        nameAndVersion[1] = sDB.getVersion();
+
+                    } else if (sDB.getName() != null) {
+                        nameAndVersion = new String[2];
+                        nameAndVersion[0] = sDB.getName();
+                        nameAndVersion[1] = sDB.getVersion();
+                    } else {
+                        nameAndVersion = new String[1];
+                        nameAndVersion[0] = null;
+                    }
+
+                    dbRefToDbNameAndVersion.put(dbRef, nameAndVersion);
+                }
+
+                if (nameAndVersion[0] != null) {
+                    mzTabProtein.setDatabase(nameAndVersion[0]);
+                    mzTabProtein.setDatabaseVersion(nameAndVersion[1]);
+                }
+            }
+
+            Set<String> usedSoftwareRefs = new HashSet<String>();
+
+            Map<Integer, Integer> msRunIdToNumPSMs =
+                    new HashMap<Integer, Integer>();
+
+            Map<Integer, Set<String>> msRunIdToDistinctPeptides =
+                    new HashMap<Integer, Set<String>>();
+
+            // go through each peptide and PSM of the protein and collect information
+            for (ReportPeptide reportPeptide : reportProtein.getPeptides()) {
+                for (PSMReportItem reportItem : reportPeptide.getPSMs()) {
+                    if (reportItem instanceof ReportPSMSet) {
+
+                        for (ReportPSM reportPSM
+                                : ((ReportPSMSet) reportItem).getPSMs()) {
+                            // get the used search engine for this PSM
+                            usedSoftwareRefs.add(reportPSM.getFile().
+                                    getAnalysisProtocolCollection().
+                                    getSpectrumIdentificationProtocol().get(0).
+                                    getAnalysisSoftwareRef());
+
+                            String specIdRef = reportPSM.getSpectrum().
+                                    getSpectrumIdentification().getId();
+
+                            if (specIdRefToMsRuns.get(specIdRef) != null) {
+                                // increase the numPSMs of the the msRun(s)
+                                for (MsRun msRun : specIdRefToMsRuns.get(specIdRef)) {
+                                    Integer id = msRun.getId();
+
+                                    if (msRunIdToNumPSMs.containsKey(id)) {
+                                        msRunIdToNumPSMs.put(id, msRunIdToNumPSMs.get(id) + 1);
+                                    } else {
+                                        msRunIdToNumPSMs.put(id, 0);
+                                    }
+
+                                    Set<String> disctinctPeptides =
+                                            msRunIdToDistinctPeptides.get(msRun.getId());
+                                    if (disctinctPeptides == null) {
+                                        disctinctPeptides = new HashSet<String>(
+                                                reportProtein.getNrPeptides());
+                                        msRunIdToDistinctPeptides.put(
+                                                msRun.getId(), disctinctPeptides);
+                                    }
+                                    disctinctPeptides.add(reportPSM.getSequence());
+                                }
+                            }
+                        }
+
+                        // add the PSM set to the PSM map
+                        String psmKey = reportItem.getIdentificationKey(psmSetSettings);
+                        if (!reportPSMs.containsKey(psmKey)) {
+                            reportPSMs.put(psmKey, reportItem);
+                        }
+                    } else {
+                        logger.error(
+                                "item in ReportPeptide should NOT be ReportPSM");
+                    }
+                }
+            }
+
+            // add the search engines, which is always PIA
+            mzTabProtein.addSearchEngineParam(piaParam);
+
+            // set the PIA protein score
+            mzTabProtein.setOptionColumnValue(proteinScoreColumnParam, reportProtein.getScore());
+
+            // the protein score for each search engine's identification is not collected
+            //mzTabProtein.addSearchEngineScoreParam(msRun, param)
+
+            // get the protein FDR, if calculated, and set the reliability
+            if (fdrColumnParam != null) {
+                if (reportProtein.getQValue() <= 0.01) {
+                    mzTabProtein.setReliability(Reliability.High);
+                } else if (reportProtein.getQValue() <= 0.05) {
+                    mzTabProtein.setReliability(Reliability.Medium);
+                } else {
+                    mzTabProtein.setReliability(Reliability.Poor);
+                }
+
+                mzTabProtein.setOptionColumnValue(fdrColumnParam, reportProtein.getFDR());
+                mzTabProtein.setOptionColumnValue(qvalueColumnParam, reportProtein.getQValue());
+            }
+
+            for (Map.Entry<Integer, MsRun> msRunIt : msRunMap.entrySet()) {
+                Integer msRunID = msRunIt.getValue().getId();
+                // set the num_psms_ms_run
+                if (msRunIdToNumPSMs.containsKey(msRunID)) {
+                    mzTabProtein.setNumPSMs(msRunIt.getValue(),
+                            msRunIdToNumPSMs.get(msRunID));
+                } else {
+                    mzTabProtein.setNumPSMs(msRunIt.getValue(), 0);
+                }
+
+                if (msRunIdToDistinctPeptides.containsKey(msRunID)) {
+                    mzTabProtein.setNumPeptidesDistinct(msRunIt.getValue(),
+                            msRunIdToDistinctPeptides.get(msRunID).size());
+                } else {
+                    mzTabProtein.setNumPeptidesDistinct(msRunIt.getValue(), 0);
+                }
+            }
+
+            for (Accession ambiguityMember : reportProtein.getAccessions()) {
+                if (!ambiguityMember.equals(representative)) {
+                    mzTabProtein.addAmbiguityMembers(
+                            ambiguityMember.getAccession());
+                }
+            }
+
+            // TODO: perhaps add modifications
+            //mzTabProtein.addModification(modification);
+
+            // there is no URI for the proteins
+            //mzTabProtein.setURI(null);
+
+            // there is no GO term annotation in PIA yet
+            //mzTabProtein.addGOTerm(null)
+
+            Double coverage =
+                    reportProtein.getCoverage(representative.getAccession());
+            if (!coverage.equals(Double.NaN)) {
+                mzTabProtein.setProteinConverage(coverage);
+            }
+
+            mzTabProtein.setOptionColumnValue(nrPeptidesColumnParam,
+                    reportProtein.getNrPeptides());
+
+            mzTabProtein.setOptionColumnValue(
+                    PIAConstants.MZTAB_NR_PSMS_COLUMN_NAME,
+                    reportProtein.getNrPSMs());
+
+            mzTabProtein.setOptionColumnValue(
+                    PIAConstants.MZTAB_NR_SPECTRA_COLUMN_NAME,
+                    reportProtein.getNrSpectra());
+
+            outWriter.append(mzTabProtein.toString());
+            outWriter.append(MZTabConstants.NEW_LINE);
+        }
+    }
 }
