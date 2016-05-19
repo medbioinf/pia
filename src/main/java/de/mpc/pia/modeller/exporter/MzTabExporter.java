@@ -764,7 +764,7 @@ public class MzTabExporter {
 
 
     /**
-     * Processed all additional search params and adds them to th esoftware
+     * Processed all additional search params and adds them to the software
      * settings, if the format for them is known.
      *
      * @param paramList

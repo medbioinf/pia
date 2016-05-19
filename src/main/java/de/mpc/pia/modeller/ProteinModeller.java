@@ -974,6 +974,33 @@ public class ProteinModeller {
             throws IOException {
         logger.info("start writing mzIdentML file");
 
+
+        // TODO: this needs a complete overhaul!
+/*
+      errors on current export:
+
+      <SpectrumIdentificationResult spectrumID="index=18510" spectraData_ref="spectraData_1" id="2:0:595.3292:4685.0:index=18510">
+        <SpectrumIdentificationItem chargeState="2" experimentalMassToCharge="595.3291627988281" peptide_ref="PEP_DDLLIMVVQK(6;15.9949)" rank="0" passThreshold="true" id="2:0:595.3292:[6,15.9949]:4685.0:DDLLIMVVQK:index=18510">
+          <PeptideEvidenceRef peptideEvidence_ref="PE_DDLLIMVVQK(6;15.9949)-436-445-sS4R2T5"></PeptideEvidenceRef>
+          <cvParam cvRef="PSI-MS" accession="MS:1002315" name="consensus result"></cvParam>
+          <cvParam cvRef="PSI-MS" accession="MS:1000016" name="scan start time" value="4685.09200000002" unitAccession="UO:0000010" unitName="second" unitCvRef="UO"></cvParam>
+          <cvParam cvRef="PSI-MS" accession="MS:1000796" name="spectrum title" value="595.329162597656_4685.09200000002_controllerType=0 controllerNumber=1 scan=21139_OEII12347"></cvParam>
+          <cvParam cvRef="PSI-MS" accession="MS:1001975" name="delta m/z" value="0.0013533867187499999" unitAccession="UO:0000221" unitName="dalton" unitCvRef="UO"></cvParam>
+          <cvParam cvRef="PSI-MS" accession="MS:1002356" name="PSM-level combined FDRScore" value="1.4464577135661867E-8"></cvParam>
+        </SpectrumIdentificationItem>
+      </SpectrumIdentificationResult>
+
+      <SpectrumIdentificationResult spectrumID="index=18510" spectraData_ref="spectraData_1" id="2:0:595.3292:index=18510">
+        <SpectrumIdentificationItem chargeState="2" experimentalMassToCharge="595.3291625976562" peptide_ref="PEP_KNGKHYGKEK" rank="0" passThreshold="true" id="2:0:595.3292::KNGKHYGKEK:index=18510">
+          <PeptideEvidenceRef peptideEvidence_ref="PE_KNGKHYGKEK-266-275-sQ3TQI7"></PeptideEvidenceRef>
+          <cvParam cvRef="PSI-MS" accession="MS:1002315" name="consensus result"></cvParam>
+          <cvParam cvRef="PSI-MS" accession="MS:1000796" name="spectrum title" value="595.329162597656_4685.09200000002_controllerType=0 controllerNumber=1 scan=21139_OEII12347"></cvParam>
+          <cvParam cvRef="PSI-MS" accession="MS:1001975" name="delta m/z" value="1.002685546875" unitAccession="UO:0000221" unitName="dalton" unitCvRef="UO"></cvParam>
+          <cvParam cvRef="PSI-MS" accession="MS:1002356" name="PSM-level combined FDRScore" value="1.4464577135661867E-8"></cvParam>
+        </SpectrumIdentificationItem>
+      </SpectrumIdentificationResult>
+*/
+
         UnimodParser unimodParser = new UnimodParser();
         MzIdentMLMarshaller m = new MzIdentMLMarshaller();
 

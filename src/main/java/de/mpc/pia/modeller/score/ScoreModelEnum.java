@@ -111,9 +111,7 @@ public enum ScoreModelEnum {
         }
     },
     /**
-     * This Score implements the Combined FDR Score.<br/>
-     * It does not have an own class, but is actually only for the naming. The
-     * FDR Score of a {@link ReportPSMSet} is a COMBINED_FDR_SCORE
+     * This Score implements the Combined FDR Score on PSM level.
      */
     PSM_LEVEL_COMBINED_FDR_SCORE {
         @Override
@@ -152,8 +150,7 @@ public enum ScoreModelEnum {
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
-            descs.add("Combined FDR");
-            descs.add("combined fdr");
+            descs.add("PSM-level Combined FDR Score");
             descs.add(getShortName());
 
             return descs;
@@ -165,7 +162,7 @@ public enum ScoreModelEnum {
         }
     },
     /**
-     * This Score implements the FDR-Score.
+     * This Score implements the FDR Score on PSM level.
      */
     PSM_LEVEL_FDR_SCORE {
         @Override
@@ -256,6 +253,152 @@ public enum ScoreModelEnum {
             descs.add(getCvName());
             descs.add("q-value_openmsmainscore");
             descs.add("q-value");
+
+            return descs;
+        }
+    },
+
+    /**
+     * This Score implements the Combined FDR Score on peptide level.
+     */
+    PEPTIDE_LEVEL_COMBINED_FDR_SCORE {
+        @Override
+        public String getName() {
+            return "Peptide Combined FDR Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "peptide_combined_fdr_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PEPTIDE_LEVEL_COMBINED_FDRSCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PEPTIDE_LEVEL_COMBINED_FDRSCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<String>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add("Peptide-level Combined FDR Score");
+            descs.add(getShortName());
+
+            return descs;
+        }
+
+        @Override
+        public Boolean isPSMSetScore() {
+            return true;
+        }
+    },
+    /**
+     * This Score implements the FDR Score on peptide level.
+     */
+    PEPTIDE_LEVEL_FDR_SCORE {
+        @Override
+        public String getName() {
+            return "Peptide FDRScore";
+        }
+
+        @Override
+        public String getShortName() {
+            return "peptide_fdr_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PEPTIDE_LEVEL_FDRSCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PEPTIDE_LEVEL_FDRSCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<String>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+
+            return descs;
+        }
+    },
+    /**
+     * This Score implements the PSM level q-value.
+     */
+    PEPTIDE_LEVEL_Q_VALUE {
+        @Override
+        public String getName() {
+            return "PEPTIDE q-value";
+        }
+
+        @Override
+        public String getShortName() {
+            return "peptide_q_value";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PEPTIDE_LEVEL_QVALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PEPTIDE_LEVEL_QVALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<String>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
 
             return descs;
         }

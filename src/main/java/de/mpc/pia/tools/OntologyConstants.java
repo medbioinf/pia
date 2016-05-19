@@ -45,6 +45,9 @@ public enum OntologyConstants {
     PSM_LEVEL_QVALUE("PSM-level q-value", "MS:1002354"),
     PSM_LEVEL_FDRSCORE("PSM-level FDRScore", "MS:1002355"),
     PSM_LEVEL_COMBINED_FDRSCORE("PSM-level combined FDRScore", "MS:1002356"),
+    PEPTIDE_LEVEL_QVALUE("distinct peptide-level q-value", "MS:1001868"),
+    PEPTIDE_LEVEL_FDRSCORE("distinct peptide-level FDRScore", "MS:1002360"),
+    PEPTIDE_LEVEL_COMBINED_FDRSCORE("distinct peptide-level combined FDRScore", "MS:1002361"),
     PROTEIN_LEVEL_LOCAL_FDR("protein-level local FDR", "MS:1002364"),
     PROTEIN_GROUP_LEVEL_Q_VALUE("protein group-level q-value", "MS:1002373"),
 

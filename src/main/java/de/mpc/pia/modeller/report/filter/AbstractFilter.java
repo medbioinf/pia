@@ -8,7 +8,14 @@ import java.util.regex.Pattern;
 import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.tools.unimod.UnimodParser;
 
-
+/**
+ * The abstract class of the filters, which are widely used in PIA. Most filters
+ * should be instantiated by the {@link RegisteredFilters}, only scores and
+ * TopIdentificationFilters have their own classes.
+ *
+ * @author julian
+ *
+ */
 public abstract class AbstractFilter {
 
     /** the used comparator */
@@ -25,6 +32,16 @@ public abstract class AbstractFilter {
         this.comparator = arg;
         this.filter = filter;
         this.negate = negate;
+    }
+
+
+    /**
+     * Return the {@link RegisteredFilters} this filter is based on
+     *
+     * @return
+     */
+    public final RegisteredFilters getRegisteredFilter() {
+        return filter;
     }
 
 
@@ -122,6 +139,7 @@ public abstract class AbstractFilter {
      * @param o
      * @return
      */
+    @SuppressWarnings("unchecked")
     public boolean satisfiesFilter(Object o, Long fileID) {
         Object objValue = getObjectsValue(o);
 
@@ -209,8 +227,9 @@ public abstract class AbstractFilter {
                     // TODO: throw exception or something
                     return false;
                 }
+            default:
+                return false;
             }
-
         }
 
         return false;
@@ -229,11 +248,8 @@ public abstract class AbstractFilter {
             return getFilterNegate() ^ getFilterValue().equals(o);
 
         default:
-            // TODO: throw exception or something
-            break;
+            return false;
         }
-
-        return false;
     }
 
 
@@ -261,11 +277,8 @@ public abstract class AbstractFilter {
             return getFilterNegate() ^ (o.doubleValue() > ((Number)getFilterValue()).doubleValue());
 
         default:
-            // TODO: throw exception or something
-            break;
+            return false;
         }
-
-        return false;
     }
 
 
@@ -286,9 +299,10 @@ public abstract class AbstractFilter {
         case regex:
             Matcher m = Pattern.compile((String)getFilterValue()).matcher(o);
             return getFilterNegate() ^ m.matches();
-        }
 
-        return false;
+        default:
+            return false;
+        }
     }
 
 
@@ -300,7 +314,7 @@ public abstract class AbstractFilter {
      */
     private boolean satisfiesLiteralListFilter(List<String> o) {
         switch (getFilterComparator()) {
-        case contains: {
+        case contains:
             // check, if the list contains the given string
             boolean contains = false;
             if (o != null) {
@@ -312,14 +326,12 @@ public abstract class AbstractFilter {
                 }
             }
             return getFilterNegate() ^ contains;
-        }
 
-        case contains_only: {
+        case contains_only:
             // check, if the list contains only the given string (maybe multiple times)
             boolean contains_only = false;
 
             if (o != null) {
-
                 if (o.size() > 0) {
                     if (o.get(0).equals((String)getFilterValue())) {
                         // ok, the first one is our string
@@ -336,37 +348,35 @@ public abstract class AbstractFilter {
 
             }
             return getFilterNegate() ^ contains_only;
-        }
 
-        case regex: {
+        case regex:
             // check, if the list contains the given regex
             boolean contains_regex = false;
-            Pattern p = Pattern.compile((String)getFilterValue());
+            Pattern regexP = Pattern.compile((String)getFilterValue());
 
             if (o != null) {
                 for (String objStr : o) {
-                    if (p.matcher(objStr).matches()) {
+                    if (regexP.matcher(objStr).matches()) {
                         contains_regex = true;
                         break;
                     }
                 }
             }
             return getFilterNegate() ^ contains_regex;
-        }
 
-        case regex_only: {
+        case regex_only:
             // check, if the list contains only the given regex (maybe multiple times)
             boolean contains_only_regex = false;
-            Pattern p = Pattern.compile((String)getFilterValue());
+            Pattern regexOnlyP = Pattern.compile((String)getFilterValue());
 
             if (o != null) {
                 if (o.size() > 0) {
-                    if (p.matcher(o.get(0)).matches()) {
+                    if (regexOnlyP.matcher(o.get(0)).matches()) {
                         // ok, the first one is our string
                         contains_only_regex = true;
                         // but are all the others?
                         for (String objStr : o) {
-                            if (!p.matcher(objStr).matches()) {
+                            if (!regexOnlyP.matcher(objStr).matches()) {
                                 contains_only_regex = false;
                                 break;
                             }
@@ -376,10 +386,9 @@ public abstract class AbstractFilter {
             }
             return getFilterNegate() ^ contains_only_regex;
 
+        default:
+            return false;
         }
-        }
-
-        return false;
     }
 
 
@@ -448,9 +457,10 @@ public abstract class AbstractFilter {
                 }
             }
             return getFilterNegate() ^ has_residue;
-        }
 
-        return false;
+        default:
+            return false;
+        }
     }
 
 

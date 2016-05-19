@@ -543,7 +543,7 @@ public class PeptideSpectrumMatch implements Serializable {
 
     /**
      * Returns a string for identifying a PSM.<br/>
-     *This should be unique for each PSM and is used to pre-sort PSMs found by
+     * This should be unique for each PSM and is used to pre-sort PSMs found by
      * different searches. These have to be refined later, because valzues with
      * m/z-values can not be used, for identification, due to search engine
      * roundings.
@@ -620,7 +620,7 @@ public class PeptideSpectrumMatch implements Serializable {
     /**
      * Returns a string for identifying a PSM.<br/>
      * This should be unique for each PSM and is used to pre-sort PSMs found by
-     * different searches. These have to be refined later, because valzues with
+     * different searches. These have to be refined later, because values with
      * m/z-values can not be used, for identification, due to search engine
      * roundings.
      *

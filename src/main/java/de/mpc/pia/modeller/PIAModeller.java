@@ -231,7 +231,7 @@ public class PIAModeller {
      * @param createPSMSets
      */
     public void setCreatePSMSets(Boolean createPSMSets) {
-        psmModeller.setCreatePSMSets(createPSMSets);
+        psmModeller.applyGeneralSettings(createPSMSets);
     }
 
 

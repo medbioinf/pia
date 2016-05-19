@@ -713,13 +713,6 @@ public class PrideXMLParser {
             }
             additionalInformation.getCvParam().add((CvParam)abstractParam);
         }
-
-        /* TODO: add these information, if necessary
-        instrumentSection.getSource();
-        instrumentSection.getAnalyzerList();
-        instrumentSection.getDetector();
-        instrumentSection.getAdditional();
-        */
     }
 
 
