@@ -63,7 +63,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
         public String describe() {
             return "Sets whether modifications should be considered while " +
                     "inferring the peptides from the PSMs. Defaults to " +
-                    PeptideModeller.considerModificationsDefault;
+                    PeptideModeller.CONSIDER_MODIFICATIONS_DEFAULT;
         }
 
         @Override
