@@ -13,7 +13,6 @@ public class PIACompilerTest {
     //public static File mascotFile;
     //public static File tandemFile;
 
-    public static File mzid55mergeMascot;
     public static File mzid55mergeTandem;
     public static File mzid55mergeOmssa;
 
@@ -26,7 +25,6 @@ public class PIACompilerTest {
         //mascotFile = new File(PIACompilerTest.class.getResource("/07-12_MW_58-F008265.dat").getPath());
         //tandemFile = new File(PIACompilerTest.class.getResource("/07-12_MW_58.tandem.xml").getPath());
 
-        mzid55mergeMascot = new File(PIACompilerTest.class.getResource("/55merge_mascot_full.mzid").getPath());
         mzid55mergeTandem = new File(PIACompilerTest.class.getResource("/55merge_tandem.mzid").getPath());
         mzid55mergeOmssa = new File(PIACompilerTest.class.getResource("/55merge_omssa.mzid").getPath());
     }
@@ -61,13 +59,9 @@ public class PIACompilerTest {
     }
     */
 
-    /*
     @Test
     public void testPIACompilerMzidFiles() throws IOException {
         PIACompiler piaCompiler = new PIACompiler();
-
-        assertEquals("Mascot file could not be parsed", true,
-                piaCompiler.getDataFromFile("mascot", mzid55mergeMascot.getAbsolutePath(), null, null));
 
         assertEquals("X!TAndem file could not be parsed", true,
                 piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
@@ -80,7 +74,6 @@ public class PIACompilerTest {
 
         piaCompiler.setName("testFile");
 
-
         File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
 
         // test writing using the file
@@ -91,5 +84,4 @@ public class PIACompilerTest {
         piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
         piaIntermediateFile.delete();
     }
-    */
 }
