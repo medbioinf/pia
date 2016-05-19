@@ -411,8 +411,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                 createSets = true;
             }
 
-            modeller.applyGeneralSettings(createSets,
-                    modeller.getPSMSetSettings());
+            modeller.applyGeneralSettings(createSets);
             return true;
         }
 

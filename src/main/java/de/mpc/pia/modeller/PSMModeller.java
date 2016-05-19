@@ -131,9 +131,6 @@ public class PSMModeller {
     /** the name of the PIA XML file */
     private String fileName;
 
-    /** the number of PSMs in the intermediate file*/
-    private Integer nrPSMs;
-
     /** maps from the spectrum ID in the PIA intermediate file to the report PSM */
     private Map<Long, ReportPSM> spectraPSMs;
 
@@ -209,7 +206,7 @@ public class PSMModeller {
 
 
     /** the PSMSetSettings for the SpectrumIdentificationResults in mzIdentML export */
-    private Map<String, Boolean> resultPSMSetSettings;
+    private Map<String, Boolean> mzIdResultPSMSetSettings;
 
     /** the PSMSetSettings for the SpectrumIdentificationItems in mzIdentML export */
     private Map<String, Boolean> itemPSMSetSettings;
@@ -232,7 +229,7 @@ public class PSMModeller {
             Map<String, AnalysisSoftware> software,
             String fileName,
             Map<String, Set<Long>> psmSetSettingsWarnings,
-            Integer nrPSMs) {
+            int nrPSMs) {
 
         // create the file mapping and also add the overview file with ID 0
         this.inputFiles = new HashMap<Long, PIAInputFile>(inputFiles.size()+1);
@@ -257,15 +254,7 @@ public class PSMModeller {
 
         // initialize the used PSM set settings
         this.psmSetSettingsWarnings = psmSetSettingsWarnings;
-        this.psmSetSettings = new HashMap<String, Boolean>(IdentificationKeySettings.values().length);
-        for (IdentificationKeySettings setting : IdentificationKeySettings.values()) {
-            if ((psmSetSettingsWarnings.get(setting.toString()) != null) &&
-                    (psmSetSettingsWarnings.get(setting.toString()).size() > 0)) {
-                this.psmSetSettings.put(setting.toString(), false);
-            } else {
-                this.psmSetSettings.put(setting.toString(), true);
-            }
-        }
+        this.psmSetSettings = getMaximalPSMSetSettings();
 
         // remove redundant psmSetSettings (and use only the more failure tolerant ones)
         psmSetSettings = IdentificationKeySettings.noRedundantSettings(psmSetSettings);
@@ -275,26 +264,21 @@ public class PSMModeller {
         this.psmSetSettings.remove(IdentificationKeySettings.FILE_ID.toString());
 
         // no settings are needed for the calculation of the ReportPSMs, but the PSM Set settings are used
-        this.nrPSMs = nrPSMs;
-        createReportPSMsFromGroups(groups);
+        createReportPSMsFromGroups(groups, nrPSMs);
     }
 
 
     /**
      * Applies the general settings and recalculates the PSMSets
      */
-    public void applyGeneralSettings(boolean createPSMSets,
-            Map<String, Boolean> psmSetSettings) {
+    public void applyGeneralSettings(boolean createSets) {
         // only do something, if it is needed
-        if ((this.createPSMSets != createPSMSets) ||
-                !this.psmSetSettings.equals(psmSetSettings)) {
-            this.createPSMSets = createPSMSets;
-            this.psmSetSettings = psmSetSettings;
+        if (this.createPSMSets != createSets) {
+            this.createPSMSets = createSets;
 
             if (!this.createPSMSets) {
                 // no sets across files needed -> put fileID into settings
-                this.psmSetSettings.put(IdentificationKeySettings.FILE_ID.name(),
-                        true);
+                this.psmSetSettings.put(IdentificationKeySettings.FILE_ID.name(), true);
             }
 
             // rebuild the PSM sets
@@ -332,20 +316,57 @@ public class PSMModeller {
 
 
     /**
-     * Sets whether PSM sets should be used across files
-     * @param createPSMSets
-     */
-    public void setCreatePSMSets(Boolean createPSMSets) {
-        this.createPSMSets = createPSMSets;
-    }
-
-
-    /**
      * Getter for the {@link IdentificationKeySettings}.
      * @return
      */
     public Map<String, Boolean> getPSMSetSettings() {
         return psmSetSettings;
+    }
+
+
+    /**
+     * Setter for the {@link IdentificationKeySettings}.
+     *
+     * @param newSettings A mapping from the
+     * @return Returns the settings which were active before changing to the new
+     * settings
+     */
+    public Map<String, Boolean> setPSMSetSettings(Map<String, Boolean> newSettings) {
+        Map<String, Boolean> oldSettings = psmSetSettings;
+        psmSetSettings = newSettings;
+
+        // if no sets should be created, add the fileID to the settings
+        if (!this.createPSMSets) {
+            this.psmSetSettings.put(IdentificationKeySettings.FILE_ID.name(), true);
+        }
+
+        if (!psmSetSettings.equals(oldSettings)) {
+            applyGeneralSettings(getCreatePSMSets());
+        }
+
+        return oldSettings;
+    }
+
+
+    /**
+     * Returns the maximal set of (redundant) PSMSetSettings to combine PSMs of
+     * all input files.
+     *
+     * @return
+     */
+    public Map<String, Boolean> getMaximalPSMSetSettings() {
+        Map<String, Boolean> settings = new HashMap<String, Boolean>(IdentificationKeySettings.values().length);
+
+        for (IdentificationKeySettings setting : IdentificationKeySettings.values()) {
+            if ((getPSMSetSettingsWarnings().get(setting.toString()) != null) &&
+                    (getPSMSetSettingsWarnings().get(setting.toString()).size() > 0)) {
+                settings.put(setting.toString(), false);
+            } else {
+                settings.put(setting.toString(), true);
+            }
+        }
+
+        return settings;
     }
 
 
@@ -367,13 +388,13 @@ public class PSMModeller {
      *
      * @return a mapping from the spectrum ID to the ReportPSM
      */
-    private void createReportPSMsFromGroups(Map<Long, Group> groups) {
+    private void createReportPSMsFromGroups(Map<Long, Group> groups, int nrAllPSMs) {
         logger.info("createReportPSMsFromGroups started...");
 
-        Integer psmsPerFile = nrPSMs / (inputFiles.size()-1);
+        Integer psmsPerFile = nrAllPSMs / (inputFiles.size()-1);
 
         // reset the PSMs
-        spectraPSMs = new HashMap<Long, ReportPSM>(nrPSMs);
+        spectraPSMs = new HashMap<Long, ReportPSM>();
         fileReportPSMs = new HashMap<Long, List<ReportPSM>>();
 
         // reset the scores
@@ -1247,36 +1268,9 @@ public class PSMModeller {
             // TODO: throw an exception
             return;
         } else {
-            // if no score for FDR score is given, set either a preferred or the
-            // first available from the set
-            if (fdrData.getScoreShortName() == null) {
-                // first look in the preferred scores
-                for (String scoreShort : preferredFDRScores) {
-                    if (fileScoreShortNames.get(fileID).contains(scoreShort)) {
-                        fdrData.setScoreShortName(scoreShort);
-                        break;
-                    }
-                }
-
-                // if no score is set, look for searchengine main scores
-                if (fdrData.getScoreShortName() == null) {
-                    for (String scoreShort : fileScoreShortNames.get(fileID)) {
-                        if (ScoreModelEnum.getModelByDescription(scoreShort).isSearchengineMainScore()) {
-                            fdrData.setScoreShortName(scoreShort);
-                            break;
-                        }
-                    }
-                }
-
-                // if no score is set yet, take the first best score
-                if (fdrData.getScoreShortName() == null) {
-                    fdrData.setScoreShortName(
-                            fileScoreShortNames.get(fileID).get(0));
-                }
-
-                logger.info("set the score for FDR calculation for fileID=" +
-                        fileID + ": " + fdrData.getScoreShortName());
-            }
+            fdrData.setScoreShortName(getFilesPreferredFDRScore(fileID));
+            logger.info("set the score for FDR calculation for fileID="
+                    + fileID + ": " + fdrData.getScoreShortName());
 
             // recalculate the decoy status (especially important, if decoy pattern was changed)
             updateDecoyStates(fileID);
@@ -1381,6 +1375,15 @@ public class PSMModeller {
 
 
     /**
+     * Getter for the set of preferred scores for FDR  calculation.
+     * @return
+     */
+    public List<String> getPreferredFDRScores() {
+        return preferredFDRScores;
+    }
+
+
+    /**
      * Adds the given scoreShortNames to the preferred FDR scores.
      */
     public void addPreferredFDRScores(List<String> scoreShortNames) {
@@ -1414,6 +1417,39 @@ public class PSMModeller {
             preferredFDRScores.add(shortName);
         }
     }
+
+
+    /**
+     * Returns the scoreShort which will be used for FDR calculation of the
+     * given file. This is either the first applicable in the preferred scores
+     * of the first one of the file.
+     *
+     * @param fileID
+     * @return
+     */
+    public String getFilesPreferredFDRScore(Long fileID) {
+        // first look in the preferred scores
+        for (String scoreShort : preferredFDRScores) {
+            if (fileScoreShortNames.get(fileID).contains(scoreShort)) {
+                return scoreShort;
+            }
+        }
+
+        // if no score is set in the preferred, look for searchengine main scores
+        if (fileScoreShortNames.containsKey(fileID)) {
+            for (String scoreShort : fileScoreShortNames.get(fileID)) {
+                if (ScoreModelEnum.getModelByDescription(scoreShort).isSearchengineMainScore()) {
+                    return scoreShort;
+                }
+            }
+
+            // if no score is returned yet, take the first best score
+            return fileScoreShortNames.get(fileID).get(0);
+        }
+
+        return null;
+    }
+
 
 
     /**
@@ -2993,11 +3029,12 @@ public class PSMModeller {
 
         // build the SpectrumIdentificationItem into its result
         Long fileID = (psm instanceof ReportPSM) ? ((ReportPSM)psm).getFileID() : 0L;
-        String psmIdentificationKey =
-                getSpectrumIdentificationResultID(psm, fileID);
 
-        SpectrumIdentificationResult specIdRes =
-                specIdResMap.get(psmIdentificationKey);
+        logger.debug("instance of psm: " + psm.getClass().getName());
+
+        String psmIdentificationKey = getSpectrumIdentificationResultID(psm, fileID);
+
+        SpectrumIdentificationResult specIdRes = specIdResMap.get(psmIdentificationKey);
         if (specIdRes == null) {
             // this spectrum has no identification yet
             specIdRes = new SpectrumIdentificationResult();
@@ -3309,24 +3346,36 @@ public class PSMModeller {
      * @param psm
      * @return
      */
-    public String getSpectrumIdentificationResultID(PSMReportItem psm,
-            Long fileID) {
-        if (resultPSMSetSettings == null) {
+    public String getSpectrumIdentificationResultID(PSMReportItem psm, Long fileID) {
+        if (mzIdResultPSMSetSettings == null) {
             // initialize the settings on first call
-            resultPSMSetSettings = new HashMap<String,Boolean>();
-            resultPSMSetSettings.put(
-                    IdentificationKeySettings.FILE_ID.toString(), true);
-            resultPSMSetSettings.put(
-                    IdentificationKeySettings.CHARGE.toString(), true);
-            resultPSMSetSettings.put(
-                    IdentificationKeySettings.RETENTION_TIME.toString(), true);
-            resultPSMSetSettings.put(
-                    IdentificationKeySettings.MASSTOCHARGE.toString(), true);
-            resultPSMSetSettings.put(
-                    IdentificationKeySettings.SOURCE_ID.toString(), true);
+            mzIdResultPSMSetSettings = new HashMap<String,Boolean>();
+            mzIdResultPSMSetSettings.put(IdentificationKeySettings.FILE_ID.toString(), true);
+            mzIdResultPSMSetSettings.put(IdentificationKeySettings.CHARGE.toString(), true);
+            mzIdResultPSMSetSettings.put(IdentificationKeySettings.RETENTION_TIME.toString(), true);
+            mzIdResultPSMSetSettings.put(IdentificationKeySettings.MASSTOCHARGE.toString(), true);
+            mzIdResultPSMSetSettings.put(IdentificationKeySettings.SOURCE_ID.toString(), true);
         }
 
-        return PeptideSpectrumMatch.getIdentificationKey(resultPSMSetSettings,
+        /*
+        mzIdResultPSMSetSettings = new HashMap<String,Boolean>();
+        mzIdResultPSMSetSettings.put(IdentificationKeySettings.FILE_ID.toString(), true);
+        mzIdResultPSMSetSettings.put(IdentificationKeySettings.CHARGE.toString(), true);
+
+        if (!psmSetSettingsWarnings.containsKey(IdentificationKeySettings.RETENTION_TIME.toString()) ||
+                !psmSetSettingsWarnings.get(IdentificationKeySettings.RETENTION_TIME.toString()).contains(fileID)) {
+            mzIdResultPSMSetSettings.put(IdentificationKeySettings.RETENTION_TIME.toString(), true);
+        }
+
+        mzIdResultPSMSetSettings.put(IdentificationKeySettings.MASSTOCHARGE.toString(), true);
+
+        if (!psmSetSettingsWarnings.containsKey(IdentificationKeySettings.SOURCE_ID.toString()) ||
+                !psmSetSettingsWarnings.get(IdentificationKeySettings.SOURCE_ID.toString()).contains(fileID)) {
+            mzIdResultPSMSetSettings.put(IdentificationKeySettings.SOURCE_ID.toString(), true);
+        }
+        */
+
+        return PeptideSpectrumMatch.getIdentificationKey(mzIdResultPSMSetSettings,
                 psm.getSequence(), psm.getModificationsString(),
                 psm.getCharge(), psm.getMassToCharge(),
                 psm.getRetentionTime(), psm.getSourceID(),

@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Modification;
@@ -17,7 +19,11 @@ import de.mpc.pia.modeller.psm.PSMReportItem;
 import de.mpc.pia.modeller.psm.ReportPSM;
 import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.modeller.report.filter.Filterable;
+import de.mpc.pia.modeller.score.FDRComputable;
+import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
+import de.mpc.pia.modeller.score.FDRScoreComputable;
 import de.mpc.pia.modeller.score.ScoreModel;
+import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.modeller.score.comparator.Rankable;
 
 
@@ -28,7 +34,7 @@ import de.mpc.pia.modeller.score.comparator.Rankable;
  * @author julian
  *
  */
-public class ReportPeptide implements Rankable, Filterable {
+public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRScoreComputable {
 
     /** identifier for the peptide*/
     private String stringID;
@@ -64,9 +70,23 @@ public class ReportPeptide implements Rankable, Filterable {
      */
     private Map<String, Boolean> maximalNonRedundantSpectraIdentificationSettings;
 
-
     /** the intermediate peptide of this report peptide */
     private Peptide peptide;
+
+    /** whether this peptide contains only decoy PSMs or not */
+    private boolean isDecoy;
+
+    /** the value of the local FDR for this peptide */
+    private Double fdrValue;
+
+    /** the q-value, only available when FDR is calculated */
+    private Double qValue;
+
+    /** represents whether the peptide is globally FDR good (q-value beneath the set threshold) */
+    private boolean isFDRGood;
+
+    /** the FDR Score of the peptide */
+    private ScoreModel fdrScore;
 
 
     /**
@@ -86,6 +106,8 @@ public class ReportPeptide implements Rankable, Filterable {
         allSpectraKeySet = null;
         maximalSpectraIdentificationSettings = null;
         maximalNonRedundantSpectraIdentificationSettings = null;
+        isDecoy = false;
+        dumpFDRCalculation();
     }
 
 
@@ -707,5 +729,149 @@ public class ReportPeptide implements Rankable, Filterable {
         }
 
         return name;
+    }
+
+
+    @Override
+    public boolean getIsDecoy() {
+        return isDecoy;
+    }
+
+
+    /**
+     * Setter for isDecoy
+     * @param isDecoy
+     */
+    public void setIsDecoy(boolean isDecoy) {
+        this.isDecoy = isDecoy;
+    }
+
+
+    @Override
+    public void setFDRScore(Double score) {
+        if (fdrScore != null) {
+            fdrScore.setValue(score);
+        } else {
+            fdrScore = new ScoreModel(score,
+                    ScoreModelEnum.PEPTIDE_LEVEL_FDR_SCORE);
+        }
+    }
+
+
+    @Override
+    public ScoreModel getFDRScore() {
+        return fdrScore;
+    }
+
+
+    @Override
+    public double getFDR() {
+        if (fdrValue == null) {
+            return Double.NaN;
+        } else {
+            return fdrValue;
+        }
+    }
+
+
+    @Override
+    public void setFDR(double fdr) {
+        this.fdrValue = fdr;
+    }
+
+
+    @Override
+    public double getQValue() {
+        if (qValue == null) {
+            return Double.NaN;
+        } else {
+            return qValue;
+        }
+    }
+
+
+    @Override
+    public void setQValue(double value) {
+        this.qValue = value;
+    }
+
+
+    @Override
+    public void dumpFDRCalculation() {
+        isFDRGood = false;
+        qValue = null;
+        fdrScore = null;
+        fdrValue = Double.POSITIVE_INFINITY;
+    }
+
+
+    @Override
+    public void updateDecoyStatus(DecoyStrategy strategy, Pattern p) {
+        switch (strategy) {
+        case ACCESSIONPATTERN:
+            this.isDecoy = isDecoyWithPattern(p);
+            break;
+
+        case SEARCHENGINE:
+            List<ReportPSM> psms = new ArrayList<ReportPSM>();
+            for (PSMReportItem psm : getPSMs()) {
+                if (psm instanceof ReportPSM) {
+                    psms.add((ReportPSM)psm);
+                } else if (psm instanceof ReportPSMSet) {
+                    psms.addAll(((ReportPSMSet) psm).getPSMs());
+                }
+            }
+
+            this.isDecoy = true;
+            for (ReportPSM psm : psms) {
+                if ((psm.getSpectrum().getIsDecoy() == null) ||
+                        !psm.getSpectrum().getIsDecoy()) {
+                    // not a decoy spectrum, so the peptide is not a decoy
+                    this.isDecoy = false;
+                    break;
+                }
+            }
+            break;
+
+        default:
+            this.isDecoy = false;
+        }
+    }
+
+
+    /**
+     * Returns true, if the peptide is a decoy with the given pattern for decoys
+     * used on the accessions.
+     *
+     * @param p Pattern for decoy identification used on the accession
+     */
+    private boolean isDecoyWithPattern(Pattern p) {
+        Matcher m;
+
+        for (Accession acc : getAccessions()) {
+            m = p.matcher(acc.getAccession());
+            if (!m.matches()) {
+                // not a decoy accession, so the peptide is not a decoy
+                return false;
+            }
+        }
+
+        // no target in the accessions -> it's a decoy
+        return true;
+    }
+
+
+    /**
+     * Getter for isFDRGood
+     * @return
+     */
+    public boolean getIsFDRGood() {
+        return isFDRGood;
+    }
+
+
+    @Override
+    public void setIsFDRGood(boolean isGood) {
+        isFDRGood = isGood;
     }
 }
