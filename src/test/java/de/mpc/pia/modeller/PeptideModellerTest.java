@@ -3,23 +3,16 @@ package de.mpc.pia.modeller;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.mpc.pia.modeller.exporter.IdXMLExporter;
-import de.mpc.pia.modeller.peptide.ReportPeptide;
-import de.mpc.pia.modeller.protein.inference.SpectrumExtractorInference;
-import de.mpc.pia.modeller.protein.scoring.AbstractScoring;
-import de.mpc.pia.modeller.protein.scoring.MultiplicativeScoring;
-import de.mpc.pia.modeller.protein.scoring.settings.PSMForScoring;
 import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.score.FDRData;
-import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
+
 
 public class PeptideModellerTest {
 
@@ -51,19 +44,6 @@ public class PeptideModellerTest {
         piaModeller.getPeptideModeller().calculateFDR(fileID);
 
         FDRData fdrData = piaModeller.getPeptideModeller().getFilesFDRData(fileID);
-        System.err.println("decoyPattern " + fdrData.getDecoyPattern()
-                + "\nscoreShort " + fdrData.getScoreShortName()
-                + "\nartificialDecoyFDR " + fdrData.getArtificialDecoyFDR()
-                + "\nfdrThreshold " + fdrData.getFDRThreshold()
-                + "\nnrDecoys " + fdrData.getNrDecoys()
-                + "\nfdrGoodDecoys " + fdrData.getNrFDRGoodDecoys()
-                + "\nfdrGoodItems " + fdrData.getNrFDRGoodItems()
-                + "\nfdrGoodTargets " + fdrData.getNrFDRGoodTargets()
-                + "\nnrItems " + fdrData.getNrItems()
-                + "\nnrTargets " + fdrData.getNrTargets()
-                + "\nscoreAtThreshold " + fdrData.getScoreAtThreshold()
-                + "\ndecoyStrategy " + fdrData.getDecoyStrategy()
-                );
 
         assertEquals("Rnd.*", fdrData.getDecoyPattern());
         assertEquals("mascot_score", fdrData.getScoreShortName());
@@ -89,5 +69,4 @@ public class PeptideModellerTest {
         assertEquals(8, fdrData.getNrItems().intValue());
         assertEquals(5, fdrData.getNrTargets().intValue());
     }
-
 }
