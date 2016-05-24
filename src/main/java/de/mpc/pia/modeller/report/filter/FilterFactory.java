@@ -58,7 +58,7 @@ public class FilterFactory {
      */
     public static AbstractFilter newInstanceOf(String filterShort,
             String comparatorName, String input, boolean negate,
-            StringBuffer messageBuffer) {
+            StringBuilder messageBuffer) {
 
         FilterComparator comparator = FilterComparator.getFilterComparatorByName(comparatorName);
         if (comparator == null) {
@@ -86,10 +86,10 @@ public class FilterFactory {
      */
     public static AbstractFilter newInstanceOf(String filterShort,
             FilterComparator comparator, String input, boolean negate,
-            StringBuffer messageBuffer) {
+            StringBuilder messageBuffer) {
 
-        if ((filterShort == null) ||
-                (filterShort.equals("null"))) {
+        if ((filterShort == null)
+                || "null".equals(filterShort)) {
             // no filter selected
             messageBuffer.append("Please select a filter!");
             return null;
@@ -101,7 +101,7 @@ public class FilterFactory {
             return null;
         }
 
-        Object value = null;
+        Object value;
         switch (FilterFactory.getFilterType(filterShort)) {
         case numerical:
             // try to convert the input into a numerical value, Float should do
@@ -122,30 +122,31 @@ public class FilterFactory {
         case modification:
             value = input;
             break;
+
+        default:
+            return null;
         }
 
-        if ((filterShort != null) && (value != null)) {
-            if ((filterShort.startsWith(PSMScoreFilter.prefix)) &&
-                    (value instanceof Number)) {
-                return new PSMScoreFilter(comparator, negate,
-                        ((Number)value).doubleValue(),
-                        filterShort.substring(PSMScoreFilter.prefix.length()));
-            } else if ((filterShort.startsWith(PeptideScoreFilter.prefix)) &&
-                    (value instanceof Number)) {
-                return new PeptideScoreFilter(comparator, negate,
-                        ((Number) value).doubleValue(),
-                        filterShort.substring(PeptideScoreFilter.prefix.length()));
-            } else if ((filterShort.startsWith(PSMTopIdentificationFilter.prefix)) &&
-                    (value instanceof Number)) {
-                return new PSMTopIdentificationFilter(comparator,
-                        ((Number)value).intValue(), negate,
-                        filterShort.substring(PSMTopIdentificationFilter.prefix.length()));
-            } else {
-                for (RegisteredFilters filter : RegisteredFilters.values()) {
-                    if (filter.getShortName().equals(filterShort) &&
-                            filter.isCorrectValueInstance(value)) {
-                        return filter.newInstanceOf(comparator, value, negate);
-                    }
+        if ((filterShort.startsWith(PSMScoreFilter.prefix)) &&
+                (value instanceof Number)) {
+            return new PSMScoreFilter(comparator, negate,
+                    ((Number)value).doubleValue(),
+                    filterShort.substring(PSMScoreFilter.prefix.length()));
+        } else if ((filterShort.startsWith(PeptideScoreFilter.prefix)) &&
+                (value instanceof Number)) {
+            return new PeptideScoreFilter(comparator, negate,
+                    ((Number) value).doubleValue(),
+                    filterShort.substring(PeptideScoreFilter.prefix.length()));
+        } else if ((filterShort.startsWith(PSMTopIdentificationFilter.prefix)) &&
+                (value instanceof Number)) {
+            return new PSMTopIdentificationFilter(comparator,
+                    ((Number)value).intValue(), negate,
+                    filterShort.substring(PSMTopIdentificationFilter.prefix.length()));
+        } else {
+            for (RegisteredFilters filter : RegisteredFilters.values()) {
+                if (filter.getShortName().equals(filterShort) &&
+                        filter.isCorrectValueInstance(value)) {
+                    return filter.newInstanceOf(comparator, value, negate);
                 }
             }
         }
@@ -161,21 +162,24 @@ public class FilterFactory {
      * @return
      */
     public static FilterType getFilterType(String filterShort) {
-        if (filterShort != null) {
-            if (filterShort.startsWith(PSMScoreFilter.prefix)) {
-                return PSMScoreFilter.filterType;
-            } else if (filterShort.startsWith(PeptideScoreFilter.prefix)) {
-                return PeptideScoreFilter.filterType;
-            } else if (filterShort.startsWith(PSMTopIdentificationFilter.prefix)) {
-                return PSMTopIdentificationFilter.filterType;
-            } else {
-                for (RegisteredFilters filter : RegisteredFilters.values()) {
-                    if (filter.getShortName().equals(filterShort)) {
-                        return filter.getFilterType();
-                    }
+        if (filterShort == null) {
+            return null;
+        }
+
+        if (filterShort.startsWith(PSMScoreFilter.prefix)) {
+            return PSMScoreFilter.filterType;
+        } else if (filterShort.startsWith(PeptideScoreFilter.prefix)) {
+            return PeptideScoreFilter.filterType;
+        } else if (filterShort.startsWith(PSMTopIdentificationFilter.prefix)) {
+            return PSMTopIdentificationFilter.filterType;
+        } else {
+            for (RegisteredFilters filter : RegisteredFilters.values()) {
+                if (filter.getShortName().equals(filterShort)) {
+                    return filter.getFilterType();
                 }
             }
         }
+
         return null;
     }
 
@@ -192,21 +196,21 @@ public class FilterFactory {
      */
     public static <T extends Filterable> List<T> applyFilters(
             List<T> reportItems, List<AbstractFilter> filters, Long fileID) {
-        if ((filters != null) && (filters.size() > 0)) {
-            List<T> filteredReportItems = new ArrayList<T>();
-
-            if (reportItems != null) {
-                for (T item : reportItems) {
-                    if (satisfiesFilterList(item, fileID, filters)) {
-                        filteredReportItems.add(item);
-                    }
-                }
-            }
-
-            return filteredReportItems;
-        } else {
+        if ((filters == null) || filters.isEmpty()) {
             return reportItems;
         }
+
+        List<T> filteredReportItems = new ArrayList<T>();
+
+        if (reportItems != null) {
+            for (T item : reportItems) {
+                if (satisfiesFilterList(item, fileID, filters)) {
+                    filteredReportItems.add(item);
+                }
+            }
+        }
+
+        return filteredReportItems;
     }
 
 

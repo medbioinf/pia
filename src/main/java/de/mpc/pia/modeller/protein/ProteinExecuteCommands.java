@@ -70,7 +70,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                 String comparison = params[1];
                 String value = params[2];
 
-                StringBuffer messageBuffer = new StringBuffer();
+                StringBuilder messageBuffer = new StringBuilder();
 
                 AbstractFilter newFilter =
                         FilterFactory.newInstanceOf(
@@ -194,7 +194,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                 String comparison = params[1];
                 String value = params[2];
 
-                StringBuffer messageBuffer = new StringBuffer();
+                StringBuilder messageBuffer = new StringBuilder();
 
                 AbstractFilter newFilter =
                         FilterFactory.newInstanceOf(
