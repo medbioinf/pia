@@ -288,7 +288,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                 String comparison = params[2];
                 String value = params[3];
 
-                StringBuffer messageBuffer = new StringBuffer();
+                StringBuilder messageBuffer = new StringBuilder();
 
                 AbstractFilter newFilter =
                         FilterFactory.newInstanceOf(
