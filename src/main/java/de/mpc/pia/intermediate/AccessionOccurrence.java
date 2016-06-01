@@ -1,5 +1,7 @@
 package de.mpc.pia.intermediate;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -10,7 +12,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * @author julian
  *
  */
-public class AccessionOccurrence {
+public class AccessionOccurrence implements Serializable {
+
+    private static final long serialVersionUID = 1738822043859868668L;
 
     /** the Accession */
     Accession accession;
@@ -49,6 +53,7 @@ public class AccessionOccurrence {
         return end;
     }
 
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof AccessionOccurrence)) {
@@ -58,13 +63,14 @@ public class AccessionOccurrence {
             return true;
         }
 
-        AccessionOccurrence objAO= (AccessionOccurrence)obj;
+        AccessionOccurrence objAO = (AccessionOccurrence)obj;
         return new EqualsBuilder().
                 append(accession.getID(), objAO.accession.getID()).
                 append(start, objAO.start).
                 append(end, objAO.end).
                 isEquals();
     }
+
 
     @Override
     public int hashCode() {

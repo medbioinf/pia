@@ -275,9 +275,12 @@ public class FilterFactory {
      * @param o
      * @return
      */
-    public static <T extends Filterable> boolean satisfiesFilterList(
-            T item, Long fileID,
-            List<AbstractFilter> filters) {
+    public static <T extends Filterable> boolean satisfiesFilterList(T item,
+            Long fileID, List<AbstractFilter> filters) {
+        if ((filters == null) || filters.isEmpty()) {
+            return true;
+        }
+
         boolean satisfiesAllFilters = true;
 
         for (AbstractFilter filter : filters) {

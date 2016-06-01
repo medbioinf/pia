@@ -703,7 +703,11 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 
             completeReportProteinList.addAll(reportProteinList);
             nrFinishedSplits++;
-            logger.debug("Finished split " + nrFinishedSplits + " / " + nrSplits + " (" +((double)nrFinishedSplits / nrSplits * 100) +"%)" );
+
+            if (nrFinishedSplits % 250 == 0) {
+                logger.debug("Finished split " + nrFinishedSplits + " / " + nrSplits
+                        + " (" +((double)nrFinishedSplits / nrSplits * 100) +"%)" );
+            }
         }
 
         logger.info(name + " calculateInference done, " + completeReportProteinList.size() + " groups inferred");

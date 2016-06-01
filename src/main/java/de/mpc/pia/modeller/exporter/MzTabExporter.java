@@ -82,7 +82,7 @@ import uk.ac.ebi.pride.jmztab.model.VariableMod;
 public class MzTabExporter {
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(MzTabExporter.class);
+    private static final Logger LOGGER = Logger.getLogger(MzTabExporter.class);
 
     /** the modeller, that should be exported */
     private PIAModeller piaModeller;
@@ -105,6 +105,9 @@ public class MzTabExporter {
     /** the mzTab {@link Metadata} for the exported file */
     private Metadata metadata;
 
+    /** the fileID for the export */
+    private Long exportFileID;
+
 
     /**
      * Basic constructor to export the
@@ -116,24 +119,25 @@ public class MzTabExporter {
     }
 
 
-
     public boolean exportToMzTab(Long fileID, File exportFile,
-            boolean proteinLevel, boolean filterExport) {
+            boolean proteinLevel, boolean peptideLevelStatistics,
+            boolean filterExport) {
         try {
             FileOutputStream fos;
             fos = new FileOutputStream(exportFile);
-            return exportToMzTab(fileID, fos, proteinLevel, filterExport);
+            return exportToMzTab(fileID, fos, proteinLevel, peptideLevelStatistics, filterExport);
         } catch (IOException ex) {
-            logger.error("Error writing  mzTab to " + exportFile.getAbsolutePath(), ex);
+            LOGGER.error("Error writing  mzTab to " + exportFile.getAbsolutePath(), ex);
             return false;
         }
     }
 
 
     public boolean exportToMzTab(Long fileID, String exportFileName,
-            boolean proteinLevel, boolean filterExport) {
+            boolean proteinLevel, boolean peptideLevelStatistics,
+            boolean filterExport) {
         File piaFile = new File(exportFileName);
-        return exportToMzTab(fileID, piaFile, proteinLevel, filterExport);
+        return exportToMzTab(fileID, piaFile, proteinLevel, peptideLevelStatistics, filterExport);
     }
 
 
@@ -143,15 +147,17 @@ public class MzTabExporter {
      * selected as well, also this will be exported (and accordingly the PSMs of
      * all merged files).
      *
-     * @param fileID
+     * @param exportFileID export the selected file
      * @param exportFile
-     * @param proteinLevel
+     * @param proteinLevel export the protein level
+     * @param peptideLevelStatistics export peptide level statistics in PSMs
      * @param filterExport whether the export should be filtered (on any level)
      * @return
      */
     public boolean exportToMzTab(Long fileID, OutputStream exportStream,
-            boolean proteinLevel, boolean filterExport) {
+            boolean proteinLevel, boolean peptideLevelStatistics, boolean filterExport) {
         boolean error = false;
+        exportFileID = fileID;
 
         try {
             outWriter = new BufferedWriter(new OutputStreamWriter(exportStream));
@@ -172,6 +178,12 @@ public class MzTabExporter {
                 tabDescription = new MZTabDescription(
                         MZTabDescription.Mode.Summary,
                         MZTabDescription.Type.Identification);
+
+                if (exportFileID != 0L) {
+                    exportFileID = 0L;
+                    LOGGER.warn("The exported file for protein level information is always 0, will be set automatically.");
+                }
+
             } else {
                 tabDescription = new MZTabDescription(
                         MZTabDescription.Mode.Complete,
@@ -180,7 +192,7 @@ public class MzTabExporter {
 
             specIdRefToMsRuns = new HashMap<String, List<MsRun>>();
             psmScoreShortToId = new HashMap<String, Integer>();
-            metadata = createMetadataForMzTab(fileID, proteinLevel, filterExport,
+            metadata = createMetadataForMzTab(exportFileID, proteinLevel, filterExport,
                     tabDescription);
 
             // write out the metadata header
@@ -198,7 +210,7 @@ public class MzTabExporter {
                         filterExport ? piaModeller.getProteinModeller().getReportFilters() : null);
 
                 if (proteinList == null) {
-                    logger.warn("No report protein list, probably inference was not run.");
+                    LOGGER.warn("No report protein list, probably inference was not run.");
                 } else {
                     Map<String, PSMReportItem> reportPSMsMap =
                             new HashMap<String, PSMReportItem>();
@@ -213,11 +225,11 @@ public class MzTabExporter {
             } else {
                 // get the report PSMs
                 List<AbstractFilter> filters =
-                        filterExport ? piaModeller.getPSMModeller().getFilters(fileID) : null;
+                        filterExport ? piaModeller.getPSMModeller().getFilters(exportFileID) : null;
 
-                if (fileID > 0) {
-                    reportPSMs.addAll(piaModeller.getPSMModeller().getFilteredReportPSMs(fileID, filters));
-                    exportReliabilitycolumn = piaModeller.getPSMModeller().isFDRCalculated(fileID);
+                if (exportFileID > 0) {
+                    reportPSMs.addAll(piaModeller.getPSMModeller().getFilteredReportPSMs(exportFileID, filters));
+                    exportReliabilitycolumn = piaModeller.getPSMModeller().isFDRCalculated(exportFileID);
                 } else {
                     reportPSMs.addAll(piaModeller.getPSMModeller().getFilteredReportPSMSets(filters));
                     exportReliabilitycolumn = piaModeller.getPSMModeller().isCombinedFDRScoreCalculated();
@@ -226,14 +238,14 @@ public class MzTabExporter {
 
             // write out the PSMs
             outWriter.append(MZTabConstants.NEW_LINE);
-            writePSMs(reportPSMs, exportReliabilitycolumn);
+            writePSMs(reportPSMs, exportReliabilitycolumn, peptideLevelStatistics, filterExport);
 
             outWriter.flush();
             outWriter.close();
 
-            logger.debug("exportToMzTab done");
+            LOGGER.debug("exportToMzTab done");
         } catch (IOException ex) {
-            logger.error("Error exporting mzTab", ex);
+            LOGGER.error("Error exporting mzTab", ex);
         }
 
         return !error;
@@ -273,7 +285,7 @@ public class MzTabExporter {
                 new HashMap<String, List<String>>();
 
         if (fileID == 0) {
-            for (PIAInputFile file : piaModeller.getFiles().values()) {
+            for (PIAInputFile file : piaModeller.getPSMModeller().getFiles().values()) {
                 if (file.getID() > 0) {
                     SpectrumIdentification specID = file.getAnalysisCollection().
                             getSpectrumIdentification().get(0);
@@ -901,10 +913,12 @@ public class MzTabExporter {
      * @param report a List of {@link PSMReportItem}s containing the PSMs to be
      * reported
      * @param reliabilityCol whether the reliability column should be written
+     * @param report peptide level statistics
      *
      * @throws IOException
      */
-    private void writePSMs(List<PSMReportItem> report, boolean reliabilityCol)
+    private void writePSMs(List<PSMReportItem> report, boolean reliabilityCol,
+            boolean peptideLevelStatistics, boolean filterExport)
             throws IOException {
         // initialize the columns
         MZTabColumnFactory columnFactory =
@@ -918,8 +932,7 @@ public class MzTabExporter {
         }
 
         // add custom column for missed cleavages
-        columnFactory.addOptionalColumn(
-                PIAConstants.MZTAB_MISSED_CLEAVAGES_COLUMN_NAME, Integer.class);
+        columnFactory.addOptionalColumn(PIAConstants.MZTAB_MISSED_CLEAVAGES_COLUMN_NAME, Integer.class);
 
         // add optional column for decoys
         CVParam decoyColumnParam =
@@ -934,6 +947,35 @@ public class MzTabExporter {
             columnFactory.addReliabilityOptionalColumn();
         }
 
+
+        // maps from the peptide's stringID to the peptide
+        Map<String, ReportPeptide> reportPeptides = null;
+
+        String peptideIdColumnName = null;
+        CVParam peptideQValueColumn = null;
+        CVParam peptideFDRScoreColumn = null;
+        if (peptideLevelStatistics) {
+            // TODO add other params, if they are calculated
+            peptideIdColumnName = "peptide_id";
+            columnFactory.addOptionalColumn(peptideIdColumnName, String.class);
+
+            peptideQValueColumn = createPeptideQValueColumnIfAppropriate(columnFactory);
+
+            peptideFDRScoreColumn = createPeptideFDRSCoreColumnIfAppropriate(columnFactory);
+
+            List<AbstractFilter> peptideFilters = null;
+            if (filterExport) {
+                peptideFilters = piaModeller.getPeptideModeller().getFilters(exportFileID);
+            }
+            List<ReportPeptide> repPeplist = piaModeller.getPeptideModeller().getFilteredReportPeptides(
+                    exportFileID, peptideFilters);
+
+            reportPeptides = new HashMap<String, ReportPeptide>(repPeplist.size());
+            for (ReportPeptide repPep : repPeplist) {
+                reportPeptides.put(repPep.getStringID(), repPep);
+            }
+        }
+
         outWriter.append(columnFactory.toString());
         outWriter.append(MZTabConstants.NEW_LINE);
 
@@ -945,46 +987,43 @@ public class MzTabExporter {
         Map<String, uk.ac.ebi.pride.jmztab.model.Param> softwareParams =
                 new HashMap<String, uk.ac.ebi.pride.jmztab.model.Param>();
 
+        // the ID of the currently processed PSM
+        int mzTabPSMid = 0;
 
         // now write the PSMs
-        int psmID = 0;
-        for (PSMReportItem psmItem : report) {
+        ListIterator<PSMReportItem> psmIt = report.listIterator();
+        while (psmIt.hasNext()) {
+            PSMReportItem psmItem = psmIt.next();
+
             PSM mztabPsm = new PSM(columnFactory, metadata);
 
             mztabPsm.setSequence(psmItem.getSequence());
-            Set<String> specIdRefs = new HashSet<String>();
 
-            Set<String> softwareRefs = new HashSet<String>();
+            List<ReportPSM> reportPSMs = new ArrayList<ReportPSM>();
 
             if (psmItem instanceof ReportPSM) {
-                psmID = ((ReportPSM) psmItem).getId().intValue();
+                reportPSMs.add((ReportPSM) psmItem);
 
-                specIdRefs.add(((ReportPSM) psmItem).getSpectrum().
-                        getSpectrumIdentification().getId());
-
-                softwareRefs.add(((ReportPSM) psmItem).getFile().
-                        getAnalysisProtocolCollection().
-                        getSpectrumIdentificationProtocol().get(0).
-                        getAnalysisSoftwareRef());
+                mzTabPSMid = ((ReportPSM) psmItem).getId().intValue();
             } else if (psmItem instanceof ReportPSMSet) {
+                reportPSMs.addAll(((ReportPSMSet) psmItem).getPSMs());
+
                 // in PSM sets, the ID does NOT represent the ID from the PIA
                 // file but is an incremental value
-                psmID++;
-
-                for (ReportPSM reportPSM : ((ReportPSMSet) psmItem).getPSMs()) {
-                    if (reportPSM.getSpectrum().
-                            getSpectrumIdentification().getId() != null) {
-                        specIdRefs.add(reportPSM.getSpectrum().
-                                getSpectrumIdentification().getId());
-                    }
-
-                    softwareRefs.add(reportPSM.getFile().
-                            getAnalysisProtocolCollection().
-                            getSpectrumIdentificationProtocol().get(0).
-                            getAnalysisSoftwareRef());
-                }
+                mzTabPSMid++;
             }
-            mztabPsm.setPSM_ID(psmID);
+
+            // collect the SpectrumIdRefs and softwareRefs from the ReportPSMs
+            Set<String> specIdRefs = new HashSet<String>();
+            Set<String> softwareRefs = new HashSet<String>();
+            for (ReportPSM reportPSM : reportPSMs) {
+                specIdRefs.add(reportPSM.getSpectrum().getSpectrumIdentification().getId());
+
+                softwareRefs.add(reportPSM.getFile().getAnalysisProtocolCollection().
+                        getSpectrumIdentificationProtocol().get(0).getAnalysisSoftwareRef());
+            }
+
+            mztabPsm.setPSM_ID(mzTabPSMid);
 
             if (psmItem.getAccessions().size() > 1) {
                 mztabPsm.setUnique(MZBoolean.False);
@@ -1028,9 +1067,6 @@ public class MzTabExporter {
             mztabPsm.setCalcMassToCharge(
                     psmItem.getMassToCharge() - psmItem.getDeltaMass());
 
-            // There is no URI for the PSM
-            // mztabPsm.setURI("http://www.ebi.ac.uk/pride/link/to/peptide");
-
             if (psmItem.getSourceID() != null) {
                 for (String specIdRef : specIdRefs) {
                     List<MsRun> runList = specIdRefToMsRuns.get(specIdRef);
@@ -1041,6 +1077,47 @@ public class MzTabExporter {
                         mztabPsm.addSpectraRef(specRef);
                     }
                 }
+            }
+
+            // add the scores
+            boolean calculatedPIAScore = false;
+            Reliability reliability = null;
+            for (Map.Entry<String, Integer> scoreIt : psmScoreShortToId.entrySet()) {
+                Double scoreValue = null;
+
+                if (psmItem instanceof ReportPSM) {
+                    scoreValue = psmItem.getScore(scoreIt.getKey());
+                } else if (psmItem instanceof ReportPSMSet) {
+                    scoreValue = ((ReportPSMSet) psmItem).getBestScore(scoreIt.getKey());
+                    if (scoreValue.equals(Double.NaN)) {
+                        scoreValue = psmItem.getScore(scoreIt.getKey());
+                    }
+                }
+                if (scoreValue.equals(Double.NaN)) {
+                    scoreValue = null;
+                }
+                mztabPsm.setSearchEngineScore(scoreIt.getValue(), scoreValue);
+
+                ScoreModelEnum model = ScoreModelEnum.getModelByDescription(scoreIt.getKey());
+                if (model.equals(ScoreModelEnum.PSM_LEVEL_FDR_SCORE)
+                        || model.equals(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE)) {
+                    calculatedPIAScore = true;
+
+                    if (reliabilityCol) {
+                        if ((scoreValue != null) && (scoreValue <= 0.01)) {
+                            reliability = Reliability.High;
+                        } else if ((scoreValue != null) && (scoreValue <= 0.05)) {
+                            reliability = Reliability.Medium;
+                        } else {
+                            reliability = Reliability.Poor;
+                        }
+                    }
+                }
+            }
+
+            // add PIA, if a score was calculated by it
+            if (calculatedPIAScore) {
+                mztabPsm.addSearchEngineParam(piaParam);
             }
 
             // add the search engines (i.e. analysisSoftwares)
@@ -1072,38 +1149,6 @@ public class MzTabExporter {
                 }
 
                 mztabPsm.addSearchEngineParam(softwareParam);
-            }
-
-            // add the scores
-            Reliability reliability = null;
-            for (Map.Entry<String, Integer> scoreIt : psmScoreShortToId.entrySet()) {
-                Double scoreValue = null;
-
-                if (psmItem instanceof ReportPSM) {
-                    scoreValue = psmItem.getScore(scoreIt.getKey());
-                } else if (psmItem instanceof ReportPSMSet) {
-                    scoreValue = ((ReportPSMSet) psmItem).getBestScore(scoreIt.getKey());
-                    if (scoreValue.equals(Double.NaN)) {
-                        scoreValue = psmItem.getScore(scoreIt.getKey());
-                    }
-                }
-                if (scoreValue.equals(Double.NaN)) {
-                    scoreValue = null;
-                }
-                mztabPsm.setSearchEngineScore(scoreIt.getValue(), scoreValue);
-
-                ScoreModelEnum model = ScoreModelEnum.getModelByDescription(scoreIt.getKey());
-                if (reliabilityCol &&
-                        (model.equals(ScoreModelEnum.PSM_LEVEL_FDR_SCORE) ||
-                                model.equals(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE))) {
-                    if ((scoreValue != null) && (scoreValue <= 0.01)) {
-                        reliability = Reliability.High;
-                    } else if ((scoreValue != null) && (scoreValue <= 0.05)) {
-                        reliability = Reliability.Medium;
-                    } else {
-                        reliability = Reliability.Poor;
-                    }
-                }
             }
 
             // if the (combined) FDRScore is calculated, give the reliability
@@ -1195,12 +1240,106 @@ public class MzTabExporter {
                     // TODO: multiple occurrences in the the same protein?
                 }
 
+
+                if (peptideLevelStatistics) {
+                    addPeptideLevelColumns(mztabPsm, psmItem, reportPeptides,
+                            peptideIdColumnName, peptideQValueColumn, peptideFDRScoreColumn);
+                }
+
                 outWriter.append(mztabPsm.toString());
                 outWriter.append(MZTabConstants.NEW_LINE);
             }
         }
     }
 
+
+    /**
+     * Creates a column for "peptide level q-value" in the given
+     * {@link MZTabColumnFactory}, if for the exported file the FDR was
+     * calculated.
+     *
+     * @param columnFactory
+     * @return the {@link CVParam} defining the added column or null, if it was
+     * not created
+     */
+    private CVParam createPeptideQValueColumnIfAppropriate(MZTabColumnFactory columnFactory) {
+        CVParam peptideQValueColumn = null;
+
+        if (piaModeller.getPeptideModeller().isFDRCalculated(exportFileID)) {
+            peptideQValueColumn = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                    OntologyConstants.PEPTIDE_LEVEL_QVALUE.getPsiAccession(),
+                    OntologyConstants.PEPTIDE_LEVEL_QVALUE.getPsiName(),
+                    null);
+
+            columnFactory.addOptionalColumn(peptideQValueColumn, Double.class);
+        }
+
+        return peptideQValueColumn;
+    }
+
+
+    /**
+     * Creates a column for "peptide level FDR Score" in the given
+     * {@link MZTabColumnFactory}, if for the exported file the FDR was
+     * calculated.
+     *
+     * @param columnFactory
+     * @return the {@link CVParam} defining the added column or null, if it was
+     * not created
+     */
+    private CVParam createPeptideFDRSCoreColumnIfAppropriate(MZTabColumnFactory columnFactory) {
+        CVParam peptideFDRScoreColumn = null;
+
+        if (piaModeller.getPeptideModeller().isFDRCalculated(exportFileID)) {
+            peptideFDRScoreColumn = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                    OntologyConstants.PEPTIDE_LEVEL_FDRSCORE.getPsiAccession(),
+                    OntologyConstants.PEPTIDE_LEVEL_FDRSCORE.getPsiName(),
+                    null);
+
+            columnFactory.addOptionalColumn(peptideFDRScoreColumn, Double.class);
+        }
+
+        return peptideFDRScoreColumn;
+    }
+
+
+
+    /**
+     * Adds the peptide level columns to the mzTab's {@link PSM} row. Only adds
+     * the values of the columns, which are actually calculated.
+     *
+     * @param mzTabPsm
+     * @param psmItem
+     * @param reportPeptides
+     * @param peptideIdColumnName
+     * @param peptideQValueColumn
+     * @param peptideFDRScoreColumn
+     */
+    private void addPeptideLevelColumns(PSM mzTabPsm, PSMReportItem psmItem,
+            Map<String, ReportPeptide> reportPeptides, String peptideIdColumnName,
+            CVParam peptideQValueColumn, CVParam peptideFDRScoreColumn) {
+        if ((peptideIdColumnName != null)
+                || (peptideQValueColumn != null)
+                || (peptideFDRScoreColumn != null)) {
+            String peptideId = psmItem.getPeptideStringID(piaModeller.getConsiderModifications());
+            ReportPeptide peptide = reportPeptides.get(peptideId);
+
+            if ((peptide == null) || !peptide.getPSMs().contains(psmItem)) {
+                // a PSM might not be connected to any peptide, if it was e.g. filtered out
+                return;
+            }
+
+            if (peptideIdColumnName != null) {
+                mzTabPsm.setOptionColumnValue(peptideIdColumnName, peptideId);
+            }
+            if (peptideQValueColumn != null) {
+                mzTabPsm.setOptionColumnValue(peptideQValueColumn, peptide.getQValue());
+            }
+            if (peptideFDRScoreColumn != null) {
+                mzTabPsm.setOptionColumnValue(peptideFDRScoreColumn, peptide.getFDRScore().getValue());
+            }
+        }
+    }
 
 
     /**
@@ -1299,10 +1438,6 @@ public class MzTabExporter {
                 }
             }
 
-            // taxID and species is (for now) not known in PIA
-            //mzTabProtein.setTaxid(null);
-            //mzTabProtein.setSpecies(null);
-
             // set the first available dbName and dbVersion of the representative
             for (String dbRef : representative.getSearchDatabaseRefs()) {
                 String[] nameAndVersion = dbRefToDbNameAndVersion.get(dbRef);
@@ -1393,7 +1528,7 @@ public class MzTabExporter {
                             reportPSMs.put(psmKey, reportItem);
                         }
                     } else {
-                        logger.error(
+                        LOGGER.error(
                                 "item in ReportPeptide should NOT be ReportPSM");
                     }
                 }
@@ -1447,14 +1582,7 @@ public class MzTabExporter {
                 }
             }
 
-            // TODO: perhaps add modifications
-            //mzTabProtein.addModification(modification);
-
-            // there is no URI for the proteins
-            //mzTabProtein.setURI(null);
-
-            // there is no GO term annotation in PIA yet
-            //mzTabProtein.addGOTerm(null)
+            // TODO: perhaps add modifications with mzTabProtein.addModification(modification);
 
             Double coverage =
                     reportProtein.getCoverage(representative.getAccession());

@@ -190,7 +190,8 @@ public class PeptideModeller {
 
 
         // peptides are changed -> reset the FDR data
-        if (fileFDRCalculated.get(fileID)) {
+        Boolean fileHasFDR = fileFDRCalculated.get(fileID);
+        if ((fileHasFDR != null) && fileHasFDR) {
             fileFDRCalculated.put(fileID, false);
             calculateFDR(fileID);
         }

@@ -9,6 +9,9 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.PIAInputFile;
@@ -29,7 +32,7 @@ import de.mpc.pia.tools.PIAConstants;
 public class ReportPSM  implements PSMReportItem {
 
     /** unique ID of the item */
-    private Long ID;
+    private Long id;
 
     /** the associated spectrum */
     private PeptideSpectrumMatch spectrum;
@@ -68,11 +71,11 @@ public class ReportPSM  implements PSMReportItem {
     /**
      * Basic constructor.
      *
-     * @param ID
+     * @param id
      * @param spectrum
      */
-    public ReportPSM(Long ID, PeptideSpectrumMatch spectrum) {
-        this.ID = ID;
+    public ReportPSM(Long id, PeptideSpectrumMatch spectrum) {
+        this.id = id;
         this.spectrum = spectrum;
         isDecoy = ((spectrum.getIsDecoy() != null) && spectrum.getIsDecoy()) ?
                 true : false;
@@ -111,35 +114,33 @@ public class ReportPSM  implements PSMReportItem {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if ( !(obj instanceof ReportPSM) ) {
+        if (!(obj instanceof ReportPSM)) {
             return false;
+        }
+        if (this == obj) {
+            return true;
         }
 
-        ReportPSM objPSM = (ReportPSM)obj;
-        if (objPSM.ID.equals(this.ID) &&
-                objPSM.spectrum.equals(this.spectrum) &&
-                (objPSM.isDecoy == this.isDecoy) &&
-                (objPSM.isFDRGood == this.isFDRGood) &&
-                (objPSM.accessions.equals(this.accessions))) {
-            return true;
-        } else {
-            return false;
-        }
+        ReportPSM objReportPSM = (ReportPSM)obj;
+        return new EqualsBuilder().
+                append(id, objReportPSM.id).
+                append(spectrum, objReportPSM.spectrum).
+                append(isDecoy, objReportPSM.isDecoy).
+                append(isFDRGood, objReportPSM.isFDRGood).
+                append(accessions, objReportPSM.accessions).
+                isEquals();
     }
 
 
     @Override
     public int hashCode() {
-        int hash = 0;
-
-        hash += (ID != null) ? ID.hashCode() : 0;
-        hash += (spectrum != null) ? spectrum.hashCode() : 0;
-        hash += isDecoy ? 1 : 0;
-        hash += isFDRGood ? 1 : 0;
-        hash += (accessions != null) ? accessions.hashCode() : 0;
-
-        return hash;
+        return new HashCodeBuilder(23, 31).
+                append(id).
+                append(spectrum).
+                append(isDecoy).
+                append(isFDRGood).
+                append(accessions).
+                toHashCode();
     }
 
 
@@ -148,7 +149,7 @@ public class ReportPSM  implements PSMReportItem {
      * @return
      */
     public Long getId() {
-        return ID;
+        return id;
     }
 
 
@@ -481,12 +482,7 @@ public class ReportPSM  implements PSMReportItem {
             break;
 
         case SEARCHENGINE:
-            if (spectrum.getIsDecoy() != null) {
-                this.isDecoy = spectrum.getIsDecoy();
-            } else {
-                // TODO: how to handle this...
-                this.isDecoy = false;
-            }
+            this.isDecoy = isDecoyWithSearchengine();
             break;
 
         default:
@@ -506,6 +502,23 @@ public class ReportPSM  implements PSMReportItem {
         for (Map.Entry<String, Accession> accIt : accessions.entrySet()) {
             m = p.matcher(accIt.getValue().getAccession());
             decoy &= m.matches();
+        }
+
+        return decoy;
+    }
+
+
+    /**
+     * Returns true, if the PSM is flagged as a decoy by the searchengine, i.e.
+     * it is already set in the spectrum.
+     *
+     * @return
+     */
+    private boolean isDecoyWithSearchengine() {
+        boolean decoy = false;
+
+        if (spectrum.getIsDecoy() != null) {
+            decoy = spectrum.getIsDecoy();
         }
 
         return decoy;
