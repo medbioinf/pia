@@ -88,11 +88,9 @@ public class FilterFactory {
             FilterComparator comparator, String input, boolean negate,
             StringBuilder messageBuffer) {
 
-        if ((filterShort == null)
-                || "null".equals(filterShort)) {
-            // no filter selected
-            messageBuffer.append("Please select a filter!");
-            return null;
+        String filterString = filterShort;
+        if (filterString == null) {
+            filterString = "null";
         }
 
         if (comparator == null) {
@@ -101,57 +99,97 @@ public class FilterFactory {
             return null;
         }
 
-        Object value;
-        switch (FilterFactory.getFilterType(filterShort)) {
-        case numerical:
-            // try to convert the input into a numerical value, Float should do
-            try {
-                value = Double.parseDouble(input);
-            } catch (NumberFormatException e) {
-                messageBuffer.append("please enter a numerical value");
-                value = null;
+        Object value = parseValueForFilterType(input, filterString, messageBuffer);
+        AbstractFilter filter = null;
+
+        if (value != null) {
+            if (value instanceof Number) {
+                filter = newInstanceOfScoreboundFilter(filterString, comparator, negate, (Number)value);
             }
-            break;
 
-        case bool:
-            value = Boolean.parseBoolean(input);
-            break;
-
-        case literal:
-        case literal_list:
-        case modification:
-            value = input;
-            break;
-
-        default:
-            return null;
-        }
-
-        if ((filterShort.startsWith(PSMScoreFilter.prefix)) &&
-                (value instanceof Number)) {
-            return new PSMScoreFilter(comparator, negate,
-                    ((Number)value).doubleValue(),
-                    filterShort.substring(PSMScoreFilter.prefix.length()));
-        } else if ((filterShort.startsWith(PeptideScoreFilter.prefix)) &&
-                (value instanceof Number)) {
-            return new PeptideScoreFilter(comparator, negate,
-                    ((Number) value).doubleValue(),
-                    filterShort.substring(PeptideScoreFilter.prefix.length()));
-        } else if ((filterShort.startsWith(PSMTopIdentificationFilter.prefix)) &&
-                (value instanceof Number)) {
-            return new PSMTopIdentificationFilter(comparator,
-                    ((Number)value).intValue(), negate,
-                    filterShort.substring(PSMTopIdentificationFilter.prefix.length()));
-        } else {
-            for (RegisteredFilters filter : RegisteredFilters.values()) {
-                if (filter.getShortName().equals(filterShort) &&
-                        filter.isCorrectValueInstance(value)) {
-                    return filter.newInstanceOf(comparator, value, negate);
+            if (filter == null) {
+                RegisteredFilters regFilter = RegisteredFilters.getFilterByShortname(filterString);
+                if ((regFilter != null) && regFilter.isCorrectValueInstance(value)) {
+                    filter = regFilter.newInstanceOf(comparator, value, negate);
                 }
             }
         }
 
-        return null;
+        return filter;
+    }
+
+
+    /**
+     * Parses the given {@link String} to the object and value according to the
+     * {@link FilterType} specified by the filterShort String.
+     *
+     * @param input
+     * @param filterShort
+     * @param messageBuffer any error or warning is added to this
+     * @return
+     */
+    private static Object parseValueForFilterType(String input, String filterShort,
+            StringBuilder messageBuffer) {
+        FilterType type =  getFilterType(filterShort);
+        Object value;
+
+        try {
+            switch (type) {
+            case numerical:
+                value = Double.parseDouble(input);
+                break;
+
+            case bool:
+                value = Boolean.parseBoolean(input);
+                break;
+
+            case literal:
+            case literal_list:
+            case modification:
+                value = input;
+                break;
+
+            default:
+                // no valid filter selected
+                messageBuffer.append("Please select a filter!");
+                value = null;
+            }
+        } catch (NumberFormatException e) {
+            messageBuffer.append("Please enter a numerical value!");
+            value = null;
+        }
+
+        return value;
+    }
+
+
+    /**
+     * Creates a new instance of a special {@link AbstractFilter}, i.e. a filter
+     * that corresponds to a peptide or PSM score. If no such score is defined
+     * by filterShort, null is returned.
+     *
+     * @param filterShort
+     * @param comparator
+     * @param negate
+     * @param value
+     * @return
+     */
+    private static AbstractFilter newInstanceOfScoreboundFilter(String filterShort,
+            FilterComparator comparator, boolean negate, Number value) {
+        AbstractFilter filter = null;
+
+        if (filterShort.startsWith(PSMScoreFilter.prefix)) {
+            filter = new PSMScoreFilter(comparator, negate, value.doubleValue(),
+                    filterShort.substring(PSMScoreFilter.prefix.length()));
+        } else if (filterShort.startsWith(PeptideScoreFilter.prefix)) {
+            filter = new PeptideScoreFilter(comparator, negate, value.doubleValue(),
+                    filterShort.substring(PeptideScoreFilter.prefix.length()));
+        } else if (filterShort.startsWith(PSMTopIdentificationFilter.prefix)) {
+            filter = new PSMTopIdentificationFilter(comparator, value.intValue(), negate,
+                    filterShort.substring(PSMTopIdentificationFilter.prefix.length()));
+        }
+
+        return filter;
     }
 
 
@@ -166,21 +204,22 @@ public class FilterFactory {
             return null;
         }
 
+        FilterType type = null;
+
         if (filterShort.startsWith(PSMScoreFilter.prefix)) {
-            return PSMScoreFilter.filterType;
+            type = PSMScoreFilter.filterType;
         } else if (filterShort.startsWith(PeptideScoreFilter.prefix)) {
-            return PeptideScoreFilter.filterType;
+            type = PeptideScoreFilter.filterType;
         } else if (filterShort.startsWith(PSMTopIdentificationFilter.prefix)) {
-            return PSMTopIdentificationFilter.filterType;
+            type = PSMTopIdentificationFilter.filterType;
         } else {
-            for (RegisteredFilters filter : RegisteredFilters.values()) {
-                if (filter.getShortName().equals(filterShort)) {
-                    return filter.getFilterType();
-                }
+            RegisteredFilters filter = RegisteredFilters.getFilterByShortname(filterShort);
+            if (filter != null) {
+                type = filter.getFilterType();
             }
         }
 
-        return null;
+        return type;
     }
 
 
@@ -236,9 +275,12 @@ public class FilterFactory {
      * @param o
      * @return
      */
-    public static <T extends Filterable> boolean satisfiesFilterList(
-            T item, Long fileID,
-            List<AbstractFilter> filters) {
+    public static <T extends Filterable> boolean satisfiesFilterList(T item,
+            Long fileID, List<AbstractFilter> filters) {
+        if ((filters == null) || filters.isEmpty()) {
+            return true;
+        }
+
         boolean satisfiesAllFilters = true;
 
         for (AbstractFilter filter : filters) {

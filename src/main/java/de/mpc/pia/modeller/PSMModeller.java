@@ -138,6 +138,7 @@ public class PSMModeller {
     private Map<Long, List<ReportPSM> > fileReportPSMs;
 
     /** List of the {@link ReportPSMSet}s for the whole file */
+    // TODO: make the reportPSMSets and reportPSMSetMap accessible by getter only, create on demand and null them, when the PSMSetSettings or createPSMSets are changed
     private List<ReportPSMSet> reportPSMSets;
 
     /** map of the ReportPSMSets, for faster access in the other modellers, this is static per PIA XML file and global settings */
@@ -272,37 +273,34 @@ public class PSMModeller {
      * Applies the general settings and recalculates the PSMSets
      */
     public void applyGeneralSettings(boolean createSets) {
-        // only do something, if it is needed
-        if (this.createPSMSets != createSets) {
-            this.createPSMSets = createSets;
+        createPSMSets = createSets;
 
-            if (!this.createPSMSets) {
-                // no sets across files needed -> put fileID into settings
-                this.psmSetSettings.put(IdentificationKeySettings.FILE_ID.name(), true);
-            }
-
-            // rebuild the PSM sets
-            List<AbstractFilter> filters = getFilters(0L);
-
-            // map to create the PSMSets
-            Map<String, List<ReportPSM>> psmSetsMap =
-                    new HashMap<String, List<ReportPSM>>();
-
-            // sort the PSMs in sets with their identificationKeys
-            for (ReportPSM psm : spectraPSMs.values()) {
-                if (FilterFactory.satisfiesFilterList(psm, 0L, filters)) {
-                    String psmKey = psm.getIdentificationKey(this.psmSetSettings);
-
-                    // put the PSM in the psmKey -> ReportPSM map
-                    if (!psmSetsMap.containsKey(psmKey)) {
-                        psmSetsMap.put(psmKey, new ArrayList<ReportPSM>());
-                    }
-                    psmSetsMap.get(psmKey).add(psm);
-                }
-            }
-
-            createReportPSMSets(psmSetsMap);
+        if (!createPSMSets) {
+            // no sets across files needed -> put fileID into settings
+            this.psmSetSettings.put(IdentificationKeySettings.FILE_ID.name(), true);
         }
+
+        // rebuild the PSM sets
+        List<AbstractFilter> filters = getFilters(0L);
+
+        // map to create the PSMSets
+        Map<String, List<ReportPSM>> psmSetsMap =
+                new HashMap<String, List<ReportPSM>>();
+
+        // sort the PSMs in sets with their identificationKeys
+        for (ReportPSM psm : spectraPSMs.values()) {
+            if (FilterFactory.satisfiesFilterList(psm, 0L, filters)) {
+                String psmKey = psm.getIdentificationKey(this.psmSetSettings);
+
+                // put the PSM in the psmKey -> ReportPSM map
+                if (!psmSetsMap.containsKey(psmKey)) {
+                    psmSetsMap.put(psmKey, new ArrayList<ReportPSM>());
+                }
+                psmSetsMap.get(psmKey).add(psm);
+            }
+        }
+
+        createReportPSMSets(psmSetsMap);
     }
 
 
@@ -341,6 +339,7 @@ public class PSMModeller {
         }
 
         if (!psmSetSettings.equals(oldSettings)) {
+            logger.info("need to re-apply general settings");
             applyGeneralSettings(getCreatePSMSets());
         }
 
@@ -720,6 +719,7 @@ public class PSMModeller {
                 new FDRData(fileFDRData.get(0L).getDecoyStrategy(),
                         fileFDRData.get(0L).getDecoyPattern(),
                         fileFDRData.get(0L).getFDRThreshold()));
+        logger.info("createReportPSMSets done");
     }
 
 
@@ -848,10 +848,9 @@ public class PSMModeller {
         // the PSM sets need a special filtering, some of the sets can become empty, due to filters on PSM level
         for (ReportPSMSet psmSet : reportPSMSets) {
             if (FilterFactory.satisfiesFilterList(psmSet, 0L, filters)) {
-                List<ReportPSM> psms = FilterFactory.applyFilters(
-                        psmSet.getPSMs(), filters);
+                List<ReportPSM> psms = FilterFactory.applyFilters(psmSet.getPSMs(), filters);
 
-                if (psms.size() > 0) {
+                if (!psms.isEmpty()) {
                     ReportPSMSet set = new ReportPSMSet(psms, psmSetSettings);
                     set.copyInfo(psmSet);
                     filteredPSMSets.add(set);

@@ -1407,6 +1407,10 @@ public enum RegisteredFilters {
             });
 
 
+    /** a copy of all filters */
+    private static final List<RegisteredFilters> allFilters = Arrays.asList(values());
+
+
     /**
      * Basic constructor for a filter
      * @param filterType
@@ -1603,5 +1607,28 @@ public enum RegisteredFilters {
         }
 
         return filterShorts;
+    }
+
+
+
+    /**
+     * Returns the filter specified by the given shortName or null, if no such
+     * filter was found.
+     *
+     * @param filterShort
+     * @return
+     */
+    public static final RegisteredFilters getFilterByShortname(String filterShort) {
+        if (filterShort == null) {
+            return null;
+        }
+
+        for (RegisteredFilters filter : allFilters) {
+            if (filter.getShortName().equals(filterShort)) {
+                return filter;
+            }
+        }
+
+        return null;
     }
 }

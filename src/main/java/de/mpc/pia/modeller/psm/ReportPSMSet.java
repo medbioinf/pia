@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.log4j.Logger;
 
 import de.mpc.pia.intermediate.Accession;
@@ -26,12 +28,12 @@ public class ReportPSMSet implements PSMReportItem {
     private Map<String, Boolean> psmSetSettings;
 
     /** the PSMs **/
-    private List<ReportPSM> PSMs;
+    private List<ReportPSM> psmsList;
 
     /** the Average FDR Score of the set */
     private ScoreModel averageFDRScore;
 
-    /** the FDR Score of the set, in the set case the Combined FDR Score */
+    /** the FDR Score of the set, i.e. the Combined FDR Score in PSM sets */
     private ScoreModel fdrScore;
 
     /** the value of the local FDR for this set */
@@ -72,7 +74,7 @@ public class ReportPSMSet implements PSMReportItem {
 
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(ReportPSMSet.class);
+    private static final Logger LOGGER = Logger.getLogger(ReportPSMSet.class);
 
 
     /**
@@ -94,7 +96,7 @@ public class ReportPSMSet implements PSMReportItem {
         this.isDecoy = false;
         this.isFDRGood = true;
         this.qValue = null;
-        this.PSMs = new ArrayList<ReportPSM>();
+        this.psmsList = new ArrayList<ReportPSM>();
         this.sequence = null;
         this.rebuildModificationsString = true;
         this.modificationsString = null;
@@ -140,19 +142,19 @@ public class ReportPSMSet implements PSMReportItem {
      */
     @Override
     public String getIdentificationKey(Map<String, Boolean> psmSetSettings) {
-        if (PSMs.size() > 0) {
-            return PSMs.get(0).getIdentificationKey(psmSetSettings);
-        } else {
+        if (psmsList.isEmpty()) {
             return null;
+        } else {
+            return psmsList.get(0).getIdentificationKey(psmSetSettings);
         }
     }
 
 
     @Override
     public String getPeptideStringID(boolean considerModifications) {
-        if ((peptideStringID == null) && (PSMs.size() > 0)) {
+        if ((peptideStringID == null) && !psmsList.isEmpty()) {
             // build the string on the first call
-            peptideStringID = PSMs.get(0).getPeptideStringID(true);
+            peptideStringID = psmsList.get(0).getPeptideStringID(true);
         }
 
         if (considerModifications) {
@@ -170,15 +172,10 @@ public class ReportPSMSet implements PSMReportItem {
      * @param psm
      */
     public void addReportPSM(ReportPSM psm) {
-        for (ReportPSM psmIt : PSMs) {
-            if (psm.getId().equals(psmIt.getId())) {
-                // TODO maybe return or throw some warning, if the ID is already here
-                logger.error("psm with " + psm.getId() +
-                        " already in the PSM of this set");
-                return;
-            }
+        if (psmsList.contains(psm)) {
+            LOGGER.error("psm with ID='" + psm.getId() + "' already in the PSMs of this set");
+            return;
         }
-
 
         if (niceSpectrumName == null) {
             niceSpectrumName = psm.getNiceSpectrumName();
@@ -186,25 +183,21 @@ public class ReportPSMSet implements PSMReportItem {
             niceSpectrumName = psm.getNiceSpectrumName();
         }
 
-        String priorKey = null;
-        if (PSMs.size() > 0) {
-            priorKey = PSMs.get(0).getIdentificationKey(psmSetSettings);
-        }
+        String priorKey = getIdentificationKey(psmSetSettings);
 
-        PSMs.add(psm);
+        psmsList.add(psm);
+
         if ((priorKey != null) &&
                 !psm.getIdentificationKey(psmSetSettings).equals(priorKey)) {
-            logger.error("PSM for PSM Set has not the Set's idKey!");
+            LOGGER.error("PSM for PSM Set has not the Set's idKey!");
         }
 
         // adjust the maximalSpectraIdentificationSettings
-        Set<String> setAvailables =
-                new HashSet<String>(maximalSpectraIdentificationSettings.keySet());
-        Map<String, Boolean> psmAvailables =
-                psm.getAvailableIdentificationKeySettings();
+        Set<String> setAvailables = new HashSet<String>(maximalSpectraIdentificationSettings.keySet());
+        Map<String, Boolean> psmAvailables = psm.getAvailableIdentificationKeySettings();
         for (String setting : setAvailables) {
-            if (!psmAvailables.containsKey(setting) ||
-                    !psmAvailables.get(setting) ) {
+            if (!psmAvailables.containsKey(setting)
+                    || !psmAvailables.get(setting) ) {
                 maximalSpectraIdentificationSettings.remove(setting);
             }
         }
@@ -223,7 +216,7 @@ public class ReportPSMSet implements PSMReportItem {
         double afsValue = 1.0;
         int nrFDRScores = 0;
 
-        for (ReportPSM psm : PSMs) {
+        for (ReportPSM psm : psmsList) {
             if ((psm.getFDRScore() != null) && !psm.getFDRScore().getValue().equals(Double.NaN)) {
                 afsValue *= psm.getFDRScore().getValue();
                 nrFDRScores++;
@@ -256,7 +249,7 @@ public class ReportPSMSet implements PSMReportItem {
      * @return
      */
     public List<ReportPSM> getPSMs() {
-        return PSMs;
+        return psmsList;
     }
 
 
@@ -265,19 +258,18 @@ public class ReportPSMSet implements PSMReportItem {
      *
      * @return
      */
+    @Override
     public Map<Integer, Modification> getModifications() {
         TreeMap<Integer, Modification> modifications =
                 new TreeMap<Integer, Modification>();
 
-        for (ReportPSM psm : PSMs) {
+        for (ReportPSM psm : psmsList) {
             for (Map.Entry<Integer, Modification> modIt : psm.getModifications().entrySet()) {
                 if (modifications.get(modIt.getKey()) != null) {
                     Modification mod = modifications.get(modIt.getKey());
 
-                    if (((mod.getDescription() == null) ||
-                            mod.getDescription().trim().equals("")) &&
-                            ((modIt.getValue().getDescription() != null) &&
-                                    !modIt.getValue().getDescription().trim().equals(""))) {
+                    if (((mod.getDescription() == null) || mod.getDescription().trim().isEmpty()) &&
+                            ((modIt.getValue().getDescription() != null) && !modIt.getValue().getDescription().trim().isEmpty())) {
                         // either no description or empty in map so far and we
                         // have one here -> overwrite the object in the map
                         modifications.put(modIt.getKey(),
@@ -318,8 +310,8 @@ public class ReportPSMSet implements PSMReportItem {
      */
     @Override
     public String getSequence() {
-        if ((sequence == null) && (PSMs.size() > 0)) {
-            sequence = PSMs.get(0).getSequence();
+        if ((sequence == null) && !psmsList.isEmpty()) {
+            sequence = psmsList.get(0).getSequence();
         }
 
         return sequence;
@@ -335,8 +327,8 @@ public class ReportPSMSet implements PSMReportItem {
      */
     @Override
     public int getMissedCleavages() {
-        if (PSMs.size() > 0) {
-            for (ReportPSM psm : PSMs) {
+        if (!psmsList.isEmpty()) {
+            for (ReportPSM psm : psmsList) {
                 if (psm.getMissedCleavages() > -1) {
                     return psm.getMissedCleavages();
                 }
@@ -355,10 +347,10 @@ public class ReportPSMSet implements PSMReportItem {
      */
     @Override
     public int getCharge() {
-        if (PSMs.size() > 0) {
-            return PSMs.get(0).getCharge();
-        } else {
+        if (psmsList.isEmpty()) {
             return 0;
+        } else {
+            return psmsList.get(0).getCharge();
         }
     }
 
@@ -373,11 +365,11 @@ public class ReportPSMSet implements PSMReportItem {
     @Override
     public double getMassToCharge() {
         double mz = 0;
-        for (ReportPSM psm : PSMs) {
+        for (ReportPSM psm : psmsList) {
             mz += psm.getMassToCharge();
         }
 
-        return mz / PSMs.size();
+        return mz / psmsList.size();
     }
 
 
@@ -392,7 +384,7 @@ public class ReportPSMSet implements PSMReportItem {
     public double getDeltaMass() {
         double deltamass = 0;
         int dmCount = 0;
-        for (ReportPSM psm : PSMs) {
+        for (ReportPSM psm : psmsList) {
             if (!Double.isNaN(psm.getDeltaMass())) {
                 deltamass += psm.getDeltaMass();
                 dmCount++;
@@ -419,7 +411,7 @@ public class ReportPSMSet implements PSMReportItem {
         int rtCount = 0;
         double rt = 0;
 
-        for (ReportPSM psm : PSMs) {
+        for (ReportPSM psm : psmsList) {
             Double psmRT = psm.getRetentionTime();
             if ((psmRT != null) && !psmRT.equals(Double.NaN)) {
                 rt += psmRT;
@@ -446,7 +438,7 @@ public class ReportPSMSet implements PSMReportItem {
     public double getDeltaPPM() {
         double ppm = 0;
         int ppmCount = 0;
-        for (ReportPSM psm : PSMs) {
+        for (ReportPSM psm : psmsList) {
             if (!Double.isNaN(psm.getDeltaPPM())) {
                 ppm += psm.getDeltaPPM();
                 ppmCount++;
@@ -454,7 +446,7 @@ public class ReportPSMSet implements PSMReportItem {
         }
 
         if (ppmCount > 0) {
-            return ppm / PSMs.size();
+            return ppm / psmsList.size();
         } else {
             return Double.NaN;
         }
@@ -464,7 +456,7 @@ public class ReportPSMSet implements PSMReportItem {
     @Override
     public String getSourceID() {
         // For now, simply take the ID of the first PSM providing it
-        for (ReportPSM psm : PSMs) {
+        for (ReportPSM psm : psmsList) {
             if (psm.getSourceID() != null) {
                 return psm.getSourceID();
             }
@@ -477,7 +469,7 @@ public class ReportPSMSet implements PSMReportItem {
     @Override
     public String getSpectrumTitle() {
         // For now, simply take the title of the first PSM providing it
-        for (ReportPSM psm : PSMs) {
+        for (ReportPSM psm : psmsList) {
             if (psm.getSpectrumTitle() != null) {
                 return psm.getSpectrumTitle();
             }
@@ -499,36 +491,24 @@ public class ReportPSMSet implements PSMReportItem {
      */
     public ScoreModel getCompareScore(String scoreShortName,
             Set<Long> nonScoringPSMs, Set<String> nonScoringSpectra) {
-        if (nonScoringPSMs == null) {
-            nonScoringPSMs = new HashSet<Long>(0);
-        }
-        if (nonScoringSpectra == null) {
-            nonScoringSpectra = new HashSet<String>(0);
+        ScoreModel compareScore = null;
+
+        if (!anyPSMinSet(nonScoringPSMs) && !anySpectrumInSet(nonScoringSpectra)) {
+            if ((averageFDRScore != null)
+                    && averageFDRScore.getType().isValidDescriptor(scoreShortName)) {
+                compareScore = averageFDRScore;
+            } else if ((fdrScore != null)
+                    && (fdrScore.getType().isValidDescriptor(scoreShortName)
+                            || ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.isValidDescriptor(scoreShortName))) {
+                compareScore = averageFDRScore;
+            }
         }
 
-        if ((averageFDRScore != null) &&
-                averageFDRScore.getType().isValidDescriptor(scoreShortName)) {
-            if (!anyPSMinSet(nonScoringPSMs) &&
-                    !anySpectrumInSet(nonScoringSpectra)) {
-                return averageFDRScore;
-            } else {
-                // the averageFDRScore is invalid, if any PSM is not scoring
-                return null;
-            }
-        } else if ((fdrScore != null) &&
-                (fdrScore.getType().isValidDescriptor(scoreShortName) ||
-                        ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.isValidDescriptor(scoreShortName))) {
-            if (!anyPSMinSet(nonScoringPSMs) &&
-                    !anySpectrumInSet(nonScoringSpectra)) {
-                return fdrScore;
-            } else {
-                // the Combined FDR Score is invalid, if any PSM is not scoring
-                return null;
-            }
-        } else {
-            return getBestScoreModel(scoreShortName, nonScoringPSMs,
-                    nonScoringSpectra);
+        if (compareScore == null) {
+            compareScore = getBestScoreModel(scoreShortName, nonScoringPSMs, nonScoringSpectra);
         }
+
+        return compareScore;
     }
 
 
@@ -536,7 +516,11 @@ public class ReportPSMSet implements PSMReportItem {
      * Returns true, if any of the set's PSMs' IDs is in the given set of IDs
      */
     private boolean anyPSMinSet(Set<Long> nonScoringPSMs) {
-        for (ReportPSM psm : PSMs) {
+        if (nonScoringPSMs == null) {
+            return false;
+        }
+
+        for (ReportPSM psm : psmsList) {
             if (nonScoringPSMs.contains(psm.getId())) {
                 return true;
             }
@@ -550,7 +534,11 @@ public class ReportPSMSet implements PSMReportItem {
      * ID keys.
      */
     private boolean anySpectrumInSet(Set<String> nonScoringPSMs) {
-        for (ReportPSM psm : PSMs) {
+        if (nonScoringPSMs == null) {
+            return false;
+        }
+
+        for (ReportPSM psm : psmsList) {
             if (nonScoringPSMs.contains(
                     psm.getSpectrum().getSpectrumIdentificationKey(
                             getAvailableIdentificationKeySettings()))) {
@@ -651,36 +639,42 @@ public class ReportPSMSet implements PSMReportItem {
 
     /**
      * Gets the ScoreModel with the best score value of the PSMs in this
-     * ReportPSMSet for the given scoreShortName and using
-     * only ReportPSMs whose IDs are not in the nonScoringPSMs and whose spectra
-     * are not in the nonScoringSpectra.<br/>
+     * ReportPSMSet for the given scoreShortName and using only ReportPSMs whose
+     * IDs are not in the nonScoringPSMs and whose spectra are not in the
+     * nonScoringSpectra.<br/>
      * This method is only for PSMReport ScoreModels, not for e.g. the
      * "Combined FDR Score".
      *
      * @param scoreShortName
-     * @param nonScoringPSMs
+     * @param nonScoringSpectra
      * @return
      */
     public ScoreModel getBestScoreModel(String scoreShortName,
             Set<Long> nonScoringPSMs, Set<String> nonScoringSpectra) {
+        Set<Long> nsPSMs;
         if (nonScoringPSMs == null) {
-            nonScoringPSMs = new HashSet<Long>(0);
+            nsPSMs = new HashSet<Long>(0);
+        } else {
+            nsPSMs = nonScoringPSMs;
         }
+
+        Set<String> nsSpectra;
         if (nonScoringSpectra == null) {
-            nonScoringSpectra = new HashSet<String>(0);
+            nsSpectra = new HashSet<String>(0);
+        } else {
+            nsSpectra = nonScoringSpectra;
         }
 
         ScoreModel bestScoreModel = null;
-        for (ReportPSM psm : PSMs) {
-            if (!nonScoringPSMs.contains(psm.getId()) &&
-                    !nonScoringSpectra.contains(
+        for (ReportPSM psm : psmsList) {
+            if (!nsPSMs.contains(psm.getId()) &&
+                    !nsSpectra.contains(
                             psm.getSpectrum().getSpectrumIdentificationKey(
                                     getAvailableIdentificationKeySettings()))) {
                 ScoreModel newScoreModel = psm.getCompareScore(scoreShortName);
 
-                if ((newScoreModel != null) &&
-                        ((bestScoreModel == null) ||
-                                (newScoreModel.compareTo(bestScoreModel) < 0))) {
+                if ((newScoreModel != null)
+                        && ((bestScoreModel == null) || (newScoreModel.compareTo(bestScoreModel) < 0))) {
                     bestScoreModel = newScoreModel;
                 }
             }
@@ -734,7 +728,7 @@ public class ReportPSMSet implements PSMReportItem {
     public void updateDecoyStatus(DecoyStrategy strategy, Pattern p) {
         isDecoy = true;
 
-        for (ReportPSM psm : PSMs) {
+        for (ReportPSM psm : psmsList) {
             isDecoy &= psm.getIsDecoy();
         }
     }
@@ -802,7 +796,7 @@ public class ReportPSMSet implements PSMReportItem {
     public List<Accession> getAccessions() {
         TreeMap<String, Accession> accs = new TreeMap<String, Accession>();
 
-        for (ReportPSM psm : PSMs) {
+        for (ReportPSM psm : psmsList) {
             for (Accession acc : psm.getAccessions()) {
                 accs.put(acc.getAccession(), acc);
             }
@@ -832,8 +826,8 @@ public class ReportPSMSet implements PSMReportItem {
 
     @Override
     public Peptide getPeptide() {
-        if (PSMs.size() > 0) {
-            return PSMs.get(0).getPeptide();
+        if (!psmsList.isEmpty()) {
+            return psmsList.get(0).getPeptide();
         } else {
             return null;
         }
@@ -875,7 +869,39 @@ public class ReportPSMSet implements PSMReportItem {
         niceSpectrumName = otherSet.getNiceSpectrumName();
         sequence = otherSet.getSequence();
         rebuildModificationsString = true;
-        modificationsString = null;	// this gets rebuild on next call
-        peptideStringID = null;		// this gets rebuild on next call
+        modificationsString = null;     // this gets rebuild on next call
+        peptideStringID = null;         // this gets rebuild on next call
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ReportPSMSet)) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+
+        ReportPSMSet objReportPSMSet = (ReportPSMSet)obj;
+        return new EqualsBuilder().
+                append(isDecoy, objReportPSMSet.isDecoy).
+                append(isFDRGood, objReportPSMSet.isFDRGood).
+                append(getModificationsString(), objReportPSMSet.getModificationsString()).
+                append(getSequence(), objReportPSMSet.getSequence()).
+                append(psmsList, objReportPSMSet.psmsList).
+                isEquals();
+    }
+
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(23, 31).
+                append(isDecoy).
+                append(isFDRGood).
+                append(getModificationsString()).
+                append(getSequence()).
+                append(psmsList).
+                toHashCode();
     }
 }
