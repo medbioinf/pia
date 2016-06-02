@@ -67,12 +67,12 @@ public class PIAModeller {
 
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(PIAModeller.class);
+    private static final Logger LOGGER = Logger.getLogger(PIAModeller.class);
 
     /** helper description */
-    private static final String helpDescription =
-            "PIAModeller... Use a high enough amount of memory (e.g. " +
-                    "use the Java setting -Xmx8G).";
+    private static final String HELP_DESCRIPTION =
+            "PIAModeller... Use a high enough amount of memory (e.g."
+            + " use the Java setting -Xmx8G).";
 
 
     /**
@@ -150,7 +150,7 @@ public class PIAModeller {
      */
     public boolean loadFileName(String filename, Long[] progress, Object notifier)
             throws FileNotFoundException, JAXBException, XMLStreamException {
-        logger.info("start loading file " + filename);
+        LOGGER.info("start loading file " + filename);
 
         if (filename != null) {
             this.psmModeller = null;
@@ -284,10 +284,10 @@ public class PIAModeller {
      */
     private void parseIntermediate(Long[] progress, Object notifier)
             throws FileNotFoundException, JAXBException, XMLStreamException {
-        logger.info("loadIntermediate started...");
+        LOGGER.info("loadIntermediate started...");
 
         if (progress == null) {
-            logger.warn("no progress array given, creating one. But no external" +
+            LOGGER.warn("no progress array given, creating one. But no external" +
                     "supervision possible");
             progress = new Long[1];
         }
@@ -300,17 +300,17 @@ public class PIAModeller {
         }
 
         if (fileName == null) {
-            logger.error("no file given!");
+            LOGGER.error("no file given!");
             return;
         }
 
         try {
-            logger.info("Starting parse...");
+            LOGGER.info("Starting parse...");
 
             intermediateHandler = new PIAIntermediateJAXBHandler();
             intermediateHandler.parse(fileName, progress, notifier);
 
-            logger.info(fileName + " successfully parsed.\n" +
+            LOGGER.info(fileName + " successfully parsed.\n" +
                     "\t" + intermediateHandler.getFiles().size() + " files\n" +
                     "\t" + intermediateHandler.getGroups().size() + " groups\n" +
                     "\t" + intermediateHandler.getAccessions().size() + " accessions\n" +
@@ -324,12 +324,12 @@ public class PIAModeller {
         } catch (XMLStreamException e) {
             throw e;
         } finally {
-            logger.info("loadIntermediate done.");
+            LOGGER.info("loadIntermediate done.");
         }
 
         if (intermediateHandler != null) {
             // TODO: maybe move this uniqueness setting the PIACompiler...
-            logger.info("setting spectra uniquenesses");
+            LOGGER.info("setting spectra uniquenesses");
 
             for (Map.Entry<Long, Group> grIt : intermediateHandler.getGroups().entrySet()) {
                 if (grIt.getValue().getAllAccessions().size() == 1) {
@@ -344,7 +344,7 @@ public class PIAModeller {
 
                 }
             }
-            logger.info("spectra uniquenesses set.");
+            LOGGER.info("spectra uniquenesses set.");
 
             // the PSMModeller needs no global settings
             psmModeller = new PSMModeller(intermediateHandler.getGroups(),
@@ -362,8 +362,7 @@ public class PIAModeller {
             // initialise the ProteinModeller
             proteinModeller = new ProteinModeller(psmModeller,
                     peptideModeller,
-                    getGroups(),
-                    intermediateHandler.getSearchDatabase());
+                    getGroups());
 
             progress[0] += 60;
             if (notifier != null) {
@@ -467,7 +466,7 @@ public class PIAModeller {
      */
     public static void processPipelineFile(String paramFileName,
             PIAModeller model) {
-        logger.info("starting parse parameter file " + paramFileName);
+        LOGGER.info("starting parse parameter file " + paramFileName);
 
         try {
             JAXBContext context = JAXBContext.newInstance(CTDTool.class);
@@ -478,44 +477,38 @@ public class PIAModeller {
             for (NODEType node : parametersXML.getPARAMETERS().getNODE()) {
                 String nodeName = node.getName();
 
-                logger.debug("parsing node " + nodeName);
+                LOGGER.debug("parsing node " + nodeName);
 
-                if (nodeName.startsWith(PSMExecuteCommands.prefix)) {
+                if (nodeName.startsWith(PSMExecuteCommands.getPrefix())) {
                     PSMExecuteCommands execute = PSMExecuteCommands.valueOf(
-                            nodeName.substring(
-                                    PSMExecuteCommands.prefix.length()));
+                            nodeName.substring(PSMExecuteCommands.getPrefix().length()));
                     if (execute != null) {
-                        execute.executeXMLParameters(
-                                node, model.getPSMModeller());
+                        execute.executeXMLParameters(node, model.getPSMModeller(), model);
                     }
-                } else if (nodeName.startsWith(PeptideExecuteCommands.prefix)) {
+                } else if (nodeName.startsWith(PeptideExecuteCommands.getPrefix())) {
                     PeptideExecuteCommands execute = PeptideExecuteCommands.valueOf(
-                            nodeName.substring(
-                                    PeptideExecuteCommands.prefix.length()));
+                            nodeName.substring(PeptideExecuteCommands.getPrefix().length()));
                     if (execute != null) {
-                        execute.executeXMLParameters(
-                                node, model.getPeptideModeller());
+                        execute.executeXMLParameters(node, model.getPeptideModeller(), model);
                     }
-                } else if (nodeName.startsWith(ProteinExecuteCommands.prefix)) {
+                } else if (nodeName.startsWith(ProteinExecuteCommands.getPrefix())) {
                     ProteinExecuteCommands execute = ProteinExecuteCommands.valueOf(
-                            nodeName.substring(
-                                    ProteinExecuteCommands.prefix.length()));
+                            nodeName.substring(ProteinExecuteCommands.getPrefix().length()));
                     if (execute != null) {
-                        execute.executeXMLParameters(
-                                node, model.getProteinModeller());
+                        execute.executeXMLParameters(node, model.getProteinModeller(), model);
                     }
                 } else {
-                    logger.error("Could not execute " + nodeName);
+                    LOGGER.error("Could not execute " + nodeName);
                 }
             }
 
         } catch (JAXBException e) {
-            logger.error("Error parsing the file " + paramFileName, e);
+            LOGGER.error("Error parsing the file " + paramFileName, e);
         } catch (FileNotFoundException e) {
-            logger.error("Could not find the file " + paramFileName);
+            LOGGER.error("Could not find the file " + paramFileName, e);
         }
 
-        logger.info("finished parsing of parameter file " + paramFileName);
+        LOGGER.info("finished parsing of parameter file " + paramFileName);
     }
 
 
@@ -527,7 +520,7 @@ public class PIAModeller {
      * @param fileName
      */
     public static void initialisePipelineXML(String fileName, String name) {
-        logger.info("initialising parameter file for " + name);
+        LOGGER.info("initialising parameter file for " + name);
 
         CTDTool pipelineXML = new CTDTool();
 
@@ -546,10 +539,10 @@ public class PIAModeller {
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             m.marshal(pipelineXML, new File(fileName));
         } catch (JAXBException e) {
-            logger.error("Error while creating file:", e);
+            LOGGER.error("Error while creating file:", e);
         }
 
-        logger.info("initial parameter file written to " + fileName);
+        LOGGER.info("initial parameter file written to " + fileName);
     }
 
 
@@ -572,21 +565,21 @@ public class PIAModeller {
             // add the new node
             NODEType node = null;
             // the first param's prefix always specifies the level for execution
-            if (params[0].startsWith(PSMExecuteCommands.prefix)) {
+            if (params[0].startsWith(PSMExecuteCommands.getPrefix())) {
                 PSMExecuteCommands execute = PSMExecuteCommands.valueOf(
-                        params[0].substring(PSMExecuteCommands.prefix.length()));
+                        params[0].substring(PSMExecuteCommands.getPrefix().length()));
                 if (execute != null) {
                     node = execute.generateNode(params);
                 }
-            } else if (params[0].startsWith(PeptideExecuteCommands.prefix)) {
+            } else if (params[0].startsWith(PeptideExecuteCommands.getPrefix())) {
                 PeptideExecuteCommands execute = PeptideExecuteCommands.valueOf(
-                        params[0].substring(PeptideExecuteCommands.prefix.length()));
+                        params[0].substring(PeptideExecuteCommands.getPrefix().length()));
                 if (execute != null) {
                     node = execute.generateNode(params);
                 }
-            } else if (params[0].startsWith(ProteinExecuteCommands.prefix)) {
+            } else if (params[0].startsWith(ProteinExecuteCommands.getPrefix())) {
                 ProteinExecuteCommands execute = ProteinExecuteCommands.valueOf(
-                        params[0].substring(ProteinExecuteCommands.prefix.length()));
+                        params[0].substring(ProteinExecuteCommands.getPrefix().length()));
                 if (execute != null) {
                     node = execute.generateNode(params);
                 }
@@ -601,9 +594,9 @@ public class PIAModeller {
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             m.marshal(execution, new File(newFileName));
         } catch (JAXBException e) {
-            logger.error("Error parsing the file " + fileName, e);
+            LOGGER.error("Error parsing the file " + fileName, e);
         } catch (FileNotFoundException e) {
-            logger.error("Could not find the file " + fileName);
+            LOGGER.error("Could not find the file " + fileName, e);
         }
     }
 
@@ -806,6 +799,7 @@ public class PIAModeller {
 
                                     PSMExecuteCommands.Export.execute(
                                             model.getPSMModeller(),
+                                            model,
                                             paramList.toArray(params));
                                 }
                             }
@@ -843,6 +837,7 @@ public class PIAModeller {
 
                                     PeptideExecuteCommands.Export.execute(
                                             model.getPeptideModeller(),
+                                            model,
                                             paramList.toArray(params));
                                 }
                             }
@@ -881,6 +876,7 @@ public class PIAModeller {
 
                                     ProteinExecuteCommands.Export.execute(
                                             model.getProteinModeller(),
+                                            model,
                                             paramList.toArray(params));
                                 }
                             }
@@ -888,14 +884,16 @@ public class PIAModeller {
                     }
                 } else {
                     // commands are directly processed on the command line
-                    if(line.hasOption("infile")) {
+                    if (line.hasOption("infile")) {
                         PIAModeller model =
                                 new PIAModeller(line.getOptionValue("infile"));
 
                         if (line.hasOption("psm")) {
                             // perform the PSM commands
                             for (String command : line.getOptionValues("psm")) {
-                                PSMModeller.processCLI(model.getPSMModeller(),
+                                PSMModeller.processCLI(
+                                        model.getPSMModeller(),
+                                        model,
                                         command.split(":"));
                             }
                         }
@@ -905,6 +903,7 @@ public class PIAModeller {
                             for (String command : line.getOptionValues("peptide")) {
                                 PeptideModeller.processCLI(
                                         model.getPeptideModeller(),
+                                        model,
                                         command.split(":"));
                             }
                         }
@@ -914,6 +913,7 @@ public class PIAModeller {
                             for (String command : line.getOptionValues("protein")) {
                                 ProteinModeller.processCLI(
                                         model.getProteinModeller(),
+                                        model,
                                         command.split(":"));
                             }
                         }
@@ -925,7 +925,7 @@ public class PIAModeller {
             } catch (ParseException e) {
                 System.err.println(e.getMessage());
                 PIATools.printCommandLineHelp(PIAModeller.class.getSimpleName(),
-                        options, helpDescription);
+                        options, HELP_DESCRIPTION);
                 System.exit(-1);
             } catch (Exception e) {
                 System.err.println("Unexpected exception: " + e.getMessage());
@@ -934,7 +934,7 @@ public class PIAModeller {
             }
         } else {
             PIATools.printCommandLineHelp(PIAModeller.class.getSimpleName(),
-                    options, helpDescription);
+                    options, HELP_DESCRIPTION);
         }
     }
 }
