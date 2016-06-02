@@ -633,9 +633,14 @@ public class PeptideModeller {
      * @param commands
      * @return
      */
-    public static boolean processCLI(PeptideModeller model, String[] commands) {
-        if (model == null) {
+    public static boolean processCLI(PeptideModeller peptideModeller, PIAModeller piaModeller, String[] commands) {
+        if (peptideModeller == null) {
             LOGGER.error("No peptide modeller given while processing CLI commands");
+            return false;
+        }
+
+        if (piaModeller == null) {
+            LOGGER.error("No PIA modeller given while processing CLI commands");
             return false;
         }
 
@@ -652,7 +657,7 @@ public class PeptideModeller {
             }
 
             try {
-                PeptideExecuteCommands.valueOf(command).execute(model, params);
+                PeptideExecuteCommands.valueOf(command).execute(peptideModeller, piaModeller, params);
             } catch (IllegalArgumentException e) {
                 LOGGER.error("Could not process unknown call to " + command, e);
             }

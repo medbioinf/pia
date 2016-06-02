@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -141,6 +142,21 @@ public class MzTabExporter {
     }
 
 
+    public boolean exportToMzTab(Long fileID, OutputStream exportStream,
+            boolean proteinLevel, boolean peptideLevelStatistics, boolean filterExport) {
+        boolean exportOK = true;
+        try {
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(exportStream));
+            exportOK = exportToMzTab(fileID, writer, proteinLevel, peptideLevelStatistics, filterExport);
+            writer.close();
+        } catch (IOException e) {
+            LOGGER.error("Error while exporting to mzTab", e);
+            exportOK = false;
+        }
+        return exportOK;
+    }
+
+
     /**
      * Exports the data of the modeller using the data of the fileID (only
      * relevant if not protein level) to the specified file. If protein level is
@@ -154,13 +170,13 @@ public class MzTabExporter {
      * @param filterExport whether the export should be filtered (on any level)
      * @return
      */
-    public boolean exportToMzTab(Long fileID, OutputStream exportStream,
+    public boolean exportToMzTab(Long fileID, Writer exportWriter,
             boolean proteinLevel, boolean peptideLevelStatistics, boolean filterExport) {
         boolean error = false;
         exportFileID = fileID;
 
         try {
-            outWriter = new BufferedWriter(new OutputStreamWriter(exportStream));
+            outWriter = new BufferedWriter(exportWriter);
 
             unimodParser = new UnimodParser();
 
@@ -1083,11 +1099,12 @@ public class MzTabExporter {
             boolean calculatedPIAScore = false;
             Reliability reliability = null;
             for (Map.Entry<String, Integer> scoreIt : psmScoreShortToId.entrySet()) {
-                Double scoreValue = null;
+                Double scoreValue;
 
                 if (psmItem instanceof ReportPSM) {
                     scoreValue = psmItem.getScore(scoreIt.getKey());
-                } else if (psmItem instanceof ReportPSMSet) {
+                } else {
+                    // psmItem is a ReportPSMSet
                     scoreValue = ((ReportPSMSet) psmItem).getBestScore(scoreIt.getKey());
                     if (scoreValue.equals(Double.NaN)) {
                         scoreValue = psmItem.getScore(scoreIt.getKey());
