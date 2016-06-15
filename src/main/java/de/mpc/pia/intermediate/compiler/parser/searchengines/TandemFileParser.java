@@ -73,7 +73,7 @@ import de.proteinms.xtandemparser.xtandem.XTandemFile;
 public class TandemFileParser {
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(TandemFileParser.class);
+    private static final Logger LOGGER = Logger.getLogger(TandemFileParser.class);
 
 
     /** this pattern matches a special case of RT, which occurs from mzML files */
@@ -107,7 +107,7 @@ public class TandemFileParser {
         if ((rtMapFileName != null) && (rtMapFileName.length() > 0)) {
             // additional RT info is given, parse the file
             try {
-                logger.info("Parsing the file '" + rtMapFileName + "'" +
+                LOGGER.info("Parsing the file '" + rtMapFileName + "'" +
                         " for RT information.");
 
                 FileInputStream rtStream = new FileInputStream(rtMapFileName);
@@ -123,7 +123,7 @@ public class TandemFileParser {
 
                 in.close();
             } catch (Exception e) {
-                logger.error("Error while parsing the RT info file " +
+                LOGGER.error("Error while parsing the RT info file " +
                         rtMapFileName + ", program will continue, " +
                         "but you won't have RT information", e);
                 rtMap.clear();
@@ -167,7 +167,7 @@ public class TandemFileParser {
         File tandemFile = new File(fileName);
         if (!tandemFile.canRead()) {
             // TODO: better error / exception
-            logger.error("could not read '" + fileName + "'.");
+            LOGGER.error("could not read '" + fileName + "'.");
             return false;
         }
         XTandemParser tandemParser;
@@ -175,7 +175,7 @@ public class TandemFileParser {
             tandemParser = new XTandemParser(tandemFile);
         } catch (Exception e) {
             // TODO: better error / exception
-            logger.error("could not parse '" + fileName + "'.");
+            LOGGER.error("could not parse '" + fileName + "'.", e);
             return false;
         }
         for (Map.Entry<String, String> performParam : tandemParser.getPerformParamMap().entrySet()) {
@@ -196,9 +196,9 @@ public class TandemFileParser {
 
                 // optional
                 /*
-				TODO: are these accessible with multiple databases
-				searchDatabase.setNumDatabaseSequences();
-				searchDatabase.setNumResidues();
+                TODO: are these accessible with multiple databases
+                searchDatabase.setNumDatabaseSequences();
+                searchDatabase.setNumResidues();
                  */
 
                 // fileformat
@@ -231,7 +231,7 @@ public class TandemFileParser {
             xtandemFile = new XTandemFile(fileName);
         } catch (Exception e) {
             // TODO: better error / exception
-            logger.error("could not parse '" + fileName + "'.", e);
+            LOGGER.error("could not parse '" + fileName + "'.", e);
             return false;
         }
 
@@ -414,7 +414,7 @@ public class TandemFileParser {
             String cleavages[] = strParam.split(",");
 
             if (cleavages.length > 1) {
-                logger.warn("Only one enzyme (cleavage site) implemented yet.");
+                LOGGER.warn("Only one enzyme (cleavage site) implemented yet.");
             }
 
             if (cleavages.length > 0) {
@@ -450,7 +450,7 @@ public class TandemFileParser {
 
                 enzyme.setSiteRegexp(pre + post);
             } else {
-                logger.error("No cleavage site found!");
+                LOGGER.error("No cleavage site found!");
             }
         }
 
@@ -460,17 +460,18 @@ public class TandemFileParser {
 
         Tolerance tolerance = new Tolerance();
 
-        Double error;
-        String units;
         if (fragmentMonoisotopic) {
-            error = inputParams.getSpectrumMonoIsoMassError();
+            Double fragmentError;
+            String units;
+
+            fragmentError = inputParams.getSpectrumMonoIsoMassError();
             units = inputParams.getSpectrumMonoIsoMassErrorUnits();
 
             abstractParam = new CvParam();
             ((CvParam)abstractParam).setAccession("MS:1001412");
             ((CvParam)abstractParam).setCv(psiMS);
             abstractParam.setName("search tolerance plus value");
-            abstractParam.setValue(error.toString());
+            abstractParam.setValue(fragmentError.toString());
             MzIdentMLTools.setUnitParameterFromString(units, abstractParam);
             tolerance.getCvParam().add((CvParam)abstractParam);
 
@@ -478,15 +479,13 @@ public class TandemFileParser {
             ((CvParam)abstractParam).setAccession("MS:1001413");
             ((CvParam)abstractParam).setCv(psiMS);
             abstractParam.setName("search tolerance minus value");
-            abstractParam.setValue(error.toString());
+            abstractParam.setValue(fragmentError.toString());
             MzIdentMLTools.setUnitParameterFromString(units, abstractParam);
             tolerance.getCvParam().add((CvParam)abstractParam);
 
             spectrumIDProtocol.setFragmentTolerance(tolerance);
         } else {
             // TODO: implement average fragment mass
-            error = null;
-            units = null;
         }
 
         tolerance = new Tolerance();
@@ -515,14 +514,14 @@ public class TandemFileParser {
 
         /* TODO: tandem has the "output, maximum valid expectation value" and
          * "output, maximum valid protein expectation" set, this is a threshold...
-		// no threshold set, take all PSMs from the file
-		paramList = new ParamList();
-		abstractParam = new CvParam();
-		((CvParam)abstractParam).setAccession("MS:1001494");
-		((CvParam)abstractParam).setCv(psiMS);
-		abstractParam.setName("no threshold");
-		paramList.getCvParam().add((CvParam)abstractParam);
-		spectrumIDProtocol.setThreshold(paramList);
+        // no threshold set, take all PSMs from the file
+        paramList = new ParamList();
+        abstractParam = new CvParam();
+        ((CvParam)abstractParam).setAccession("MS:1001494");
+        ((CvParam)abstractParam).setCv(psiMS);
+        abstractParam.setName("no threshold");
+        paramList.getCvParam().add((CvParam)abstractParam);
+        spectrumIDProtocol.setThreshold(paramList);
          */
         file.addSpectrumIdentificationProtocol(spectrumIDProtocol);
 
@@ -563,7 +562,7 @@ public class TandemFileParser {
 
         while (iter.hasNext()) {
             Object nxt = iter.next();
-            Spectrum spectrum = null;
+            Spectrum spectrum;
             if (nxt instanceof Spectrum){
                 spectrum = (Spectrum)nxt;
             } else {
@@ -608,7 +607,7 @@ public class TandemFileParser {
                         rt = Double.parseDouble(rtStr);
                     }
                 } catch (NumberFormatException e) {
-                    logger.error("Could not parse RT: ", e);
+                    LOGGER.error("Could not parse RT: ", e);
                     rt = null;
                 }
             }
@@ -650,7 +649,7 @@ public class TandemFileParser {
                     String psmKey = PeptideSpectrumMatch.getIdentificationKey(
                             psmSetSettings,
                             sequence,
-                            PeptideSpectrumMatch.getModificationString(modifications),	// no different rounding in the same file, so this should be safe
+                            PeptideSpectrumMatch.getModificationString(modifications),  // no different rounding in the same file, so this should be safe
                             charge,
                             null,
                             null,
@@ -709,7 +708,7 @@ public class TandemFileParser {
                         // if the PSM is already in the compiler, the peptide must be there as well
                         peptide = compiler.getPeptide(sequence);
                         if (peptide == null) {
-                            logger.error("The peptide " + sequence +
+                            LOGGER.error("The peptide " + sequence +
                                     " was not found in the compiler!");
                             continue;
                         }
@@ -722,7 +721,7 @@ public class TandemFileParser {
                             FastaHeaderInfos.parseHeaderInfos(protein.getLabel());
 
                     if (fastaInfo == null) {
-                        logger.error("Could not parse '" +
+                        LOGGER.error("Could not parse '" +
                                 protein.getLabel() + "'");
                         continue;
                     }
@@ -751,7 +750,7 @@ public class TandemFileParser {
 
                         if (acc.getDbSequence() != null)  {
                             if (!proteinSequence.equals(acc.getDbSequence())) {
-                                logger.warn("Different DBSequences found for same Accession, this is not suported!\n" +
+                                LOGGER.warn("Different DBSequences found for same Accession, this is not suported!\n" +
                                         "\t Accession: " + acc.getAccession() +
                                         "\t'" + proteinSequence + "'\n" +
                                         "\t'" + acc.getDbSequence() + "'");
@@ -800,7 +799,7 @@ public class TandemFileParser {
             }
         }
 
-        logger.info("inserted new: \n\t" +
+        LOGGER.info("inserted new: \n\t" +
                 pepNr + " peptides\n\t" +
                 specNr + " peptide spectrum matches\n\t" +
                 accNr + " accessions");
@@ -820,7 +819,7 @@ public class TandemFileParser {
     private static void addSearchModifications(String strParam, boolean isFixed,
             ModificationParams modParams, Cv psiMS) {
         if (modParams == null) {
-            logger.error("modParams is nt initialised, cannot add any modifications!");
+            LOGGER.error("modParams is nt initialised, cannot add any modifications!");
             return;
         }
 
@@ -889,7 +888,7 @@ public class TandemFileParser {
                     domainStart + 1;
 
             if ((loc < 0) || (loc > peptideSequence.length() + 1)) {
-                logger.error("weird location for modification: '" + mod.getLocation() + "' in " + peptideSequence + ", domainStart: " + domainStart);
+                LOGGER.error("weird location for modification: '" + mod.getLocation() + "' in " + peptideSequence + ", domainStart: " + domainStart);
             }
 
             if (loc == 1) {
@@ -912,7 +911,7 @@ public class TandemFileParser {
                 }
 
                 // the quick acetyl and quick pyrolidone are also n-terminal
-                if (Math.abs(mod.getMass() - 42.010565) < UnimodParser.unimod_mass_tolerance) {
+                if (Math.abs(mod.getMass() - 42.010565) < UnimodParser.UNIMOD_MASS_TOLERANCE) {
                     // acetylation
                     Modification modification = new Modification('.',
                             42.0105647,
@@ -920,8 +919,8 @@ public class TandemFileParser {
                             "UNIMOD:1");
                     modifications.put(0, modification);
                     continue;
-                } else if ((Math.abs(mod.getMass() + 18.010565) < UnimodParser.unimod_mass_tolerance) ||
-                        (Math.abs(mod.getMass() + 17.026549) < UnimodParser.unimod_mass_tolerance)) {
+                } else if ((Math.abs(mod.getMass() + 18.010565) < UnimodParser.UNIMOD_MASS_TOLERANCE) ||
+                        (Math.abs(mod.getMass() + 17.026549) < UnimodParser.UNIMOD_MASS_TOLERANCE)) {
                     // pyrolidone
                     loc = 0;
                 }
@@ -945,7 +944,7 @@ public class TandemFileParser {
                 }
             }
 
-            Character residue = null;
+            Character residue;
             if ((loc == 0) || (loc > peptideSequence.length())) {
                 residue = '.';
             } else {
@@ -954,8 +953,8 @@ public class TandemFileParser {
 
             Modification modification = new Modification(residue,
                     mod.getMass(),
-                    null,		// no description
-                    null);		// no CV accession
+                    null,       // no description
+                    null);      // no CV accession
 
             modifications.put(loc, modification);
         }

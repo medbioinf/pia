@@ -431,7 +431,7 @@ public abstract class AbstractFilter {
                     try {
                         Double mass = Double.parseDouble((String)getFilterValue());
 
-                        if (Math.abs(mod.getMass() - mass) <= UnimodParser.unimod_mass_tolerance) {
+                        if (Math.abs(mod.getMass() - mass) <= UnimodParser.UNIMOD_MASS_TOLERANCE) {
                             has_mass = true;
                             break;
                         }
