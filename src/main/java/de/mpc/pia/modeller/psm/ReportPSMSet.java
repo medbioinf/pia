@@ -500,7 +500,7 @@ public class ReportPSMSet implements PSMReportItem {
             } else if ((fdrScore != null)
                     && (fdrScore.getType().isValidDescriptor(scoreShortName)
                             || ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.isValidDescriptor(scoreShortName))) {
-                compareScore = averageFDRScore;
+                compareScore = fdrScore;
             }
         }
 

@@ -40,7 +40,8 @@ public class MzTabExporterTest {
 
     @Before
     public void setUp() throws Exception {
-        piaFile = new File(MzTabExporterTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
+        //piaFile = new File(MzTabExporterTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
+        piaFile = new File("/mnt/data/uniNOBACKUP/PIA/PRD000397/PRD000397.pia.xml");
     }
 
 
@@ -77,7 +78,7 @@ public class MzTabExporterTest {
 
 
         seInference.addFilter(
-                new PSMScoreFilter(FilterComparator.less_equal, false, 0.5, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()));
+                new PSMScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()));
 
 
         seInference.setScoring(new MultiplicativeScoring(new HashMap<String, String>()));
@@ -103,8 +104,8 @@ public class MzTabExporterTest {
 
         piaModeller.getPSMModeller().applyGeneralSettings(true);
 
-        //piaModeller.getPSMModeller().setAllDecoyPattern(FDRData.DecoyStrategy.SEARCHENGINE.toString());
-        piaModeller.getPSMModeller().setAllDecoyPattern("Rnd.*");
+        piaModeller.getPSMModeller().setAllDecoyPattern(FDRData.DecoyStrategy.SEARCHENGINE.toString());
+        //piaModeller.getPSMModeller().setAllDecoyPattern("Rnd.*");
         piaModeller.getPSMModeller().setAllTopIdentifications(0);
 
         piaModeller.getPSMModeller().calculateAllFDR();
@@ -112,7 +113,7 @@ public class MzTabExporterTest {
 
         // calculate peptide FDR
         piaModeller.getPeptideModeller().addFilter(0L,
-                new PSMScoreFilter(FilterComparator.less_equal, false, 0.5, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()));
+                new PSMScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()));
 
         Long fileID = 0L;
         piaModeller.getPeptideModeller().calculateFDR(fileID);

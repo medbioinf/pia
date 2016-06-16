@@ -175,9 +175,8 @@ public class MzTabExporter {
         boolean error = false;
         exportFileID = fileID;
 
+        outWriter = new BufferedWriter(exportWriter);
         try {
-            outWriter = new BufferedWriter(exportWriter);
-
             unimodParser = new UnimodParser();
 
             piaParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
@@ -262,6 +261,13 @@ public class MzTabExporter {
             LOGGER.debug("exportToMzTab done");
         } catch (IOException ex) {
             LOGGER.error("Error exporting mzTab", ex);
+        } finally {
+            try {
+                outWriter.close();
+            } catch (IOException e) {
+                LOGGER.error("Could not close the file while writing mzTab", e);
+                error = true;
+            }
         }
 
         return !error;

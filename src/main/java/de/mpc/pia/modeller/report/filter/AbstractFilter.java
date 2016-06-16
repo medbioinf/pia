@@ -329,25 +329,21 @@ public abstract class AbstractFilter {
 
         case contains_only:
             // check, if the list contains only the given string (maybe multiple times)
-            boolean contains_only = false;
+            boolean containsOnly = false;
 
-            if (o != null) {
-                if (o.size() > 0) {
-                    if (o.get(0).equals((String)getFilterValue())) {
-                        // ok, the first one is our string
-                        contains_only = true;
-                        // but are all the others?
-                        for (String objStr : o) {
-                            if (!objStr.equals((String)getFilterValue())) {
-                                contains_only = false;
-                                break;
-                            }
-                        }
+            if ((o != null) && !o.isEmpty()
+                    && o.get(0).equals((String)getFilterValue())) {
+                // ok, the first one is our string
+                containsOnly = true;
+                // but are all the others?
+                for (String objStr : o) {
+                    if (!objStr.equals((String)getFilterValue())) {
+                        containsOnly = false;
+                        break;
                     }
                 }
-
             }
-            return getFilterNegate() ^ contains_only;
+            return getFilterNegate() ^ containsOnly;
 
         case regex:
             // check, if the list contains the given regex
@@ -369,18 +365,15 @@ public abstract class AbstractFilter {
             boolean contains_only_regex = false;
             Pattern regexOnlyP = Pattern.compile((String)getFilterValue());
 
-            if (o != null) {
-                if (o.size() > 0) {
-                    if (regexOnlyP.matcher(o.get(0)).matches()) {
-                        // ok, the first one is our string
-                        contains_only_regex = true;
-                        // but are all the others?
-                        for (String objStr : o) {
-                            if (!regexOnlyP.matcher(objStr).matches()) {
-                                contains_only_regex = false;
-                                break;
-                            }
-                        }
+            if ((o != null) && (!o.isEmpty())
+                    && regexOnlyP.matcher(o.get(0)).matches()) {
+                // ok, the first one is our string
+                contains_only_regex = true;
+                // but are all the others?
+                for (String objStr : o) {
+                    if (!regexOnlyP.matcher(objStr).matches()) {
+                        contains_only_regex = false;
+                        break;
                     }
                 }
             }
@@ -402,7 +395,7 @@ public abstract class AbstractFilter {
         switch (getFilterComparator()) {
         case has_any_modification:
             boolean has_any_modification = false;
-            if ((o != null) && (o.size() > 0)) {
+            if ((o != null) && (!o.isEmpty())) {
                 has_any_modification = true;
             }
             return getFilterNegate() ^ has_any_modification;

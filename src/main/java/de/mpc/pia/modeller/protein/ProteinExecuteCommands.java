@@ -18,6 +18,7 @@ import de.mpc.pia.modeller.execute.ExecuteModelCommands;
 import de.mpc.pia.modeller.execute.xmlparams.ITEMType;
 import de.mpc.pia.modeller.execute.xmlparams.NODEType;
 import de.mpc.pia.modeller.execute.xmlparams.PossibleITEMType;
+import de.mpc.pia.modeller.exporter.MzIdentMLExporter;
 import de.mpc.pia.modeller.exporter.MzTabExporter;
 import de.mpc.pia.modeller.protein.inference.AbstractProteinInference;
 import de.mpc.pia.modeller.protein.inference.ProteinInferenceFactory;
@@ -519,11 +520,10 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                 if ("mzTab".equalsIgnoreCase(format)) {
                     MzTabExporter exporter = new MzTabExporter(piaModeller);
                     exportOK = exporter.exportToMzTab(0L, fileName, true, exportPeptides, true);
-                } else if ("mzIdenML".equalsIgnoreCase(format) ||
-                        "mzid".equalsIgnoreCase(format)) {
-                    Writer writer = new FileWriter(fileName, false);
-                    proteinModeller.exportMzIdentML(writer, true);
-                    writer.close();
+                } else if ("mzIdenML".equalsIgnoreCase(format)
+                        || "mzid".equalsIgnoreCase(format)) {
+                    MzIdentMLExporter exporter = new MzIdentMLExporter(piaModeller);
+                    exportOK = exporter.exportToMzIdentML(0L, fileName, true, true);
                 } else if ("csv".equalsIgnoreCase(format)) {
                     Writer writer = new FileWriter(fileName, false);
                     proteinModeller.exportCSV(writer, true, exportPeptides,

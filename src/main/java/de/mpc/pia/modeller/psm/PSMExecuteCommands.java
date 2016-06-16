@@ -17,6 +17,7 @@ import de.mpc.pia.modeller.execute.ExecuteModelCommands;
 import de.mpc.pia.modeller.execute.xmlparams.ITEMType;
 import de.mpc.pia.modeller.execute.xmlparams.NODEType;
 import de.mpc.pia.modeller.execute.xmlparams.PossibleITEMType;
+import de.mpc.pia.modeller.exporter.MzIdentMLExporter;
 import de.mpc.pia.modeller.exporter.MzTabExporter;
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterComparator;
@@ -228,6 +229,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     },
 
     CalculateCombinedFDRScore {
+        @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
             LOGGER.info(LOGGING_PREAMBEL + name());
             psmModeller.calculateCombinedFDRScore();
@@ -393,13 +395,11 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
             Boolean createSets = null;
 
-            if ((params != null) && (params.length > 0)) {
-                if (params[0] != null) {
-                    if ("true".equals(params[0]) || "yes".equals(params[0])) {
-                        createSets = true;
-                    } else {
-                        createSets = false;
-                    }
+            if ((params != null) && (params.length > 0) && (params[0] != null)) {
+                if ("true".equals(params[0]) || "yes".equals(params[0])) {
+                    createSets = true;
+                } else {
+                    createSets = false;
                 }
             }
 
@@ -518,9 +518,8 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
             try {
                 if ("mzIdentML".equalsIgnoreCase(format) ||
                         "mzid".equalsIgnoreCase(format)) {
-                    Writer writer = new FileWriter(fileName, false);
-                    psmModeller.exportMzIdentML(writer, fileID, true);
-                    writer.close();
+                    MzIdentMLExporter exporter = new MzIdentMLExporter(piaModeller);
+                    exportOK = exporter.exportToMzIdentML(fileID, fileName, false, true);
                 } else if ("mztab".equalsIgnoreCase(format)) {
                     MzTabExporter exporter = new MzTabExporter(piaModeller);
                     exportOK = exporter.exportToMzTab(fileID, fileName, false, false, true);

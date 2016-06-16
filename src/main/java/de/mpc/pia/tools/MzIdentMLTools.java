@@ -11,6 +11,7 @@ import org.biojava.nbio.ontology.Triple;
 
 import de.mpc.pia.tools.obo.OBOMapper;
 import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
+import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
@@ -34,8 +35,14 @@ public class MzIdentMLTools {
     /** get the index from the title, which is the scan number there */
     public static Pattern patternScanInTitle = Pattern.compile("^.*scan=(\\d+).*$");
 
-    private static Cv psiMS = new Cv();
-    private static Cv unitOntology = new Cv();
+    /**  the PSI-MS collected vocabulary as {@link Cv} variable */
+    private static final Cv psiMS = new Cv();
+
+    /**  the "Unit Ontology" collected vocabulary as {@link Cv} variable */
+    private static final Cv unitOntology = new Cv();
+
+    /** PIA as an {@link AnalysisSoftware} */
+    private static final AnalysisSoftware piaAnalysisSoftware = new AnalysisSoftware();
 
     /**
      * static initialization
@@ -48,7 +55,14 @@ public class MzIdentMLTools {
 
         unitOntology.setId("UO");
         unitOntology.setFullName("Unit Ontology");
-        unitOntology.setUri("http://unit-ontology.googlecode.com/svn/trunk/unit.obo");
+        unitOntology.setUri("https://raw.githubusercontent.com/bio-ontology-research-group/unit-ontology/master/unit.obo");
+
+        piaAnalysisSoftware.setName("PIA");
+        piaAnalysisSoftware.setId("software_PIA");
+        piaAnalysisSoftware.setVersion(PIAConstants.version);
+        Param tempParam = new Param();
+        tempParam.setParam(createPSICvParam(OntologyConstants.PIA, null));
+        piaAnalysisSoftware.setSoftwareName(tempParam);
     }
 
 
@@ -69,24 +83,30 @@ public class MzIdentMLTools {
      * @return
      */
     public static boolean paramsEqual(Param x, Param y) {
+        boolean ret;
+
         if ((x == null) && (y == null)) {
             // both are null
-            return true;
+            ret = true;
         } else if ((x == null) || (y == null)) {
-            return false;
-        }
-
-        CvParam cv1 = x.getCvParam();
-        CvParam cv2 = y.getCvParam();
-        if ((cv1 != null) && (cv2 != null)) {
-            // both are cvParams
-            return cvParamsEqualOrNull(cv1, cv2);
+            // one is null
+            ret = false;
         } else {
-            UserParam up1 = x.getUserParam();
-            UserParam up2 = y.getUserParam();
+            // neither is null
+            CvParam cv1 = x.getCvParam();
+            CvParam cv2 = y.getCvParam();
+            if ((cv1 != null) && (cv2 != null)) {
+                // both are cvParams
+                ret = cvParamsEqualOrNull(cv1, cv2);
+            } else {
+                UserParam up1 = x.getUserParam();
+                UserParam up2 = y.getUserParam();
 
-            return userParamsEqualOrNull(up1, up2);
+                ret = userParamsEqualOrNull(up1, up2);
+            }
         }
+
+        return ret;
     }
 
 
@@ -300,6 +320,15 @@ public class MzIdentMLTools {
 
 
     /**
+     * Getter for PIA as an {@link AnalysisSoftware}
+     * @return
+     */
+    public static AnalysisSoftware getPIAAnalysisSoftware() {
+        return piaAnalysisSoftware;
+    }
+
+
+    /**
      * Shortcut function to create a {@link CvParam} without unit information.
      *
      * @return
@@ -464,7 +493,7 @@ public class MzIdentMLTools {
                 if ((regExp == null) && (enzymeName != null)) {
                     // no siteRegexp given, but enzymeName
                     List<AbstractParam> paramList = enzymeName.getParamGroup();
-                    if (paramList.size() > 0) {
+                    if (!paramList.isEmpty()) {
                         if (paramList.get(0) instanceof CvParam) {
                             String oboID = ((CvParam)(paramList.get(0))).getAccession();
                             regExp = enzymesToRegexes.get(oboID);
