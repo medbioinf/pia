@@ -265,15 +265,14 @@ public class IdXMLFileParser {
                     break;
 
                 case PROTEINASE_K:
-                    LOGGER.warn("Unknown enzyme specification: " +
-                            searchParameters.getEnzyme());
-
                 case UNKNOWN_ENZYME:
                 default:
+                    LOGGER.warn("Unknown enzyme specification: " +
+                            searchParameters.getEnzyme());
                     break;
                 }
 
-                if (paramList.getCvParam().size() > 0) {
+                if (!paramList.getCvParam().isEmpty()) {
                     enzyme.setEnzymeName(paramList);
                 }
             }
@@ -390,9 +389,8 @@ public class IdXMLFileParser {
                     double deltaMass = getDeltaMass(pepHit.getUserParam());
 
                     int missedCleavages;
-                    if ((enzyme.getSiteRegexp() != null)) {
-                        missedCleavages =
-                                sequence.split(enzyme.getSiteRegexp()).length - 1;
+                    if (enzyme.getSiteRegexp() != null) {
+                        missedCleavages = sequence.split(enzyme.getSiteRegexp()).length - 1;
                     } else {
                         missedCleavages = -1;
                     }
@@ -720,7 +718,7 @@ public class IdXMLFileParser {
             sequence.append(modificationsSequence.substring(0, pos));
             modificationsSequence = modificationsSequence.substring(pos);
 
-            String residue = null;
+            String residue;
             if (sequence.length() == 0) {
                 // TODO: how are C-terminal modifications encoded in idXML!
                 // N-terminal modification

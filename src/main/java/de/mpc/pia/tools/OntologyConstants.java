@@ -25,10 +25,14 @@ public enum OntologyConstants {
 
     SEARCH_ENGINE_PSM_SCORE("search engine specific score for PSMs", "MS:1001143"),
     SPECTRUM_TITLE("spectrum title", "MS:1000796"),
+    SCAN_START_TIME("scan start time", "MS:1000016"),
+    DELTA_MZ("delta m/z", "MS:1001975"),
     CLEAVAGE_AGENT_NAME("cleavage agent name", "MS:1001045"),
     SEARCH_TOLERANCE_PLUS_VALUE("search tolerance plus value", "MS:1001412"),
     SEARCH_TOLERANCE_MINUS_VALUE("search tolerance minus valu", "MS:1001413"),
+    MS_MS_SEARCH("ms-ms search", "MS:1001083"),
 
+    PROTEIN_DESCRIPTION("protein description", "MS:1001088"),
     FINAL_PSM_LIST("final PSM list", "MS:1002439"),
     INTERMEDIATE_PSM_LIST("intermediate PSM list", "MS:1002440"),
     SEQUENCE_SAME_SET_PROTEIN("sequence same-set protein", "MS:1001594"),
@@ -41,6 +45,8 @@ public enum OntologyConstants {
     PROTEIN_GROUP_PASSES_THRESHOLD("protein group passes threshold", "MS:1002415"),
     NO_THRESHOLD("no threshold", "MS:1001494"),
 
+    DECOY_DB_ACCESSION_REGEXP("decoy DB accession regexp", "MS:1001283"),
+    QUALITY_ESTIMATION_WITH_IMPL_DECOY_SEQ("quality estimation with implicite decoy sequences", "MS:1001454"),
     DECOY_PEPTIDE("decoy peptide", "MS:1002217"),
     PSM_LEVEL_QVALUE("PSM-level q-value", "MS:1002354"),
     PSM_LEVEL_FDRSCORE("PSM-level FDRScore", "MS:1002355"),
@@ -50,6 +56,9 @@ public enum OntologyConstants {
     PEPTIDE_LEVEL_COMBINED_FDRSCORE("distinct peptide-level combined FDRScore", "MS:1002361"),
     PROTEIN_LEVEL_LOCAL_FDR("protein-level local FDR", "MS:1002364"),
     PROTEIN_GROUP_LEVEL_Q_VALUE("protein group-level q-value", "MS:1002373"),
+    NO_SPECIAL_PROCESSING("no special processing", "MS:1002495"),
+    CONSENSUS_SCORING("consensus scoring", "MS:1002492"),
+    CONSENSUS_RESULT("consensus result", "MS:1002315"),
 
     NO_FIXED_MODIFICATIONS_SEARCHED("No fixed modifications searched", "MS:1002453"),
     NO_VARIABLE_MODIFICATIONS_SEARCHED("No variable modifications searched", "MS:1002454"),
@@ -69,6 +78,7 @@ public enum OntologyConstants {
     INSTRUMENT_MODEL("instrument model", "MS:1000031"),
     SAMPLE_NAME("sample name", "MS:1000002"),
 
+    AMINOACID_SEQUENCE("AA sequence", "MS:1001344"),
     FASTA_FORMAT("FASTA format", "MS:1001348"),
     MASCOT_DAT_FORMAT("Mascot DAT format", "MS:1001199"),
     MASCOT_MGF_FORMAT("Mascot MGF format", "MS:1001062"),

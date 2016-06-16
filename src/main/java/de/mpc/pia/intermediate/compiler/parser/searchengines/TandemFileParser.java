@@ -388,10 +388,8 @@ public class TandemFileParser {
 
 
         ModificationParams modParams = new ModificationParams();
-        addSearchModifications(inputParams.getResidueModMass(), true, modParams,
-                psiMS);
-        addSearchModifications(inputParams.getResiduePotModMass(), false,
-                modParams, psiMS);
+        addSearchModifications(inputParams.getResidueModMass(), true, modParams);
+        addSearchModifications(inputParams.getResiduePotModMass(), false, modParams);
         spectrumIDProtocol.setModificationParams(modParams);
 
         // TODO: add the modifications given by tandem's "quick acetyl" and "quick pyrolidone"
@@ -817,7 +815,7 @@ public class TandemFileParser {
      * @param psiMS reference to the PSI-MS CV
      */
     private static void addSearchModifications(String strParam, boolean isFixed,
-            ModificationParams modParams, Cv psiMS) {
+            ModificationParams modParams) {
         if (modParams == null) {
             LOGGER.error("modParams is nt initialised, cannot add any modifications!");
             return;
@@ -896,8 +894,8 @@ public class TandemFileParser {
                 //  => check against suitable settings
                 for (SearchModification searchMod
                         : modParams.getSearchModification()) {
-                    if ((searchMod.getSpecificityRules() != null) &&
-                            (searchMod.getSpecificityRules().size() > 0)) {
+                    if ((searchMod.getSpecificityRules() != null)
+                            && !searchMod.getSpecificityRules().isEmpty()) {
                         for (SpecificityRules rule
                                 : searchMod.getSpecificityRules()) {
                             for (CvParam cvParam : rule.getCvParam()) {
@@ -930,7 +928,7 @@ public class TandemFileParser {
                 for (SearchModification searchMod
                         : modParams.getSearchModification()) {
                     if ((searchMod.getSpecificityRules() != null) &&
-                            (searchMod.getSpecificityRules().size() > 0)) {
+                            !searchMod.getSpecificityRules().isEmpty()) {
                         for (SpecificityRules rule
                                 : searchMod.getSpecificityRules()) {
                             for (CvParam cvParam : rule.getCvParam()) {

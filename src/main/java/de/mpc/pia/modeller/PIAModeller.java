@@ -349,9 +349,6 @@ public class PIAModeller {
             // the PSMModeller needs no global settings
             psmModeller = new PSMModeller(intermediateHandler.getGroups(),
                     intermediateHandler.getFiles(),
-                    intermediateHandler.getSearchDatabase(),
-                    intermediateHandler.getSpectraData(),
-                    intermediateHandler.getAnalysisSoftware(),
                     fileName,
                     intermediateHandler.getPSMSetSettingsWarnings(),
                     intermediateHandler.getPSMs().size());
