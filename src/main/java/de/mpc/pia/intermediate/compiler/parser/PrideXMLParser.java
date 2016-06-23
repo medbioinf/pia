@@ -620,25 +620,16 @@ public class PrideXMLParser {
         // contact information
         if ((adminSection.getContact() != null) && !adminSection.getContact().isEmpty()) {
             for (Contact contact : adminSection.getContact()) {
-                abstractParam = MzIdentMLTools.createCvParam(
-                        "MS:1000586",
-                        MzIdentMLTools.getCvPSIMS(),
-                        "contact name",
-                        contact.getName());
+                abstractParam = MzIdentMLTools.createPSICvParam(
+                        OntologyConstants.CONTACT_NAME, contact.getName());
                 additionalInformation.getCvParam().add((CvParam)abstractParam);
 
-                abstractParam = MzIdentMLTools.createCvParam(
-                        "MS:1000590",
-                        MzIdentMLTools.getCvPSIMS(),
-                        "contact affiliation",
-                        contact.getInstitution());
+                abstractParam = MzIdentMLTools.createPSICvParam(
+                        OntologyConstants.CONTACT_AFFILIATION, contact.getInstitution());
                 additionalInformation.getCvParam().add((CvParam)abstractParam);
 
-                abstractParam = MzIdentMLTools.createCvParam(
-                        "MS:1000589",
-                        MzIdentMLTools.getCvPSIMS(),
-                        "contact email",
-                        contact.getContactInfo());
+                abstractParam = MzIdentMLTools.createPSICvParam(
+                        OntologyConstants.CONTACT_EMAIL, contact.getContactInfo());
                 additionalInformation.getCvParam().add((CvParam)abstractParam);
             }
         }

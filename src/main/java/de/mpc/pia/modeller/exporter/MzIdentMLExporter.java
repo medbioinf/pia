@@ -1158,15 +1158,11 @@ public class MzIdentMLExporter {
                     MzIdentMLTools.createPSICvParam(OntologyConstants.SPECTRUM_TITLE, psm.getSpectrumTitle()));
         }
 
-        if (psm.getDeltaMass() > -1) {
-            CvParam tempCvParam = MzIdentMLTools.createPSICvParam(
-                    OntologyConstants.DELTA_MZ, Double.toString(psm.getDeltaMass()));
+        if (!Double.isNaN(psm.getDeltaMass())) {
+            double expMZ = sii.getExperimentalMassToCharge();
+            double theoreticalMZ = expMZ - (psm.getDeltaMass() / psm.getCharge());
 
-            tempCvParam.setUnitCv(MzIdentMLTools.getUnitOntology());
-            tempCvParam.setUnitName("dalton");
-            tempCvParam.setUnitAccession("UO:0000221");
-
-            sii.getCvParam().add(tempCvParam);
+            sii.setCalculatedMassToCharge(theoreticalMZ);
         }
 
         if (((psm instanceof ReportPSM) || !piaModeller.getCreatePSMSets()) ||
@@ -1644,7 +1640,15 @@ public class MzIdentMLExporter {
     }
 
 
-
+    /**
+     * Creates a {@link ProteinAmbiguityGroup} for the given protein and puts it
+     * into the {@link ProteinDetectionList}.
+     *
+     * @param protein
+     * @param filterExport
+     * @param filters
+     * @return
+     */
     private boolean putProteinIntoDetectionList(ReportProtein protein, boolean filterExport,
             List<AbstractFilter> filters) {
         ProteinAmbiguityGroup pag = new ProteinAmbiguityGroup();
@@ -1721,7 +1725,14 @@ public class MzIdentMLExporter {
     }
 
 
-    private void addSameSetProteinDetectionHypotheses(List<ProteinDetectionHypothesis> pdhList,
+    /**
+     * Adds the cvParam for the sames-set PDHs to the given
+     * ProteinDetectionHypotheses.
+     *
+     * @param pdhList
+     * @param pdhIds
+     */
+    private static void addSameSetProteinDetectionHypotheses(List<ProteinDetectionHypothesis> pdhList,
             List<String> pdhIds) {
         for (ProteinDetectionHypothesis pdh : pdhList) {
             List<String> otherPDHsList = new ArrayList<String>(pdhIds);

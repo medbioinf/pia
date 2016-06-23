@@ -43,7 +43,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.model.mzidml.Tolerance;
-import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.PIAInputFile;
@@ -70,7 +69,7 @@ import de.mpc.pia.tools.unimod.jaxb.ModT;
 public class MascotDatFileParser {
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(MascotDatFileParser.class);
+    private static final Logger LOGGER = Logger.getLogger(MascotDatFileParser.class);
 
     /**
      * We don't ever want to instantiate this class
@@ -141,7 +140,7 @@ public class MascotDatFileParser {
 
             rd.close();
         } catch (IOException e) {
-            logger.error("could not read '" + fileName + "' for index parsing.");
+            LOGGER.error("could not read '" + fileName + "' for index parsing.", e);
             return false;
         }
 
@@ -150,8 +149,7 @@ public class MascotDatFileParser {
                 MascotDatfileFactory.create(fileName, MascotDatfileType.MEMORY);
 
         if (mascotFile == null) {
-            // TODO: better error / exception
-            logger.error("could not read '" + fileName + "'.");
+            LOGGER.error("could not read '" + fileName + "'.");
             return false;
         }
 
@@ -166,13 +164,8 @@ public class MascotDatFileParser {
         mascot.setUri("http://www.matrixscience.com/");
         mascot.setVersion(mascotFile.getHeaderSection().getVersion());
 
-        AbstractParam abstractParam;
         Param param = new Param();
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001207");
-        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-        abstractParam.setName("Mascot");
-        param.setParam(abstractParam);
+        param.setParam(MzIdentMLTools.createPSICvParam(OntologyConstants.MASCOT, null));
         mascot.setSoftwareName(param);
 
         mascot = compiler.putIntoSoftwareMap(mascot);
@@ -191,17 +184,11 @@ public class MascotDatFileParser {
 
         // fileformat
         FileFormat fileFormat = new FileFormat();
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001348");
-        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-        abstractParam.setName("FASTA format");
-        fileFormat.setCvParam((CvParam)abstractParam);
+        fileFormat.setCvParam(MzIdentMLTools.createPSICvParam(OntologyConstants.FASTA_FORMAT, null));
         searchDatabase.setFileFormat(fileFormat);
         // databaseName
         param = new Param();
-        abstractParam = new UserParam();
-        abstractParam.setName(mascotFile.getHeaderSection().getRelease());
-        param.setParam(abstractParam);
+        param.setParam(MzIdentMLTools.createUserParam(mascotFile.getHeaderSection().getRelease(), null, "string"));
         searchDatabase.setDatabaseName(param);
 
         // add searchDB to the compiler
@@ -218,28 +205,22 @@ public class MascotDatFileParser {
             spectraData.setLocation(mascotFile.getParametersSection().getFile());
 
             if ((mascotFile.getParametersSection().getFormat() != null) &&
-                    mascotFile.getParametersSection().getFormat().equals("Mascot generic")) {
+                    "Mascot generic".equals(mascotFile.getParametersSection().getFormat())) {
                 fileFormat = new FileFormat();
 
-                abstractParam = new CvParam();
-                ((CvParam)abstractParam).setAccession("MS:1001062");
-                ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                abstractParam.setName("Mascot MGF file");
-                fileFormat.setCvParam((CvParam)abstractParam);
+                fileFormat.setCvParam(MzIdentMLTools.createPSICvParam(
+                        OntologyConstants.MASCOT_MGF_FORMAT, null));
                 spectraData.setFileFormat(fileFormat);
 
                 SpectrumIDFormat idFormat = new SpectrumIDFormat();
-                abstractParam = new CvParam();
-                ((CvParam)abstractParam).setAccession("MS:1000774");
-                ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                abstractParam.setName("multiple peak list nativeID format");
-                idFormat.setCvParam((CvParam)abstractParam);
+                idFormat.setCvParam(MzIdentMLTools.createPSICvParam(
+                        OntologyConstants.MULTIPLE_PEAK_LIST_NATIVEID_FORMAT, null));
                 spectraData.setSpectrumIDFormat(idFormat);
             }
 
             spectraData = compiler.putIntoSpectraDataMap(spectraData);
         } else {
-            logger.warn("The source file (MGF) was not recorded in the file!");
+            LOGGER.warn("The source file (MGF) was not recorded in the file!");
         }
 
         // define the spectrumIdentificationProtocol
@@ -250,55 +231,31 @@ public class MascotDatFileParser {
         spectrumIDProtocol.setAnalysisSoftware(mascot);
 
         param = new Param();
-        if (mascotFile.getParametersSection().getSearch().equals("MIS")) {
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001083");
-            ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-            abstractParam.setName("ms-ms search");
-            param.setParam(abstractParam);
+        if ("MIS".equals(mascotFile.getParametersSection().getSearch())) {
+            param.setParam(MzIdentMLTools.createPSICvParam(OntologyConstants.MS_MS_SEARCH, null));
         }
         // TODO: add error on PMF query (not usable for PIA)
         // TODO: and sequence query
         spectrumIDProtocol.setSearchType(param);
 
         ParamList paramList = new ParamList();
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001656");
-        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-        abstractParam.setName("Mascot:Instrument");
-        abstractParam.setValue(mascotFile.getParametersSection().getInstrument());
-        paramList.getCvParam().add((CvParam)abstractParam);
+        paramList.getCvParam().add(MzIdentMLTools.createPSICvParam(
+                OntologyConstants.MASCOT_INSTRUMENT,
+                mascotFile.getParametersSection().getInstrument()));
 
-        abstractParam = new UserParam();
-        abstractParam.setName("Mascot User Comment");
-        abstractParam.setValue(mascotFile.getParametersSection().getCom());
-        paramList.getUserParam().add((UserParam)abstractParam);
+        paramList.getUserParam().add(MzIdentMLTools.createUserParam("Mascot User Comment",
+                        mascotFile.getParametersSection().getCom(), "string"));
 
-        if (mascotFile.getParametersSection().getMass().
-                equalsIgnoreCase("Monoisotopic")) {
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001256");
-            ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-            abstractParam.setName("fragment mass type mono");
-            paramList.getCvParam().add((CvParam)abstractParam);
-
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001211");
-            ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-            abstractParam.setName("parent mass type mono");
-            paramList.getCvParam().add((CvParam)abstractParam);
+        if ("Monoisotopic".equalsIgnoreCase(mascotFile.getParametersSection().getMass())) {
+            paramList.getCvParam().add(
+                    MzIdentMLTools.createPSICvParam(OntologyConstants.FRAGMENT_MASS_TYPE_MONO, null));
+            paramList.getCvParam().add(
+                    MzIdentMLTools.createPSICvParam(OntologyConstants.PARENT_MASS_TYPE_MONO, null));
         } else {
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001255");
-            ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-            abstractParam.setName("fragment mass type average");
-            paramList.getCvParam().add((CvParam)abstractParam);
-
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001212");
-            ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-            abstractParam.setName("parent mass type average");
-            paramList.getCvParam().add((CvParam)abstractParam);
+            paramList.getCvParam().add(
+                    MzIdentMLTools.createPSICvParam(OntologyConstants.FRAGMENT_MASS_TYPE_AVERAGE, null));
+            paramList.getCvParam().add(
+                    MzIdentMLTools.createPSICvParam(OntologyConstants.PARENT_MASS_TYPE_AVERAGE, null));
         }
 
         spectrumIDProtocol.setAdditionalSearchParams(paramList);
@@ -340,20 +297,16 @@ public class MascotDatFileParser {
 
         Tolerance tolerance = new Tolerance();
 
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001412");
-        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-        abstractParam.setName("search tolerance plus value");
-        abstractParam.setValue(mascotFile.getParametersSection().getITOL());
+        AbstractParam abstractParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE,
+                mascotFile.getParametersSection().getITOL());
         MzIdentMLTools.setUnitParameterFromString(
                 mascotFile.getParametersSection().getITOLU(), abstractParam);
         tolerance.getCvParam().add((CvParam)abstractParam);
 
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001413");
-        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-        abstractParam.setName("search tolerance minus value");
-        abstractParam.setValue(mascotFile.getParametersSection().getITOL());
+        abstractParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE,
+                mascotFile.getParametersSection().getITOL());
         MzIdentMLTools.setUnitParameterFromString(
                 mascotFile.getParametersSection().getITOLU(), abstractParam);
         tolerance.getCvParam().add((CvParam)abstractParam);
@@ -363,20 +316,16 @@ public class MascotDatFileParser {
 
         tolerance = new Tolerance();
 
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001412");
-        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-        abstractParam.setName("search tolerance plus value");
-        abstractParam.setValue(mascotFile.getParametersSection().getTOL());
+        abstractParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE,
+                mascotFile.getParametersSection().getTOL());
         MzIdentMLTools.setUnitParameterFromString(
                 mascotFile.getParametersSection().getTOLU(), abstractParam);
         tolerance.getCvParam().add((CvParam)abstractParam);
 
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001413");
-        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-        abstractParam.setName("search tolerance minus value");
-        abstractParam.setValue(mascotFile.getParametersSection().getTOL());
+        abstractParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE,
+                mascotFile.getParametersSection().getTOL());
         MzIdentMLTools.setUnitParameterFromString(
                 mascotFile.getParametersSection().getTOLU(), abstractParam);
         tolerance.getCvParam().add((CvParam)abstractParam);
@@ -386,11 +335,7 @@ public class MascotDatFileParser {
 
         // no threshold set, take all PSMs from the dat file
         paramList = new ParamList();
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001494");
-        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-        abstractParam.setName("no threshold");
-        paramList.getCvParam().add((CvParam)abstractParam);
+        paramList.getCvParam().add(MzIdentMLTools.createPSICvParam(OntologyConstants.NO_THRESHOLD, null));
         spectrumIDProtocol.setThreshold(paramList);
 
         file.addSpectrumIdentificationProtocol(spectrumIDProtocol);
@@ -439,14 +384,14 @@ public class MascotDatFileParser {
                 }
             } catch (NumberFormatException e) {
                 charge = 0;
-                logger.warn("could not parse charge '" + currQuery.getChargeString() + "' for '" + currQuery.getTitle() + "'");
+                LOGGER.warn("could not parse charge '" + currQuery.getChargeString() + "' for '" + currQuery.getTitle() + "'");
             }
 
             double precursorMZ = currQuery.getPrecursorMZ();
 
             Double retentionTime;
             if (currQuery.getRetentionTimeInSeconds() != null) {
-                retentionTime =	Double.parseDouble(currQuery.getRetentionTimeInSeconds());
+                retentionTime = Double.parseDouble(currQuery.getRetentionTimeInSeconds());
             } else {
                 retentionTime = null;
             }
@@ -481,9 +426,11 @@ public class MascotDatFileParser {
     private static int insertPeptideHitsIntoCompiler(PIACompiler compiler,
             List<PeptideHit> peptideHits, ProteinMap proteinMap,
             SearchDatabase searchDatabase, int charge, Double precursorMZ,
-            Double retentionTime, String index, String spectrumTitle,
+            Double retentionTime, String sourceId, String spectrumTitle,
             PIAInputFile file, SpectrumIdentification spectrumID,
             boolean isDecoy) {
+        String sourceIdStr = sourceId;
+
         if (peptideHits == null) {
             return 0;
         }
@@ -492,7 +439,7 @@ public class MascotDatFileParser {
 
         Matcher matcher = MzIdentMLTools.patternScanInTitle.matcher(spectrumTitle);
         if (matcher.matches()) {
-            index = "index=" + matcher.group(1);
+            sourceIdStr = "index=" + matcher.group(1);
         }
 
         // the peptideHits are the SpectrumPeptideMatches
@@ -507,7 +454,7 @@ public class MascotDatFileParser {
                     retentionTime,
                     peptideHit.getSequence(),
                     peptideHit.getMissedCleavages(),
-                    index,
+                    sourceIdStr,
                     spectrumTitle,
                     file,
                     spectrumID);
@@ -533,11 +480,9 @@ public class MascotDatFileParser {
                         FastaHeaderInfos.parseHeaderInfos(proteinHit.getAccession());
 
                 if (fastaInfo == null) {
-                    // might be already parsed, take the mascot infos
                     fastaInfo = new FastaHeaderInfos(null,
                             proteinHit.getAccession(),
                             proteinMap.getProteinID(proteinHit.getAccession()).getDescription());
-                    continue;
                 } else {
                     // if there was a protein description different to the now parsed one, take the original from mascot
                     String proteinDescription = proteinMap.
@@ -611,13 +556,12 @@ public class MascotDatFileParser {
             psm.addScore(score);
 
             // add the modifications
-            com.compomics.mascotdatfile.util.interfaces.Modification
-            mods[] = peptideHit.getModifications();
+            com.compomics.mascotdatfile.util.interfaces.Modification[] mods = peptideHit.getModifications();
             for (int loc=0; loc < mods.length; loc++) {
                 if (mods[loc] != null) {
                     Modification modification;
 
-                    Character residue = null;
+                    Character residue;
                     if ((loc == 0) || (loc > psm.getSequence().length())) {
                         residue = '.';
                     } else {
@@ -629,7 +573,7 @@ public class MascotDatFileParser {
                             mods[loc].getMass(),
                             mods[loc].getType(),
                             null);
-                    // TODO: get the unimod modification code
+
                     psm.addModification(loc, modification);
                 }
             }
