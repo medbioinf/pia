@@ -16,9 +16,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
-import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
@@ -36,7 +34,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.model.mzidml.Tolerance;
-import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.PIAInputFile;
@@ -117,7 +114,7 @@ public class TandemFileParser {
 
                 String strLine;
                 while ((strLine = br.readLine()) != null) {
-                    String v[] = strLine.split("\t");
+                    String[] v = strLine.split("\t");
                     rtMap.put(Integer.parseInt(v[0]), Double.parseDouble(v[1]));
                 }
 
@@ -130,13 +127,9 @@ public class TandemFileParser {
             }
         }
 
-        Cv psiMS = MzIdentMLTools.getCvPSIMS();
-
         // TODO: test for multiple databases!
         Map<String, SearchDatabase> searchDatabaseMap = // maps from the "sequence source" to the SearchDatabse object
                 new HashMap<String, SearchDatabase>();
-        Param param;
-        AbstractParam abstractParam;
         FileFormat fileFormat;
 
         /* tandemParser.getPerformParamMap()
@@ -179,7 +172,6 @@ public class TandemFileParser {
             return false;
         }
         for (Map.Entry<String, String> performParam : tandemParser.getPerformParamMap().entrySet()) {
-
             if (performParam.getKey().startsWith("SEQSRC") &&
                     !performParam.getKey().startsWith("SEQSRCDESC")) {
                 // create the searchDatabase and add it to the compiler
@@ -203,18 +195,15 @@ public class TandemFileParser {
 
                 // fileformat
                 fileFormat = new FileFormat();
-                abstractParam = new CvParam();
-                ((CvParam)abstractParam).setAccession("MS:1001348");
-                ((CvParam)abstractParam).setCv(psiMS);
-                abstractParam.setName("FASTA format");
-                fileFormat.setCvParam((CvParam)abstractParam);
+                fileFormat.setCvParam(MzIdentMLTools.createPSICvParam(OntologyConstants.FASTA_FORMAT, null));
                 searchDatabase.setFileFormat(fileFormat);
 
                 // databaseName
-                param = new Param();
-                abstractParam = new UserParam();
-                abstractParam.setName(tandemParser.getPerformParamMap().get("SEQSRCDESC" + dbNr));
-                param.setParam(abstractParam);
+                Param param = new Param();
+                param.setParam(MzIdentMLTools.createUserParam(
+                        "databaseName",
+                        tandemParser.getPerformParamMap().get("SEQSRCDESC" + dbNr),
+                        "string"));
                 searchDatabase.setDatabaseName(param);
 
                 searchDatabase = compiler.putIntoSearchDatabasesMap(searchDatabase);
@@ -249,13 +238,9 @@ public class TandemFileParser {
             tandem.setVersion(strParam);
         }
 
-        param = new Param();
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001476");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("X\\!Tandem");
-        param.setParam(abstractParam);
-        tandem.setSoftwareName(param);
+        Param tandemParam = new Param();
+        tandemParam.setParam(MzIdentMLTools.createPSICvParam(OntologyConstants.XTANDEM, null));
+        tandem.setSoftwareName(tandemParam);
 
         tandem = compiler.putIntoSoftwareMap(tandem);
 
@@ -324,18 +309,12 @@ public class TandemFileParser {
         spectraData.setLocation(inputParams.getSpectrumPath());
         // TODO: for now write MGF, though it could be mzML as well
         fileFormat = new FileFormat();
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001062");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("Mascot MGF file");
-        fileFormat.setCvParam((CvParam)abstractParam);
+        fileFormat.setCvParam(MzIdentMLTools.createPSICvParam(
+                OntologyConstants.MASCOT_MGF_FORMAT, null));
         spectraData.setFileFormat(fileFormat);
         SpectrumIDFormat idFormat = new SpectrumIDFormat();
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1000774");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("multiple peak list nativeID format");
-        idFormat.setCvParam((CvParam)abstractParam);
+        idFormat.setCvParam(MzIdentMLTools.createPSICvParam(
+                OntologyConstants.MULTIPLE_PEAK_LIST_NATIVEID_FORMAT, null));
         spectraData.setSpectrumIDFormat(idFormat);
 
         spectraData = compiler.putIntoSpectraDataMap(spectraData);
@@ -348,39 +327,28 @@ public class TandemFileParser {
         spectrumIDProtocol.setId("tandemAnalysis");
         spectrumIDProtocol.setAnalysisSoftware(tandem);
 
-        param = new Param();
-        // TODO: check, whether tandem can anything else than ms/ms (guess not... hence the name)
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001083");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("ms-ms search");
-        param.setParam(abstractParam);
-        spectrumIDProtocol.setSearchType(param);
+        Param searchTypeParam = new Param();
+        searchTypeParam.setParam(MzIdentMLTools.createPSICvParam(OntologyConstants.MS_MS_SEARCH, null));
+        spectrumIDProtocol.setSearchType(searchTypeParam);
 
         ParamList paramList = new ParamList();
-        abstractParam = new CvParam();
-        // does not appear to be a way in Tandem of specifying parent mass is average
-        ((CvParam)abstractParam).setAccession("MS:1001211");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("parent mass type mono");
-        paramList.getCvParam().add((CvParam)abstractParam);
+        // there does not appear to be a way in Tandem of specifying parent mass is average
+        paramList.getCvParam().add(
+                MzIdentMLTools.createPSICvParam(OntologyConstants.PARENT_MASS_TYPE_MONO, null));
 
-        abstractParam = new CvParam();
         boolean fragmentMonoisotopic = false;
         if (inputParams.getSpectrumFragMassType() != null) {
-            if (inputParams.getSpectrumFragMassType().
-                    equals("monoisotopic")) {
-                ((CvParam)abstractParam).setAccession("MS:1001256");
-                ((CvParam)abstractParam).setCv(psiMS);
-                abstractParam.setName("fragment mass type mono");
+            CvParam fragMassType;
+            if ("monoisotopic".equalsIgnoreCase(inputParams.getSpectrumFragMassType())) {
+                fragMassType = MzIdentMLTools.createPSICvParam(
+                        OntologyConstants.FRAGMENT_MASS_TYPE_MONO, null);
                 fragmentMonoisotopic = true;
             } else {
-                ((CvParam)abstractParam).setAccession("MS:1001255");
-                ((CvParam)abstractParam).setCv(psiMS);
-                abstractParam.setName("fragment mass type average");
+                fragMassType = MzIdentMLTools.createPSICvParam(
+                        OntologyConstants.FRAGMENT_MASS_TYPE_AVERAGE, null);
                 fragmentMonoisotopic = false;
             }
-            paramList.getCvParam().add((CvParam)abstractParam);
+            paramList.getCvParam().add(fragMassType);
 
         }
 
@@ -409,7 +377,7 @@ public class TandemFileParser {
         if (strParam != null) {
             enzyme.setSiteRegexp(strParam);
 
-            String cleavages[] = strParam.split(",");
+            String[] cleavages = strParam.split(",");
 
             if (cleavages.length > 1) {
                 LOGGER.warn("Only one enzyme (cleavage site) implemented yet.");
@@ -419,7 +387,7 @@ public class TandemFileParser {
                 strParam = cleavages[0];
 
 
-                String values[] = strParam.split("\\|");
+                String[] values = strParam.split("\\|");
                 String pre = values[0].substring(1, values[0].length() - 1);
                 if (pre.equalsIgnoreCase("X")) {
                     // X stands for any, make it \S in PCRE for "not whitespace"
@@ -465,21 +433,17 @@ public class TandemFileParser {
             fragmentError = inputParams.getSpectrumMonoIsoMassError();
             units = inputParams.getSpectrumMonoIsoMassErrorUnits();
 
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001412");
-            ((CvParam)abstractParam).setCv(psiMS);
-            abstractParam.setName("search tolerance plus value");
-            abstractParam.setValue(fragmentError.toString());
-            MzIdentMLTools.setUnitParameterFromString(units, abstractParam);
-            tolerance.getCvParam().add((CvParam)abstractParam);
+            CvParam tolParam = MzIdentMLTools.createPSICvParam(
+                    OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE,
+                    String.valueOf(fragmentError.toString()));
+            MzIdentMLTools.setUnitParameterFromString(units, tolParam);
+            tolerance.getCvParam().add(tolParam);
 
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001413");
-            ((CvParam)abstractParam).setCv(psiMS);
-            abstractParam.setName("search tolerance minus value");
-            abstractParam.setValue(fragmentError.toString());
-            MzIdentMLTools.setUnitParameterFromString(units, abstractParam);
-            tolerance.getCvParam().add((CvParam)abstractParam);
+            tolParam = MzIdentMLTools.createPSICvParam(
+                    OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE,
+                    String.valueOf(fragmentError.toString()));
+            MzIdentMLTools.setUnitParameterFromString(units, tolParam);
+            tolerance.getCvParam().add(tolParam);
 
             spectrumIDProtocol.setFragmentTolerance(tolerance);
         } else {
@@ -488,25 +452,19 @@ public class TandemFileParser {
 
         tolerance = new Tolerance();
 
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001412");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("search tolerance plus value");
-        abstractParam.setValue(
+        CvParam tolParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE,
                 String.valueOf(inputParams.getSpectrumParentMonoIsoMassErrorPlus()));
         MzIdentMLTools.setUnitParameterFromString(
-                inputParams.getSpectrumParentMonoIsoMassErrorUnits(), abstractParam);
-        tolerance.getCvParam().add((CvParam)abstractParam);
+                inputParams.getSpectrumParentMonoIsoMassErrorUnits(), tolParam);
+        tolerance.getCvParam().add(tolParam);
 
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001413");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("search tolerance minus value");
-        abstractParam.setValue(
+        tolParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE,
                 String.valueOf(inputParams.getSpectrumParentMonoIsoMassErrorMinus()));
         MzIdentMLTools.setUnitParameterFromString(
-                inputParams.getSpectrumParentMonoIsoMassErrorUnits(), abstractParam);
-        tolerance.getCvParam().add((CvParam)abstractParam);
+                inputParams.getSpectrumParentMonoIsoMassErrorUnits(), tolParam);
+        tolerance.getCvParam().add(tolParam);
 
         spectrumIDProtocol.setParentTolerance(tolerance);
 
@@ -823,10 +781,10 @@ public class TandemFileParser {
 
         if (strParam != null) {
             // these are modifications (w/o refinement)
-            String varMods[] = strParam.split(",");
+            String[] varMods = strParam.split(",");
 
             for(String varMod : varMods) {
-                if (!varMod.equalsIgnoreCase("None")) {
+                if (!"None".equalsIgnoreCase(varMod)) {
 
                     String[] values = varMod.split("@");
 

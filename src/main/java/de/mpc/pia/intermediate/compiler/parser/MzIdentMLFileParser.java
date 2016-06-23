@@ -314,7 +314,7 @@ public class MzIdentMLFileParser {
                                 specIdItem.getCalculatedMassToCharge()) *
                                 specIdItem.getChargeState());
                     } else {
-                        deltaMass = -1;
+                        deltaMass = Double.NaN;
                     }
                     String sequence = null;
                     Peptide pep = null;

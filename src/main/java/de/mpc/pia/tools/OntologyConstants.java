@@ -31,6 +31,10 @@ public enum OntologyConstants {
     SEARCH_TOLERANCE_PLUS_VALUE("search tolerance plus value", "MS:1001412"),
     SEARCH_TOLERANCE_MINUS_VALUE("search tolerance minus valu", "MS:1001413"),
     MS_MS_SEARCH("ms-ms search", "MS:1001083"),
+    FRAGMENT_MASS_TYPE_MONO("fragment mass type mono", "MS:1001256"),
+    FRAGMENT_MASS_TYPE_AVERAGE("fragment mass type average", "MS:1001255"),
+    PARENT_MASS_TYPE_MONO("parent mass type mono", "MS:1001211"),
+    PARENT_MASS_TYPE_AVERAGE("parent mass type average", "MS:1001212"),
 
     PROTEIN_DESCRIPTION("protein description", "MS:1001088"),
     FINAL_PSM_LIST("final PSM list", "MS:1002439"),
@@ -80,8 +84,10 @@ public enum OntologyConstants {
 
     AMINOACID_SEQUENCE("AA sequence", "MS:1001344"),
     FASTA_FORMAT("FASTA format", "MS:1001348"),
-    MASCOT_DAT_FORMAT("Mascot DAT format", "MS:1001199"),
+    MULTIPLE_PEAK_LIST_NATIVEID_FORMAT("multiple peak list nativeID format", "MS:1000774"),
     MASCOT_MGF_FORMAT("Mascot MGF format", "MS:1001062"),
+    THERMO_RAW_FORMAT("Thermo RAW format", "MS:1000563"),
+
     PRIDE_XML("PRIDE XML", "MS:1002600"),
     MASCOT_QUERY_NUMBER("Mascot query number", "MS:1001528"),
 
@@ -89,14 +95,18 @@ public enum OntologyConstants {
     PRIDE_PROJECT_NAME(null, null, "Project", "PRIDE:0000097"),
 
     // search engines
+    AMANDA("Amanda", "MS:1002336"),
     AMANDA_SCORE("Amanda:AmandaScore", "MS:1002319"),
 
+    MASCOT("Mascot", "MS:1001207"),
+    MASCOT_DAT_FORMAT("Mascot DAT format", "MS:1001199"),
     MASCOT_SCORE("Mascot:score", "MS:1001171", "Mascot score", "PRIDE:0000069"),
     MASCOT_EXPECTATION_VALUE("Mascot:expectation value", "MS:1001172", "Mascot expect value", "PRIDE:0000212"),
+    MASCOT_INSTRUMENT("Mascot:Instrument", "MS:1001656"),
 
     MSGF_RAWSCORE("MS-GF:RawScore", "MS:1002049"),
     MSGF_DENOVOSCORE("MS-GF:DeNovoScore", "MS:1002050"),
-    MSGF_SPECEVALUE("MS-GF:SpecEValu", "MS:1002052"),
+    MSGF_SPECEVALUE("MS-GF:SpecEValue", "MS:1002052"),
     MSGF_EVALUE("MS-GF:EValue", "MS:1002053"),
 
     MYRIMATCH_MVH("MyriMatch:MVH", "MS:1001589"),
@@ -104,12 +114,17 @@ public enum OntologyConstants {
     OMSSA_E_VALUE("OMSSA:evalue", "MS:1001328", "OMSSA E-value", "PRIDE:0000185"),
     OMSSA_P_VALUE("OMSSA:pvalue", "MS:1001329", "OMSSA P-value", "PRIDE:0000186"),
 
+    SEQUEST("SEQUEST", "MS:1001208"),
     SEQUEST_PROBABILITY("SEQUEST:probability", "MS:1001154"),
     SEQUEST_XCORR("SEQUEST:xcorr", "MS:1001157", "Sequest score", "PRIDE:0000053"),
     SEQUEST_SP("SEQUEST:sp", "MS:1001155", "Sp", "PRIDE:0000054"),
 
+    XTANDEM("X!Tandem", "MS:1001476"),
     XTANDEM_EXPECT("X!Tandem:expect", "MS:1001330", "expect", "PRIDE:0000183"),
     XTANDEM_HYPERSCORE("X!Tandem:hyperscore", "MS:1001331", "X!Tandem Hyperscore", "PRIDE:0000176"),
+
+    PROTEOME_DISCOVERER_MIN_PEPTIDE_LENGTH("ProteomeDiscoverer:min peptide length", "MS:1002322"),
+    PROTEOME_DISCOVERER_MAX_PEPTIDE_LENGTH("ProteomeDiscoverer:max peptide length", "MS:1002323"),
     ;
 
     /** URL to the current psi-ms.obo file */

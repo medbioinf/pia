@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
@@ -29,7 +28,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.model.mzidml.Tolerance;
-import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 import de.mpc.PD.APeptideScores;
 import de.mpc.PD.APeptides;
 import de.mpc.PD.APeptidesAminoAcidModifications;
@@ -83,7 +81,7 @@ import de.mpc.pia.tools.PIATools;
 public class ThermoMSFFileParser {
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(ThermoMSFFileParser.class);
+    private static final Logger LOGGER = Logger.getLogger(ThermoMSFFileParser.class);
 
 
     /**
@@ -100,7 +98,7 @@ public class ThermoMSFFileParser {
      */
     public static boolean getDataFromThermoMSFFile(String name, String fileName,
             PIACompiler compiler) {
-        logger.debug("getting data from file: " + fileName);
+        LOGGER.debug("getting data from file: " + fileName);
 
         SimpleProgramParameters fileConnectionParams = null;
 
@@ -110,9 +108,6 @@ public class ThermoMSFFileParser {
         JDBCAccess jdbc = new JDBCAccess();
         jdbc.connectToExistingDB(fileName);
         fileConnectionParams.setJDBCAccess(jdbc);
-
-        Param param;
-        AbstractParam abstractParam;
 
         Map<Long, SpectrumIdentification> nodeNumbersToIdentifications =
                 new HashMap<Long, SpectrumIdentification>();
@@ -126,7 +121,7 @@ public class ThermoMSFFileParser {
                 : ProcessingNodes.getObjectMap(fileConnectionParams, ProcessingNodes.class).entrySet()) {
 
             if (!(nodeObjectIt.getValue() instanceof ProcessingNodes)) {
-                logger.warn("not a processingNodes " + nodeObjectIt.getValue().getClass().getCanonicalName());
+                LOGGER.warn("not a processingNodes " + nodeObjectIt.getValue().getClass().getCanonicalName());
                 continue;
             }
 
@@ -153,26 +148,27 @@ public class ThermoMSFFileParser {
                     ProcessingNodeParameters processingNodeParams =
                             new ProcessingNodeParameters(fileConnectionParams, node.getProcessingNodeNumber(), paramName);
 
-                    if (paramName.equals("FastaDatabase") ||
-                            paramName.equals("Protein Database")) {
+                    if ("FastaDatabase".equals(paramName)
+                            || "Protein Database".equals(paramName)) {
                         // get database information
                         FastaFiles fastaFiles = processingNodeParams.getFastaFilesObj();
                         if (fastaFiles != null) {
                             // database used
                             searchDatabase = new SearchDatabase();
 
-                            searchDatabase.setId(software.getName() +  "DB" +
-                                    node.getProcessingNodeNumber());
+                            searchDatabase.setId(software.getName() + "DB"
+                                    + node.getProcessingNodeNumber());
 
                             searchDatabase.setLocation("PD database");
                             searchDatabase.setName(fastaFiles.getFileName());
 
                             // databaseName
-                            param = new Param();
-                            abstractParam = new UserParam();
-                            abstractParam.setName(fastaFiles.getFileName());
-                            param.setParam(abstractParam);
-                            searchDatabase.setDatabaseName(param);
+                            Param dbParam = new Param();
+                            dbParam.setParam(MzIdentMLTools.createUserParam(
+                                    "FASTA file name",
+                                    fastaFiles.getFileName(),
+                                    "string"));
+                            searchDatabase.setDatabaseName(dbParam);
 
                             // this gets the number of taxonomy filtered sequences/residues
                             searchDatabase.setNumDatabaseSequences(fastaFiles.getNumberOfProteins().longValue());
@@ -181,113 +177,87 @@ public class ThermoMSFFileParser {
                             // add searchDB to the compiler
                             searchDatabase = compiler.putIntoSearchDatabasesMap(searchDatabase);
                         }
-                    } else if (paramName.equals("Enzyme") ||
-                            paramName.equals("Enzyme Name")) {
+                    } else if ("Enzyme".equals(paramName)
+                            || "Enzyme Name".equals(paramName)) {
                         enzyme = MzIdentMLTools.getEnzymeFromName(processingNodeParams.getParameterValue());
-                    } else if (paramName.equals("MaxMissedCleavages") ||
-                            paramName.equals("MissedCleavages") ||
-                            paramName.equals("Maximum Missed Cleavage Sites") ||
-                            paramName.equals("Max. Missed Cleavage Sites")) {
+                    } else if ("MaxMissedCleavages".equals(paramName)
+                            || "MissedCleavages".equals(paramName)
+                            || "Maximum Missed Cleavage Sites".equals(paramName)
+                            || "Max. Missed Cleavage Sites".equals(paramName)) {
                         // the allowed missed cleavages
                         maxMissedCleavages =
                                 Integer.parseInt(processingNodeParams.getParameterValue());
-                    } else if (paramName.equals("UseAveragePrecursorMass") ||
-                            paramName.equals("Use Average Precursor Mass")) {
+                    } else if ("UseAveragePrecursorMass".equals(paramName)
+                            || "Use Average Precursor Mass".equals(paramName)) {
                         // precursor mass monoisotopic or average
-                        abstractParam = new CvParam();
-                        if (processingNodeParams.getParameterValue().equals("False")) {
+                        CvParam precursorParam;
+                        if ("False".equals(processingNodeParams.getParameterValue())) {
                             // monoisotopic
-                            ((CvParam)abstractParam).setAccession("MS:1001211");
-                            ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                            abstractParam.setName("parent mass type mono");
+                            precursorParam = MzIdentMLTools.createPSICvParam(
+                                    OntologyConstants.PARENT_MASS_TYPE_MONO, null);
                         } else {
                             // average
-                            ((CvParam)abstractParam).setAccession("MS:1001212");
-                            ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                            abstractParam.setName("parent mass type average");
+                            precursorParam = MzIdentMLTools.createPSICvParam(
+                                    OntologyConstants.PARENT_MASS_TYPE_AVERAGE, null);
                         }
-                        additionalSearchParams.getCvParam().add(
-                                (CvParam)abstractParam);
-                    } else if (paramName.equals("UseAverageFragmentMass") ||
-                            paramName.equals("Use Average Fragment Masses") ||
-                            paramName.equals("Use Average Fragment Mass")) {
+                        additionalSearchParams.getCvParam().add(precursorParam);
+                    } else if ("UseAverageFragmentMass".equals(paramName)
+                            || "Use Average Fragment Masses".equals(paramName)
+                            || "Use Average Fragment Mass".equals(paramName)) {
                         // fragment mass monoisotopic or average
-                        abstractParam = new CvParam();
-                        if (processingNodeParams.getParameterValue().equals("False")) {
+                        CvParam fragmentParam;
+                        if ("False".equals(processingNodeParams.getParameterValue())) {
                             // monoisotopic
-                            ((CvParam)abstractParam).setAccession("MS:1001256");
-                            ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                            abstractParam.setName("fragment mass type mono");
+                            fragmentParam = MzIdentMLTools.createPSICvParam(
+                                    OntologyConstants.FRAGMENT_MASS_TYPE_MONO, null);
                         } else {
                             // average
-                            ((CvParam)abstractParam).setAccession("MS:1001255");
-                            ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                            abstractParam.setName("fragment mass type average");
+                            fragmentParam = MzIdentMLTools.createPSICvParam(
+                                    OntologyConstants.FRAGMENT_MASS_TYPE_AVERAGE, null);
                         }
-                        additionalSearchParams.getCvParam().add(
-                                (CvParam)abstractParam);
-                    } else if (paramName.equals("FragmentTolerance") ||
-                            paramName.equals("Fragment Mass Tolerance") ||
-                            paramName.equals("MS2Tolerance")) {
+                        additionalSearchParams.getCvParam().add(fragmentParam);
+                    } else if ("FragmentTolerance".equals(paramName)
+                            || "Fragment Mass Tolerance".equals(paramName)
+                            || "MS2Tolerance".equals(paramName)) {
                         fragmentTolerance = new Tolerance();
 
-                        String split[] =
-                                processingNodeParams.getParameterValue().split(" ");
+                        String[] split = processingNodeParams.getParameterValue().split(" ");
 
-                        abstractParam = new CvParam();
-                        ((CvParam)abstractParam).setAccession("MS:1001412");
-                        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                        abstractParam.setName("search tolerance plus value");
-                        abstractParam.setValue(split[0]);
-                        MzIdentMLTools.setUnitParameterFromString(split[1], abstractParam);
-                        fragmentTolerance.getCvParam().add((CvParam)abstractParam);
+                        CvParam tolParam = MzIdentMLTools.createPSICvParam(
+                                OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE, split[0]);
+                        MzIdentMLTools.setUnitParameterFromString(split[1], tolParam);
+                        fragmentTolerance.getCvParam().add(tolParam);
 
-                        abstractParam = new CvParam();
-                        ((CvParam)abstractParam).setAccession("MS:1001413");
-                        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                        abstractParam.setName("search tolerance minus value");
-                        abstractParam.setValue(split[0]);
-                        MzIdentMLTools.setUnitParameterFromString(split[1], abstractParam);
-                        fragmentTolerance.getCvParam().add((CvParam)abstractParam);
-                    } else if (paramName.equals("PeptideTolerance") ||
-                            paramName.equals("Precursor Mass Tolerance") ||
-                            paramName.equals("MS1Tolerance")) {
+                        tolParam = MzIdentMLTools.createPSICvParam(
+                                OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE, split[0]);
+                        MzIdentMLTools.setUnitParameterFromString(split[1], tolParam);
+                        fragmentTolerance.getCvParam().add(tolParam);
+                    } else if ("PeptideTolerance".equals(paramName)
+                            || "Precursor Mass Tolerance".equals(paramName)
+                            || "MS1Tolerance".equals(paramName)) {
                         peptideTolerance = new Tolerance();
 
-                        String split[] =
-                                processingNodeParams.getParameterValue().split(" ");
+                        String[] split = processingNodeParams.getParameterValue().split(" ");
 
-                        abstractParam = new CvParam();
-                        ((CvParam)abstractParam).setAccession("MS:1001412");
-                        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                        abstractParam.setName("search tolerance plus value");
-                        abstractParam.setValue(split[0]);
-                        MzIdentMLTools.setUnitParameterFromString(split[1], abstractParam);
-                        peptideTolerance.getCvParam().add((CvParam)abstractParam);
+                        CvParam tolParam = MzIdentMLTools.createPSICvParam(
+                                OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE, split[0]);
+                        MzIdentMLTools.setUnitParameterFromString(split[1], tolParam);
+                        peptideTolerance.getCvParam().add(tolParam);
 
-                        abstractParam = new CvParam();
-                        ((CvParam)abstractParam).setAccession("MS:1001413");
-                        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                        abstractParam.setName("search tolerance minus value");
-                        abstractParam.setValue(split[0]);
-                        MzIdentMLTools.setUnitParameterFromString(split[1], abstractParam);
-                        peptideTolerance.getCvParam().add((CvParam)abstractParam);
-                    } else if (paramName.equals("MinimumPeptideLength")) {
-                        abstractParam = new CvParam();
-                        ((CvParam)abstractParam).setAccession("MS:1002322");
-                        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                        abstractParam.setName("ProteomeDiscoverer:min peptide length");
-                        abstractParam.setValue(processingNodeParams.getParameterValue());
-                        additionalSearchParams.getCvParam().add((CvParam)abstractParam);
-                    } else if (paramName.equals("MaximumPeptideLength")) {
-                        abstractParam = new CvParam();
-                        ((CvParam)abstractParam).setAccession("MS:1002323");
-                        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                        abstractParam.setName("ProteomeDiscoverer:max peptide length");
-                        abstractParam.setValue(processingNodeParams.getParameterValue());
-                        additionalSearchParams.getCvParam().add((CvParam)abstractParam);
+                        tolParam = MzIdentMLTools.createPSICvParam(
+                                OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE, split[0]);
+                        MzIdentMLTools.setUnitParameterFromString(split[1], tolParam);
+                        peptideTolerance.getCvParam().add(tolParam);
+                    } else if ("MinimumPeptideLength".equals(paramName)) {
+                        additionalSearchParams.getCvParam().add(
+                                MzIdentMLTools.createPSICvParam(OntologyConstants.PROTEOME_DISCOVERER_MIN_PEPTIDE_LENGTH,
+                                        processingNodeParams.getParameterValue()));
+                    } else if ("MaximumPeptideLength".equals(paramName)) {
+                        additionalSearchParams.getCvParam().add(
+                                MzIdentMLTools.createPSICvParam(OntologyConstants.PROTEOME_DISCOVERER_MAX_PEPTIDE_LENGTH,
+                                        processingNodeParams.getParameterValue()));
                     } else {
-                        // parse addiional software specific settings
+                        // parse additional software specific settings
                         parseSoftwareSpecificSettings(node, processingNodeParams,
                                 additionalSearchParams, modificationParameters);
                     }
@@ -302,18 +272,13 @@ public class ThermoMSFFileParser {
                 spectrumIDProtocol.setAnalysisSoftware(software);
 
                 // only MS/MS searches are usable for PIA
-                param = new Param();
-                abstractParam = new CvParam();
-                ((CvParam)abstractParam).setAccession("MS:1001083");
-                ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                abstractParam.setName("ms-ms search");
-                param.setParam(abstractParam);
+                Param searchTypeParam = new Param();
+                searchTypeParam.setParam(MzIdentMLTools.createPSICvParam(OntologyConstants.MS_MS_SEARCH, null));
 
-                spectrumIDProtocol.setSearchType(param);
+                spectrumIDProtocol.setSearchType(searchTypeParam);
 
-                if (additionalSearchParams.getCvParam().size() > 0) {
-                    spectrumIDProtocol.setAdditionalSearchParams(
-                            additionalSearchParams);
+                if (!additionalSearchParams.getParamGroup().isEmpty()) {
+                    spectrumIDProtocol.setAdditionalSearchParams(additionalSearchParams);
                 }
 
                 spectrumIDProtocol.setModificationParams(modificationParameters);
@@ -337,13 +302,10 @@ public class ThermoMSFFileParser {
                 }
 
                 // no threshold set, take all PSMs from the dat file
-                ParamList paramList = new ParamList();
-                abstractParam = new CvParam();
-                ((CvParam)abstractParam).setAccession("MS:1001494");
-                ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
-                abstractParam.setName("no threshold");
-                paramList.getCvParam().add((CvParam)abstractParam);
-                spectrumIDProtocol.setThreshold(paramList);
+                ParamList thrParamList = new ParamList();
+                thrParamList.getCvParam().add(
+                        MzIdentMLTools.createPSICvParam(OntologyConstants.NO_THRESHOLD, null));
+                spectrumIDProtocol.setThreshold(thrParamList);
 
                 nodeNumbersToProtocols.put(node.getProcessingNodeNumber(),
                         spectrumIDProtocol);
@@ -366,7 +328,7 @@ public class ThermoMSFFileParser {
         }
 
         if (nodeNumbersToIdentifications.size() < 1) {
-            logger.error("There are no search nodes in the MSF file!");
+            LOGGER.error("There are no search nodes in the MSF file!");
             return false;
         }
 
@@ -411,54 +373,54 @@ public class ThermoMSFFileParser {
         Map<String, Set<String>> spectrumIdToSpectraData =
                 new HashMap<String, Set<String>>();
 
-        logger.info("get spectra info...");
+        LOGGER.info("get spectra info...");
         Map<Object, Object> spectraMap = SpectrumHeaders.getObjectMap(fileConnectionParams, SpectrumHeaders.class);
-        logger.info("#spectra: " + spectraMap.size());
+        LOGGER.info("#spectra: " + spectraMap.size());
 
-        logger.info("get peak info...");
+        LOGGER.info("get peak info...");
         Map<Object, Object> massPeakMap = MassPeaks.getObjectMap(fileConnectionParams, MassPeaks.class);
-        logger.info("#peaks: " + massPeakMap.size());
+        LOGGER.info("#peaks: " + massPeakMap.size());
 
-        logger.info("get file info...");
+        LOGGER.info("get file info...");
         Map<Object, Object> fileMap = FileInfos.getObjectMap(fileConnectionParams, FileInfos.class);
-        logger.info("#files: " + fileMap.size());
+        LOGGER.info("#files: " + fileMap.size());
 
-        logger.info("get amino acid modifications...");
+        LOGGER.info("get amino acid modifications...");
         Map<Object, Object> modificationsMap = AminoAcidModifications.getObjectMap(fileConnectionParams, AminoAcidModifications.class);
-        logger.info("#amino acid modifications: " + modificationsMap.size());
+        LOGGER.info("#amino acid modifications: " + modificationsMap.size());
 
-        logger.info("get protein sequences...");
+        LOGGER.info("get protein sequences...");
         Map<Long, String> sequencesMap = new HashMap<Long, String>();
         for (Object proteinObj : Proteins.getObjectMap(fileConnectionParams, Proteins.class).values()) {
             Proteins protein = (Proteins)proteinObj;
             sequencesMap.put(protein.getProteinID(), protein.getSequence());
         }
-        logger.info("#protein sequences: " + sequencesMap.size());
+        LOGGER.info("#protein sequences: " + sequencesMap.size());
 
-        logger.info("get protein annotations...");
+        LOGGER.info("get protein annotations...");
         Map<Long, String> annotationsMap = new HashMap<Long, String>();
         for (Object annotationObj : ProteinAnnotations.getObjectMap(fileConnectionParams, ProteinAnnotations.class).values()) {
             ProteinAnnotations annotation = (ProteinAnnotations)annotationObj;
             annotationsMap.put(annotation.getProteinID(), annotation.getDescription());
         }
-        logger.info("#protein annotations: " + annotationsMap.size());
+        LOGGER.info("#protein annotations: " + annotationsMap.size());
 
-        logger.info("get scores...");
+        LOGGER.info("get scores...");
         // mapping from scoreID to scoreName
         Map<Long, String> scoresMap = new HashMap<Long, String>();
         for (Object scoreObj : ProcessingNodeScores.getObjectMap(fileConnectionParams, ProcessingNodeScores.class).values()) {
             ProcessingNodeScores score = (ProcessingNodeScores)scoreObj;
             scoresMap.put(score.getScoreID(), score.getFriendlyName());
         }
-        logger.info("#scores: " + scoresMap.size());
+        LOGGER.info("#scores: " + scoresMap.size());
 
 
         // parse the peptides
-        logger.info("get peptide info...");
+        LOGGER.info("get peptide info...");
         Collection<Object> peptides = Peptides.getObjectMap(fileConnectionParams, Peptides.class).values();
-        logger.info("#peptides: " + peptides.size());
+        LOGGER.info("#peptides: " + peptides.size());
 
-        logger.info("get modifications info...");
+        LOGGER.info("get modifications info...");
         // map from peptideID to modifications
         Map<Long, List<APeptidesAminoAcidModifications>> peptidesModifications =
                 new HashMap<Long, List<APeptidesAminoAcidModifications>>();
@@ -473,9 +435,9 @@ public class ThermoMSFFileParser {
 
             modList.add(mod);
         }
-        logger.info("#modified peptides: " + peptidesModifications.size());
+        LOGGER.info("#modified peptides: " + peptidesModifications.size());
 
-        logger.info("get terminal modifications info...");
+        LOGGER.info("get terminal modifications info...");
         // map from peptideID to terminal modifications
         Map<Long, List<AminoAcidModifications>> terminalModifications =
                 new HashMap<Long, List<AminoAcidModifications>>();
@@ -490,9 +452,9 @@ public class ThermoMSFFileParser {
 
             termModList.add((AminoAcidModifications)modificationsMap.get(termMod.getTerminalModificationID()));
         }
-        logger.info("#terminal modified peptides: " + terminalModifications.size());
+        LOGGER.info("#terminal modified peptides: " + terminalModifications.size());
 
-        logger.info("get peptides/proteins information...");
+        LOGGER.info("get peptides/proteins information...");
         //map from peptideID to proteins
         Map<Long, List<Long>> peptidesProteins = new HashMap<Long, List<Long>>();
         for (Object pepProtObj : PeptidesProteins.getObjectMap(fileConnectionParams, PeptidesProteins.class).values()) {
@@ -506,9 +468,9 @@ public class ThermoMSFFileParser {
 
             proteinList.add(pepProt.getProteinID());
         }
-        logger.info("#peptides associated to proteins: " + peptidesProteins.size());
+        LOGGER.info("#peptides associated to proteins: " + peptidesProteins.size());
 
-        logger.info("get peptides/scores information...");
+        LOGGER.info("get peptides/scores information...");
         // map from peptideID to scores
         Map<Long, List<APeptideScores>> peptidesScores = new HashMap<Long, List<APeptideScores>>();
         for (Object scoreObject : PeptideScores.getObjectMap(fileConnectionParams, PeptideScores.class).values()) {
@@ -522,7 +484,7 @@ public class ThermoMSFFileParser {
 
             scoreList.add(score);
         }
-        logger.info("#peptides associated to sores: " + peptidesScores.size());
+        LOGGER.info("#peptides associated to sores: " + peptidesScores.size());
 
         long emptyPSMs = 0;
         for (Object peptide : peptides) {
@@ -534,16 +496,16 @@ public class ThermoMSFFileParser {
                 emptyPSMs++;
             }
         }
-        logger.info("target peptides processed");
+        LOGGER.info("target peptides processed");
 
 
         // parse the decoy peptides
-        logger.info("get decoy peptide info...");
+        LOGGER.info("get decoy peptide info...");
         peptides = Peptides_decoy.getObjectMap(fileConnectionParams, Peptides_decoy.class).values();
-        logger.info("#decoy peptides: " + peptides.size());
+        LOGGER.info("#decoy peptides: " + peptides.size());
 
-        if (peptides.size() > 0) {
-            logger.info("get decoy modifications info...");
+        if (!peptides.isEmpty()) {
+            LOGGER.info("get decoy modifications info...");
             // map from peptideID to modifications
             peptidesModifications = new HashMap<Long, List<APeptidesAminoAcidModifications>>();
             for (Object modObj : PeptidesAminoAcidModifications_decoy.getObjectMap(fileConnectionParams, PeptidesAminoAcidModifications_decoy.class).values()) {
@@ -556,9 +518,9 @@ public class ThermoMSFFileParser {
                 }
                 modList.add(mod);
             }
-            logger.info("#modified decoy peptides: " + peptidesModifications.size());
+            LOGGER.info("#modified decoy peptides: " + peptidesModifications.size());
 
-            logger.info("get decoy terminal modifications info...");
+            LOGGER.info("get decoy terminal modifications info...");
             // map from peptideID to terminal modifications
             terminalModifications = new HashMap<Long, List<AminoAcidModifications>>();
             for (Object modObj : PeptidesTerminalModifications_decoy.getObjectMap(fileConnectionParams, PeptidesTerminalModifications_decoy.class).values()) {
@@ -572,9 +534,9 @@ public class ThermoMSFFileParser {
 
                 termModList.add((AminoAcidModifications)modificationsMap.get(termMod.getTerminalModificationID()));
             }
-            logger.info("#terminal modified decoy peptides: " + terminalModifications.size());
+            LOGGER.info("#terminal modified decoy peptides: " + terminalModifications.size());
 
-            logger.info("get decoy peptides/proteins information...");
+            LOGGER.info("get decoy peptides/proteins information...");
             // map from peptideID to proteins
             peptidesProteins = new HashMap<Long, List<Long>>();
             for (Object pepProtObj : PeptidesProteins_decoy.getObjectMap(fileConnectionParams, PeptidesProteins_decoy.class).values()) {
@@ -588,9 +550,9 @@ public class ThermoMSFFileParser {
 
                 proteinList.add(pepProt.getProteinID());
             }
-            logger.info("#decoy peptides associated to proteins: " + peptidesProteins.size());
+            LOGGER.info("#decoy peptides associated to proteins: " + peptidesProteins.size());
 
-            logger.info("get decoy peptides/scores information...");
+            LOGGER.info("get decoy peptides/scores information...");
             // map from peptideID to scores
             peptidesScores = new HashMap<Long, List<APeptideScores>>();
             for (Object scoreObject : PeptideScores_decoy.getObjectMap(fileConnectionParams, PeptideScores_decoy.class).values()) {
@@ -604,7 +566,7 @@ public class ThermoMSFFileParser {
 
                 scoreList.add(score);
             }
-            logger.info("#decoy peptides associated to sores: " + peptidesScores.size());
+            LOGGER.info("#decoy peptides associated to sores: " + peptidesScores.size());
 
             for (Object peptide : peptides) {
                 if (parsePSM(peptide, true, spectraMap, massPeakMap, fileMap,
@@ -615,15 +577,15 @@ public class ThermoMSFFileParser {
                     emptyPSMs++;
                 }
             }
-            logger.info("decoy peptides processed");
+            LOGGER.info("decoy peptides processed");
         } else {
-            logger.info("no decoy peptides, that's ok");
+            LOGGER.info("no decoy peptides, that's ok");
         }
 
-        logger.info("all peptides processed");
+        LOGGER.info("all peptides processed");
 
         if (emptyPSMs > 0) {
-            logger.info("There were " + emptyPSMs + " PSMs without protein connection, these are rejected!");
+            LOGGER.info("There were " + emptyPSMs + " PSMs without protein connection, these are rejected!");
         }
 
         fileConnectionParams.closeDB();
@@ -642,44 +604,28 @@ public class ThermoMSFFileParser {
     private static AnalysisSoftware createAnalysisSoftware(ProcessingNodes node) {
         AnalysisSoftware software = new AnalysisSoftware();
 
-        if ((node.getNodeName().equals("SequestNode") && node.getFriendlyName().equals("SEQUEST")) ||
-                (node.getNodeName().equals("IseNode") && node.getFriendlyName().equals("Sequest HT"))) {
+        if (("SequestNode".equals(node.getNodeName()) && "SEQUEST".equals(node.getFriendlyName())) ||
+                ("IseNode".equals(node.getNodeName()) && "Sequest HT".equals(node.getFriendlyName()))) {
             software.setId("sequest");
             software.setName("SEQUEST");
 
-            CvParam cvParam = new CvParam();
-            cvParam.setAccession("MS:1001208");
-            cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-            cvParam.setName("Sequest");
-
             Param param = new Param();
-            param.setParam(cvParam);
-
+            param.setParam(MzIdentMLTools.createPSICvParam(OntologyConstants.SEQUEST, null));
             software.setSoftwareName(param);
-        } else if (node.getNodeName().equals("Mascot") && node.getFriendlyName().equals("Mascot")) {
+        } else if ("Mascot".equals(node.getNodeName()) && "Mascot".equals(node.getFriendlyName())) {
             software.setId("mascot");
             software.setName("Mascot");
             software.setUri("http://www.matrixscience.com/");
 
-            CvParam cvParam = new CvParam();
-            ((CvParam)cvParam).setAccession("MS:1001207");
-            ((CvParam)cvParam).setCv(MzIdentMLTools.getCvPSIMS());
-            cvParam.setName("Mascot");
-
             Param param = new Param();
-            param.setParam(cvParam);
+            param.setParam(MzIdentMLTools.createPSICvParam(OntologyConstants.MASCOT, null));
             software.setSoftwareName(param);
-        } else if (node.getNodeName().equals("AmandaPeptideIdentifier") && node.getFriendlyName().equals("MS Amanda")) {
+        } else if ("AmandaPeptideIdentifier".equals(node.getNodeName()) && "MS Amanda".equals(node.getFriendlyName())) {
             software.setId("amanda");
             software.setName("Amanda");
 
-            CvParam cvParam = new CvParam();
-            ((CvParam)cvParam).setAccession("MS:1002336");
-            ((CvParam)cvParam).setCv(MzIdentMLTools.getCvPSIMS());
-            cvParam.setName("Amanda");
-
             Param param = new Param();
-            param.setParam(cvParam);
+            param.setParam(MzIdentMLTools.createPSICvParam(OntologyConstants.AMANDA, null));
             software.setSoftwareName(param);
         } else {
             // TODO: add more software
@@ -697,17 +643,14 @@ public class ThermoMSFFileParser {
             ProcessingNodeParameters processingNodeParams, ParamList additionalSearchParams,
             ModificationParams modificationParameters) {
 
-        if (node.getNodeName().equals("Mascot") && node.getFriendlyName().equals("Mascot")) {
+        if ("Mascot".equals(node.getNodeName()) && "Mascot".equals(node.getFriendlyName())) {
             // Mascot settings
 
-            if (processingNodeParams.getParameterName().equals("Instrument")) {
+            if ("Instrument".equals(processingNodeParams.getParameterName())) {
                 // mascot instrument
-                CvParam cvParam = new CvParam();
-                cvParam.setAccession("MS:1001656");
-                cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                cvParam.setName("Mascot:Instrument");
-                cvParam.setValue(processingNodeParams.getParameterValue());
-                additionalSearchParams.getCvParam().add(cvParam);
+                additionalSearchParams.getCvParam().add(
+                        MzIdentMLTools.createPSICvParam(OntologyConstants.MASCOT,
+                                processingNodeParams.getParameterValue()));
                 return true;
             } else if (processingNodeParams.getParameterName().startsWith("DynModification_")) {
                 // dynamic mascot modification
@@ -718,8 +661,8 @@ public class ThermoMSFFileParser {
                     modificationParameters.getSearchModification().add(searchMod);
                 }
                 return true;
-            } else if (processingNodeParams.getParameterName().startsWith("Static_") &&
-                    !processingNodeParams.getParameterName().equals("Static_X")) {
+            } else if (processingNodeParams.getParameterName().startsWith("Static_")
+                    && !"Static_X".equals(processingNodeParams.getParameterName())) {
                 // static mascot modification
                 SearchModification searchMod =
                         parseModification(processingNodeParams.getValueDisplayString(), true);
@@ -729,8 +672,8 @@ public class ThermoMSFFileParser {
                 }
                 return true;
             }
-        } else if ((node.getNodeName().equals("SequestNode") && node.getFriendlyName().equals("SEQUEST")) ||
-                (node.getNodeName().equals("IseNode") && node.getFriendlyName().equals("Sequest HT"))) {
+        } else if (("SequestNode".equals(node.getNodeName()) && "SEQUEST".equals(node.getFriendlyName())) ||
+                ("IseNode".equals(node.getNodeName()) && "Sequest HT".equals(node.getFriendlyName()))) {
             // SEQUEST settings
 
             if (processingNodeParams.getParameterName().startsWith("DynMod_") ||
@@ -758,7 +701,7 @@ public class ThermoMSFFileParser {
                 }
                 return true;
             }
-        } else if (node.getNodeName().equals("AmandaPeptideIdentifier") && node.getFriendlyName().equals("MS Amanda")) {
+        } else if ("AmandaPeptideIdentifier".equals(node.getNodeName()) && "MS Amanda".equals(node.getFriendlyName())) {
             // Amanda settings
 
             if (processingNodeParams.getParameterName().startsWith("DynMod_")) {
@@ -796,9 +739,9 @@ public class ThermoMSFFileParser {
      * @return
      */
     private static SearchModification parseModification(String modString, boolean isFixed) {
-        String split[] = modString.split("/");
+        String[] split = modString.split("/");
         if (split.length < 2) {
-            logger.warn("Modification could not be parsed: "
+            LOGGER.warn("Modification could not be parsed: "
                     + modString);
             return null;
         }
@@ -809,7 +752,7 @@ public class ThermoMSFFileParser {
         try {
             massShift = Float.parseFloat(split[0]);
         } catch (NumberFormatException e) {
-            logger.warn("Could not parse massShift " + split[0] + " in " +
+            LOGGER.warn("Could not parse massShift " + split[0] + " in " +
                     modString);
             return null;
         }
@@ -900,7 +843,7 @@ public class ThermoMSFFileParser {
                 nodeNumbersToIdentifications.get(peptide.getProcessingNodeNumber());
 
         if (spectrumID == null) {
-            logger.warn("PSM (" + sourceID + ", " + peptide.getSequence() +") does not come from a search.");
+            LOGGER.warn("PSM (" + sourceID + ", " + peptide.getSequence() +") does not originate from a search.");
             return null;
         } else {
             String rawFileName = ((FileInfos)fileMap.get(massPeak.getFileID())).getFileName();
@@ -915,33 +858,23 @@ public class ThermoMSFFileParser {
                 spectraData.setId("inputfile_" + rawFileName);
                 spectraData.setLocation(rawFileName);
 
-                if ((rawFileName.endsWith(".mgf") ||
-                        rawFileName.endsWith(".MGF"))) {
+                if (rawFileName.endsWith(".mgf")
+                        || rawFileName.endsWith(".MGF")) {
                     FileFormat fileFormat = new FileFormat();
 
-                    CvParam cvParam = new CvParam();
-                    cvParam.setAccession("MS:1001062");
-                    cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                    cvParam.setName("Mascot MGF file");
-                    fileFormat.setCvParam(cvParam);
+                    fileFormat.setCvParam(MzIdentMLTools.createPSICvParam(
+                            OntologyConstants.MASCOT_MGF_FORMAT, null));
                     spectraData.setFileFormat(fileFormat);
 
                     SpectrumIDFormat idFormat = new SpectrumIDFormat();
-                    cvParam = new CvParam();
-                    cvParam.setAccession("MS:1000774");
-                    cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                    cvParam.setName("multiple peak list nativeID format");
-                    idFormat.setCvParam(cvParam);
+                    idFormat.setCvParam(MzIdentMLTools.createPSICvParam(
+                            OntologyConstants.MULTIPLE_PEAK_LIST_NATIVEID_FORMAT, null));
                     spectraData.setSpectrumIDFormat(idFormat);
                 } else if ((rawFileName.endsWith(".raw") ||
                         rawFileName.endsWith("RAW"))) {
                     FileFormat fileFormat = new FileFormat();
-
-                    CvParam cvParam = new CvParam();
-                    cvParam.setAccession("MS:1000577");
-                    cvParam.setCv(MzIdentMLTools.getCvPSIMS());
-                    cvParam.setName("raw data file");
-                    fileFormat.setCvParam(cvParam);
+                    fileFormat.setCvParam(MzIdentMLTools.createPSICvParam(
+                            OntologyConstants.THERMO_RAW_FORMAT, null));
                     spectraData.setFileFormat(fileFormat);
                 }
 
@@ -1001,7 +934,7 @@ public class ThermoMSFFileParser {
                     loc = pepSequence.length() + 1;
                     break;
                 default:
-                    logger.error("unknown position type for terminal modification: " + termMod.getPositionType());
+                    LOGGER.error("unknown position type for terminal modification: " + termMod.getPositionType());
                     return null;
                 }
                 if (loc > -1) {
@@ -1070,7 +1003,7 @@ public class ThermoMSFFileParser {
             FastaHeaderInfos fastaInfo =
                     FastaHeaderInfos.parseHeaderInfos(annotationsMap.get(proteinID));
             if (fastaInfo == null) {
-                logger.error("Could not parse protein annotation '" +
+                LOGGER.error("Could not parse protein annotation '" +
                         annotationsMap.get(proteinID) + "'");
                 continue;
             }
@@ -1099,7 +1032,7 @@ public class ThermoMSFFileParser {
                     !acc.getDbSequence().equals(proteinSequence)) {
                 if (acc.getDbSequence() != null)  {
                     if (!proteinSequence.equals(acc.getDbSequence())) {
-                        logger.warn("Different DBSequences found for same Accession, this is not supported!\n" +
+                        LOGGER.warn("Different DBSequences found for same Accession, this is not supported!\n" +
                                 "\t Accession: " + acc.getAccession() +
                                 "\t'" + proteinSequence + "'\n" +
                                 "\t'" + acc.getDbSequence() + "'");
@@ -1196,8 +1129,8 @@ public class ThermoMSFFileParser {
             calculatedMass += mod.getMass();
         }
 
-        calculatedMass = calculatedMass + 17.002735;	// C-terminal cleavage change
-        calculatedMass = calculatedMass + 1.007825;		// N-terminal cleavage change
+        calculatedMass = calculatedMass + 17.002735;    // C-terminal cleavage change
+        calculatedMass = calculatedMass + 1.007825;     // N-terminal cleavage change
 
         calculatedMass = (calculatedMass + (double)charge * PIAConstants.H_MASS.doubleValue()) / (double)charge;
 
