@@ -29,7 +29,7 @@ public enum OntologyConstants {
     DELTA_MZ("delta m/z", "MS:1001975"),
     CLEAVAGE_AGENT_NAME("cleavage agent name", "MS:1001045"),
     SEARCH_TOLERANCE_PLUS_VALUE("search tolerance plus value", "MS:1001412"),
-    SEARCH_TOLERANCE_MINUS_VALUE("search tolerance minus valu", "MS:1001413"),
+    SEARCH_TOLERANCE_MINUS_VALUE("search tolerance minus value", "MS:1001413"),
     MS_MS_SEARCH("ms-ms search", "MS:1001083"),
     FRAGMENT_MASS_TYPE_MONO("fragment mass type mono", "MS:1001256"),
     FRAGMENT_MASS_TYPE_AVERAGE("fragment mass type average", "MS:1001255"),
