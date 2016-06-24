@@ -238,7 +238,7 @@ public class MzIdentMLExporter {
 
         try {
             // XML header
-            // TODO: check to set the version here...
+            // TODO: set the version of mzIdentML here
             outWriter.write(mzidMarshaller.createXmlHeader() + "\n");
             outWriter.write(mzidMarshaller.createMzIdentMLStartTag("PIAExport for PSMs") + "\n");
 
@@ -267,10 +267,13 @@ public class MzIdentMLExporter {
             // create analysis collection and protocol
             createAnalysisCollectionAndAnalysisProtocolCollection(filterExport);
 
-            // write protein specific tags
+            // create protein specific tags
             if (exportProteinLevel) {
                 createProteinLevelInformation(filterExport);
             }
+
+            // refine some elements, like checking correct URIs
+            refineElements();
 
             // now write out the mzIdentML tags
             mzidMarshaller.marshal(analysisCollection, outWriter);
@@ -1874,5 +1877,46 @@ public class MzIdentMLExporter {
         ph.getSpectrumIdentificationItemRef().add(ref);
 
         return true;
+    }
+
+
+    /**
+     * Refine some elements before writing out the mzIdentML file. The URIs will
+     * be checked.
+     */
+    private void refineElements() {
+        refineInputs();
+    }
+
+
+    /**
+     * Refine some elements in the Inputs to ensure compatibility.
+     */
+    private void refineInputs() {
+        for (SourceFile sourceFile : inputs.getSourceFile()) {
+            String location = encodeLocation(sourceFile.getLocation());
+            sourceFile.setLocation(location);
+        }
+
+        for (SearchDatabase searchDB : inputs.getSearchDatabase()) {
+            String location = encodeLocation(searchDB.getLocation());
+            searchDB.setLocation(location);
+        }
+
+        for (SpectraData spectraData : inputs.getSpectraData()) {
+            String location = encodeLocation(spectraData.getLocation());
+            spectraData.setLocation(location);
+        }
+    }
+
+
+    /**
+     * Replaces special characters in a location.
+     *
+     * @param location
+     * @return
+     */
+    private static String encodeLocation(String location) {
+        return location.replace(" ", "%20");
     }
 }
