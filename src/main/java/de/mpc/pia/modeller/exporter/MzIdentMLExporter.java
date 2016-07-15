@@ -1906,6 +1906,17 @@ public class MzIdentMLExporter {
         for (SpectraData spectraData : inputs.getSpectraData()) {
             String location = encodeLocation(spectraData.getLocation());
             spectraData.setLocation(location);
+
+            // the name of the "MGF format" entry changed in the OBO -> set to current value
+            FileFormat fileFormat = spectraData.getFileFormat();
+            if (fileFormat != null) {
+                CvParam formatCvParam = fileFormat.getCvParam();
+                if ((formatCvParam != null)
+                        && (OntologyConstants.MASCOT_MGF_FORMAT.getPsiAccession().equals(formatCvParam.getAccession()))) {
+                    formatCvParam.setName(OntologyConstants.MASCOT_MGF_FORMAT.getPsiName());
+                }
+            }
+
         }
     }
 
