@@ -34,7 +34,7 @@
 		<commons-cli.version>1.2</commons-cli.version>
 		<commons-lang3.version>3.4</commons-lang3.version>
 		<jmzidentml.version>1.2.3</jmzidentml.version>
-		<jmztab.version>3.0.2</jmztab.version>
+		<jmztab.version>3.0.3</jmztab.version>
 		<pride-mod.version>2.1.0</pride-mod.version>
 		<pride-jaxb.version>1.0.13</pride-jaxb.version>
 		<mascotdatfile.version>3.4.29</mascotdatfile.version>
@@ -48,6 +48,7 @@
 		<jfreechart.version>1.0.19</jfreechart.version>
 		<jung-graph-impl.version>2.0.1</jung-graph-impl.version>
 		<jung-visualization.version>2.0.1</jung-visualization.version>
+		<inspector-mzgraph.version>2.0.1</inspector-mzgraph.version>
 	</properties>
 
 	<dependencies>
@@ -174,6 +175,12 @@
 			<groupId>net.sf.jung</groupId>
 			<artifactId>jung-visualization</artifactId>
 			<version>${jung-visualization.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>uk.ac.ebi.pride.toolsuite</groupId>
+			<artifactId>inspector-mzgraph-browser</artifactId>
+			<version>${inspector-mzgraph.version}</version>
 		</dependency>
 		<!-- End visualization packages -->
 	</dependencies>
@@ -306,12 +313,7 @@
 		<repository>
 			<id>nexus-ebi-repo</id>
 			<name>The EBI internal repository</name>
-			<url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/</url>
-			<releases>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
+			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
 		</repository>
 
 		<!-- UGent Genesis Maven 2 repository -->
