@@ -34,6 +34,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.Inputs;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
+import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Group;
 import de.mpc.pia.intermediate.PIAInputFile;
@@ -56,7 +57,6 @@ import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
 import de.mpc.pia.tools.obo.OBOMapper;
 import de.mpc.pia.tools.unimod.UnimodParser;
-import uk.ac.ebi.pridemod.ModReader;
 
 /**
  * This class is used to read in one or several input files and compile them
@@ -200,8 +200,8 @@ public class PIACompiler {
     }
 
     /**
-     * Getter for the Pride Mod Reader allowing to retrieve information from UNIMOD and PSI-MOD
-     * at the same time.
+     * Getter for the Pride Mod Reader allowing to retrieve information from
+     * UNIMOD and PSI-MOD at the same time.
      *
      * Unimod and PSI-MOD
      *
@@ -209,7 +209,7 @@ public class PIACompiler {
      */
     public ModReader getModReader() {
         if (modReader == null) {
-            logger.info("Initializing unimod parser...");
+            logger.info("Initializing PRIDE ModReader parser...");
             modReader = ModReader.getInstance();
         }
         return modReader;
