@@ -96,19 +96,17 @@ public class TideTXTFileParser {
         int pepNr = 0;
         int specNr = 0;
 
-        BufferedReader br = null;
         String line = null;
         int lineNr = 0;
 
         Map<String, Integer> columnMap = new HashMap<String, Integer>(colNames.size());
 
-        try {
-            br = new BufferedReader(new FileReader(fileName));
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             if ((line = br.readLine()) != null) {
                 lineNr++;
 
                 // the first line contains the headers, create the mapping
-                String headers[] = line.split(SEPARATOR_STRING);
+                String[] headers = line.split(SEPARATOR_STRING);
 
                 for (int idx = 0; idx < headers.length; idx++) {
                     if (colNames.contains(headers[idx])) {
@@ -296,8 +294,6 @@ public class TideTXTFileParser {
 
                 specNr++;
             }
-
-            br.close();
         } catch (IOException e) {
             LOGGER.error("Error occurred while parsing the file " + fileName, e);
             return false;

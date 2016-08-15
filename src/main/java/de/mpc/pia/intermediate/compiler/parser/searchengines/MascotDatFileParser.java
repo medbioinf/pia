@@ -98,9 +98,7 @@ public class MascotDatFileParser {
         String enzymeCleavage = null;
         String enzymeRestrict = null;
 
-        try {
-            BufferedReader rd;
-            rd = new BufferedReader(new FileReader(fileName));
+        try (BufferedReader rd = new BufferedReader(new FileReader(fileName))) {
             String line;
 
             boolean inQuery = false;
