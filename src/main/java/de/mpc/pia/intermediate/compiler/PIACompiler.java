@@ -133,10 +133,10 @@ public class PIACompiler {
 
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(PIACompiler.class);
+    private static final Logger LOGGER = Logger.getLogger(PIACompiler.class);
 
     /** helper description */
-    private static final String helpDescription =
+    private static final String HELP_DESCRIPTION =
             "PIACompiler is used to compile (multiple) search engine results "
             + "into one PIA XML file. Use a high enough amount of memory (e.g. "
             + "use the Java setting -Xmx8G).";
@@ -193,7 +193,7 @@ public class PIACompiler {
      */
     public UnimodParser getUnimodParser() {
         if (unimodParser == null) {
-            logger.info("Initializing unimod parser...");
+            LOGGER.info("Initializing unimod parser...");
             unimodParser = new UnimodParser();
         }
         return unimodParser;
@@ -209,7 +209,7 @@ public class PIACompiler {
      */
     public ModReader getModReader() {
         if (modReader == null) {
-            logger.info("Initializing PRIDE ModReader parser...");
+            LOGGER.info("Initializing PRIDE ModReader parser...");
             modReader = ModReader.getInstance();
         }
         return modReader;
@@ -234,13 +234,12 @@ public class PIACompiler {
                 this, additionalInfoFileName, inputFileType);
 
         if (!fileParsed) {
-            // TODO: better error / exception
-            logger.error("Error parsing the file "+fileName);
+            LOGGER.error("Error parsing the file "+fileName);
         } else {
-            logger.info("have now: \n\t" +
-                    peptides.size() + " peptides\n\t" +
-                    spectra.size() + " peptide spectrum matches\n\t" +
-                    accessions.size() + " accessions");
+            LOGGER.info("have now: \n\t"
+                    + peptides.size() + " peptides\n\t"
+                    + spectra.size() + " peptide spectrum matches\n\t"
+                    + accessions.size() + " accessions");
         }
 
         return fileParsed;
@@ -341,7 +340,7 @@ public class PIACompiler {
 
         if (!spectra.add(psm)) {
             // TODO: better warning / error
-            logger.error("ERROR: spectrum was already in list, this should not have happened! " +
+            LOGGER.error("ERROR: spectrum was already in list, this should not have happened! " +
                     psm.getSequence());
         }
 
@@ -354,9 +353,9 @@ public class PIACompiler {
      * @return the newly created PSM
      */
     public PeptideSpectrumMatch insertNewSpectrum(int charge,
-                                                  double massToCharge, double theoreticalMass, double deltaMass, Double rt, String sequence,
-                                                  int missed, String sourceID, String spectrumTitle,
-                                                  PIAInputFile file, SpectrumIdentification spectrumID) {
+            double massToCharge, double theoreticalMass, double deltaMass, Double rt,
+            String sequence, int missed, String sourceID, String spectrumTitle,
+            PIAInputFile file, SpectrumIdentification spectrumID) {
         PeptideSpectrumMatch psm;
         Long id = spectra.size() + 1L;
 
@@ -367,8 +366,8 @@ public class PIACompiler {
 
         if (!spectra.add(psm)) {
             // TODO: better warning / error
-            logger.error("ERROR: spectrum was already in list, this should not have happened! " +
-                    psm.getSequence());
+            LOGGER.error("ERROR: spectrum was already in list, this should not have happened! "
+                    + psm.getSequence());
         }
 
         return psm;
@@ -598,7 +597,7 @@ public class PIACompiler {
      * {@link PIACompiler#getDataFromFile(String, String, String, String)}.
      */
     public void buildClusterList() {
-        logger.info("start sorting clusters");
+        LOGGER.info("start sorting clusters");
 
         Set<String> peptidesDone = new HashSet<String>(peptides.size());
         Set<String> accessionsDone = new HashSet<String>(accessions.size());
@@ -616,7 +615,7 @@ public class PIACompiler {
                     clusteredPepAccMap.add(pepAccMapCluster);
                 } else {
                     // TODO: error / exception
-                    logger.error("cluster could not be created!");
+                    LOGGER.error("cluster could not be created!");
                 }
             }
 
@@ -626,7 +625,7 @@ public class PIACompiler {
         accPepMap.clear();
         pepAccMap.clear();
 
-        logger.info("clusters sorted: "+clusteredPepAccMap.size());
+        LOGGER.info("clusters sorted: "+clusteredPepAccMap.size());
     }
 
 
@@ -645,11 +644,9 @@ public class PIACompiler {
         Map<String, Accession> clusterAccessions = new HashMap<String, Accession>();
         Map<String, Peptide> clusterPeptides = new HashMap<String, Peptide>();
 
-        int newAccessions = 0;
-        int newPeptides = 0;
-
         // initialize the cluster's peptides with the peptides of the given accession
-        newAccessions = 1;    // for the given accession
+        int newPeptides = 0;
+        int newAccessions = 1;  // for the given accession
         for (Peptide pep : accPepMap.get(accession)) {
             clusterPeptides.put(pep.getSequence(), pep);
             newPeptides++;
@@ -713,22 +710,22 @@ public class PIACompiler {
      * must be called.
      */
     public void buildIntermediateStructure() {
-        int NUM_THREADS;
+        int nrThreads;
 
         if (numThreads > 0) {
-            NUM_THREADS = numThreads;
+            nrThreads = numThreads;
         } else {
-            NUM_THREADS = Runtime.getRuntime().availableProcessors();
+            nrThreads = Runtime.getRuntime().availableProcessors();
         }
 
-        logger.info("Using " + NUM_THREADS + " threads.");
+        LOGGER.info("Using " + nrThreads + " threads.");
 
         List<CompilerWorkerThread> threads;
 
 
         if (clusteredPepAccMap == null) {
             // TODO: make exception or something
-            logger.error("the cluster map is not yet build!");
+            LOGGER.error("the cluster map is not yet build!");
             return;
         }
 
@@ -741,8 +738,8 @@ public class PIACompiler {
         clusterOffset = 0L;
 
         // start the threads
-        threads = new ArrayList<CompilerWorkerThread>(NUM_THREADS);
-        for (int i = 0; i < NUM_THREADS; i++) {
+        threads = new ArrayList<CompilerWorkerThread>(nrThreads);
+        for (int i = 0; i < nrThreads; i++) {
             CompilerWorkerThread thread = new CompilerWorkerThread(i+1, this);
             threads.add(thread);
 
@@ -754,8 +751,7 @@ public class PIACompiler {
             try {
                 thread.join();
             } catch (InterruptedException e) {
-                logger.error("thread got interrupted!");
-                e.printStackTrace();
+                LOGGER.error("thread got interrupted!", e);
             }
         }
     }
@@ -776,7 +772,7 @@ public class PIACompiler {
                 }
             } else {
                 // TODO: throw exception or something
-                logger.error("The cluster iterator is not yet initialized!");
+                LOGGER.error("The cluster iterator is not yet initialized!");
                 return null;
             }
         }
@@ -856,14 +852,14 @@ public class PIACompiler {
      * @throws FileNotFoundException
      */
     public void writeOutXML(File piaFile) throws FileNotFoundException {
-        logger.info("start writing the XML file "+ piaFile.getName());
+        LOGGER.info("start writing the XML file "+ piaFile.getName());
 
         FileOutputStream fos;
 
         fos = new FileOutputStream(piaFile);
         writeOutXML(fos);
 
-        logger.info("writing done");
+        LOGGER.info("writing done");
     }
 
 
@@ -958,14 +954,14 @@ public class PIACompiler {
             w = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
             m.marshal(piaXML, w);
         } catch (Exception e) {
-            logger.error("Error writing to the output stream.", e);
+            LOGGER.error("Error writing to the output stream.", e);
         } finally {
             try {
                 if (w != null) {
                     w.close();
                 }
             } catch (Exception e) {
-                logger.error("Error closing the output stream.", e);
+                LOGGER.error("Error closing the output stream.", e);
             }
         }
     }
@@ -1065,7 +1061,7 @@ public class PIACompiler {
             } catch (ParseException e) {
                 System.err.println(e.getMessage());
                 PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
-                        options, helpDescription);
+                        options, HELP_DESCRIPTION);
                 System.exit(-1);
             }
 
@@ -1081,12 +1077,12 @@ public class PIACompiler {
                 piaCompiler.writeOutXML(outFileName);
             } else {
                 PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
-                        options, helpDescription);
+                        options, HELP_DESCRIPTION);
                 System.exit(-1);
             }
         } else {
             PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
-                    options, helpDescription);
+                    options, HELP_DESCRIPTION);
         }
     }
 }
