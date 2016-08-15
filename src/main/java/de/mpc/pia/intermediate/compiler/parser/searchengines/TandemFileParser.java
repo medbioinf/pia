@@ -103,11 +103,9 @@ public class TandemFileParser {
 
         if ((rtMapFileName != null) && (rtMapFileName.length() > 0)) {
             // additional RT info is given, parse the file
-            try {
-                LOGGER.info("Parsing the file '" + rtMapFileName + "'" +
-                        " for RT information.");
-
-                FileInputStream rtStream = new FileInputStream(rtMapFileName);
+            try (FileInputStream rtStream = new FileInputStream(rtMapFileName)) {
+                LOGGER.info("Parsing the file '" + rtMapFileName + "'"
+                        + " for RT information.");
 
                 DataInputStream in = new DataInputStream(rtStream);
                 BufferedReader br = new BufferedReader(new InputStreamReader(in));
