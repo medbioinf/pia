@@ -327,45 +327,43 @@ public class PIAModeller {
             LOGGER.info("loadIntermediate done.");
         }
 
-        if (intermediateHandler != null) {
-            // TODO: maybe move this uniqueness setting the PIACompiler...
-            LOGGER.info("setting spectra uniquenesses");
+        // TODO: maybe move this uniqueness setting the PIACompiler...
+        LOGGER.info("setting spectra uniquenesses");
 
-            for (Map.Entry<Long, Group> grIt : intermediateHandler.getGroups().entrySet()) {
-                if (grIt.getValue().getAllAccessions().size() == 1) {
+        for (Map.Entry<Long, Group> grIt : intermediateHandler.getGroups().entrySet()) {
+            if (grIt.getValue().getAllAccessions().size() == 1) {
 
-                    if (grIt.getValue().getPeptides() != null) {
-                        for (Map.Entry<String, Peptide> pepIt : grIt.getValue().getPeptides().entrySet()) {
-                            for (PeptideSpectrumMatch spec : pepIt.getValue().getSpectra()) {
-                                spec.setIsUnique(true);
-                            }
+                if (grIt.getValue().getPeptides() != null) {
+                    for (Map.Entry<String, Peptide> pepIt : grIt.getValue().getPeptides().entrySet()) {
+                        for (PeptideSpectrumMatch spec : pepIt.getValue().getSpectra()) {
+                            spec.setIsUnique(true);
                         }
                     }
-
                 }
+
             }
-            LOGGER.info("spectra uniquenesses set.");
+        }
+        LOGGER.info("spectra uniquenesses set.");
 
-            // the PSMModeller needs no global settings
-            psmModeller = new PSMModeller(intermediateHandler.getGroups(),
-                    intermediateHandler.getFiles(),
-                    fileName,
-                    intermediateHandler.getPSMSetSettingsWarnings(),
-                    intermediateHandler.getPSMs().size());
+        // the PSMModeller needs no global settings
+        psmModeller = new PSMModeller(intermediateHandler.getGroups(),
+                intermediateHandler.getFiles(),
+                fileName,
+                intermediateHandler.getPSMSetSettingsWarnings(),
+                intermediateHandler.getPSMs().size());
 
-            // the PeptideModeller takes the PSMModeller and considerModifications
-            peptideModeller = new PeptideModeller(psmModeller);
+        // the PeptideModeller takes the PSMModeller and considerModifications
+        peptideModeller = new PeptideModeller(psmModeller);
 
-            // initialise the ProteinModeller
-            proteinModeller = new ProteinModeller(psmModeller,
-                    peptideModeller,
-                    getGroups());
+        // initialise the ProteinModeller
+        proteinModeller = new ProteinModeller(psmModeller,
+                peptideModeller,
+                getGroups());
 
-            progress[0] += 60;
-            if (notifier != null) {
-                synchronized (notifier) {
-                    notifier.notifyAll();
-                }
+        progress[0] += 60;
+        if (notifier != null) {
+            synchronized (notifier) {
+                notifier.notifyAll();
             }
         }
     }

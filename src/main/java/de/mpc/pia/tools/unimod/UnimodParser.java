@@ -71,13 +71,6 @@ public class UnimodParser {
             try {
                 inStream = this.getClass().getResourceAsStream(PATH_TO_SHIPPED_UNIMOD);
             } catch (Exception e) {
-                if (inStream != null) {
-                    try {
-                        inStream.close();
-                    } catch (IOException ioex) {
-                        LOGGER.error(ioex);
-                    }
-                }
                 LOGGER.error("could not get unimod.xml file", e);
                 throw new AssertionError(e);
             }

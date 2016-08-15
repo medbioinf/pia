@@ -57,9 +57,7 @@ public class FastaFileParser {
                     + "may result in a massive file and take very long!");
         }
 
-        try {
-            FileInputStream fileStream = new FileInputStream(fileName);
-
+        try (FileInputStream fileStream = new FileInputStream(fileName)) {
             DataInputStream in = new DataInputStream(fileStream);
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
