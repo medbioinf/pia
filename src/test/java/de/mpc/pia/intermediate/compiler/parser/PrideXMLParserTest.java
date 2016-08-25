@@ -1,6 +1,7 @@
 package de.mpc.pia.intermediate.compiler.parser;
 
 import de.mpc.pia.intermediate.compiler.PIACompiler;
+import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
 import de.mpc.pia.modeller.PIAModeller;
 import de.mpc.pia.modeller.protein.ReportProtein;
 import de.mpc.pia.modeller.protein.inference.SpectrumExtractorInference;
@@ -46,7 +47,7 @@ public class PrideXMLParserTest {
 
     @Before
     public void setUp() throws Exception {
-        compiler = new PIACompiler();
+        compiler = new PIASimpleCompiler();
 
         java.net.URI uri = PrideXMLParserTest.class.getClassLoader().getResource("PRIDE_Example.xml").toURI();
         prideXMLFile = new File(uri);
