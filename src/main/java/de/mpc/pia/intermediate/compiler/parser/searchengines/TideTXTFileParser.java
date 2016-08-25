@@ -5,10 +5,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -165,8 +163,6 @@ public class TideTXTFileParser {
                 lineNr++;
 
                 String[] columns = line.split(SEPARATOR_STRING);
-
-                PeptideSpectrumMatch psm;
                 Peptide peptide;
 
                 Integer charge;
@@ -201,7 +197,7 @@ public class TideTXTFileParser {
 
                 String sourceID = "index=" + columns[columnMap.get(HEADER_SCAN)];
 
-                psm = compiler.insertNewSpectrum(
+                PeptideSpectrumMatch psm = compiler.createNewPeptideSpectrumMatch(
                         charge,
                         precursorMZ,
                         deltaMass,
@@ -265,33 +261,15 @@ public class TideTXTFileParser {
 
                         acc.addFile(file.getID());
 
-
-                        // now insert the peptide and the accession into the accession peptide map
-                        Set<Peptide> accsPeptides =
-                                compiler.getFromAccPepMap(acc.getAccession());
-
-                        if (accsPeptides == null) {
-                            accsPeptides = new HashSet<Peptide>();
-                            compiler.putIntoAccPepMap(acc.getAccession(), accsPeptides);
-                        }
-
-                        accsPeptides.add(peptide);
-
-                        // and also insert them into the peptide accession map
-                        Set<Accession> pepsAccessions = compiler.getFromPepAccMap(peptide.getSequence());
-
-                        if (pepsAccessions == null) {
-                            pepsAccessions = new HashSet<Accession>();
-                            compiler.putIntoPepAccMap(peptide.getSequence(),
-                                    pepsAccessions);
-                        }
-
-                        pepsAccessions.add(acc);
+                        // now insert the connection between peptide and accession into the compiler
+                        compiler.addAccessionPeptideConnection(acc, peptide);
                     } else {
                         LOGGER.error("could not get the accession in line" + lineNr);
                     }
                 }
 
+                // teh PSM is completed now
+                compiler.insertCompletePeptideSpectrumMatch(psm);
                 specNr++;
             }
         } catch (IOException e) {

@@ -38,7 +38,7 @@ import java.util.*;
 public class MzTabParser {
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(MzTabParser.class);
+    private static final Logger LOGGER = Logger.getLogger(MzTabParser.class);
 
 
     /** optional column header for protein sequences */
@@ -68,7 +68,7 @@ public class MzTabParser {
 
         if (!mzTabFile.canRead()) {
             // TODO: better error / exception
-            logger.error("could not read '" + fileName + "'.");
+            LOGGER.error("could not read '" + fileName + "'.");
             return false;
         }
 
@@ -78,10 +78,6 @@ public class MzTabParser {
                     new FileOutputStream(mzTabFile.getAbsolutePath() + "errors.out"));
 
             Metadata metadata = tabParser.getMZTabFile().getMetadata();
-
-            SortedMap<Integer, VariableMod> variableMods = metadata.getVariableModMap();
-
-            SortedMap<Integer, FixedMod> fixMods = metadata.getFixedModMap();
 
             ModificationParams allModMap = retrieveAllMod(metadata);
 
@@ -220,7 +216,6 @@ public class MzTabParser {
             // TODO: not each line is a PSM, but each PSM_ID with same mods, charge, sequence (and RT and M/Z)
             for (PSM mzTabPSM: psms) {
 
-                PeptideSpectrumMatch psm;
                 Peptide peptide;
 
                 Integer charge = mzTabPSM.getCharge();
@@ -299,7 +294,7 @@ public class MzTabParser {
                     }
                     countRTs++;
 
-                    psm = compiler.insertNewSpectrum(
+                    PeptideSpectrumMatch psm = compiler.createNewPeptideSpectrumMatch(
                             charge,
                             precursorMZ,
                             deltaMass,
@@ -335,8 +330,9 @@ public class MzTabParser {
                         psm.addModification(mod.getKey(), mod.getValue());
                     }
 
-                    for(ScoreModel score: scores)
+                    for(ScoreModel score: scores) {
                         psm.addScore(score);
+                    }
 
                     String accession = mzTabPSM.getAccession();
                     Accession acc = compiler.getAccession(accession);
@@ -348,40 +344,24 @@ public class MzTabParser {
                     }
                     acc.addFile(piaFile.getID());
 
-                    Set<Peptide> accsPeptides =
-                            compiler.getFromAccPepMap(acc.getAccession());
-
-                    if (accsPeptides == null) {
-                        accsPeptides = new HashSet<Peptide>();
-                        compiler.putIntoAccPepMap(acc.getAccession(), accsPeptides);
-                    }
-
-                    accsPeptides.add(peptide);
-
-                    // and also insert them into the peptide accession map
-                    Set<Accession> pepsAccessions =
-                            compiler.getFromPepAccMap(peptide.getSequence());
-
-                    if (pepsAccessions == null) {
-                        pepsAccessions = new HashSet<Accession>();
-                        compiler.putIntoPepAccMap(peptide.getSequence(),
-                                pepsAccessions);
-                    }
-                    pepsAccessions.add(acc);
+                    // now insert the connection between peptide and accession into the compiler
+                    compiler.addAccessionPeptideConnection(acc, peptide);
 
                     // TODO: add occurrences of peptides in proteins
 
+                    // the PSM is also finished now
+                    compiler.insertCompletePeptideSpectrumMatch(psm);
                 }
             }
 
-            logger.info("inserted new: \n\t" +
+            LOGGER.info("inserted new: \n\t" +
                     pepNr + " peptides\n\t" +
                     specNr + " peptide spectrum matches\n\t" +
                     accNr + " accessions");
 
 
         } catch (IOException e){
-            logger.error("Problem to read the mzTab Files'" + fileName + "'.");
+            LOGGER.error("Problem to read the mzTab Files'" + fileName + "'.");
         }
 
         return true;
@@ -484,7 +464,7 @@ public class MzTabParser {
             Map<String, String> allModsTab,
             PIACompiler compiler) {
         if (modifications == null){
-            logger.error("Modifications map not initialized!");
+            LOGGER.error("Modifications map not initialized!");
             return null;
         }
 

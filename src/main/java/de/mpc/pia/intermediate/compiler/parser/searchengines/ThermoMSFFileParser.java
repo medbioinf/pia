@@ -100,7 +100,7 @@ public class ThermoMSFFileParser {
             PIACompiler compiler) {
         LOGGER.debug("getting data from file: " + fileName);
 
-        SimpleProgramParameters fileConnectionParams = null;
+        SimpleProgramParameters fileConnectionParams;
 
         // set up the DB connection to the MSF file
         boolean bUseJDBC = true;  // always use the JDBC connection
@@ -851,7 +851,7 @@ public class ThermoMSFFileParser {
             SpectraData spectraData =
                     spectraDataMap.get(massPeak.getFileID());
 
-            if ((spectraData == null)) {
+            if (spectraData == null) {
 
                 spectraData = new SpectraData();
 
@@ -870,8 +870,8 @@ public class ThermoMSFFileParser {
                     idFormat.setCvParam(MzIdentMLTools.createPSICvParam(
                             OntologyConstants.MULTIPLE_PEAK_LIST_NATIVEID_FORMAT, null));
                     spectraData.setSpectrumIDFormat(idFormat);
-                } else if ((rawFileName.endsWith(".raw") ||
-                        rawFileName.endsWith("RAW"))) {
+                } else if (rawFileName.endsWith(".raw")
+                        || rawFileName.endsWith("RAW")) {
                     FileFormat fileFormat = new FileFormat();
                     fileFormat.setCvParam(MzIdentMLTools.createPSICvParam(
                             OntologyConstants.THERMO_RAW_FORMAT, null));
@@ -922,7 +922,7 @@ public class ThermoMSFFileParser {
 
         if (terminalModifications.containsKey(peptide.getPeptideID())) {
             for (AminoAcidModifications termMod : terminalModifications.get(peptide.getPeptideID())) {
-                int loc = -1;
+                int loc;
 
                 switch (termMod.getPositionType()) {
                 case 1:
@@ -950,11 +950,11 @@ public class ThermoMSFFileParser {
             }
         }
 
-        PeptideSpectrumMatch psm = compiler.insertNewSpectrum(
+        PeptideSpectrumMatch psm = compiler.createNewPeptideSpectrumMatch(
                 charge,
                 precursorMZ,
                 PIATools.round(spectrum.getMass() - getPeptideMassForCharge(1, pepSequence, aminoAcidMap, modifications), 6),
-                (spectrum.getRetentionTime()*60),
+                spectrum.getRetentionTime()*60.0,
                 pepSequence,
                 peptide.getMissedCleavages(),
                 sourceID,
@@ -1062,30 +1062,11 @@ public class ThermoMSFFileParser {
                 piaPeptide.addAccessionOccurrence(acc, 0, 0);
             }
 
-            // now insert the peptide and the accession into the accession peptide map
-            Set<Peptide> accsPeptides =
-                    compiler.getFromAccPepMap(acc.getAccession());
-
-            if (accsPeptides == null) {
-                accsPeptides = new HashSet<Peptide>();
-                compiler.putIntoAccPepMap(acc.getAccession(), accsPeptides);
-            }
-
-            accsPeptides.add(piaPeptide);
-
-            // and also insert them into the peptide accession map
-            Set<Accession> pepsAccessions =
-                    compiler.getFromPepAccMap(piaPeptide.getSequence());
-
-            if (pepsAccessions == null) {
-                pepsAccessions = new HashSet<Accession>();
-                compiler.putIntoPepAccMap(piaPeptide.getSequence(),
-                        pepsAccessions);
-            }
-
-            pepsAccessions.add(acc);
+            // now insert the connection between peptide and accession into the compiler
+            compiler.addAccessionPeptideConnection(acc, piaPeptide);
         }
 
+        compiler.insertCompletePeptideSpectrumMatch(psm);
         return psm;
     }
 

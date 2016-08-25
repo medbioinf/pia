@@ -1,9 +1,11 @@
 package de.mpc.pia.intermediate.compiler;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
@@ -49,16 +51,15 @@ public class CompilerWorkerThread extends Thread {
         int workedClusters = 0;
         long nrThreadGroups = 0;
         long threadGroupOffset = 0;
-        Map<String, Map<String, Accession>> cluster;
+        Map<Long, Collection<Long>> cluster;
 
         // get the next available cluster from the parent
         cluster = parent.getNextCluster();
         while (cluster != null) {
             Map<Long, Group> subGroups = new HashMap<Long, Group>();
 
-            for (Map.Entry<String, Map<String, Accession>> pepIt : cluster.entrySet()) {
+            for (Map.Entry<Long, Collection<Long>> pepIt : cluster.entrySet()) {
                 Peptide peptide = parent.getPeptide(pepIt.getKey());
-
                 insertIntoMap(peptide, pepIt.getValue(), subGroups);
             }
 
@@ -88,17 +89,18 @@ public class CompilerWorkerThread extends Thread {
      * format, which is until then build up by the subGroups.
      *
      * @param peptide
-     * @param accessions
+     * @param accessionIDs
      * @param subGroups
      */
-    public void insertIntoMap(Peptide peptide,
-            Map<String, Accession> accessions, Map<Long, Group> subGroups) {
-
+    public void insertIntoMap(Peptide peptide, Collection<Long> accessionIDs, Map<Long, Group> subGroups) {
         Map<Long, Map<String, Accession>> groupAccMap;  // the accessions, grouped by their groups
+        Map<String, Accession> accessions = new TreeMap<>();
 
         // group the accessions by the groups they are in
         groupAccMap = new HashMap<Long, Map<String,Accession>>();
-        for (Accession accession : accessions.values()) {
+        for (Long accesionId : accessionIDs) {
+            Accession accession = parent.getAccession(accesionId);
+            accessions.put(accession.getAccession(), accession);
             Long groupId;
 
             if (accession.getGroup() != null) {

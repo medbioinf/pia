@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -25,6 +23,7 @@ import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
+import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.MzIdentMLTools;
@@ -257,8 +256,7 @@ public class FastaFileParser {
             String sourceID = "index=" + spectrumCount;
             String spectrumTitle = sequence;
 
-            PeptideSpectrumMatch psm;
-            psm = compiler.insertNewSpectrum(
+            PeptideSpectrumMatch psm = compiler.createNewPeptideSpectrumMatch(
                     2,                          // just a pseudo-charge
                     massToCharge,
                     0,
@@ -281,6 +279,8 @@ public class FastaFileParser {
             score = new ScoreModel(0.0,
                     ScoreModelEnum.FASTA_ACCESSION_COUNT);
             psm.addScore(score);
+
+            compiler.insertCompletePeptideSpectrumMatch(psm);
         } else {
             // increase the "FASTA Sequence Count" score
             for (PeptideSpectrumMatch psm : peptide.getSpectra()) {
@@ -317,24 +317,8 @@ public class FastaFileParser {
                 start,
                 start+sequence.length()-1);
 
-        // now insert the peptide and the accession into the accession peptide map
-        Set<Peptide> accsPeptides =
-                compiler.getFromAccPepMap(accession.getAccession());
-        if (accsPeptides == null) {
-            accsPeptides = new HashSet<Peptide>();
-            compiler.putIntoAccPepMap(accession.getAccession(), accsPeptides);
-        }
-        accsPeptides.add(peptide);
-
-        // and also insert them into the peptide accession map
-        Set<Accession> pepsAccessions =
-                compiler.getFromPepAccMap(peptide.getSequence());
-        if (pepsAccessions == null) {
-            pepsAccessions = new HashSet<Accession>();
-            compiler.putIntoPepAccMap(peptide.getSequence(),
-                    pepsAccessions);
-        }
-        pepsAccessions.add(accession);
+        // now insert the connection between peptide and accession into the compiler
+        compiler.addAccessionPeptideConnection(accession, peptide);
     }
 
 
@@ -344,7 +328,7 @@ public class FastaFileParser {
         // filename missed minPepLength maxPepLength enzymePattern outfile
 
         if (args.length > 5) {
-            PIACompiler piaCompiler = new PIACompiler();
+            PIACompiler piaCompiler = new PIASimpleCompiler();
 
             String fileName = args[0];
             String name = new File(fileName).getName();

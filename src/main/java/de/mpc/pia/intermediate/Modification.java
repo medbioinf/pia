@@ -1,5 +1,6 @@
 package de.mpc.pia.intermediate;
 
+import java.io.Serializable;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -16,7 +17,10 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * @author julian
  *
  */
-public class Modification {
+public class Modification implements Serializable {
+
+    private static final long serialVersionUID = -4903764803663298714L;
+
     /** amino acid residue of this modification */
     private Character residue;
 
