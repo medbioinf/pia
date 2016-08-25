@@ -4,10 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 
 import org.apache.log4j.Logger;
@@ -361,14 +359,16 @@ public class MascotDatFileParser {
         // get the mappings
         QueryEnumerator queryEnumerator = mascotFile.getQueryEnumerator();
         QueryToPeptideMapInf queryToPeptideMap = mascotFile.getQueryToPeptideMap();
-        QueryToPeptideMapInf decoyQueryToPeptideMap = mascotFile.getDecoyQueryToPeptideMap();
+        QueryToPeptideMapInf decoyQueryToPeptideMap = mascotFile.getDecoyQueryToPeptideMap(false);
         ProteinMap proteinMap = mascotFile.getProteinMap();
         ProteinMap decoyProteinMap = mascotFile.getDecoyProteinMap();
 
         // one query is one spectrum, so go through the queries
-        Query currQuery;
+        int nrQueries = mascotFile.getNumberOfQueries();
+        int nrQueriesDone = 0;
+        LOGGER.debug("queries in file: " + nrQueries);
         while (queryEnumerator.hasMoreElements()) {
-            currQuery = queryEnumerator.nextElement();
+            Query currQuery = queryEnumerator.nextElement();
 
             int charge;
             try {
@@ -415,8 +415,15 @@ public class MascotDatFileParser {
                         retentionTime, index, spectrumTitle, file, spectrumID,
                         true);
             }
+
+            nrQueriesDone++;
+            if (nrQueriesDone % 10000 == 0) {
+                LOGGER.debug("done " + nrQueriesDone + " / " + nrQueries
+                        + String.format(" (%1$.4f%%)", 100.0 * nrQueriesDone / nrQueries));
+            }
         }
 
+        mascotFile.finish();
         return true;
     }
 
@@ -445,7 +452,7 @@ public class MascotDatFileParser {
             PeptideHit peptideHit = peptideHits.get(i);
 
             PeptideSpectrumMatch psm;
-            psm = compiler.insertNewSpectrum(
+            psm = compiler.createNewPeptideSpectrumMatch(
                     charge,
                     precursorMZ,
                     peptideHit.getDeltaMass(),
@@ -517,30 +524,9 @@ public class MascotDatFileParser {
                 peptide.addAccessionOccurrence(acc,
                         proteinHit.getStart(), proteinHit.getStop());
 
-                // now insert the peptide and the accession into the accession peptide map
-                Set<Peptide> accsPeptides =
-                        compiler.getFromAccPepMap(acc.getAccession());
-
-                if (accsPeptides == null) {
-                    accsPeptides = new HashSet<Peptide>();
-                    compiler.putIntoAccPepMap(acc.getAccession(), accsPeptides);
-                }
-
-                accsPeptides.add(peptide);
-
-                // and also insert them into the peptide accession map
-                Set<Accession> pepsAccessions =
-                        compiler.getFromPepAccMap(peptide.getSequence());
-
-                if (pepsAccessions == null) {
-                    pepsAccessions = new HashSet<Accession>();
-                    compiler.putIntoPepAccMap(peptide.getSequence(),
-                            pepsAccessions);
-                }
-
-                pepsAccessions.add(acc);
+                // now insert the connection between peptide and accession into the compiler
+                compiler.addAccessionPeptideConnection(acc, peptide);
             }
-
 
             // add the scores
             ScoreModel score;
@@ -576,6 +562,7 @@ public class MascotDatFileParser {
                 }
             }
 
+            compiler.insertCompletePeptideSpectrumMatch(psm);
             nrPepHits++;
         }
 

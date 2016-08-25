@@ -228,10 +228,9 @@ public class PrideXMLParser {
                         null,
                         null);
 
-                PeptideSpectrumMatch psm;
                 Peptide peptide;
 
-                psm = keysToPSMs.get(psmKey);
+                PeptideSpectrumMatch psm = keysToPSMs.get(psmKey);
                 if (psm == null) {
                     String mzStr = getValueFromSpectrumPrecursor(spectrumDesc, mzAccessions);
                     Double precursorMZ = null;
@@ -260,7 +259,7 @@ public class PrideXMLParser {
                     int missedCleavages = MzIdentMLTools.calculateMissedCleavages(sequence,
                             enzymes, enzymesToRegexes, compiler.getOBOMapper());
 
-                    psm = compiler.insertNewSpectrum(
+                    psm = compiler.createNewPeptideSpectrumMatch(
                             charge,
                             precursorMZ,
                             deltaMass,
@@ -322,28 +321,11 @@ public class PrideXMLParser {
                 peptide.addAccessionOccurrence(acc,
                         peptideItem.getStart().intValue(), peptideItem.getEnd().intValue());
 
-                // now insert the peptide and the accession into the accession peptide map
-                Set<Peptide> accsPeptides =
-                        compiler.getFromAccPepMap(acc.getAccession());
+                // now insert the connection between peptide and accession into the compiler
+                compiler.addAccessionPeptideConnection(acc, peptide);
 
-                if (accsPeptides == null) {
-                    accsPeptides = new HashSet<Peptide>();
-                    compiler.putIntoAccPepMap(acc.getAccession(), accsPeptides);
-                }
-
-                accsPeptides.add(peptide);
-
-                // and also insert them into the peptide accession map
-                Set<Accession> pepsAccessions =
-                        compiler.getFromPepAccMap(peptide.getSequence());
-
-                if (pepsAccessions == null) {
-                    pepsAccessions = new HashSet<Accession>();
-                    compiler.putIntoPepAccMap(peptide.getSequence(),
-                            pepsAccessions);
-                }
-
-                pepsAccessions.add(acc);
+                // add the PSM in the compiler (or overwrite it), this might give warning
+                compiler.insertCompletePeptideSpectrumMatch(psm);
             }
         }
 

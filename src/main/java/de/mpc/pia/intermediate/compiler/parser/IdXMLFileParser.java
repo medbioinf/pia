@@ -2,10 +2,8 @@ package de.mpc.pia.intermediate.compiler.parser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -395,8 +393,7 @@ public class IdXMLFileParser {
                         missedCleavages = -1;
                     }
 
-                    PeptideSpectrumMatch psm;
-                    psm = compiler.insertNewSpectrum(
+                    PeptideSpectrumMatch psm = compiler.createNewPeptideSpectrumMatch(
                             charge,
                             massToCharge,
                             deltaMass,
@@ -498,8 +495,9 @@ public class IdXMLFileParser {
                         psm.addModification(modIt.getKey(), modIt.getValue());
                     }
 
-                    for (Object protRef : pepHit.getProteinRefs()) {
+                    compiler.insertCompletePeptideSpectrumMatch(psm);
 
+                    for (Object protRef : pepHit.getProteinRefs()) {
                         if (!(protRef instanceof ProteinHit)) {
                             LOGGER.warn("ProteinRef is not a " +
                                     ProteinHit.class.getCanonicalName());
@@ -508,9 +506,7 @@ public class IdXMLFileParser {
 
                         ProteinHit protHit = (ProteinHit)protRef;
 
-                        FastaHeaderInfos fastaInfo =
-                                FastaHeaderInfos.parseHeaderInfos(
-                                        protHit.getAccession());
+                        FastaHeaderInfos fastaInfo = FastaHeaderInfos.parseHeaderInfos(protHit.getAccession());
                         if (fastaInfo == null) {
                             LOGGER.error("Could not parse '" +
                                     protHit.getAccession() + "'");
@@ -518,8 +514,7 @@ public class IdXMLFileParser {
                         }
 
                         // add the Accession to the compiler (if not already added)
-                        Accession acc = compiler.getAccession(
-                                fastaInfo.getAccession());
+                        Accession acc = compiler.getAccession(fastaInfo.getAccession());
 
                         if (acc == null) {
                             acc = compiler.insertNewAccession(
@@ -551,28 +546,8 @@ public class IdXMLFileParser {
                             }
                         }
 
-                        // now insert the peptide and the accession into the accession peptide map
-                        Set<Peptide> accsPeptides =
-                                compiler.getFromAccPepMap(acc.getAccession());
-
-                        if (accsPeptides == null) {
-                            accsPeptides = new HashSet<Peptide>();
-                            compiler.putIntoAccPepMap(acc.getAccession(), accsPeptides);
-                        }
-
-                        accsPeptides.add(peptide);
-
-                        // and also insert them into the peptide accession map
-                        Set<Accession> pepsAccessions =
-                                compiler.getFromPepAccMap(peptide.getSequence());
-
-                        if (pepsAccessions == null) {
-                            pepsAccessions = new HashSet<Accession>();
-                            compiler.putIntoPepAccMap(peptide.getSequence(),
-                                    pepsAccessions);
-                        }
-
-                        pepsAccessions.add(acc);
+                        // now insert the connection between peptide and accession into the compiler
+                        compiler.addAccessionPeptideConnection(acc, peptide);
                     }
                 }
             }

@@ -426,27 +426,8 @@ public class MzIdentMLFileParser {
                         pep.addAccessionOccurrence(acc, start, end);
 
 
-                        // now insert the peptide and the accession into the accession peptide map
-                        Set<Peptide> accsPeptides =
-                                compiler.getFromAccPepMap(acc.getAccession());
-
-                        if (accsPeptides == null) {
-                            accsPeptides = new HashSet<Peptide>();
-                            compiler.putIntoAccPepMap(acc.getAccession(), accsPeptides);
-                        }
-
-                        accsPeptides.add(pep);
-
-                        // and also insert them into the peptide accession map
-                        Set<Accession> pepsAccessions =
-                                compiler.getFromPepAccMap(pep.getSequence());
-
-                        if (pepsAccessions == null) {
-                            pepsAccessions = new HashSet<Accession>();
-                            compiler.putIntoPepAccMap(pep.getSequence(), pepsAccessions);
-                        }
-
-                        pepsAccessions.add(acc);
+                        // now insert the connection between peptide and accession into the compiler
+                        compiler.addAccessionPeptideConnection(acc, pep);
                     }
 
 
@@ -492,7 +473,7 @@ public class MzIdentMLFileParser {
 
                     // create the PeptideSpectrumMatch object
                     PeptideSpectrumMatch psm;
-                    psm = compiler.insertNewSpectrum(specIdItem.getChargeState(),
+                    psm = compiler.createNewPeptideSpectrumMatch(specIdItem.getChargeState(),
                             specIdItem.getExperimentalMassToCharge(),
                             deltaMass,
                             null,		// TODO: look for a CV with the RT
@@ -559,36 +540,35 @@ public class MzIdentMLFileParser {
 
                             de.mpc.pia.intermediate.Modification modification;
 
-                            Character residue = null;
+                            Character residue;
                             String description = null;
                             String accession = null;
-                            Double massDelta =
-                                    (mod.getMonoisotopicMassDelta() != null) ?
-                                            mod.getMonoisotopicMassDelta().doubleValue()
-                                            : null;
+                            Double massDelta = (mod.getMonoisotopicMassDelta() != null) ?
+                                    mod.getMonoisotopicMassDelta().doubleValue() : null;
 
-                                            if ((mod.getLocation() == 0) ||
-                                                    (mod.getLocation() > sequence.length())) {
-                                                residue = '.';
-                                            } else {
-                                                residue = sequence.charAt(mod.getLocation() - 1);
-                                            }
 
-                                            for (CvParam param : mod.getCvParam()) {
-                                                // get the cvParam, which maps to UNIMOD, this is the description
-                                                if (param.getCvRef().equals("UNIMOD")) {
-                                                    description = param.getName();
-                                                    accession = param.getAccession();
-                                                    break;
-                                                }
-                                            }
+                            if ((mod.getLocation() == 0) ||
+                                    (mod.getLocation() > sequence.length())) {
+                                residue = '.';
+                            } else {
+                                residue = sequence.charAt(mod.getLocation() - 1);
+                            }
 
-                                            modification =
-                                                    new de.mpc.pia.intermediate.Modification(
-                                                            residue, massDelta, description,
-                                                            accession);
+                            for (CvParam param : mod.getCvParam()) {
+                                // get the cvParam, which maps to UNIMOD, this is the description
+                                if (param.getCvRef().equals("UNIMOD")) {
+                                    description = param.getName();
+                                    accession = param.getAccession();
+                                    break;
+                                }
+                            }
 
-                                            psm.addModification(mod.getLocation(), modification);
+                            modification =
+                                    new de.mpc.pia.intermediate.Modification(
+                                            residue, massDelta, description,
+                                            accession);
+
+                            psm.addModification(mod.getLocation(), modification);
                         }
 
                     } else {
@@ -597,6 +577,8 @@ public class MzIdentMLFileParser {
                                 " in the SequenceCollection -> can't get Modifications for it.");
                     }
 
+                    // the PSM is finished here
+                    compiler.insertCompletePeptideSpectrumMatch(psm);
                 }
             }
         }

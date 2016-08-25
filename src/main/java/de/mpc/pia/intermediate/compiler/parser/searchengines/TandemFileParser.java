@@ -6,11 +6,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -611,14 +609,11 @@ public class TandemFileParser {
                             null,
                             null);
 
-                    PeptideSpectrumMatch psm;
                     Peptide peptide;
-
-                    psm = keysToPSMs.get(psmKey);
+                    PeptideSpectrumMatch psm = keysToPSMs.get(psmKey);
 
                     if (psm == null) {
-
-                        psm = compiler.insertNewSpectrum(
+                        psm = compiler.createNewPeptideSpectrumMatch(
                                 charge,
                                 precursorMZ,
                                 PIATools.round(spectrum.getPrecursorMh()-domain.getDomainMh(), 6),
@@ -658,6 +653,9 @@ public class TandemFileParser {
                         score = new ScoreModel(domain.getDomainHyperScore(),
                                 ScoreModelEnum.XTANDEM_HYPERSCORE);
                         psm.addScore(score);
+
+                        // the PSm is finished now
+                        compiler.insertCompletePeptideSpectrumMatch(psm);
                     } else {
                         // if the PSM is already in the compiler, the peptide must be there as well
                         peptide = compiler.getPeptide(sequence);
@@ -726,28 +724,8 @@ public class TandemFileParser {
                             domain.getDomainStart(), domain.getDomainEnd());
 
 
-                    // now insert the peptide and the accession into the accession peptide map
-                    Set<Peptide> accsPeptides =
-                            compiler.getFromAccPepMap(acc.getAccession());
-
-                    if (accsPeptides == null) {
-                        accsPeptides = new HashSet<Peptide>();
-                        compiler.putIntoAccPepMap(acc.getAccession(), accsPeptides);
-                    }
-
-                    accsPeptides.add(peptide);
-
-                    // and also insert them into the peptide accession map
-                    Set<Accession> pepsAccessions =
-                            compiler.getFromPepAccMap(peptide.getSequence());
-
-                    if (pepsAccessions == null) {
-                        pepsAccessions = new HashSet<Accession>();
-                        compiler.putIntoPepAccMap(peptide.getSequence(),
-                                pepsAccessions);
-                    }
-
-                    pepsAccessions.add(acc);
+                    // now insert the connection between peptide and accession into the compiler
+                    compiler.addAccessionPeptideConnection(acc, peptide);
                 }
 
             }
