@@ -3,10 +3,11 @@ package de.mpc.pia.intermediate.compiler;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -18,7 +19,14 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -29,6 +37,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 
 import com.compomics.util.experiment.identification.matches.SpectrumMatch;
+import com.sun.xml.txw2.output.IndentingXMLStreamWriter;
 
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftwareList;
@@ -37,6 +46,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.Inputs;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
+import uk.ac.ebi.jmzidml.model.utils.ModelConstants;
 import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Group;
@@ -44,16 +54,11 @@ import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.parser.InputFileParserFactory;
-import de.mpc.pia.intermediate.piaxml.AccessionsListXML;
 import de.mpc.pia.intermediate.piaxml.AccessionXML;
 import de.mpc.pia.intermediate.piaxml.PIAInputFileXML;
 import de.mpc.pia.intermediate.piaxml.FilesListXML;
 import de.mpc.pia.intermediate.piaxml.GroupXML;
-import de.mpc.pia.intermediate.piaxml.GroupsListXML;
-import de.mpc.pia.intermediate.piaxml.JPiaXML;
 import de.mpc.pia.intermediate.piaxml.PeptideXML;
-import de.mpc.pia.intermediate.piaxml.PeptidesListXML;
-import de.mpc.pia.intermediate.piaxml.SpectraListXML;
 import de.mpc.pia.intermediate.piaxml.SpectrumMatchXML;
 import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.PIAConstants;
@@ -123,6 +128,22 @@ public abstract class PIACompiler {
 
     /** map of the groups */
     private Map<Long, Group> groups;
+
+
+    /** namespace declaration for jPiaXML */
+    private static String nsjPiaXML = "http://www.medizinisches-proteom-center.de/PIA/piaintermediate";
+
+    /** prefixdeclaration for jPiaXML */
+    private static String prefixjPiaXML = "ns3";
+
+    /** namespace declaration for mzIdentML */
+    private static String nsMzIdentML = "http://psidev.info/psi/pi/mzIdentML/1.1";
+
+    /** prefix declaration for mzIdentML */
+    private static String prefixMzIdentML = "ns2";
+
+    /** encoding specification */
+    private static String encoding = "UTF-8";
 
 
     /** helper description */
@@ -656,7 +677,6 @@ public abstract class PIACompiler {
                 if (pepAccMapCluster != null) {
                     clusteredPepAccMap.add(pepAccMapCluster);
                 } else {
-                    // TODO: error / exception
                     LOGGER.error("cluster could not be created!");
                 }
             }
@@ -757,7 +777,6 @@ public abstract class PIACompiler {
 
 
         if (clusteredPepAccMap == null) {
-            // TODO: make exception or something
             LOGGER.error("the cluster map is not yet build!");
             return;
         }
@@ -805,7 +824,6 @@ public abstract class PIACompiler {
                     return null;
                 }
             } else {
-                // TODO: throw exception or something
                 LOGGER.error("The cluster iterator is not yet initialized!");
                 return null;
             }
@@ -883,17 +901,12 @@ public abstract class PIACompiler {
      * Write out the intermediate structure into an XML file.
      *
      * @param piaFile
-     * @throws FileNotFoundException
+     * @throws IOException
      */
-    public final void writeOutXML(File piaFile) throws FileNotFoundException {
-        LOGGER.info("start writing the XML file "+ piaFile.getName());
-
-        FileOutputStream fos;
-
-        fos = new FileOutputStream(piaFile);
-        writeOutXML(fos);
-
-        LOGGER.info("writing done");
+    public final void writeOutXML(File piaFile) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(piaFile)) {
+            writeOutXML(fos);
+        }
     }
 
 
@@ -901,9 +914,9 @@ public abstract class PIACompiler {
      * Write out the intermediate structure into an XML file.
      *
      * @param fileName
-     * @throws FileNotFoundException
+     * @throws IOException
      */
-    public final void writeOutXML(String fileName) throws FileNotFoundException {
+    public final void writeOutXML(String fileName) throws IOException {
         File piaFile = new File(fileName);
         writeOutXML(piaFile);
     }
@@ -915,11 +928,139 @@ public abstract class PIACompiler {
      * @param fileName
      */
     public final void writeOutXML(OutputStream outputStream) {
-        JPiaXML piaXML = new JPiaXML();
-        piaXML.setName(compilationName);
-        piaXML.setDate(startDate);
+        Writer out = null;
+        XMLStreamWriter xmlOut = null;
+        try {
+            out = new OutputStreamWriter(outputStream, encoding);
 
-        // filesList
+            XMLOutputFactory xmlof = XMLOutputFactory.newInstance();
+            xmlOut = new IndentingXMLStreamWriter(xmlof.createXMLStreamWriter(out));
+
+            // xml header
+            xmlOut.writeStartDocument(encoding, "1.0");
+
+            // the piaXML root element
+            xmlOut.writeStartElement(prefixjPiaXML, "jPiaXML", nsjPiaXML);
+            xmlOut.setPrefix(prefixjPiaXML, nsjPiaXML);
+
+            xmlOut.writeAttribute("name", compilationName);
+            xmlOut.writeAttribute("date", startDate.toString());
+
+            xmlOut.writeNamespace(prefixMzIdentML, nsMzIdentML);
+            xmlOut.writeNamespace(prefixjPiaXML, nsjPiaXML);
+
+            // filesList
+            writeOutJaxbFilesList(xmlOut);
+
+            // inputs
+            writeOutJaxbInputs(xmlOut);
+
+            // analysisSoftwareList
+            writeOutJaxbAnalysisSoftwareList(xmlOut);
+
+            // spectraList
+            writeOutJaxbSpectra(xmlOut);
+
+            // accessionsList
+            writeOutJaxbAccessions(xmlOut);
+
+            // peptidesList
+            writeOutJaxbPeptides(xmlOut);
+
+            // groupsList
+            writeOutJaxbGroups(xmlOut);
+
+            xmlOut.writeEndElement(); // jPiaXML
+        } catch (XMLStreamException e) {
+            LOGGER.error("XMLStreamException while writing XML file", e);
+        } catch (FactoryConfigurationError e) {
+            LOGGER.error("FactoryConfigurationError while writing XML file", e);
+        } catch (JAXBException e) {
+            LOGGER.error("JAXBException while writing XML file", e);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("UnsupportedEncodingException while writing XML file", e);
+        } finally {
+            try {
+                if (xmlOut != null) {
+                    xmlOut.flush();
+                    xmlOut.close();
+                }
+
+                if (out != null) {
+                    out.close();
+                }
+            } catch (Exception e) {
+                LOGGER.error("error while closing the XML file" + e);
+            }
+        }
+    }
+
+
+    /**
+     * Creates a marshaller for PIA XML for the given class.
+     *
+     * @param context
+     * @return
+     * @throws JAXBException
+     */
+    private static Marshaller createMarshallerForPiaXML(Class<?> marshalClass) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(marshalClass);
+
+        Marshaller m = context.createMarshaller();
+        m.setProperty(Marshaller.JAXB_ENCODING, encoding);
+        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        m.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+
+        return m;
+    }
+
+
+    /**
+     * Creates an formatted (indenting) jaxb fragment marshaller for the given
+     * context, using the given jaxbElement and the given class for marshalling.
+     *
+     * @param xmlOut the writer
+     * @param jaxbElement an jaxbElement
+     * @param marshalClass the class for marshalling
+     *
+     * @throws JAXBException
+     */
+    private static void marshalToFormattedFragmentMarshaller(XMLStreamWriter xmlOut,
+            Object jaxbElement, Class<?> marshalClass) throws JAXBException {
+        Marshaller m = createMarshallerForPiaXML(marshalClass);
+        m.marshal(jaxbElement, xmlOut);
+    }
+
+
+    /**
+     * Creates an formatted (indenting) jaxb fragment marshaller for the given
+     * context, using the given jaxbElement and the given class for marshalling.
+     *
+     * @param xmlOut the writer
+     * @param object the object to be marshalled, will be casted to a
+     * jaxbElement
+     *
+     * @throws JAXBException
+     */
+    private static <T extends Object> void marshalToFormattedFragmentMarshaller(
+            XMLStreamWriter xmlOut, T object) throws JAXBException {
+        QName aQName = ModelConstants.getQNameForClass(object.getClass());
+
+        @SuppressWarnings("unchecked")
+        Class<T> classCast = (Class<T>)object.getClass();
+        JAXBElement<T> jaxbElement = new JAXBElement<T>(aQName, classCast, object);
+
+        marshalToFormattedFragmentMarshaller(xmlOut, jaxbElement, classCast);
+    }
+
+
+    /**
+     * Writes out the filesList object to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbFilesList(XMLStreamWriter xmlOut) throws JAXBException {
         FilesListXML fileslistXML = new FilesListXML();
         for (Long fileID : getAllFileIDs()) {
             PIAInputFile file = getFile(fileID);
@@ -935,71 +1076,115 @@ public abstract class PIACompiler {
 
             fileslistXML.getFiles().add(fileXML);
         }
-        piaXML.setFilesList(fileslistXML);
 
-        // inputs
-        Inputs inputs = new Inputs();
-        inputs.getSearchDatabase().addAll(searchDatabasesMap.values());
-        inputs.getSpectraData().addAll(spectraDataMap.values());
-        piaXML.setInputs(inputs);
-
-        // analysisSoftwareList
-        AnalysisSoftwareList softwareList = new AnalysisSoftwareList();
-        softwareList.getAnalysisSoftware().addAll(softwareMap.values());
-        piaXML.setAnalysisSoftwareList(softwareList);
-
-        // spectraList
-        SpectraListXML spectraList = new SpectraListXML();
-        for (Long psmId : getAllPeptideSpectrumMatcheIDs()) {
-            spectraList.getSpectraList().add(new SpectrumMatchXML(getPeptideSpectrumMatch(psmId)));
-        }
-        piaXML.setSpectraList(spectraList);
-
-        // accessionsList
-        AccessionsListXML accessionsList = new AccessionsListXML();
-        for (Long accId : getAllAccessionIDs()) {
-            accessionsList.getAccessionsList().add(new AccessionXML(getAccession(accId)));
-        }
-        piaXML.setAccessionsList(accessionsList);
-
-        // peptidesList
-        PeptidesListXML peptidesList = new PeptidesListXML();
-        for (Long pepId : getAllPeptideIDs()) {
-            peptidesList.getPeptidesList().add(new PeptideXML(getPeptide(pepId)));
-        }
-        piaXML.setPeptidesList(peptidesList);
-
-        // groupsList
-        GroupsListXML groupsList = new GroupsListXML();
-        for (Group group : groups.values()) {
-            groupsList.getGroups().add(new GroupXML(group));
-        }
-        piaXML.setGroupsList(groupsList);
-
-
-        // write the model with JaxB
-        Writer w = null;
-        try {
-            JAXBContext context = JAXBContext.newInstance(JPiaXML.class);
-            Marshaller m = context.createMarshaller();
-            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-            w = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
-            m.marshal(piaXML, w);
-        } catch (Exception e) {
-            LOGGER.error("Error writing to the output stream.", e);
-        } finally {
-            try {
-                if (w != null) {
-                    w.close();
-                }
-            } catch (Exception e) {
-                LOGGER.error("Error closing the output stream.", e);
-            }
-        }
+        marshalToFormattedFragmentMarshaller(xmlOut, fileslistXML, FilesListXML.class);
     }
 
 
+    /**
+     * Writes out the Inputs object to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbInputs(XMLStreamWriter xmlOut) throws JAXBException {
+        Inputs inputs = new Inputs();
+        inputs.getSearchDatabase().addAll(searchDatabasesMap.values());
+        inputs.getSpectraData().addAll(spectraDataMap.values());
+
+        marshalToFormattedFragmentMarshaller(xmlOut, inputs);
+    }
+
+
+    /**
+     * Writes out the AnalysisSoftwareList object to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbAnalysisSoftwareList(XMLStreamWriter xmlOut) throws JAXBException {
+        AnalysisSoftwareList softwareList = new AnalysisSoftwareList();
+        softwareList.getAnalysisSoftware().addAll(softwareMap.values());
+
+        marshalToFormattedFragmentMarshaller(xmlOut, softwareList);
+    }
+
+
+    /**
+     * Writes out the PSMs to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbSpectra(XMLStreamWriter xmlOut) throws XMLStreamException, JAXBException {
+        xmlOut.writeStartElement("spectraList");
+
+        Marshaller m = createMarshallerForPiaXML(SpectrumMatchXML.class);
+
+        for (Long psmId : getAllPeptideSpectrumMatcheIDs()) {
+            // marshall all spectra
+            m.marshal(new SpectrumMatchXML(getPeptideSpectrumMatch(psmId)), xmlOut);
+        }
+
+        xmlOut.writeEndElement(); // spectraList
+    }
+
+
+    /**
+     * Writes out the accessions to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbAccessions(XMLStreamWriter xmlOut) throws XMLStreamException, JAXBException {
+        xmlOut.writeStartElement("accessionsList");
+
+        Marshaller m = createMarshallerForPiaXML(AccessionXML.class);
+
+        for (Long accId : getAllAccessionIDs()) {
+            m.marshal(new AccessionXML(getAccession(accId)), xmlOut);
+        }
+
+        xmlOut.writeEndElement(); // accessionsList
+    }
+
+
+    /**
+     * Writes out the peptides to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbPeptides(XMLStreamWriter xmlOut) throws XMLStreamException, JAXBException {
+        xmlOut.writeStartElement("peptidesList");
+
+        Marshaller m = createMarshallerForPiaXML(PeptideXML.class);
+
+        for (Long pepId : getAllPeptideIDs()) {
+            m.marshal(new PeptideXML(getPeptide(pepId)), xmlOut);
+        }
+
+        xmlOut.writeEndElement(); // peptidesList
+    }
+
+
+    /**
+     * Writes out the groups to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbGroups(XMLStreamWriter xmlOut) throws XMLStreamException, JAXBException {
+        xmlOut.writeStartElement("groupsList");
+
+        Marshaller m = createMarshallerForPiaXML(GroupXML.class);
+
+        for (Group group : groups.values()) {
+            m.marshal(new GroupXML(group), xmlOut);
+        }
+
+        xmlOut.writeEndElement(); // groupsList
+    }
 
 
     @SuppressWarnings("static-access")
@@ -1109,7 +1294,13 @@ public abstract class PIACompiler {
                     piaName = outFileName;
                 }
                 piaCompiler.setName(piaName);
-                piaCompiler.writeOutXML(outFileName);
+
+                try {
+                    piaCompiler.writeOutXML(outFileName);
+                } catch (IOException e) {
+                    System.err.println("Error while writing PIA XML file.");
+                    e.printStackTrace();
+                }
             } else {
                 PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
                         options, HELP_DESCRIPTION);
