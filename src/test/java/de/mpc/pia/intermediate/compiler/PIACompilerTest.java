@@ -2,8 +2,12 @@ package de.mpc.pia.intermediate.compiler;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +42,9 @@ public class PIACompilerTest {
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(PIACompilerTest.class);
 
+    public static File mascotFile;
+    public static File tandemFile;
+
     public static File mzid55mergeTandem;
     public static File mzid55mergeMascot;
     public static File mzid55mergeOmssa;
@@ -53,6 +60,9 @@ public class PIACompilerTest {
 
     @BeforeClass
     public static void initialize() {
+        mascotFile = new File(PIACompilerTest.class.getResource("/07-12_MW_58-F008265.dat").getPath());
+        tandemFile = new File(PIACompilerTest.class.getResource("/07-12_MW_58.tandem.xml").getPath());
+
         mzid55mergeTandem = new File(PIACompilerTest.class.getResource("/55merge_tandem.mzid").getPath());
         mzid55mergeMascot = new File(PIACompilerTest.class.getResource("/55merge_mascot_full.mzid").getPath());
         mzid55mergeOmssa = new File(PIACompilerTest.class.getResource("/55merge_omssa.mzid").getPath());
@@ -63,6 +73,47 @@ public class PIACompilerTest {
         idXMLexpectedFile = new File(PIACompilerTest.class.getResource("/yeast-gold-015-filtered-proteins.csv").getPath());
     }
 
+/*
+    @Test
+    public void testPIACompilerNativeFiles() throws IOException {
+        Runtime runtime = Runtime.getRuntime();
+        double mb = 1024*1024;
+        final long startTime = System.nanoTime();
+        final long endTime;
+
+        PIACompiler piaCompiler = new PIASimpleCompiler();
+
+        assertEquals("Mascot file could not be parsed", true,
+                piaCompiler.getDataFromFile("mascot", mascotFile.getAbsolutePath(), null, null));
+
+        assertEquals("X!TAndem file could not be parsed", true,
+                piaCompiler.getDataFromFile("tandem", tandemFile.getAbsolutePath(), null, "tandem"));
+
+        piaCompiler.buildClusterList();
+        piaCompiler.buildIntermediateStructure();
+
+        piaCompiler.setName("testFile");
+
+
+        File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
+
+        // test writing using the file
+        piaCompiler.writeOutXML(piaIntermediateFile);
+        piaIntermediateFile.delete();
+
+        // test writing using the file's name
+        piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
+        piaIntermediateFile.delete();
+
+        piaCompiler.finish();
+
+        endTime = System.nanoTime();
+        LOGGER.info("Total Memory: " + runtime.totalMemory() / mb + " MB");
+        LOGGER.info("Used Memory: " + (runtime.totalMemory() - runtime.freeMemory()) / mb + " MB");
+        LOGGER.info("Free Memory: " + runtime.freeMemory() / mb + " MB");
+        LOGGER.info("Max Memory: " + runtime.maxMemory() / mb + " MB");
+        LOGGER.info("Execution time: " + ((endTime - startTime) / 1000000000.0) + " s");
+    }
 
     @Test
     public void testPIACompilerCompilationAndAnalysis() throws IOException, JAXBException, XMLStreamException {
@@ -168,10 +219,16 @@ public class PIACompilerTest {
 
         piaCompiler.finish();
     }
+*/
 
-
+    /*
     @Test
     public void testPIACompilerMzidFiles() throws IOException {
+        Runtime runtime = Runtime.getRuntime();
+        double mb = 1024*1024;
+        final long startTime = System.nanoTime();
+        final long endTime;
+
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
         assertEquals("X!TAndem file could not be parsed", true,
@@ -192,12 +249,58 @@ public class PIACompilerTest {
         File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
 
         // test writing using the file
-        piaCompiler.writeOutXML(piaIntermediateFile);
-        piaIntermediateFile.delete();
+
+        //piaCompiler.writeOutXML(piaIntermediateFile);
+        //piaIntermediateFile.delete();
 
         // test writing using the file's name
         piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
+        //piaIntermediateFile.delete();
+
+        piaCompiler.finish();
+
+        endTime = System.nanoTime();
+        LOGGER.info("Total Memory: " + runtime.totalMemory() / mb + " MB");
+        LOGGER.info("Used Memory: " + (runtime.totalMemory() - runtime.freeMemory()) / mb + " MB");
+        LOGGER.info("Free Memory: " + runtime.freeMemory() / mb + " MB");
+        LOGGER.info("Max Memory: " + runtime.maxMemory() / mb + " MB");
+        LOGGER.info("Execution time: " + ((endTime - startTime) / 1000000000.0) + " s");
+    }
+    */
+
+
+
+    @Test
+    public void testPIACompilerWriteXML() throws IOException {
+        PIACompiler piaCompiler = new PIASimpleCompiler();
+
+        assertEquals("X!TAndem file could not be parsed", true,
+                piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
+
+        assertEquals("Mascot file could not be parsed", true,
+                piaCompiler.getDataFromFile("mascot", mzid55mergeMascot.getAbsolutePath(), null, null));
+
+
+        piaCompiler.buildClusterList();
+        piaCompiler.buildIntermediateStructure();
+
+        piaCompiler.setName("testFile");
+
+        File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
+
+        // test writing using the file's name
+        piaCompiler.writeOutXML(piaIntermediateFileName);
         piaIntermediateFile.delete();
+
+        // test writing using the file object
+        piaCompiler.writeOutXML(piaIntermediateFile);
+        piaIntermediateFile.delete();
+
+        // test writing using the file stream
+        try (FileOutputStream fos = new FileOutputStream(piaIntermediateFile)) {
+            piaCompiler.writeOutXML(fos);
+            piaIntermediateFile.delete();
+        }
 
         piaCompiler.finish();
     }

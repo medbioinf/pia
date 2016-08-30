@@ -2,9 +2,7 @@ package de.mpc.pia.intermediate.compiler.parser;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 
 import org.apache.log4j.Logger;
@@ -23,7 +21,6 @@ import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
-import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.MzIdentMLTools;
@@ -320,46 +317,4 @@ public class FastaFileParser {
         // now insert the connection between peptide and accession into the compiler
         compiler.addAccessionPeptideConnection(accession, peptide);
     }
-
-
-    // TODO: move to the tests
-    public static void main(String[] args) throws FileNotFoundException {
-
-        // filename missed minPepLength maxPepLength enzymePattern outfile
-
-        if (args.length > 5) {
-            PIACompiler piaCompiler = new PIASimpleCompiler();
-
-            String fileName = args[0];
-            String name = new File(fileName).getName();
-
-            Integer missedCleavages = Integer.parseInt(args[1]);
-
-            Integer minPepLength = Integer.parseInt(args[2]);
-            Integer maxPepLength = Integer.parseInt(args[3]);
-
-            String enzymePattern = args[4];
-
-            String outFile = args[5];
-
-            getDataFromFastaFile(name,
-                    fileName,
-                    piaCompiler,
-                    enzymePattern,
-                    minPepLength,
-                    maxPepLength,
-                    missedCleavages);
-
-            piaCompiler.buildClusterList();
-
-            piaCompiler.buildIntermediateStructure();
-
-            piaCompiler.setName(name);
-            piaCompiler.writeOutXML(outFile);
-        } else {
-            System.out.println("usage: " + PIACompiler.class.getName()
-                    + " fileName missed minPepLength maxPepLength enzymePattern outFile");
-        }
-    }
-
 }
