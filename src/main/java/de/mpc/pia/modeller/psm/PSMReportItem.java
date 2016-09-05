@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.mpc.pia.intermediate.Accession;
-import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.modeller.IdentificationKeySettings;
 import de.mpc.pia.modeller.report.filter.Filterable;
@@ -18,7 +17,7 @@ import de.mpc.pia.modeller.score.comparator.Rankable;
  * @author julian
  *
  */
-public interface PSMReportItem extends FDRComputable, FDRScoreComputable,
+public interface PSMReportItem extends PSMItem, FDRComputable, FDRScoreComputable,
 Rankable, Filterable {
 
     /**
@@ -37,77 +36,10 @@ Rankable, Filterable {
 
 
     /**
-     * Returns the shown sequence (without modifications).
-     *
-     * @return
-     */
-    public String getSequence();
-
-
-    /**
-     * Returns the charge of the item.
-     * @return
-     */
-    public int getCharge();
-
-
-    /**
-     * Getter for the mass to charge value
-     * @return
-     */
-    public double getMassToCharge();
-
-
-    /**
-     * Getter for the retention time.
-     *
-     * @return
-     */
-    public Double getRetentionTime();
-
-
-    /**
-     * Getter for the missed cleavages
-     * @return
-     */
-    public int getMissedCleavages();
-
-
-    /**
-     * Getter for the source ID.
-     *
-     * @return
-     */
-    public String getSourceID();
-
-
-    /**
-     * Getter for the spectrum title.
-     *
-     * @return
-     */
-    public String getSpectrumTitle();
-
-
-    /**
-     * Getter for the delta mass.
-     * @return
-     */
-    public double getDeltaMass();
-
-
-    /**
      * Getter for the delta mass given in PPM.
      * @return
      */
     public double getDeltaPPM();
-
-
-    /**
-     * Getter for the modifications of this item.
-     * @return
-     */
-    public Map<Integer, Modification> getModifications();
 
 
     /**
