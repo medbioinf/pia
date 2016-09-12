@@ -23,6 +23,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,8 +38,6 @@ public class PrideXMLParserTest {
     /** logger for this class */
     private static final Logger logger = Logger.getLogger(PrideXMLParser.class);
 
-    PIACompiler compiler;
-
     File prideXMLFile;
 
     PrideXmlReader reader;
@@ -47,16 +46,15 @@ public class PrideXMLParserTest {
 
     @Before
     public void setUp() throws Exception {
-        compiler = new PIASimpleCompiler();
+        URI uri = PrideXMLParserTest.class.getClassLoader().getResource("PRIDE_Example.xml").toURI();
 
-        java.net.URI uri = PrideXMLParserTest.class.getClassLoader().getResource("PRIDE_Example.xml").toURI();
         prideXMLFile = new File(uri);
-
         reader = new PrideXmlReader(uri.toURL());
     }
 
     @Test
     public void getDataFromPrideXMLFileTest() throws IOException, JAXBException, XMLStreamException {
+        PIACompiler compiler = new PIASimpleCompiler();
 
         compiler.getDataFromFile(prideXMLFile.getName(),
                 prideXMLFile.getAbsolutePath(),
@@ -70,6 +68,7 @@ public class PrideXMLParserTest {
         File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
 
         compiler.writeOutXML(piaIntermediateFile);
+        compiler.finish();
 
         /*
         PIAModeller piaModeller = new PIAModeller(piaIntermediateFile.getAbsolutePath());

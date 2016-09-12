@@ -932,14 +932,11 @@ public abstract class PIACompiler {
      * @param fileName
      */
     public final void writeOutXML(OutputStream outputStream) {
-        Writer out = null;
-        XMLStreamWriter xmlOut = null;
-        try {
-            out = new OutputStreamWriter(outputStream, encoding);
+        try (Writer out = new OutputStreamWriter(outputStream, encoding)) {
             LOGGER.info("Stream open, writing PIA XML");
 
             XMLOutputFactory xmlof = XMLOutputFactory.newInstance();
-            xmlOut = new IndentingXMLStreamWriter(xmlof.createXMLStreamWriter(out));
+            XMLStreamWriter xmlOut = new IndentingXMLStreamWriter(xmlof.createXMLStreamWriter(out));
 
             // xml header
             xmlOut.writeStartDocument(encoding, "1.0");
@@ -976,6 +973,8 @@ public abstract class PIACompiler {
             writeOutJaxbGroups(xmlOut);
 
             xmlOut.writeEndElement(); // jPiaXML
+
+            xmlOut.close();
         } catch (XMLStreamException e) {
             LOGGER.error("XMLStreamException while writing XML file", e);
         } catch (FactoryConfigurationError e) {
@@ -984,20 +983,10 @@ public abstract class PIACompiler {
             LOGGER.error("JAXBException while writing XML file", e);
         } catch (UnsupportedEncodingException e) {
             LOGGER.error("UnsupportedEncodingException while writing XML file", e);
-        } finally {
-            try {
-                if (xmlOut != null) {
-                    xmlOut.flush();
-                    xmlOut.close();
-                }
-
-                if (out != null) {
-                    out.close();
-                }
-            } catch (Exception e) {
-                LOGGER.error("error while closing the XML file" + e);
-            }
+        } catch (IOException e) {
+            LOGGER.error("error writing the PIA XML file", e);
         }
+
         LOGGER.info("Writing of PIA XML file finished.");
     }
 
