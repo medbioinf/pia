@@ -130,6 +130,9 @@ public abstract class PIACompiler {
     private Map<Long, Group> groups;
 
 
+    /** the default name for a compilation */
+    public static final String defaultPIAcompilationName = "PIA compilation";
+
     /** namespace declaration for jPiaXML */
     private static String nsjPiaXML = "http://www.medizinisches-proteom-center.de/PIA/piaintermediate";
 
@@ -157,7 +160,7 @@ public abstract class PIACompiler {
      * Basic constructor
      */
     public PIACompiler() {
-        compilationName = null;
+        compilationName = defaultPIAcompilationName;
         startDate = new Date();
 
         files = new HashMap<>();
