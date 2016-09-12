@@ -40,10 +40,10 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
 public class OccamsRazorInference extends AbstractProteinInference {
 
     /** the human readable name of this filter */
-    protected static final String name = "Occam's Razor";
+    protected static final String NAME = "Occam's Razor";
 
     /** the machine readable name of the filter */
-    protected static final String shortName = "inference_occams_razor";
+    protected static final String SHORT_NAME= "inference_occams_razor";
 
     /** the progress of the inference */
     private Double progress;
@@ -56,7 +56,7 @@ public class OccamsRazorInference extends AbstractProteinInference {
     private List<ReportProtein> reportProteins;
 
     /** the logger for this class */
-    private static final Logger logger= Logger.getLogger(OccamsRazorInference.class);
+    private static final Logger LOGGER = Logger.getLogger(OccamsRazorInference.class);
 
 
     @Override
@@ -111,8 +111,8 @@ public class OccamsRazorInference extends AbstractProteinInference {
             boolean considerModifications,
             Map<String, Boolean> psmSetSettings) {
         progress = 0.0;
-        logger.info(name + " calculateInference started...");
-        logger.info("scoring: " + getScoring().getName() + " with " +
+        LOGGER.info(NAME + " calculateInference started...");
+        LOGGER.info("scoring: " + getScoring().getName() + " with " +
                 getScoring().getScoreSetting().getValue() + ", " +
                 getScoring().getPSMForScoringSetting().getValue() +
                 "\n\tpsmSetSettings: " + psmSetSettings);
@@ -133,24 +133,24 @@ public class OccamsRazorInference extends AbstractProteinInference {
         }
         treeGroupsIterator = treeGroupMap.entrySet().iterator();
 
-        logger.info("PIA trees sorted, " + treeGroupMap.size() + " trees");
+        LOGGER.info("PIA trees sorted, " + treeGroupMap.size() + " trees");
 
         // initialize the reported list
         reportProteins = new ArrayList<ReportProtein>();
 
         // the number of threads used for the inference
-        int nr_threads = getAllowedThreads();
-        if (nr_threads < 1) {
-            nr_threads = Runtime.getRuntime().availableProcessors();
+        int nrThreads = getAllowedThreads();
+        if (nrThreads < 1) {
+            nrThreads = Runtime.getRuntime().availableProcessors();
         }
-        logger.debug("used threads: " + nr_threads);
+        LOGGER.debug("used threads: " + nrThreads);
 
         List<OccamsRazorWorkerThread> threads =
-                new ArrayList<OccamsRazorWorkerThread>(nr_threads);
+                new ArrayList<OccamsRazorWorkerThread>(nrThreads);
 
         // initialize and start  the worker threads
         threads.clear();
-        for (int i=0; (i < nr_threads); i++) {
+        for (int i=0; i < nrThreads; i++) {
             OccamsRazorWorkerThread workerThread =
                     new OccamsRazorWorkerThread(i+1,
                             this,
@@ -167,14 +167,12 @@ public class OccamsRazorInference extends AbstractProteinInference {
             try {
                 workerThread.join();
             } catch (InterruptedException e) {
-                // TODO: make better error/exception
-                logger.error("thread got interrupted!");
-                e.printStackTrace();
+                LOGGER.error("thread got interrupted!", e);
             }
         }
 
         progress = 100.0;
-        logger.info(name + " calculateInference done, " + reportProteins.size() + " groups inferred");
+        LOGGER.info(NAME + " calculateInference done, " + reportProteins.size() + " groups inferred");
         return reportProteins;
     }
 
@@ -185,10 +183,9 @@ public class OccamsRazorInference extends AbstractProteinInference {
      * @return
      */
     public synchronized Map.Entry<Long, Map<Long, Group>> getNextTree() {
-        if (treeGroupsIterator != null) {
-            if (treeGroupsIterator.hasNext()) {
-                return treeGroupsIterator.next();
-            }
+        if ((treeGroupsIterator != null)
+                && treeGroupsIterator.hasNext()) {
+            return treeGroupsIterator.next();
         }
 
         return null;
@@ -207,13 +204,13 @@ public class OccamsRazorInference extends AbstractProteinInference {
 
     @Override
     public String getName() {
-        return name;
+        return NAME;
     }
 
 
     @Override
     public String getShortName() {
-        return shortName;
+        return SHORT_NAME;
     }
 
 

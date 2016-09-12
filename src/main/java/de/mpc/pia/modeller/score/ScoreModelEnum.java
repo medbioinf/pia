@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 import de.mpc.pia.modeller.psm.PSMReportItemComparator;
-import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.tools.OntologyConstants;
+
 
 /**
  * This enumeration registers all {@link ScoreModel}s.
@@ -1351,9 +1351,6 @@ public enum ScoreModelEnum {
 
     /**
      * The score of the protein.
-     *
-     * TODO: this must be handled differently... there are scores with higherScoreBetter = true and false!
-     *
      */
     PROTEIN_SCORE {
         @Override
@@ -1403,6 +1400,21 @@ public enum ScoreModelEnum {
 
 
     /**
+     * The scores in this list should not be used for FDR estimation on PSM level
+     */
+    public static final List<ScoreModelEnum> notForPSMFdrScore = new ArrayList<ScoreModelEnum>(
+            Arrays.asList(new ScoreModelEnum[]{
+                    AVERAGE_FDR_SCORE,
+                    FASTA_ACCESSION_COUNT,
+                    FASTA_SEQUENCE_COUNT,
+                    PROTEIN_SCORE,
+                    PSM_LEVEL_COMBINED_FDR_SCORE,
+                    PSM_LEVEL_FDR_SCORE,
+                    PSM_LEVEL_Q_VALUE
+            }));
+
+
+    /**
      * Returns the human readable name of the score model.
      * @return
      */
@@ -1416,7 +1428,7 @@ public enum ScoreModelEnum {
      *
      * @return
      */
-    public final static String getName(String scoreModelDescriptor) {
+    public static final String getName(String scoreModelDescriptor) {
         ScoreModelEnum model = getModelByDescription(scoreModelDescriptor);
 
         if (model.equals(UNKNOWN_SCORE)) {
@@ -1508,7 +1520,7 @@ public enum ScoreModelEnum {
      * @param desc
      * @return
      */
-    public final static ScoreModelEnum getModelByDescription(String desc) {
+    public static final ScoreModelEnum getModelByDescription(String desc) {
         for (ScoreModelEnum model : values()) {
             if (!model.equals(UNKNOWN_SCORE) &&
                     model.isValidDescriptor(desc)) {
@@ -1521,16 +1533,10 @@ public enum ScoreModelEnum {
 
 
     /**
-     * The scores in this list should not be used for FDR estimation on PSM level
+     * Returns the scores which should not be used for FDR estimation on PSM level.
+     * @return
      */
-    public final static List<ScoreModelEnum> notForPSMFdrScore = new ArrayList<ScoreModelEnum>(
-            Arrays.asList(new ScoreModelEnum[]{
-                    AVERAGE_FDR_SCORE,
-                    FASTA_ACCESSION_COUNT,
-                    FASTA_SEQUENCE_COUNT,
-                    PROTEIN_SCORE,
-                    PSM_LEVEL_COMBINED_FDR_SCORE,
-                    PSM_LEVEL_FDR_SCORE,
-                    PSM_LEVEL_Q_VALUE
-            }));
+    public static final List<ScoreModelEnum> getNotForPSMFdrScore() {
+        return notForPSMFdrScore;
+    }
 }

@@ -15,8 +15,12 @@ import org.apache.log4j.Logger;
  */
 public class PIAConstants {
 
+    /** the logger for this class */
+    private static final Logger LOGGER = Logger.getLogger(PIAConstants.class);
+
+
     /** the current version of PIA */
-    public static String version;
+    public static final String version;
 
     /** the mass of one hydrogen ion (H+) */
     public static final BigDecimal H_MASS = new BigDecimal("1.007276");
@@ -47,8 +51,6 @@ public class PIAConstants {
      * Set the version from the properties file, which is always set by maven
      */
     static {
-        Logger logger = Logger.getLogger(PIAConstants.class);
-
         InputStream inputStream =
                 PIAConstants.class.getResourceAsStream("/de/mpc/pia/general.properties");
         Properties properties = new Properties();
@@ -57,10 +59,10 @@ public class PIAConstants {
             try {
                 properties.load(inputStream);
             } catch (IOException e) {
-                logger.error("Error reading the properties file 'de.mpc.pia.general.properties'! " + e);
+                LOGGER.error("Error reading the properties file 'de.mpc.pia.general.properties'! " + e);
             }
         } else {
-            logger.error("Could not open the properties file'! ");
+            LOGGER.error("Could not open the properties file'! ");
         }
 
         version = properties.getProperty("pia_version");

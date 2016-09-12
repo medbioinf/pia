@@ -29,7 +29,7 @@ public class PSMTopIdentificationFilter extends AbstractFilter {
 
     private final String scoreShortName;
 
-    public static String prefix = "psm_top_identification_filter_";
+    public static final String prefix = "psm_top_identification_filter_";
 
 
     public PSMTopIdentificationFilter(FilterComparator arg, Integer value,
@@ -62,7 +62,7 @@ public class PSMTopIdentificationFilter extends AbstractFilter {
      * programmed in the {@link ScoreModelEnum}
      * @return an array of two Strings, containing the short and filtering name, or null, if scoreShort is invalid
      */
-    static public String[] getShortAndFilteringName(String scoreShort,
+    public static String[] getShortAndFilteringName(String scoreShort,
             String defaultName) {
         String modelName = ScoreModelEnum.getName(scoreShort);
 
@@ -71,16 +71,16 @@ public class PSMTopIdentificationFilter extends AbstractFilter {
             modelName = defaultName;
         }
 
+        String[] shortAndName = null;
+
         if (modelName != null) {
-            String[] shortAndName = new String[2];
+            shortAndName = new String[2];
 
             shortAndName[0] = prefix + scoreShort;
             shortAndName[1] = modelName + " (PSM Top Identifications)";
-
-            return shortAndName;
-        } else {
-            return null;
         }
+
+        return shortAndName;
     }
 
 
@@ -110,11 +110,7 @@ public class PSMTopIdentificationFilter extends AbstractFilter {
 
     @Override
     public boolean supportsClass(Object c) {
-        if (c instanceof ReportPSM) {
-            return true;
-        } else {
-            return false;
-        }
+        return c instanceof ReportPSM;
     }
 
     @Override

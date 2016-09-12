@@ -33,6 +33,8 @@ import java.util.*;
  * structure
  *
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
+ * @author julian
+ *
  * @date 08/02/2016
  */
 public class MzTabParser {
@@ -100,9 +102,10 @@ public class MzTabParser {
             Map<MsRun, PIAInputFile> inputFileMap = new HashMap<MsRun, PIAInputFile>();
             Map<MsRun, SpectrumIdentification> spectrumIDMap = new HashMap<MsRun, SpectrumIdentification>();
 
-            for(Integer msRunKey: msRuns.keySet()) {
-                MsRun msRun = msRuns.get(msRunKey);
-                PIAInputFile file = compiler.insertNewFile(msRunKey.toString(), msRun.toString(), InputFileParserFactory.InputFileTypes.MZTAB_INPUT.getFileSuffix());
+            for (Map.Entry<Integer, MsRun> runIt : msRuns.entrySet()) {
+                MsRun msRun = runIt.getValue();
+                PIAInputFile file = compiler.insertNewFile(runIt.getKey().toString(), msRun.toString(), InputFileParserFactory.InputFileTypes.MZTAB_INPUT.getFileSuffix());
+
                 inputFileMap.put(msRun, file);
                 SpectraData newSpectraData = new SpectraData();
 
@@ -116,7 +119,7 @@ public class MzTabParser {
 
                 newSpectraData.setLocation(msRun.getLocation().toString());
 
-                spectraDataMap.put(msRunKey, newSpectraData);
+                spectraDataMap.put(runIt.getKey(), newSpectraData);
 
                 // create the analysis software and add it to the compiler
                 AnalysisSoftware piaConversion = new AnalysisSoftware();
@@ -282,14 +285,14 @@ public class MzTabParser {
 
                 int countRTs = 0;
 
-                for(SpectraRef spectraRef: mzTabPSM.getSpectraRef()){
+                for (SpectraRef spectraRef: mzTabPSM.getSpectraRef()){
 
                     PIAInputFile piaFile = inputFileMap.get(spectraRef.getMsRun());
 
                     String sourceID = spectraRef.getReference();
 
                     Double rt = null;
-                    if(mzTabPSM.getRetentionTime() != null && mzTabPSM.getRetentionTime().size() > countRTs) {
+                    if (mzTabPSM.getRetentionTime() != null && mzTabPSM.getRetentionTime().size() > countRTs) {
                         rt = mzTabPSM.getRetentionTime().get(countRTs);
                     }
                     countRTs++;
@@ -308,11 +311,13 @@ public class MzTabParser {
 
                     specNr++;
 
-                    if(mzTabPSM.getOptionColumnValue("cv_MS:1002217_decoy_peptide") != null)
-                        if(mzTabPSM.getOptionColumnValue("cv_MS:1002217_decoy_peptide").equalsIgnoreCase("1"))
+                    if (mzTabPSM.getOptionColumnValue("cv_MS:1002217_decoy_peptide") != null) {
+                        if ("1".equals(mzTabPSM.getOptionColumnValue("cv_MS:1002217_decoy_peptide"))) {
                             psm.setIsDecoy(true);
-                        else
+                        } else {
                             psm.setIsDecoy(false);
+                        }
+                    }
 
                     // get the peptide or create it
                     peptide = compiler.getPeptide(sequence);
@@ -361,7 +366,7 @@ public class MzTabParser {
 
 
         } catch (IOException e){
-            LOGGER.error("Problem to read the mzTab Files'" + fileName + "'.");
+            LOGGER.error("Problem reading the mzTab Files'" + fileName + "'.", e);
         }
 
         return true;
@@ -395,7 +400,7 @@ public class MzTabParser {
      */
     private static Map<String, DBSequence> convertDBSequences(Collection<Protein> proteins) {
         Map<String, DBSequence> dbSequenceMap = new HashMap<String, DBSequence>();
-        if(proteins != null && proteins.size() >0){
+        if (proteins != null && !proteins.isEmpty()) {
             for(Protein protein: proteins){
                 DBSequence dbSequence = new DBSequence();
                 dbSequence.setAccession(protein.getAccession());
@@ -490,9 +495,9 @@ public class MzTabParser {
      * @return
      */
     private static Map<Integer, de.mpc.pia.intermediate.Modification> transformModifications(String sequence, List<ModificationItem> modificationItem) {
-        if(modificationItem != null && !modificationItem.isEmpty()){
+        if (modificationItem != null && !modificationItem.isEmpty()) {
             Map<Integer, de.mpc.pia.intermediate.Modification> modificationMap = new HashMap<Integer, de.mpc.pia.intermediate.Modification>();
-            for(ModificationItem mod: modificationItem){
+            for (ModificationItem mod: modificationItem) {
                 Double mass = null;
                 if(mod.getModMonoDelta() != null && mod.getModMonoDelta().get(0) != null)
                     mass = new Double(mod.getModMonoDelta().get(0));
@@ -504,7 +509,7 @@ public class MzTabParser {
             }
             return modificationMap;
         }
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
 
@@ -519,9 +524,6 @@ public class MzTabParser {
         return protocol;
         //TODO: we need to parse here the rawProtocol and been able to add them to the General Protocol.
     }
-
-
-
 
 
 

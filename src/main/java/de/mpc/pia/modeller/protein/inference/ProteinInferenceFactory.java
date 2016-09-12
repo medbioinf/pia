@@ -22,12 +22,12 @@ public class ProteinInferenceFactory {
         REPORT_OCCAMS_RAZOR {
             @Override
             public String getName() {
-                return OccamsRazorInference.name;
+                return OccamsRazorInference.NAME;
             }
 
             @Override
             public String getShortName() {
-                return OccamsRazorInference.shortName;
+                return OccamsRazorInference.SHORT_NAME;
             }
 
             @Override
@@ -39,12 +39,12 @@ public class ProteinInferenceFactory {
         REPORT_SPECTRUM_EXTRACTOR {
             @Override
             public String getName() {
-                return SpectrumExtractorInference.name;
+                return SpectrumExtractorInference.NAME;
             }
 
             @Override
             public String getShortName() {
-                return SpectrumExtractorInference.shortName;
+                return SpectrumExtractorInference.SHORT_NAME;
             }
 
             @Override
@@ -55,12 +55,12 @@ public class ProteinInferenceFactory {
         REPORT_ALL {
             @Override
             public String getName() {
-                return ReportAllInference.name;
+                return ReportAllInference.NAME;
             }
 
             @Override
             public String getShortName() {
-                return ReportAllInference.shortName;
+                return ReportAllInference.SHORT_NAME;
             }
 
             @Override

@@ -1,6 +1,5 @@
 package de.mpc.pia.intermediate.xmlhandler;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -145,8 +144,8 @@ public class PIAIntermediateJAXBHandler {
 
 
         if (progress == null) {
-            LOGGER.warn("no progress array given, creating one. But no external" +
-                    "supervision possible");
+            LOGGER.warn("no progress array given, creating one. "
+                    + "But no external supervision will be possible.");
             progress = new Long[1];
             progress[0] = 0L;
         }

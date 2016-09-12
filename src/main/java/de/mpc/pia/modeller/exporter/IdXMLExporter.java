@@ -47,11 +47,16 @@ import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 public class IdXMLExporter {
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(IdXMLExporter.class);
+    private static final Logger LOGGER = Logger.getLogger(IdXMLExporter.class);
 
 
     /** the modeller, that should be exported */
     private PIAModeller piaModeller;
+
+
+    /** type for userParam "string" */
+    private static final String STRING_TYPE = "string";
+
 
 
     public IdXMLExporter(PIAModeller modeller) {
@@ -125,17 +130,17 @@ public class IdXMLExporter {
             streamWriter.flush();
             streamWriter.close();
         } catch (IOException e) {
-            logger.error("Error while trying to write to " + exportFile.getAbsolutePath(), e);
+            LOGGER.error("Error while trying to write to " + exportFile.getAbsolutePath(), e);
             error = true;
         } catch (XMLStreamException e) {
-            logger.error("Error while writing XML to " + exportFile.getAbsolutePath(), e);
+            LOGGER.error("Error while writing XML to " + exportFile.getAbsolutePath(), e);
             error = true;
         } finally {
             if (out != null) {
                 try {
                     out.close();
                 } catch (IOException e) {
-                    logger.error("Error while trying to close " + exportFile.getAbsolutePath(), e);
+                    LOGGER.error("Error while trying to close " + exportFile.getAbsolutePath(), e);
                     error = true;
                 }
             }
@@ -303,7 +308,7 @@ public class IdXMLExporter {
                 indisValue.append(value);
             }
 
-            writeUserParam(streamWriter, "indistinguishable_proteins_" + idx, "string", indisValue.toString(),
+            writeUserParam(streamWriter, "indistinguishable_proteins_" + idx, STRING_TYPE, indisValue.toString(),
                     null, null, null);
         }
 
@@ -347,7 +352,7 @@ public class IdXMLExporter {
                     if ((mainScore == null) ||
                             ((scoreModel != null) && scoreModel.isSearchengineMainScore())) {
                         // use the mainScore of the searchengine, or the first one in the list
-                        mainScore = (scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) ? scoreShort : scoreModel.getName();
+                        mainScore = scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE) ? scoreShort : scoreModel.getName();
                         mainScoreShort = scoreShort;
                         mainScoreHigherBetter = scoreModel.higherScoreBetter();
                     }
@@ -416,7 +421,7 @@ public class IdXMLExporter {
                     }
                 }
                 if (writeDecoyInfo) {
-                    writeUserParam(streamWriter, "target_decoy", "string",
+                    writeUserParam(streamWriter, "target_decoy", STRING_TYPE,
                             psm.getIsDecoy() ? "decoy" : "target", null, null, null);
                 }
 
@@ -438,7 +443,7 @@ public class IdXMLExporter {
         }
 
 
-        logger.debug("peptides: " + peptideIdentifications.size());
+        LOGGER.debug("peptides: " + peptideIdentifications.size());
 
         streamWriter.writeEndElement(); // IdentificationRun
     }
@@ -460,9 +465,10 @@ public class IdXMLExporter {
                 db = piaModeller.getSearchDatabases().get(sdbRef).getName();
             }
         } catch (NullPointerException e) {
-            logger.warn("could not get searchDatabase for file " + fileID);
+            LOGGER.warn("could not get searchDatabase for file " + fileID, e);
             db = null;
         }
+
         if (db == null) {
             db = "";
         } else if (db.startsWith("file:")) {
@@ -471,8 +477,7 @@ public class IdXMLExporter {
                 dbUri = new URI(db);
                 db = dbUri.getPath();
             } catch (URISyntaxException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOGGER.warn("could not get searchDatabase for file " + fileID, e);
             }
         }
 
@@ -508,16 +513,14 @@ public class IdXMLExporter {
         try {
             Enzyme enzyme = piaModeller.getFiles().get(fileID).getAnalysisProtocolCollection().getSpectrumIdentificationProtocol().get(0).getEnzymes().getEnzyme().get(0);
 
-            CleavageAgent agent = null;
-            agent = CleavageAgent.getBySiteRegexp(enzyme.getSiteRegexp());
-
+            CleavageAgent agent = CleavageAgent.getBySiteRegexp(enzyme.getSiteRegexp());
             if (agent == null) {
                 agent = CleavageAgent.getByName(enzyme.getName());
             }
 
             return DigestionEnzyme.getFromCleavageAgent(agent);
         } catch (NullPointerException e) {
-            logger.warn("Problem getting enzyme for " + fileID, e);
+            LOGGER.warn("Problem getting enzyme for " + fileID, e);
         }
 
         return DigestionEnzyme.UNKNOWN_ENZYME;
@@ -580,7 +583,7 @@ public class IdXMLExporter {
      * @param unitName
      * @throws XMLStreamException
      */
-    private void writeUserParam(XMLStreamWriter streamWriter, String name, String type, String value,
+    private static void writeUserParam(XMLStreamWriter streamWriter, String name, String type, String value,
             String unitAccession, String unitCvRef, String unitName) throws XMLStreamException {
         streamWriter.writeStartElement("UserParam");
 
@@ -616,7 +619,7 @@ public class IdXMLExporter {
      * @return
      * @throws XMLStreamException
      */
-    private List<String> writeAccessionsToXML(XMLStreamWriter streamWriter, List<Accession> accessionsList,
+    private static List<String> writeAccessionsToXML(XMLStreamWriter streamWriter, List<Accession> accessionsList,
             Double score, Double qvalue, Long fileID, Map<String, String> accessionToPH)
             throws XMLStreamException {
         ListIterator<Accession> accIt = accessionsList.listIterator();
@@ -641,7 +644,7 @@ public class IdXMLExporter {
                 }
                 String description = acc.getDescription(fileID);
                 if (description != null) {
-                    writeUserParam(streamWriter, "Description", "string", description,
+                    writeUserParam(streamWriter, "Description", STRING_TYPE, description,
                             null, null, null);
                 }
 
@@ -649,6 +652,8 @@ public class IdXMLExporter {
                     writeUserParam(streamWriter, "q-value_score", "float", qvalue.toString(),
                             null, null, null);
                 }
+
+                // TODO: add decoy information, if it was set on the protein level
 
                 streamWriter.writeEndElement();
 
@@ -669,11 +674,10 @@ public class IdXMLExporter {
      */
     public static String exportSequenceWithModifications(String sequence, Map<Integer, Modification> modifications) {
         StringBuilder modSequence = new StringBuilder(sequence.length());
-        int pos = 0;
         int lastPos = 0;
 
         for (Map.Entry<Integer, Modification> modIt : modifications.entrySet()) {
-            pos = modIt.getKey();
+            int pos = modIt.getKey();
 
             // first add the unmodified residues from last to here
             if (pos - lastPos >= 1) {

@@ -45,25 +45,26 @@ public class ProteinLayout<E> implements Layout<VertexObject, E> {
     /** locations of the VertexObjects */
     protected Map<VertexObject, Point2D> locations = LazyMap.decorate(
             new HashMap<VertexObject, Point2D>(), new Transformer<VertexObject, Point2D>() {
+                @Override
                 public Point2D transform(VertexObject vertex) {
                     return new Point2D.Double();
                 }
             });
 
     /** The default horizontal vertex spacing. Initialized to 50. */
-    public static int DEFAULT_DISTX = 100;
+    private static final int DEFAULT_DISTX = 100;
 
     /** The default vertical vertex spacing. Initialized to 50. */
-    public static int DEFAULT_DISTY = 75;
+    private static final int DEFAULT_DISTY = 75;
 
     /** The horizontal vertex spacing. Defaults to {@code DEFAULT_XDIST}. */
-    protected int distX = DEFAULT_DISTX;
+    private int distX = DEFAULT_DISTX;
 
     /** The vertical vertex spacing. Defaults to {@code DEFAULT_YDIST}. */
-    protected int distY = DEFAULT_DISTY;
+    private int distY = DEFAULT_DISTY;
 
     /** label for the pseudo root node */
-    private String pseudoLabel = "___pseudoVertex___";
+    private static final String PSEUDO_LABEL = "___pseudoVertex___";
 
 
     /** the overall maximal height of the vertices */
@@ -162,7 +163,7 @@ public class ProteinLayout<E> implements Layout<VertexObject, E> {
                     // add pseudo-vertices until the deepest depth is reached
                     List<VertexObject> interProteins = new ArrayList<VertexObject>();
                     interProteins.add(vertex);
-                    VertexObject interVertex = new VertexObject(pseudoLabel, interProteins);
+                    VertexObject interVertex = new VertexObject(PSEUDO_LABEL, interProteins);
 
                     vertex = interVertex;
                     depth++;
@@ -172,7 +173,7 @@ public class ProteinLayout<E> implements Layout<VertexObject, E> {
                 proteins.add(vertex);
             }
         }
-        VertexObject root = new VertexObject(pseudoLabel, proteins);
+        VertexObject root = new VertexObject(PSEUDO_LABEL, proteins);
         minimalHeight.put(root, ++maxHeight);
 
         calculateDimensionX(root);
@@ -208,7 +209,7 @@ public class ProteinLayout<E> implements Layout<VertexObject, E> {
 
             int sizeXofChild;
             int startXofChild;
-            if (!pseudoLabel.equals(vertex.getLabel())) {
+            if (!PSEUDO_LABEL.equals(vertex.getLabel())) {
                 for (VertexObject element : graph.getSuccessors(vertex)) {
                     calculateDimensionX(element);
 
@@ -262,34 +263,35 @@ public class ProteinLayout<E> implements Layout<VertexObject, E> {
      * @param vertex
      */
     private void updateMinimalHeight(VertexObject vertex) {
-        if (!alreadyDone.contains(vertex)) {
-            int height = minimalHeight.get(vertex);
-
-            // look one up and set height to only one deeper, if the predecessor is already done
-            if (graph.getPredecessors(vertex) != null) {
-                for (VertexObject predecessor : graph.getPredecessors(vertex)) {
-                    if (alreadyDone.contains(predecessor)) {
-                        if (height < minimalHeight.get(predecessor) - 1) {
-                            height = minimalHeight.get(predecessor) - 1;
-                        }
-                    }
-                }
-            }
-
-            // now update the successors, if it is not already done
-            if (graph.getSuccessors(vertex) != null) {
-                for (VertexObject successor : graph.getSuccessors(vertex)) {
-                    updateMinimalHeight(successor);
-
-                    // set height to be at least one above the highest successor
-                    if (height < minimalHeight.get(successor) + 1) {
-                        height = minimalHeight.get(successor) + 1;
-                    }
-                }
-            }
-
-            minimalHeight.put(vertex, height);
+        if (alreadyDone.contains(vertex)) {
+            return;
         }
+
+        int height = minimalHeight.get(vertex);
+
+        // look one up and set height to only one deeper, if the predecessor is already done
+        if (graph.getPredecessors(vertex) != null) {
+            for (VertexObject predecessor : graph.getPredecessors(vertex)) {
+                if (alreadyDone.contains(predecessor)
+                        &&  (height < minimalHeight.get(predecessor) - 1)) {
+                    height = minimalHeight.get(predecessor) - 1;
+                }
+            }
+        }
+
+        // now update the successors, if it is not already done
+        if (graph.getSuccessors(vertex) != null) {
+            for (VertexObject successor : graph.getSuccessors(vertex)) {
+                updateMinimalHeight(successor);
+
+                // set height to be at least one above the highest successor
+                if (height < minimalHeight.get(successor) + 1) {
+                    height = minimalHeight.get(successor) + 1;
+                }
+            }
+        }
+
+        minimalHeight.put(vertex, height);
     }
 
 
@@ -298,24 +300,24 @@ public class ProteinLayout<E> implements Layout<VertexObject, E> {
      * graph beneath the given vertex
      */
     private int calculateDimensionX(VertexObject vertex) {
-        int size = 0;
+        int calcSize = 0;
 
-        if (!pseudoLabel.equals(vertex.getLabel())) {
+        if (!PSEUDO_LABEL.equals(vertex.getLabel())) {
             for (VertexObject child : graph.getSuccessors(vertex)) {
                 if (!alreadyDone.contains(child)) {
-                    size += calculateDimensionX(child) + distX;
+                    calcSize += calculateDimensionX(child) + distX;
                 }
             }
         } else {
             for (Object proteinO : (List<?>)vertex.getObject()) {
-                size += calculateDimensionX((VertexObject)proteinO) + distX;
+                calcSize += calculateDimensionX((VertexObject)proteinO) + distX;
             }
         }
 
-        size = Math.max(0, size - distX);
-        treeSize.put(vertex, size);
+        calcSize = Math.max(0, calcSize - distX);
+        treeSize.put(vertex, calcSize);
 
-        return size;
+        return calcSize;
     }
 
 
@@ -324,9 +326,9 @@ public class ProteinLayout<E> implements Layout<VertexObject, E> {
      * determined by the topology of the graph, and by the horizontal and
      * vertical spacing (optionally set by the constructor).
      */
+    @Override
     public void setSize(Dimension size) {
-        throw new UnsupportedOperationException(
-                "Size of ProteinLayout is set by vertex spacing in constructor");
+        throw new UnsupportedOperationException("Size of ProteinLayout is set by vertex spacing in constructor");
     }
 
 
@@ -352,10 +354,12 @@ public class ProteinLayout<E> implements Layout<VertexObject, E> {
 
     @Override
     public void lock(VertexObject v, boolean state) {
+        // not yet implemented and not needed
     }
 
     @Override
     public void reset() {
+        // not yet implemented and not needed
     }
 
     @Override
@@ -370,6 +374,7 @@ public class ProteinLayout<E> implements Layout<VertexObject, E> {
 
     @Override
     public void setInitializer(Transformer<VertexObject, Point2D> initializer) {
+        // not yet implemented and not needed
     }
 
     /**
