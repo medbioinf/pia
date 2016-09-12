@@ -3,7 +3,7 @@ package de.mpc.pia.modeller;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +11,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class PSMModellerTest {
@@ -20,18 +19,12 @@ public class PSMModellerTest {
     public static PIAModeller piaModeller;
     public static PSMModeller psmModeller;
 
-    @BeforeClass
-    public static void initialize()
-            throws FileNotFoundException, JAXBException, XMLStreamException {
+    @Before
+    public void setUp()
+            throws JAXBException, XMLStreamException, IOException {
         piaFile = new File(PIAModellerTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
         piaModeller = new PIAModeller(piaFile.getAbsolutePath());
         psmModeller = piaModeller.getPSMModeller();
-    }
-
-
-    @Before
-    public void setUp() throws Exception {
-
     }
 
 

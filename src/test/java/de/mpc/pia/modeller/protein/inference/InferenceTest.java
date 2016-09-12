@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,7 +16,7 @@ import java.util.Set;
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import de.mpc.pia.intermediate.Accession;
@@ -34,9 +35,9 @@ public class InferenceTest {
     private static PIAModeller piaModeller = null;
 
 
-    @BeforeClass
-    public static void initialize()
-            throws FileNotFoundException, JAXBException, XMLStreamException {
+    @Before
+    public void initialize()
+            throws JAXBException, XMLStreamException, IOException {
         File piaFile = new File(InferenceTest.class.getResource("/07-12_MW_58-mascot_tandem.pia.xml").getPath());
         piaModeller = new PIAModeller(piaFile.getAbsolutePath());
 

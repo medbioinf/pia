@@ -3,7 +3,7 @@ package de.mpc.pia.intermediate;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
@@ -48,11 +48,11 @@ public class IntermediateJAXBTest {
 
         try {
             intermediateHandler.parse(piaFile.getAbsolutePath(), null);
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e);
         } catch (XMLStreamException e) {
             LOGGER.error(e);
         } catch (JAXBException e) {
+            LOGGER.error(e);
+        } catch (IOException e) {
             LOGGER.error(e);
         }
 
