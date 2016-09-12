@@ -30,8 +30,8 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
@@ -130,6 +130,9 @@ public abstract class PIACompiler {
     private Map<Long, Group> groups;
 
 
+    /** the default name for a compilation */
+    public static final String defaultPIAcompilationName = "PIA compilation";
+
     /** namespace declaration for jPiaXML */
     private static String nsjPiaXML = "http://www.medizinisches-proteom-center.de/PIA/piaintermediate";
 
@@ -157,7 +160,7 @@ public abstract class PIACompiler {
      * Basic constructor
      */
     public PIACompiler() {
-        compilationName = null;
+        compilationName = defaultPIAcompilationName;
         startDate = new Date();
 
         files = new HashMap<>();
@@ -905,6 +908,7 @@ public abstract class PIACompiler {
      */
     public final void writeOutXML(File piaFile) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(piaFile)) {
+            LOGGER.info("Writing PIA XML file to " + piaFile.getAbsolutePath());
             writeOutXML(fos);
         }
     }
@@ -928,13 +932,11 @@ public abstract class PIACompiler {
      * @param fileName
      */
     public final void writeOutXML(OutputStream outputStream) {
-        Writer out = null;
-        XMLStreamWriter xmlOut = null;
-        try {
-            out = new OutputStreamWriter(outputStream, encoding);
+        try (Writer out = new OutputStreamWriter(outputStream, encoding)) {
+            LOGGER.info("Stream open, writing PIA XML");
 
             XMLOutputFactory xmlof = XMLOutputFactory.newInstance();
-            xmlOut = new IndentingXMLStreamWriter(xmlof.createXMLStreamWriter(out));
+            XMLStreamWriter xmlOut = new IndentingXMLStreamWriter(xmlof.createXMLStreamWriter(out));
 
             // xml header
             xmlOut.writeStartDocument(encoding, "1.0");
@@ -971,6 +973,8 @@ public abstract class PIACompiler {
             writeOutJaxbGroups(xmlOut);
 
             xmlOut.writeEndElement(); // jPiaXML
+
+            xmlOut.close();
         } catch (XMLStreamException e) {
             LOGGER.error("XMLStreamException while writing XML file", e);
         } catch (FactoryConfigurationError e) {
@@ -979,20 +983,11 @@ public abstract class PIACompiler {
             LOGGER.error("JAXBException while writing XML file", e);
         } catch (UnsupportedEncodingException e) {
             LOGGER.error("UnsupportedEncodingException while writing XML file", e);
-        } finally {
-            try {
-                if (xmlOut != null) {
-                    xmlOut.flush();
-                    xmlOut.close();
-                }
-
-                if (out != null) {
-                    out.close();
-                }
-            } catch (Exception e) {
-                LOGGER.error("error while closing the XML file" + e);
-            }
+        } catch (IOException e) {
+            LOGGER.error("error writing the PIA XML file", e);
         }
+
+        LOGGER.info("Writing of PIA XML file finished.");
     }
 
 
@@ -1187,134 +1182,152 @@ public abstract class PIACompiler {
     }
 
 
-    @SuppressWarnings("static-access")
-    public static void main(String[] args) throws FileNotFoundException {
-        CommandLineParser parser = new GnuParser();
-        Options options = new Options();
-
-        options.addOption(OptionBuilder
-                .isRequired(true)
-                .withArgName("outputFile")
-                .hasArg()
-                .withDescription( "path to the created PIA XML file" )
-                .create("outfile"));
-
-        options.addOption(OptionBuilder
-                .withArgName("name")
-                .hasArg()
-                .withDescription( "name of the PIA compilation" )
-                .create("name"));
-
-        options.addOption(OptionBuilder
-                .withArgName("inputFile")
-                .hasArg()
-                .withDescription( "input file with possible further information " +
-                        "separated by semicolon. This option may be called " +
-                        "multiple times. Any further information not given " +
-                        "will be treated as null, the information is in this " +
-                        "order:\n" +
-                        "name of the input file (as shown in the PIA viewers, " +
-                        "if not given will be set to the path of the input file), " +
-                        "type of the file (usually guessed, but may also be " +
-                        "explicitly given, possible values are " +
-                        InputFileParserFactory.getAvailableTypeShorts() +
-                        "), " +
-                        "additional information file (very seldom used)")
-                .create("infile"));
-
-        String outFileName = null;
-        String piaName = null;
-
-        if (args.length > 0) {
-            PIACompiler piaCompiler = new PIASimpleCompiler();
-
-
-            // parse the command line arguments
-            try {
-                CommandLine line = parser.parse( options, args );
-
-                if (line.hasOption("outfile")) {
-                    outFileName = line.getOptionValue("outfile");
-                }
-
-                if (line.hasOption("infile")) {
-
-                    for (String arg : line.getOptionValues("infile")) {
-                        String[] values = arg.split(";");
-                        String file = values[0];
-                        String name = values[0];
-                        String additionalInfoFile = null;
-                        String type = null;
-
-                        if (values.length > 1) {
-                            name = (values[1].length() > 0) ? values[1] : null;
-
-                            if (values.length > 2) {
-                                type = (values[2].length() > 0) ? values[2] : null;
-
-                                if (values.length > 3) {
-                                    additionalInfoFile = (values[3].length() > 0) ? values[3] : null;
-                                }
-                            }
-                        } else {
-                            if (file.contains(File.separator)) {
-                                // take the filename-only as name, if none is given
-                                name = new File(file).getName();
-                            }
-                        }
-
-                        System.out.println("file: " + file +
-                                "\n\tname: " + name +
-                                "\n\ttype: " + type +
-                                "\n\tadditional info file: " + additionalInfoFile);
-
-                        if (!piaCompiler.getDataFromFile(name, file,
-                                additionalInfoFile, type)) {
-                            System.exit(-1);
-                        }
-                    }
-                }
-
-                if (line.hasOption("name")) {
-                    piaName = line.getOptionValue("name");
-                }
-            } catch (ParseException e) {
-                System.err.println(e.getMessage());
-                PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
-                        options, HELP_DESCRIPTION);
-                System.exit(-1);
-            }
-
-            if (outFileName != null) {
-                piaCompiler.buildClusterList();
-
-                piaCompiler.buildIntermediateStructure();
-
-                if (piaName == null) {
-                    piaName = outFileName;
-                }
-                piaCompiler.setName(piaName);
-
-                try {
-                    piaCompiler.writeOutXML(outFileName);
-                } catch (IOException e) {
-                    System.err.println("Error while writing PIA XML file.");
-                    e.printStackTrace();
-                }
-            } else {
-                PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
-                        options, HELP_DESCRIPTION);
-                System.exit(-1);
-            }
-        } else {
-            PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
-                    options, HELP_DESCRIPTION);
-        }
-    }
-
-
     /**
      * Assures that all streams are closed and all temporary files are removed
      */
     public abstract void finish();
+
+
+    public static void main(String[] args) throws FileNotFoundException {
+        CommandLineParser parser = new DefaultParser();
+        Options options = new Options();
+
+        Option outfileOpt = Option.builder("outfile")
+                .required(true)
+                .argName("outputFile")
+                .hasArg()
+                .desc("path to the created PIA XML file")
+                .build();
+        options.addOption(outfileOpt);
+
+        Option nameOpt = Option.builder("name")
+                .argName("name")
+                .hasArg()
+                .desc("name of the PIA compilation")
+                .build();
+        options.addOption(nameOpt);
+
+        Option inputFileOpt = Option.builder("infile")
+                .argName("inputFile")
+                .hasArg()
+                .desc( "input file with possible further information "
+                        + "separated by semicolon. This option may be called "
+                        + "multiple times. Any further information not given "
+                        + "will be treated as null, the information is in this "
+                        + "order:\n"
+                        + "name of the input file (as shown in the PIA viewers, "
+                        + "if not given will be set to the path of the input file), "
+                        + "type of the file (usually guessed, but may also be "
+                        + "explicitly given, possible values are "
+                        + InputFileParserFactory.getAvailableTypeShorts()
+                        + "), "
+                        + "additional information file (very seldom used)")
+                .build();
+        options.addOption(inputFileOpt);
+
+        if (args.length < 1) {
+            PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
+                    options, HELP_DESCRIPTION);
+            return;
+        }
+
+        String outFileName = null;
+        String piaName = null;
+        PIACompiler piaCompiler = new PIASimpleCompiler();
+
+        // parse the command line arguments
+        try {
+            CommandLine line = parser.parse( options, args );
+
+            boolean filesOk = false;
+            if (line.hasOption(inputFileOpt.getOpt())) {
+                filesOk = parseCommandLineInfiles(line.getOptionValues(inputFileOpt.getOpt()), piaCompiler);
+            }
+            if (!filesOk) {
+                return;
+            }
+
+            piaCompiler.buildClusterList();
+            piaCompiler.buildIntermediateStructure();
+
+            piaName = line.getOptionValue(nameOpt.getOpt());
+            if (piaName == null) {
+                piaName = outFileName;
+            }
+            piaCompiler.setName(piaName);
+
+            // now write out the file
+            outFileName = line.getOptionValue(outfileOpt.getOpt());
+            piaCompiler.writeOutXML(outFileName);
+        } catch (ParseException e) {
+            LOGGER.error("error parsing the command line: " + e.getMessage());
+            PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
+                    options, HELP_DESCRIPTION);
+            System.exit(-1);
+        } catch (IOException e) {
+            LOGGER.error("Error while writing PIA XML file.", e);
+        }
+
+    }
+
+
+    /**
+     * Parses the files given from the command line in the String array into the
+     * given {@link PIACompiler}. The files may also contain the name and
+     * additionalFile separated by a semicolon.
+     *
+     * @param inputFiles
+     * @param piaCompiler
+     * @return true, if all files were parsed correctly, otherwise false
+     */
+    private static boolean parseCommandLineInfiles(String[] inputFiles, PIACompiler piaCompiler) {
+        for (String inputFile : inputFiles) {
+            if (!parseCommandLineInfile(inputFile, piaCompiler)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Parses one file from the command line into the given {@link PIACompiler}.
+     * The file string may also contain the name and additionalFile separated by
+     * a semicolon.
+     *
+     * @param inputFile
+     * @param piaCompiler
+     * @return true, if the file was parsed correctly, otherwise false
+     */
+    private static boolean parseCommandLineInfile(String inputFile, PIACompiler piaCompiler) {
+        String[] values = inputFile.split(";");
+        String file = values[0];
+        String name = values[0];
+        String additionalInfoFile = null;
+        String type = null;
+
+        if (values.length > 1) {
+            name = (values[1].trim().length() > 0) ? values[1].trim() : null;
+
+            if (values.length > 2) {
+                type = (values[2].length() > 0) ? values[2] : null;
+            }
+            if (values.length > 3) {
+                additionalInfoFile = (values[3].length() > 0) ? values[3] : null;
+            }
+        } else {
+            if (file.contains(File.separator)) {
+                // take the filename-only as name, if none is given
+                name = new File(file).getName();
+            }
+        }
+
+        LOGGER.info("file: " + file +
+                "\n\tname: " + name +
+                "\n\ttype: " + type +
+                "\n\tadditional info file: " + additionalInfoFile);
+
+        return piaCompiler.getDataFromFile(name, file, additionalInfoFile, type);
+    }
+
 }

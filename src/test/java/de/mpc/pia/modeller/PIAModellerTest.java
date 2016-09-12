@@ -3,7 +3,7 @@ package de.mpc.pia.modeller;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
@@ -29,7 +29,7 @@ public class PIAModellerTest {
 
     @Test
     public void testBasicFileLoading()
-            throws FileNotFoundException, JAXBException, XMLStreamException {
+            throws JAXBException, XMLStreamException, IOException {
 
         PIAModeller piaModeller = new PIAModeller(piaFile.getAbsolutePath());
 

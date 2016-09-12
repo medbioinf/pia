@@ -3,6 +3,7 @@ package de.mpc.pia.modeller;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,10 +95,10 @@ public class PIAModeller {
      *
      * @param fileName
      * @throws JAXBException
-     * @throws FileNotFoundException
+     * @throws IOException
      */
     public PIAModeller(String fileName)
-            throws FileNotFoundException, JAXBException, XMLStreamException {
+            throws JAXBException, XMLStreamException, IOException {
         this();
 
         if (fileName == null) {
@@ -144,12 +145,11 @@ public class PIAModeller {
      * @param notifier progress will be notified on this object
      *
      * @throws JAXBException
-     * @throws FileNotFoundException
-     *
      * @return true, if a new file was loaded
+     * @throws IOException
      */
     public boolean loadFileName(String filename, Long[] progress, Object notifier)
-            throws FileNotFoundException, JAXBException, XMLStreamException {
+            throws JAXBException, XMLStreamException, IOException {
         LOGGER.info("start loading file " + filename);
 
         if (filename != null) {
@@ -186,12 +186,11 @@ public class PIAModeller {
      *
      * @param filename
      * @throws JAXBException
-     * @throws FileNotFoundException
-     *
      * @return true, if a new file was loaded
+     * @throws IOException
      */
     public boolean loadFileName(String filename, Long[] progress)
-            throws FileNotFoundException, JAXBException, XMLStreamException {
+            throws JAXBException, XMLStreamException, IOException {
         return loadFileName(filename, progress, null);
     }
 
@@ -281,9 +280,10 @@ public class PIAModeller {
      *
      * @param progress the first entry in this array holds the progress
      * @param notifier progress is notified on this object
+     * @throws IOException
      */
     private void parseIntermediate(Long[] progress, Object notifier)
-            throws FileNotFoundException, JAXBException, XMLStreamException {
+            throws JAXBException, XMLStreamException, IOException {
         LOGGER.info("loadIntermediate started...");
 
         if (progress == null) {
@@ -304,28 +304,20 @@ public class PIAModeller {
             return;
         }
 
-        try {
-            LOGGER.info("Starting parse...");
+        LOGGER.info("Starting parse...");
 
-            intermediateHandler = new PIAIntermediateJAXBHandler();
-            intermediateHandler.parse(fileName, progress, notifier);
+        intermediateHandler = new PIAIntermediateJAXBHandler();
+        intermediateHandler.parse(fileName, progress, notifier);
 
-            LOGGER.info(fileName + " successfully parsed.\n" +
-                    "\t" + intermediateHandler.getFiles().size() + " files\n" +
-                    "\t" + intermediateHandler.getGroups().size() + " groups\n" +
-                    "\t" + intermediateHandler.getAccessions().size() + " accessions\n" +
-                    "\t" + intermediateHandler.getPeptides().size() + " peptides\n" +
-                    "\t" + intermediateHandler.getPSMs().size() + " peptide spectrum matches\n" +
-                    "\t" + intermediateHandler.getNrTrees() + " trees");
-        } catch (FileNotFoundException e) {
-            throw e;
-        } catch (JAXBException e) {
-            throw e;
-        } catch (XMLStreamException e) {
-            throw e;
-        } finally {
-            LOGGER.info("loadIntermediate done.");
-        }
+        LOGGER.info(fileName + " successfully parsed.\n" +
+                "\t" + intermediateHandler.getFiles().size() + " files\n" +
+                "\t" + intermediateHandler.getGroups().size() + " groups\n" +
+                "\t" + intermediateHandler.getAccessions().size() + " accessions\n" +
+                "\t" + intermediateHandler.getPeptides().size() + " peptides\n" +
+                "\t" + intermediateHandler.getPSMs().size() + " peptide spectrum matches\n" +
+                "\t" + intermediateHandler.getNrTrees() + " trees");
+
+        LOGGER.info("loadIntermediate done.");
 
         // TODO: maybe move this uniqueness setting the PIACompiler...
         LOGGER.info("setting spectra uniquenesses");
@@ -372,9 +364,10 @@ public class PIAModeller {
     /**
      * Parses in the intermediate structure from the given file.<br/>
      * The progress gets increased by 100.
+     * @throws IOException
      */
     private void parseIntermediate(Long[] progress)
-            throws FileNotFoundException, JAXBException, XMLStreamException {
+            throws JAXBException, XMLStreamException, IOException {
         parseIntermediate(progress, null);
     }
 

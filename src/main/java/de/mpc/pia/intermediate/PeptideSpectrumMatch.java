@@ -15,6 +15,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 
 import de.mpc.pia.modeller.IdentificationKeySettings;
+import de.mpc.pia.modeller.psm.PSMItem;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.PIATools;
@@ -26,9 +27,10 @@ import de.mpc.pia.tools.PIATools;
  * @author julian
  *
  */
-public class PeptideSpectrumMatch implements Serializable {
+public class PeptideSpectrumMatch implements PSMItem, Serializable {
 
-    private static final long serialVersionUID = -7546397362756509069L;
+    private static final long serialVersionUID = 1L;
+
 
     /** internal ID of the PSM */
     private long id;
@@ -238,61 +240,37 @@ public class PeptideSpectrumMatch implements Serializable {
     }
 
 
-    /**
-     * Getter for the peptide mass.
-     *
-     * @return
-     */
+    @Override
     public double getMassToCharge() {
         return massToCharge;
     }
 
 
-    /**
-     * Getter for the delta mass.
-     *
-     * @return
-     */
+    @Override
     public double getDeltaMass() {
         return deltaMass;
     }
 
 
-    /**
-     * Getter for the retention time. null, if none is given.
-     *
-     * @return
-     */
+    @Override
     public Double getRetentionTime() {
         return retentionTime;
     }
 
 
-    /**
-     * Getter for the charge.
-     *
-     * @return
-     */
+    @Override
     public int getCharge() {
         return charge;
     }
 
 
-    /**
-     * Getter for the missed cleavages.
-     *
-     * @return
-     */
+    @Override
     public int getMissedCleavages() {
         return missed;
     }
 
 
-    /**
-     * Getter for the sequence.
-     *
-     * @return
-     */
+    @Override
     public String getSequence() {
         return sequence;
     }
@@ -398,30 +376,19 @@ public class PeptideSpectrumMatch implements Serializable {
     }
 
 
-    /**
-     * Getter for the modifications map.
-     * @return
-     */
+    @Override
     public Map<Integer, Modification> getModifications() {
         return modifications;
     }
 
 
-    /**
-     * Getter for the sourceID.
-     *
-     * @return
-     */
+    @Override
     public String getSourceID() {
         return sourceID;
     }
 
 
-    /**
-     * Getter for the spectrumTitle.
-     *
-     * @return
-     */
+    @Override
     public String getSpectrumTitle() {
         return spectrumTitle;
     }

@@ -2,6 +2,7 @@ package de.mpc.pia.intermediate.xmlhandler;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -126,11 +127,11 @@ public class PIAIntermediateJAXBHandler {
      * @param notifier progress is notified on this object
      *
      * @throws XMLStreamException
-     * @throws FileNotFoundException
      * @throws JAXBException
+     * @throws IOException
      */
     public void parse(String fileName, Long[] progressArr, Object notifier)
-            throws FileNotFoundException, XMLStreamException, JAXBException {
+            throws XMLStreamException, JAXBException, IOException {
         Long[] progress = progressArr;
         projectName = null;
         files = new HashMap<Long, PIAInputFile>();
@@ -152,135 +153,136 @@ public class PIAIntermediateJAXBHandler {
 
         // set up a StAX reader
         XMLInputFactory xmlif = XMLInputFactory.newInstance();
-        XMLStreamReader xmlr =
-                xmlif.createXMLStreamReader(new FileReader(fileName));
+        try (FileReader fileReader = new FileReader(fileName)) {
+            XMLStreamReader xmlr = xmlif.createXMLStreamReader(fileReader);
 
-        // move to the root element and check its name.
-        xmlr.nextTag();
-        xmlr.require(XMLStreamConstants.START_ELEMENT, null, "jPiaXML");
+            // move to the root element and check its name.
+            xmlr.nextTag();
+            xmlr.require(XMLStreamConstants.START_ELEMENT, null, "jPiaXML");
 
-        // get project attributes
-        for (int attrIdx=0; attrIdx < xmlr.getAttributeCount(); attrIdx++) {
-            if ("name".equals(xmlr.getAttributeName(attrIdx).toString())) {
-                projectName = xmlr.getAttributeValue(attrIdx);
-            }
-        }
-
-        // move to the first not-root element
-        xmlr.nextTag();
-        while (xmlr.hasNext()) {
-            String tag = xmlr.getLocalName();
-
-            if ("filesList".equalsIgnoreCase(tag)) {
-                LOGGER.info(tag);
-                // filesList
-                JAXBContext jaxbContext = JAXBContext.newInstance(FilesListXML.class);
-                Unmarshaller um = jaxbContext.createUnmarshaller();
-                FilesListXML filesList = (FilesListXML)um.unmarshal(xmlr);
-
-                if (filesList != null) {
-                    parseFilesList(filesList);
+            // get project attributes
+            for (int attrIdx=0; attrIdx < xmlr.getAttributeCount(); attrIdx++) {
+                if ("name".equals(xmlr.getAttributeName(attrIdx).toString())) {
+                    projectName = xmlr.getAttributeValue(attrIdx);
                 }
-                progress[0] += 1;
-                if (notifier != null) {
-                    synchronized (notifier) {
-                        notifier.notifyAll();
-                    }
-                }
-            } else if ("Inputs".equalsIgnoreCase(tag)) {
-                LOGGER.info(tag);
-                // Inputs
-                JAXBContext jaxbContext = JAXBContext.newInstance(Inputs.class);
-                Unmarshaller um = jaxbContext.createUnmarshaller();
-                JAXBElement<Inputs> umRoot = um.unmarshal(xmlr, Inputs.class);
-                Inputs inputs = umRoot.getValue();
-
-                if (inputs != null) {
-                    // Inputs:SpectraData
-                    for (SpectraData sd : inputs.getSpectraData()) {
-                        spectraData.put(sd.getId(), sd);
-                    }
-
-                    // Inputs:SearchDatabase
-                    for (SearchDatabase db : inputs.getSearchDatabase()) {
-                        searchDatabases.put(db.getId(), db);
-                    }
-                }
-                progress[0] += 1;
-                if (notifier != null) {
-                    synchronized (notifier) {
-                        notifier.notifyAll();
-                    }
-                }
-            } else if ("AnalysisSoftwareList".equalsIgnoreCase(tag)) {
-                LOGGER.info(tag);
-                // AnalysisSoftwareList
-                JAXBContext jaxbContext = JAXBContext.newInstance(AnalysisSoftwareList.class);
-                Unmarshaller um = jaxbContext.createUnmarshaller();
-                JAXBElement<AnalysisSoftwareList> umRoot = um.unmarshal(xmlr, AnalysisSoftwareList.class);
-                AnalysisSoftwareList analysisSoftwareList = umRoot.getValue();
-
-                if (analysisSoftwareList != null) {
-                    for (AnalysisSoftware sw : analysisSoftwareList.getAnalysisSoftware()) {
-                        software.put(sw.getId(), sw);
-                    }
-                }
-                progress[0] += 1;
-                if (notifier != null) {
-                    synchronized (notifier) {
-                        notifier.notifyAll();
-                    }
-                }
-            } else if ("spectraList".equalsIgnoreCase(tag)) {
-                LOGGER.info(tag);
-                parseSpectraChunked(xmlr);
-                progress[0] += 30;
-                if (notifier != null) {
-                    synchronized (notifier) {
-                        notifier.notifyAll();
-                    }
-                }
-            } else if ("accessionsList".equalsIgnoreCase(tag)) {
-                LOGGER.info(tag);
-                parseAccessionsChunked(xmlr);
-                progress[0] += 1;
-                if (notifier != null) {
-                    synchronized (notifier) {
-                        notifier.notifyAll();
-                    }
-                }
-            } else if ("peptidesList".equalsIgnoreCase(tag)) {
-                LOGGER.info(tag);
-                parsePeptidesChunked(xmlr);
-                progress[0] += 5;
-                if (notifier != null) {
-                    synchronized (notifier) {
-                        notifier.notifyAll();
-                    }
-                }
-            } else if ("groupsList".equalsIgnoreCase(tag)) {
-                LOGGER.info(tag);
-                parseGroupsChunked(xmlr);
-                progress[0] += 1;
-                if (notifier != null) {
-                    synchronized (notifier) {
-                        notifier.notifyAll();
-                    }
-                }
-            } else {
-                LOGGER.warn("unknown tag in piaXML: " + xmlr.getLocalName());
             }
 
-            // skip the whitespace between tags
-            if (xmlr.getEventType() == XMLStreamConstants.CHARACTERS) {
-                xmlr.next();
-            }
+            // move to the first not-root element
+            xmlr.nextTag();
+            while (xmlr.hasNext()) {
+                String tag = xmlr.getLocalName();
 
-            // check, if end of file reached
-            if ("jPiaXML".equalsIgnoreCase(xmlr.getLocalName())
-                    && (xmlr.getEventType() == XMLStreamConstants.END_ELEMENT)) {
-                // finished, reached the closing tag of jPiaXML
-                break;
+                if ("filesList".equalsIgnoreCase(tag)) {
+                    LOGGER.info(tag);
+                    // filesList
+                    JAXBContext jaxbContext = JAXBContext.newInstance(FilesListXML.class);
+                    Unmarshaller um = jaxbContext.createUnmarshaller();
+                    FilesListXML filesList = (FilesListXML)um.unmarshal(xmlr);
+
+                    if (filesList != null) {
+                        parseFilesList(filesList);
+                    }
+                    progress[0] += 1;
+                    if (notifier != null) {
+                        synchronized (notifier) {
+                            notifier.notifyAll();
+                        }
+                    }
+                } else if ("Inputs".equalsIgnoreCase(tag)) {
+                    LOGGER.info(tag);
+                    // Inputs
+                    JAXBContext jaxbContext = JAXBContext.newInstance(Inputs.class);
+                    Unmarshaller um = jaxbContext.createUnmarshaller();
+                    JAXBElement<Inputs> umRoot = um.unmarshal(xmlr, Inputs.class);
+                    Inputs inputs = umRoot.getValue();
+
+                    if (inputs != null) {
+                        // Inputs:SpectraData
+                        for (SpectraData sd : inputs.getSpectraData()) {
+                            spectraData.put(sd.getId(), sd);
+                        }
+
+                        // Inputs:SearchDatabase
+                        for (SearchDatabase db : inputs.getSearchDatabase()) {
+                            searchDatabases.put(db.getId(), db);
+                        }
+                    }
+                    progress[0] += 1;
+                    if (notifier != null) {
+                        synchronized (notifier) {
+                            notifier.notifyAll();
+                        }
+                    }
+                } else if ("AnalysisSoftwareList".equalsIgnoreCase(tag)) {
+                    LOGGER.info(tag);
+                    // AnalysisSoftwareList
+                    JAXBContext jaxbContext = JAXBContext.newInstance(AnalysisSoftwareList.class);
+                    Unmarshaller um = jaxbContext.createUnmarshaller();
+                    JAXBElement<AnalysisSoftwareList> umRoot = um.unmarshal(xmlr, AnalysisSoftwareList.class);
+                    AnalysisSoftwareList analysisSoftwareList = umRoot.getValue();
+
+                    if (analysisSoftwareList != null) {
+                        for (AnalysisSoftware sw : analysisSoftwareList.getAnalysisSoftware()) {
+                            software.put(sw.getId(), sw);
+                        }
+                    }
+                    progress[0] += 1;
+                    if (notifier != null) {
+                        synchronized (notifier) {
+                            notifier.notifyAll();
+                        }
+                    }
+                } else if ("spectraList".equalsIgnoreCase(tag)) {
+                    LOGGER.info(tag);
+                    parseSpectraChunked(xmlr);
+                    progress[0] += 30;
+                    if (notifier != null) {
+                        synchronized (notifier) {
+                            notifier.notifyAll();
+                        }
+                    }
+                } else if ("accessionsList".equalsIgnoreCase(tag)) {
+                    LOGGER.info(tag);
+                    parseAccessionsChunked(xmlr);
+                    progress[0] += 1;
+                    if (notifier != null) {
+                        synchronized (notifier) {
+                            notifier.notifyAll();
+                        }
+                    }
+                } else if ("peptidesList".equalsIgnoreCase(tag)) {
+                    LOGGER.info(tag);
+                    parsePeptidesChunked(xmlr);
+                    progress[0] += 5;
+                    if (notifier != null) {
+                        synchronized (notifier) {
+                            notifier.notifyAll();
+                        }
+                    }
+                } else if ("groupsList".equalsIgnoreCase(tag)) {
+                    LOGGER.info(tag);
+                    parseGroupsChunked(xmlr);
+                    progress[0] += 1;
+                    if (notifier != null) {
+                        synchronized (notifier) {
+                            notifier.notifyAll();
+                        }
+                    }
+                } else {
+                    LOGGER.warn("unknown tag in piaXML: " + xmlr.getLocalName());
+                }
+
+                // skip the whitespace between tags
+                if (xmlr.getEventType() == XMLStreamConstants.CHARACTERS) {
+                    xmlr.next();
+                }
+
+                // check, if end of file reached
+                if ("jPiaXML".equalsIgnoreCase(xmlr.getLocalName())
+                        && (xmlr.getEventType() == XMLStreamConstants.END_ELEMENT)) {
+                    // finished, reached the closing tag of jPiaXML
+                    break;
+                }
             }
         }
     }
@@ -294,11 +296,11 @@ public class PIAIntermediateJAXBHandler {
      * @param progress
      *
      * @throws XMLStreamException
-     * @throws FileNotFoundException
      * @throws JAXBException
+     * @throws IOException
      */
     public void parse(String fileName, Long[] progress)
-            throws FileNotFoundException, XMLStreamException, JAXBException {
+            throws XMLStreamException, JAXBException, IOException {
         parse(fileName, progress, null);
     }
 
