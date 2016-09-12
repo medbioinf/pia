@@ -5,9 +5,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import de.mpc.pia.intermediate.Accession;
@@ -42,8 +39,10 @@ public class PIACompilerTest {
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(PIACompilerTest.class);
 
+    /*
     public static File mascotFile;
     public static File tandemFile;
+    */
 
     public static File mzid55mergeTandem;
     public static File mzid55mergeMascot;
@@ -58,10 +57,12 @@ public class PIACompilerTest {
     private String piaIntermediateFileName = "PIACompilerTest.pia.xml";
 
 
-    @BeforeClass
-    public static void initialize() {
+    @Before
+    public void setUp() {
+        /* the mascot file is still too big for gitHub, use a smaller example
         mascotFile = new File(PIACompilerTest.class.getResource("/07-12_MW_58-F008265.dat").getPath());
         tandemFile = new File(PIACompilerTest.class.getResource("/07-12_MW_58.tandem.xml").getPath());
+        */
 
         mzid55mergeTandem = new File(PIACompilerTest.class.getResource("/55merge_tandem.mzid").getPath());
         mzid55mergeMascot = new File(PIACompilerTest.class.getResource("/55merge_mascot_full.mzid").getPath());
@@ -114,6 +115,7 @@ public class PIACompilerTest {
         LOGGER.info("Max Memory: " + runtime.maxMemory() / mb + " MB");
         LOGGER.info("Execution time: " + ((endTime - startTime) / 1000000000.0) + " s");
     }
+*/
 
     @Test
     public void testPIACompilerCompilationAndAnalysis() throws IOException, JAXBException, XMLStreamException {
@@ -131,7 +133,8 @@ public class PIACompilerTest {
         // write out the file
         File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
         piaCompiler.writeOutXML(piaIntermediateFile);
-
+        piaCompiler.finish();
+        piaCompiler = null;
 
         // now make an analysis
         PIAModeller piaModeller = new PIAModeller(piaIntermediateFile.getAbsolutePath());
@@ -216,12 +219,9 @@ public class PIACompilerTest {
         }
 
         piaIntermediateFile.delete();
-
-        piaCompiler.finish();
     }
-*/
 
-    /*
+
     @Test
     public void testPIACompilerMzidFiles() throws IOException {
         Runtime runtime = Runtime.getRuntime();
@@ -249,13 +249,12 @@ public class PIACompilerTest {
         File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
 
         // test writing using the file
-
-        //piaCompiler.writeOutXML(piaIntermediateFile);
-        //piaIntermediateFile.delete();
+        piaCompiler.writeOutXML(piaIntermediateFile);
+        piaIntermediateFile.delete();
 
         // test writing using the file's name
         piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
-        //piaIntermediateFile.delete();
+        piaIntermediateFile.delete();
 
         piaCompiler.finish();
 
@@ -266,8 +265,6 @@ public class PIACompilerTest {
         LOGGER.info("Max Memory: " + runtime.maxMemory() / mb + " MB");
         LOGGER.info("Execution time: " + ((endTime - startTime) / 1000000000.0) + " s");
     }
-    */
-
 
 
     @Test
