@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import de.mpc.pia.intermediate.Accession;
@@ -50,8 +50,8 @@ public class PIACachedCompilerTest {
     private String piaIntermediateFileName = "PIACompilerTest.pia.xml";
 
 
-    @BeforeClass
-    public static void initialize() {
+    @Before
+    public void setUp() {
         mzid55mergeTandem = new File(PIACachedCompilerTest.class.getResource("/55merge_tandem.mzid").getPath());
         mzid55mergeOmssa = new File(PIACachedCompilerTest.class.getResource("/55merge_omssa.mzid").getPath());
 
