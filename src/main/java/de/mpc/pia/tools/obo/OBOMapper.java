@@ -16,13 +16,12 @@ import org.biojava.nbio.ontology.Triple;
 import org.biojava.nbio.ontology.io.OboParser;
 
 import de.mpc.pia.tools.OntologyConstants;
-import de.mpc.pia.tools.PIAConstants;
 
 
 public class OBOMapper {
 
     /** the logger for this class */
-    private static final Logger logger = Logger.getLogger(OBOMapper.class);
+    private static final Logger LOGGER = Logger.getLogger(OBOMapper.class);
 
     /** the actual ontology in the OBO file */
     private Ontology onlineOntology;
@@ -81,10 +80,10 @@ public class OBOMapper {
         } catch (IOException e) {
             onlineOntology = null;
             if (useOnline) {
-                logger.warn("could not use remote obo file, check internet connection");
+                LOGGER.warn("could not use remote obo file, check internet connection", e);
             }
         } catch (Exception e) {
-            logger.error(e);
+            LOGGER.error(e);
             throw new AssertionError(e);
         }
     }
@@ -104,7 +103,7 @@ public class OBOMapper {
                 return shippedOntology.getTerm(accession);
             }
         } catch (NoSuchElementException e) {
-            logger.warn(e);
+            LOGGER.warn(e);
             return null;
         }
     }
@@ -123,7 +122,7 @@ public class OBOMapper {
                 return shippedOntology.getTerms();
             }
         } catch (NoSuchElementException e) {
-            logger.warn(e);
+            LOGGER.warn(e);
             return null;
         }
     }

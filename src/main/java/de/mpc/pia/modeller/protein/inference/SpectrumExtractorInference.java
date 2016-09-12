@@ -105,10 +105,10 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
 public class SpectrumExtractorInference extends AbstractProteinInference {
 
     /** the human readable name of this filter */
-    protected static final String name = "Spectrum Extractor";
+    protected static final String NAME = "Spectrum Extractor";
 
     /** the machine readable name of the filter */
-    protected static final String shortName = "inference_spectrum_extractor";
+    protected static final String SHORT_NAME = "inference_spectrum_extractor";
 
     /** the list iterator used to give the reportProteins to the working threads */
     private ListIterator<ReportProtein> proteinListIt;
@@ -133,7 +133,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
     private boolean inferenceDone;
 
     /** the logger for this class */
-    private static final Logger logger= Logger.getLogger(SpectrumExtractorInference.class);
+    private static final Logger LOGGER = Logger.getLogger(SpectrumExtractorInference.class);
 
 
 
@@ -192,7 +192,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         nrUsedSpectra = 0;
         nrFinishedSplits = 0;
         nrSplits = 1;
-        logger.info("calculateInference started...");
+        LOGGER.info("calculateInference started...");
 
         StringBuilder filterSB = new StringBuilder();
         for (AbstractFilter filter : filters) {
@@ -203,7 +203,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         }
 
         String scoreShort = getScoring().getScoreSetting().getValue();
-        logger.info("scoring: " + getScoring().getName() + " with " +
+        LOGGER.info("scoring: " + getScoring().getName() + " with " +
                 scoreShort + ", " +
                 getScoring().getPSMForScoringSetting().getValue() +
                 "\n\tfilters: " + filterSB.toString() +
@@ -222,7 +222,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         // list of the spectrumIdentificationKeys of the already used spectra (this set gets filled while reporting proteins)
         Set<String> usedSpectra = new HashSet<String>();
 
-        logger.info("building reportPSMMap...");
+        LOGGER.info("building reportPSMMap...");
 
         for (ReportPSMSet psmSet : reportPSMSetMap.values()) {
             for (ReportPSM reportPSM : psmSet.getPSMs()) {
@@ -247,12 +247,12 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                 }
             }
         }
-        logger.info("reportPSMMap build");
+        LOGGER.info("reportPSMMap build");
 
         nrSpectra = usedSpectra.size();
         usedSpectra = null;
 
-        logger.info("creating disjoint splits");
+        LOGGER.info("creating disjoint splits");
 
         Long splitIDcounter = 0L;
         Map<Long, Set<Long>> splitIdReportPSMid = new HashMap<Long, Set<Long>>();
@@ -261,12 +261,12 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         Map<String, Long> psmIDsplitID = new HashMap<String, Long>();
         Map<Long, Set<String>> splitIdSpectraID = new HashMap<Long, Set<String>>();
 
-        for (Long reportPSMid : reportPSMMap.keySet()) {
-            String psmIdKey = reportPSMMap.get(reportPSMid).getSpectrum().getSpectrumIdentificationKey(psmSetSettings);
+        for (Map.Entry<Long, ReportPSM> reportPSMIt : reportPSMMap.entrySet()) {
+            String psmIdKey = reportPSMIt.getValue().getSpectrum().getSpectrumIdentificationKey(psmSetSettings);
             Long splitID = psmIDsplitID.get(psmIdKey);
 
             if (splitID != null) {
-                splitIdReportPSMid.get(splitID).add(reportPSMid);
+                splitIdReportPSMid.get(splitID).add(reportPSMIt.getKey());
             } else {
                 // find split with any accessions
                 Set<Long> mergeToReportPSMs = null;
@@ -322,7 +322,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                 }
 
 
-                mergeToReportPSMs.add(reportPSMid);
+                mergeToReportPSMs.add(reportPSMIt.getKey());
                 mergeToAccessions.addAll(spectraAccessions.get(psmIdKey));
 
                 psmIDsplitID.put(psmIdKey, splitID);
@@ -334,16 +334,16 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 
         nrSplits = splitIdAccessions.size();
 
-        logger.debug("number of splits: " + nrSplits);
+        LOGGER.debug("number of splits: " + nrSplits);
 
         // get the number of threads used for the inference
-        int nr_threads = getAllowedThreads();
-        if (nr_threads < 1) {
-            nr_threads = Runtime.getRuntime().availableProcessors();
+        int nrThreads = getAllowedThreads();
+        if (nrThreads < 1) {
+            nrThreads = Runtime.getRuntime().availableProcessors();
         }
-        logger.debug("used threads: " + nr_threads);
+        LOGGER.debug("used threads: " + nrThreads);
 
-        List<SpectrumExtractorWorkerThread> threads = new ArrayList<SpectrumExtractorWorkerThread>(nr_threads);
+        List<SpectrumExtractorWorkerThread> threads = new ArrayList<SpectrumExtractorWorkerThread>(nrThreads);
 
         // the proteins of all splits
         List<ReportProtein> completeReportProteinList = new ArrayList<ReportProtein>(groupMap.size());
@@ -351,8 +351,8 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         // the remaining group IDs, which were not yet processed
         Set<Long> leftGroupIDs = new HashSet<Long>(groupMap.keySet());
 
-        for (Long splitID : splitIdReportPSMid.keySet()) {
-            // maps from groupID/proteinID to the peptides, for (re-)scoring...
+        for (Map.Entry<Long, Set<Long>> splitIt : splitIdReportPSMid.entrySet()) {
+            // maps from groupID / proteinID to the peptides, for rescoring / scoring
             Map<Long, Set<Peptide>> groupsPeptides =
                     new HashMap<Long, Set<Peptide>>(groupMap.size());
 
@@ -360,8 +360,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
             List<ReportProtein> proteinList =
                     new ArrayList<ReportProtein>(groupMap.size());
 
-            Set<Long> splitAccessions = splitIdAccessions.get(splitID);
-
+            Set<Long> splitAccessions = splitIdAccessions.get(splitIt.getKey());
 
             Iterator<Long> groupIt = leftGroupIDs.iterator();
             while (groupIt.hasNext()) {
@@ -408,8 +407,8 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                 groupIt.remove();
             }
 
-            Map<Long, ReportPSM> splitReportPSMMap = new HashMap<Long, ReportPSM>(splitIdReportPSMid.get(splitID).size());
-            for (Long psmID : splitIdReportPSMid.get(splitID)) {
+            Map<Long, ReportPSM> splitReportPSMMap = new HashMap<Long, ReportPSM>(splitIt.getValue().size());
+            for (Long psmID : splitIt.getValue()) {
                 splitReportPSMMap.put(psmID, reportPSMMap.get(psmID));
             }
 
@@ -432,7 +431,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 
                 // initialize and start  the worker threads
                 threads.clear();
-                for (int i=0; (i < nr_threads); i++) {
+                for (int i=0; i < nrThreads; i++) {
                     SpectrumExtractorWorkerThread workerThread =
                             new SpectrumExtractorWorkerThread(i+1, this,
                                     getScoring(), filters, groupsPeptides,
@@ -448,9 +447,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                     try {
                         workerThread.join();
                     } catch (InterruptedException e) {
-                        // TODO: make better error/exception
-                        logger.error("thread got interrupted!");
-                        e.printStackTrace();
+                        LOGGER.error("thread got interrupted!", e);
                     }
                 }
 
@@ -467,16 +464,13 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                         ReportProteinComparatorFactory.CompareType.SCORE_SORT.getNewInstance();
                 Collections.sort(proteinList, comparator);
 
-
                 // take the next protein from the list, that can be reported
-                //proteinListIt = proteinList.listIterator();
                 proteinListIt = null;
-
 
                 Double reportScore = null;
                 changedAccessions.clear();
                 iterate = false;
-                while (proteinList.size() > 0 /*proteinListIt.hasNext()*/) {
+                while (!proteinList.isEmpty()) {
                     ReportProtein protein = proteinList.get(0) /*proteinListIt.next()*/;
 
                     // there was a protein reported and the next has another score -> do the next scoring
@@ -540,12 +534,10 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                     }
 
                     // remove the protein from the proteinList (either it is ok for report now, or it never will be)
-                    //proteinListIt.remove();
                     proteinList.remove(0);
 
 
-                    if (FilterFactory.
-                            satisfiesFilterList(protein, 0L, filters)) {
+                    if (FilterFactory.satisfiesFilterList(protein, 0L, filters)) {
                         // TODO: insert something like "needs X new spectra/PSMs/Peptides per protein". for now it is set to 1 new peptide
 
                         // check for subprotein
@@ -608,7 +600,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                                                 }
                                             }
                                         } else {
-                                            logger.error("not reportPSMSet PSM in peptide");
+                                            LOGGER.error("not reportPSMSet PSM in peptide");
                                         }
                                     }
 
@@ -623,7 +615,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                             // found a protein to report, get its score
                             reportScore = protein.getScore();
 
-                            if (proteinList.size() > 0) {
+                            if (!proteinList.isEmpty()) {
                                 iterate = true;
                             }
                         } else {
@@ -705,12 +697,12 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
             nrFinishedSplits++;
 
             if (nrFinishedSplits % 250 == 0) {
-                logger.debug("Finished split " + nrFinishedSplits + " / " + nrSplits
+                LOGGER.debug("Finished split " + nrFinishedSplits + " / " + nrSplits
                         + " (" +((double)nrFinishedSplits / nrSplits * 100) +"%)" );
             }
         }
 
-        logger.info(name + " calculateInference done, " + completeReportProteinList.size() + " groups inferred");
+        LOGGER.info(NAME + " calculateInference done, " + completeReportProteinList.size() + " groups inferred");
         inferenceDone = true;
         return completeReportProteinList;
     }
@@ -748,7 +740,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                 return null;
             } else {
                 // TODO: throw exception or something
-                logger.error("The protein iterator is not yet initialized!");
+                LOGGER.error("The protein iterator is not yet initialized!");
                 return null;
             }
         }
@@ -757,13 +749,13 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 
     @Override
     public String getName() {
-        return name;
+        return NAME;
     }
 
 
     @Override
     public String getShortName() {
-        return shortName;
+        return SHORT_NAME;
     }
 
 

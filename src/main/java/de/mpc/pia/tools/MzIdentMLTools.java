@@ -33,7 +33,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 public class MzIdentMLTools {
 
     /** get the index from the title, which is the scan number there */
-    public static Pattern patternScanInTitle = Pattern.compile("^.*scan=(\\d+).*$");
+    public static final Pattern patternScanInTitle = Pattern.compile("^.*scan=(\\d+).*$");
 
     /**  the PSI-MS collected vocabulary as {@link Cv} variable */
     private static final Cv psiMS = new Cv();
