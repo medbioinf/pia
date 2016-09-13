@@ -17,8 +17,7 @@ import de.mpc.pia.modeller.score.comparator.Rankable;
  * @author julian
  *
  */
-public interface PSMReportItem extends PSMItem, FDRComputable, FDRScoreComputable,
-Rankable, Filterable {
+public interface PSMReportItem extends PSMItem, FDRComputable, FDRScoreComputable, Rankable, Filterable {
 
     /**
      * Returns a identification String for the PSM.

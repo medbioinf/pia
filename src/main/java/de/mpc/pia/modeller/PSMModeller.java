@@ -1251,32 +1251,50 @@ public class PSMModeller {
             FDRScore.calculateFDRScore(listForFDR, fdrData,
                     scoreShortToHigherScoreBetter.get(fdrData.getScoreShortName()));
 
-
-            List<String> scoreShorts = fileScoreShortNames.get(fileID);
-            if (!scoreShorts.contains(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName())) {
-                // add the FDR score to scores of this file
-                scoreShorts.add(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
-                scoreShortToScoreName.put(
-                        ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
-                        ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getName());
-                scoreShortToComparator.put(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
-                        new ScoreComparator<PSMReportItem>(
-                                ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
-                                false));
-                scoreShortToHigherScoreBetter.put(
-                        ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
-                        false);
-                scoreShortToHigherScoreBetterChangeable.put(
-                        ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
-                        false);
-
-                // and also to the sortable fields
-                fileSortables.get(fileID).add(
-                        PSMReportItemComparator.getScoreSortName(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName()) );
+            addPSMLevelFDRSCoreToFilesScores(fileID);
+            
+            if (!createPSMSets) {
+                // if no PSM sets are created, add FDRScore to the overview
+                addPSMLevelFDRSCoreToFilesScores(0L);
             }
 
             // the FDR for this file is calculated now
             fileFDRCalculated.put(fileID, true);
+        }
+    }
+
+
+    /**
+     * Adds the PSM FDR score to the given file's score short names
+     *
+     * @param fileID
+     */
+    private void addPSMLevelFDRSCoreToFilesScores(Long fileID) {
+        if (!fileScoreShortNames.containsKey(fileID)) {
+            fileScoreShortNames.put(fileID, new ArrayList<String>());
+        }
+
+        List<String> scoreShorts = fileScoreShortNames.get(fileID);
+        if (!scoreShorts.contains(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName())) {
+            // add the FDR score to scores of this file
+            scoreShorts.add(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
+            scoreShortToScoreName.put(
+                    ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
+                    ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getName());
+            scoreShortToComparator.put(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
+                    new ScoreComparator<PSMReportItem>(
+                            ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
+                            false));
+            scoreShortToHigherScoreBetter.put(
+                    ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
+                    false);
+            scoreShortToHigherScoreBetterChangeable.put(
+                    ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
+                    false);
+
+            // and also to the sortable fields
+            fileSortables.get(fileID).add(
+                    PSMReportItemComparator.getScoreSortName(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName()) );
         }
     }
 
