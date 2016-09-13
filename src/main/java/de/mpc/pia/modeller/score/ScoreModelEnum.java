@@ -1402,7 +1402,7 @@ public enum ScoreModelEnum {
     /**
      * The scores in this list should not be used for FDR estimation on PSM level
      */
-    public static final List<ScoreModelEnum> notForPSMFdrScore = new ArrayList<ScoreModelEnum>(
+    protected static final List<ScoreModelEnum> notForPSMFdrScore = new ArrayList<ScoreModelEnum>(
             Arrays.asList(new ScoreModelEnum[]{
                     AVERAGE_FDR_SCORE,
                     FASTA_ACCESSION_COUNT,
