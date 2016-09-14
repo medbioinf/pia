@@ -666,8 +666,8 @@ public abstract class PIACompiler {
     public final void buildClusterList() {
         LOGGER.info("start sorting clusters");
 
-        List<Long> peptidesDone = new ArrayList<>(getNrPeptides());
-        List<Long> accessionsDone = new ArrayList<>(getNrAccessions());
+        Set<Long> peptidesDone = new HashSet<>(getNrPeptides());
+        Set<Long> accessionsDone = new HashSet<>(getNrAccessions());
         clusteredPepAccMap = new ArrayList<>();
 
         for (Long accID : getAllAccessionIDs()) {
@@ -703,7 +703,7 @@ public abstract class PIACompiler {
      * @return
      */
     private final Map<Long, Collection<Long>> createCluster(Long accessionID,
-            List<Long> peptidesDone, List<Long> accessionsDone) {
+            Set<Long> peptidesDone, Set<Long> accessionsDone) {
         Set<Long> clusterAccessions = new HashSet<>();
         Set<Long> clusterPeptides = new HashSet<>();
 
@@ -724,8 +724,7 @@ public abstract class PIACompiler {
             for (Long pepId : clusterPeptides) {
                 if (!peptidesDone.contains(pepId)) {
                     for (Long accId : getAccIDsFromConnectionMap(pepId)) {
-                        if (!clusterAccessions.contains(accId)) {
-                            clusterAccessions.add(accId);
+                        if (clusterAccessions.add(accId)) {
                             newAccessions++;
                         }
                     }
@@ -738,8 +737,7 @@ public abstract class PIACompiler {
             for (Long accId : clusterAccessions) {
                 if (!accessionsDone.contains(accId)) {
                     for (Long pepId : getPepIDsFromConnectionMap(accId)) {
-                        if (!clusterPeptides.contains(pepId)) {
-                            clusterPeptides.add(pepId);
+                        if (clusterPeptides.add(pepId)) {
                             newPeptides++;
                         }
                     }
@@ -751,7 +749,6 @@ public abstract class PIACompiler {
 
         // now we have the whole cluster, so put it into the pepAccMapCluster
         Map<Long, Collection<Long>> pepAccMapCluster = new HashMap<>();
-
         for (Long pepId : clusterPeptides) {
             pepAccMapCluster.put(pepId, getAccIDsFromConnectionMap(pepId));
         }

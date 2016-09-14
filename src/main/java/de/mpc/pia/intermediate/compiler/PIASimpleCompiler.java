@@ -1,9 +1,7 @@
 package de.mpc.pia.intermediate.compiler;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,10 +38,10 @@ public class PIASimpleCompiler extends PIACompiler {
     private Map<Long, PeptideSpectrumMatch> spectra;
 
     /** maps from the accession IDs to the peptide IDs, used to calculate clusters*/
-    private Map<Long, List<Long>> accPepMapIDs;
+    private Map<Long, Set<Long>> accPepMapIDs;
 
     /** maps from the peptide to the accessions, used to calculate the clusters */
-    private Map<Long, List<Long>> pepAccMapIDs;
+    private Map<Long, Set<Long>> pepAccMapIDs;
 
 
     /** logger for this class */
@@ -231,13 +229,13 @@ public class PIASimpleCompiler extends PIACompiler {
 
 
     @Override
-    public List<Long> getPepIDsFromConnectionMap(Long accId) {
+    public Set<Long> getPepIDsFromConnectionMap(Long accId) {
         return accPepMapIDs.get(accId);
     }
 
 
     @Override
-    public List<Long> getAccIDsFromConnectionMap(Long pepId) {
+    public Set<Long> getAccIDsFromConnectionMap(Long pepId) {
         return pepAccMapIDs.get(pepId);
     }
 
@@ -249,7 +247,7 @@ public class PIASimpleCompiler extends PIACompiler {
 
         if (!accPepMapIDs.containsKey(accId)) {
             if (accessions.containsKey(accId) && peptides.containsKey(pepId)) {
-                accPepMapIDs.put(accId, new ArrayList<>());
+                accPepMapIDs.put(accId, new HashSet<>());
             } else {
                 // this was called erroneous, insert a null (which will provoke a NullPointerException)
                 LOGGER.error("accession or peptide was not inserted into the compiler");
@@ -259,7 +257,7 @@ public class PIASimpleCompiler extends PIACompiler {
 
         if (!pepAccMapIDs.containsKey(pepId)) {
             if (accessions.containsKey(accId) && peptides.containsKey(pepId)) {
-                pepAccMapIDs.put(pepId, new ArrayList<>());
+                pepAccMapIDs.put(pepId, new HashSet<>());
             } else {
                 // this was called erroneous, insert a null (which will provoke a NullPointerException)
                 LOGGER.error("accession or peptide was not inserted into the compiler");
@@ -267,15 +265,8 @@ public class PIASimpleCompiler extends PIACompiler {
             }
         }
 
-        List<Long> pepIds = accPepMapIDs.get(accId);
-        if (!pepIds.contains(pepId)) {
-            pepIds.add(pepId);
-        }
-
-        List<Long> accIds = pepAccMapIDs.get(pepId);
-        if (!accIds.contains(accId)) {
-            accIds.add(accId);
-        }
+        accPepMapIDs.get(accId).add(pepId);
+        pepAccMapIDs.get(pepId).add(accId);
     }
 
 
