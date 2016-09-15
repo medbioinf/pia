@@ -1,25 +1,17 @@
 package de.mpc.pia.modeller.exporter;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
 import de.mpc.pia.modeller.IdentificationKeySettings;
 import de.mpc.pia.modeller.PIAModeller;
-import de.mpc.pia.modeller.PSMModeller;
 import de.mpc.pia.modeller.protein.inference.SpectrumExtractorInference;
 import de.mpc.pia.modeller.protein.scoring.AbstractScoring;
 import de.mpc.pia.modeller.protein.scoring.MultiplicativeScoring;
@@ -32,21 +24,18 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
 
 public class MzTabExporterTest {
 
-    public static File piaFile;
-
-    /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(MzTabExporterTest.class);
+    private File piaFile;
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         piaFile = new File(MzTabExporterTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
         //piaFile = new File("/mnt/data/uniNOBACKUP/PIA/PRD000397/PRD000397.pia.xml");
     }
 
 
     @Test
-    public void testMzTabExporter() throws JAXBException, XMLStreamException, IOException {
+    public void testMzTabExporter() throws IOException {
         PIAModeller piaModeller = new PIAModeller(piaFile.getAbsolutePath());
 
         Map<String, Boolean> psmSetSettings = piaModeller.getPSMModeller().getMaximalPSMSetSettings();
@@ -92,11 +81,13 @@ public class MzTabExporterTest {
         File exportFile = File.createTempFile("pia_testMzTabExporter", ".mzTab");
 
         assertTrue(exporter.exportToMzTab(0L, exportFile, true, true, false));
+
+        exportFile.delete();
     }
 
 
     @Test
-    public void testPeptideLevelExport() throws JAXBException, XMLStreamException, IOException {
+    public void testPeptideLevelExport() throws IOException {
         PIAModeller piaModeller = new PIAModeller(piaFile.getAbsolutePath());
 
         Map<String, Boolean> psmSetSettings = piaModeller.getPSMModeller().getMaximalPSMSetSettings();
@@ -122,5 +113,7 @@ public class MzTabExporterTest {
         MzTabExporter exporter = new MzTabExporter(piaModeller);
         File exportFile = File.createTempFile("pia_testPeptideLevelExport", ".mzTab");
         assertTrue(exporter.exportToMzTab(0L, exportFile, false, true, false));
+
+        exportFile.delete();
     }
 }
