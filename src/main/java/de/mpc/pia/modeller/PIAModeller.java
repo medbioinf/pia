@@ -15,7 +15,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -181,6 +180,8 @@ public class PIAModeller {
     public boolean loadFileName(String filename, Long[] progress, Object notifier) {
         LOGGER.info("start loading file " + filename);
 
+        boolean loadOk = false;
+
         if ((filename != null) && !filename.trim().isEmpty()) {
             this.psmModeller = null;
             this.peptideModeller = null;
@@ -191,14 +192,10 @@ public class PIAModeller {
 
             try {
                 parseIntermediate(progress);
-                if (notifier != null) {
-                    synchronized (notifier) {
-                        notifier.notifyAll();
-                    }
-                }
-                return true;
+                loadOk = true;
             } catch (Exception e) {
                 LOGGER.error("Error while loading PIA XML file", e);
+                loadOk = false;
             }
         }
 
@@ -208,7 +205,7 @@ public class PIAModeller {
             }
         }
 
-        return false;
+        return loadOk;
     }
 
 
@@ -311,12 +308,10 @@ public class PIAModeller {
      * @param progress the first entry in this array holds the progress
      * @param notifier progress is notified on this object
      *
-     * @throws JAXBException
-     * @throws XMLStreamException
      * @throws IOException
      */
     private void parseIntermediate(Long[] progressMonitor, Object notifier)
-            throws XMLStreamException, JAXBException, IOException {
+            throws IOException {
         LOGGER.info("loadIntermediate started...");
 
         Long[] progress;
@@ -423,7 +418,7 @@ public class PIAModeller {
      * @throws IOException
      */
     private void parseIntermediate(Long[] progress)
-            throws JAXBException, XMLStreamException, IOException {
+            throws IOException {
         parseIntermediate(progress, null);
     }
 

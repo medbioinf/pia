@@ -48,10 +48,6 @@ public class IntermediateJAXBTest {
 
         try {
             intermediateHandler.parse(piaFile.getAbsolutePath(), null);
-        } catch (XMLStreamException e) {
-            LOGGER.error(e);
-        } catch (JAXBException e) {
-            LOGGER.error(e);
         } catch (IOException e) {
             LOGGER.error(e);
         }
