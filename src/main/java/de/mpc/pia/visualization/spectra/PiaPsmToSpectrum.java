@@ -78,6 +78,14 @@ public class PiaPsmToSpectrum<P extends PSMItem> {
 
 
     /**
+     * Finish all up and close the controller.
+     */
+    public void close() {
+        daController.close();
+    }
+
+
+    /**
      * initiates the {@link DataAccessController}
      *
      * @param spectraFile
