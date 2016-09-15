@@ -2,6 +2,7 @@ package de.mpc.pia.intermediate.compiler;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,7 +16,6 @@ import javax.xml.stream.XMLStreamException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -179,13 +179,19 @@ public class PIACachedCompilerTest {
 
         File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
 
-        // test writing using the file
+        // test writing using the file's name
+        piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
+        piaIntermediateFile.delete();
+
+        // test writing using the file object
         piaCompiler.writeOutXML(piaIntermediateFile);
         piaIntermediateFile.delete();
 
-        // test writing using the file's name
-        piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
-        piaCompiler.finish();
+        // test writing using the file stream
+        try (FileOutputStream fos = new FileOutputStream(piaIntermediateFile)) {
+            piaCompiler.writeOutXML(fos);
+            piaIntermediateFile.delete();
+        }
 
         piaIntermediateFile.delete();
     }
