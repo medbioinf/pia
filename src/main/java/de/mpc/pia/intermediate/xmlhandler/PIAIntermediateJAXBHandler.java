@@ -60,6 +60,11 @@ import de.mpc.pia.modeller.score.ScoreModel;
 
 
 public class PIAIntermediateJAXBHandler {
+
+    /** logger for this class */
+    private static final Logger LOGGER = Logger.getLogger(PIAIntermediateJAXBHandler.class);
+
+
     /** the name of the project */
     private String projectName;
 
@@ -91,8 +96,15 @@ public class PIAIntermediateJAXBHandler {
     private Map<String, Set<Long>> psmSetSettingsWarnings;
 
 
-    /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(PIAIntermediateJAXBHandler.class);
+    // XML file tag statics for parsing
+    private static final String XML_TAG_FILES_LIST = "filesList";
+    private static final String XML_TAG_INPUTS = "Inputs";
+    private static final String XML_TAG_ANALYSIS_SOFTWARE_LIST = "AnalysisSoftwareList";
+    private static final String XML_TAG_SPECTRA_LIST = "spectraList";
+    private static final String XML_TAG_ACCESSIONS_LIST = "accessionsList";
+    private static final String XML_TAG_PEPTIDES_LIST = "peptidesList";
+    private static final String XML_TAG_GROUPS_LIST = "groupsList";
+
 
 
     /**
@@ -122,15 +134,28 @@ public class PIAIntermediateJAXBHandler {
      * The progress gets increased by 40 (remaining 60 are in the PIAModeller).
      *
      * @param fileName
+     * @param progress
+     *
+     * @throws IOException
+     */
+    public void parse(String fileName, Long[] progress)
+            throws IOException {
+        parse(fileName, progress, null);
+    }
+
+
+    /**
+     * Parses the file in chunks and thus having a low memory footprint.<br/>
+     * The progress gets increased by 40 (remaining 60 are in the PIAModeller).
+     *
+     * @param fileName
      * @param progress the first entry in this array holds the progress
      * @param notifier progress is notified on this object
      *
-     * @throws XMLStreamException
-     * @throws JAXBException
      * @throws IOException
      */
     public void parse(String fileName, Long[] progressArr, Object notifier)
-            throws XMLStreamException, JAXBException, IOException {
+            throws IOException {
         Long[] progress = progressArr;
         projectName = null;
         files = new HashMap<Long, PIAInputFile>();
@@ -142,14 +167,28 @@ public class PIAIntermediateJAXBHandler {
         accessions = new HashMap<Long, Accession>();
         groups = new HashMap<Long, Group>();
 
-
-        if (progress == null) {
+        if ((progress == null) || (progressArr.length < 1) || (progressArr[0] == null)) {
             LOGGER.warn("no progress array given, creating one. "
                     + "But no external supervision will be possible.");
             progress = new Long[1];
             progress[0] = 0L;
         }
 
+        parseXMLFile(fileName, progress, notifier);
+    }
+
+
+
+    /**
+     * Actually parses the XML file given by fileName.
+     *
+     * @param fileName
+     * @param progress
+     * @param notifier
+     * @throws IOException
+     */
+    private void parseXMLFile(String fileName, Long[] progress, Object notifier)
+            throws IOException {
         // set up a StAX reader
         XMLInputFactory xmlif = XMLInputFactory.newInstance();
         try (FileReader fileReader = new FileReader(fileName)) {
@@ -171,110 +210,14 @@ public class PIAIntermediateJAXBHandler {
             while (xmlr.hasNext()) {
                 String tag = xmlr.getLocalName();
 
-                if ("filesList".equalsIgnoreCase(tag)) {
-                    LOGGER.info(tag);
-                    // filesList
-                    JAXBContext jaxbContext = JAXBContext.newInstance(FilesListXML.class);
-                    Unmarshaller um = jaxbContext.createUnmarshaller();
-                    FilesListXML filesList = (FilesListXML)um.unmarshal(xmlr);
+                Long tagProgress = parseTag(tag, xmlr);
 
-                    if (filesList != null) {
-                        parseFilesList(filesList);
-                    }
-                    progress[0] += 1;
-                    if (notifier != null) {
-                        synchronized (notifier) {
-                            notifier.notifyAll();
-                        }
-                    }
-                } else if ("Inputs".equalsIgnoreCase(tag)) {
-                    LOGGER.info(tag);
-                    // Inputs
-                    JAXBContext jaxbContext = JAXBContext.newInstance(Inputs.class);
-                    Unmarshaller um = jaxbContext.createUnmarshaller();
-                    JAXBElement<Inputs> umRoot = um.unmarshal(xmlr, Inputs.class);
-                    Inputs inputs = umRoot.getValue();
-
-                    if (inputs != null) {
-                        // Inputs:SpectraData
-                        for (SpectraData sd : inputs.getSpectraData()) {
-                            spectraData.put(sd.getId(), sd);
-                        }
-
-                        // Inputs:SearchDatabase
-                        for (SearchDatabase db : inputs.getSearchDatabase()) {
-                            searchDatabases.put(db.getId(), db);
-                        }
-                    }
-                    progress[0] += 1;
-                    if (notifier != null) {
-                        synchronized (notifier) {
-                            notifier.notifyAll();
-                        }
-                    }
-                } else if ("AnalysisSoftwareList".equalsIgnoreCase(tag)) {
-                    LOGGER.info(tag);
-                    // AnalysisSoftwareList
-                    JAXBContext jaxbContext = JAXBContext.newInstance(AnalysisSoftwareList.class);
-                    Unmarshaller um = jaxbContext.createUnmarshaller();
-                    JAXBElement<AnalysisSoftwareList> umRoot = um.unmarshal(xmlr, AnalysisSoftwareList.class);
-                    AnalysisSoftwareList analysisSoftwareList = umRoot.getValue();
-
-                    if (analysisSoftwareList != null) {
-                        for (AnalysisSoftware sw : analysisSoftwareList.getAnalysisSoftware()) {
-                            software.put(sw.getId(), sw);
-                        }
-                    }
-                    progress[0] += 1;
-                    if (notifier != null) {
-                        synchronized (notifier) {
-                            notifier.notifyAll();
-                        }
-                    }
-                } else if ("spectraList".equalsIgnoreCase(tag)) {
-                    LOGGER.info(tag);
-                    parseSpectraChunked(xmlr);
-                    progress[0] += 30;
-                    if (notifier != null) {
-                        synchronized (notifier) {
-                            notifier.notifyAll();
-                        }
-                    }
-                } else if ("accessionsList".equalsIgnoreCase(tag)) {
-                    LOGGER.info(tag);
-                    parseAccessionsChunked(xmlr);
-                    progress[0] += 1;
-                    if (notifier != null) {
-                        synchronized (notifier) {
-                            notifier.notifyAll();
-                        }
-                    }
-                } else if ("peptidesList".equalsIgnoreCase(tag)) {
-                    LOGGER.info(tag);
-                    parsePeptidesChunked(xmlr);
-                    progress[0] += 5;
-                    if (notifier != null) {
-                        synchronized (notifier) {
-                            notifier.notifyAll();
-                        }
-                    }
-                } else if ("groupsList".equalsIgnoreCase(tag)) {
-                    LOGGER.info(tag);
-                    parseGroupsChunked(xmlr);
-                    progress[0] += 1;
-                    if (notifier != null) {
-                        synchronized (notifier) {
-                            notifier.notifyAll();
-                        }
-                    }
-                } else {
-                    LOGGER.warn("unknown tag in piaXML: " + xmlr.getLocalName());
+                if (tagProgress > 0) {
+                    progress[0] += tagProgress;
+                    notifyOnObject(notifier);
                 }
 
-                // skip the whitespace between tags
-                if (xmlr.getEventType() == XMLStreamConstants.CHARACTERS) {
-                    xmlr.next();
-                }
+                skipWhitespacesInReader(xmlr);
 
                 // check, if end of file reached
                 if ("jPiaXML".equalsIgnoreCase(xmlr.getLocalName())
@@ -283,33 +226,109 @@ public class PIAIntermediateJAXBHandler {
                     break;
                 }
             }
+        } catch (IOException | XMLStreamException | JAXBException e) {
+            LOGGER.error("Error while parsing PIA XML file", e);
+            throw new IOException(e);
         }
     }
 
 
     /**
-     * Parses the file in chunks and thus having a low memory footprint.<br/>
-     * The progress gets increased by 40 (remaining 60 are in the PIAModeller).
+     * Notifies all monitors of the given object, if it is not null.
      *
-     * @param fileName
-     * @param progress
-     *
-     * @throws XMLStreamException
-     * @throws JAXBException
-     * @throws IOException
+     * @param notifier
      */
-    public void parse(String fileName, Long[] progress)
-            throws XMLStreamException, JAXBException, IOException {
-        parse(fileName, progress, null);
+    private static void notifyOnObject(Object notifier) {
+        if (notifier != null) {
+            synchronized (notifier) {
+                notifier.notifyAll();
+            }
+        }
     }
 
 
     /**
-     * Parses the files list, given the XML object
+     * Skips the whitespaces between tags
      *
-     * @param filesListXML
+     * @param xmlr
+     * @throws XMLStreamException
      */
-    public void parseFilesList(FilesListXML filesListXML) {
+    private static void skipWhitespacesInReader(XMLStreamReader xmlr) throws XMLStreamException {
+        // skip the whitespace between tags
+        if (xmlr.getEventType() == XMLStreamConstants.CHARACTERS) {
+            xmlr.next();
+        }
+    }
+
+
+    /**
+     * Parses the currently by the String given in the {@link XMLStreamReader}.
+     *
+     * @param tag
+     * @param xmlr
+     * @return
+     * @throws JAXBException
+     * @throws XMLStreamException
+     */
+    private Long parseTag(String tag, XMLStreamReader xmlr)
+            throws JAXBException, XMLStreamException {
+        Long progress = new Long(0);
+
+        if (XML_TAG_FILES_LIST.equalsIgnoreCase(tag)) {
+            LOGGER.info(tag);
+            // filesList
+            parseFilesList(xmlr);
+            progress += 1;
+        } else if (XML_TAG_INPUTS.equalsIgnoreCase(tag)) {
+            LOGGER.info(tag);
+            // Inputs
+            parseInputs(xmlr);
+            progress += 1;
+        } else if (XML_TAG_ANALYSIS_SOFTWARE_LIST.equalsIgnoreCase(tag)) {
+            LOGGER.info(tag);
+            // AnalysisSoftwareList
+            parseAnalysisSoftwareList(xmlr);
+            progress += 1;
+        } else if (XML_TAG_SPECTRA_LIST.equalsIgnoreCase(tag)) {
+            LOGGER.info(tag);
+            parseSpectraChunked(xmlr);
+            progress += 30;
+        } else if (XML_TAG_ACCESSIONS_LIST.equalsIgnoreCase(tag)) {
+            LOGGER.info(tag);
+            parseAccessionsChunked(xmlr);
+            progress += 1;
+        } else if (XML_TAG_PEPTIDES_LIST.equalsIgnoreCase(tag)) {
+            LOGGER.info(tag);
+            parsePeptidesChunked(xmlr);
+            progress += 5;
+        } else if (XML_TAG_GROUPS_LIST.equalsIgnoreCase(tag)) {
+            LOGGER.info(tag);
+            parseGroupsChunked(xmlr);
+            progress += 1;
+        } else {
+            LOGGER.warn("unknown tag in pia XML: " + xmlr.getLocalName());
+        }
+
+        return progress;
+    }
+
+
+
+    /**
+     * Parses the filesList, given the XMLStreamReader at its starting point.
+     *
+     * @param xmlr
+     * @throws JAXBException
+     */
+    private void parseFilesList(XMLStreamReader xmlr) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(FilesListXML.class);
+        Unmarshaller um = jaxbContext.createUnmarshaller();
+        FilesListXML filesListXML = (FilesListXML)um.unmarshal(xmlr);
+
+        if (filesListXML == null) {
+            return;
+        }
+
         for (PIAInputFileXML fileXML : filesListXML.getFiles()) {
             PIAInputFile file = new PIAInputFile(fileXML.getId(),
                     fileXML.getName(), fileXML.getFileName(),
@@ -335,16 +354,63 @@ public class PIAIntermediateJAXBHandler {
 
 
     /**
+     * Parses the Inputs, given the XMLStreamReader at its starting point.
+     *
+     * @param xmlr
+     * @throws JAXBException
+     */
+    private void parseInputs(XMLStreamReader xmlr) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(Inputs.class);
+        Unmarshaller um = jaxbContext.createUnmarshaller();
+        JAXBElement<Inputs> umRoot = um.unmarshal(xmlr, Inputs.class);
+        Inputs inputs = umRoot.getValue();
+
+        if (inputs != null) {
+            // Inputs:SpectraData
+            for (SpectraData sd : inputs.getSpectraData()) {
+                spectraData.put(sd.getId(), sd);
+            }
+
+            // Inputs:SearchDatabase
+            for (SearchDatabase db : inputs.getSearchDatabase()) {
+                searchDatabases.put(db.getId(), db);
+            }
+        }
+    }
+
+
+    /**
+     * Parses the AnalysisSoftwareList, given the XMLStreamReader at its
+     * starting point.
+     *
+     * @param xmlr
+     * @throws JAXBException
+     */
+    private void parseAnalysisSoftwareList(XMLStreamReader xmlr) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(AnalysisSoftwareList.class);
+        Unmarshaller um = jaxbContext.createUnmarshaller();
+        JAXBElement<AnalysisSoftwareList> umRoot = um.unmarshal(xmlr, AnalysisSoftwareList.class);
+        AnalysisSoftwareList analysisSoftwareList = umRoot.getValue();
+
+        if (analysisSoftwareList != null) {
+            for (AnalysisSoftware sw : analysisSoftwareList.getAnalysisSoftware()) {
+                software.put(sw.getId(), sw);
+            }
+        }
+    }
+
+
+    /**
      * Parses the spectra in a chunked matter. It assumes, the given
      * {@link XMLStreamReader} is at the position of a {@link SpectraListXML}.
      *
      * @param xmlr
-     * @throws JAXBException
      * @throws XMLStreamException
+     * @throws JAXBException
      */
-    public void parseSpectraChunked(XMLStreamReader xmlr)
-            throws JAXBException, XMLStreamException {
-        xmlr.require(XMLStreamConstants.START_ELEMENT, null, "spectraList");
+    private void parseSpectraChunked(XMLStreamReader xmlr)
+            throws XMLStreamException, JAXBException {
+        xmlr.require(XMLStreamConstants.START_ELEMENT, null, XML_TAG_SPECTRA_LIST);
 
         JAXBContext jaxbContext = JAXBContext.newInstance(SpectrumMatchXML.class);
         Unmarshaller um = jaxbContext.createUnmarshaller();
@@ -361,120 +427,151 @@ public class PIAIntermediateJAXBHandler {
             xmlr.require(XMLStreamConstants.START_ELEMENT, null, "spectrumMatch");
 
             SpectrumMatchXML psmXML = (SpectrumMatchXML) um.unmarshal(xmlr);
-            PeptideSpectrumMatch psm;
-
-            PIAInputFile file = files.get(psmXML.getFileRef());
-            SpectrumIdentification spectrumID = null;
-
-            if (file != null) {
-
-                if (psmXML.getSpectrumIdentificationRef() != null) {
-                    spectrumID = file.getSpectrumIdentification(
-                            psmXML.getSpectrumIdentificationRef());
-
-                    if (spectrumID == null) {
-                        LOGGER.warn("No SpectrumIdentification found for '" +
-                                psmXML.getSpectrumIdentificationRef() + "'");
-                    }
-                }
-
-            } else {
-                LOGGER.warn("PSM '" + psmXML.getId() + "' has no valid fileRef '" +
-                        psmXML.getFileRef() + "'.");
-            }
-
-            psm = new PeptideSpectrumMatch(psmXML.getId(),
-                    psmXML.getCharge(),
-                    psmXML.getMassToCharge(),
-                    psmXML.getDeltaMass(),
-                    psmXML.getRetentionTime(),
-                    psmXML.getSequence(),
-                    psmXML.getMissed(),
-                    psmXML.getSourceID(),
-                    psmXML.getTitle(),
-                    files.get(psmXML.getFileRef()),
-                    spectrumID
-                    );
-
-            // add the scores
-            for (ScoreXML scoreXML : psmXML.getScores()) {
-                ScoreModel score = new ScoreModel(scoreXML.getValue(),
-                        scoreXML.getCvAccession(),
-                        scoreXML.getName());
-
-                psm.addScore(score);
-            }
-
-            // add the modifications
-            for (ModificationXML modXML : psmXML.getModification()) {
-                Modification mod;
-
-                mod = new Modification(
-                        modXML.getResidue().charAt(0),
-                        modXML.getMass(),
-                        modXML.getDescription(),
-                        modXML.getAccession()
-                        );
-
-                psm.addModification(modXML.getLocation(), mod);
-            }
-
-            // if the PSM has decoy information, set it
-            if (psmXML.getIsDecoy() != null) {
-                psm.setIsDecoy(psmXML.getIsDecoy());
-            }
-
-            // if the PSM has uniqueness information, set it
-            if (psmXML.getIsUnique() != null) {
-                psm.setIsUnique(psmXML.getIsUnique());
-            }
-
-            // the params
-            for (AbstractParam param : psmXML.getParamList()) {
-                psm.addParam(param);
-            }
-
-            // check for PSM set settings warnings
-            if (psm.getRetentionTime() == null) {
-                psmSetSettingsWarnings.
-                get(IdentificationKeySettings.RETENTION_TIME.toString()).
-                add(psm.getFile().getID());
-            }
-            if ((psm.getSourceID() == null)
-                    || psm.getSourceID().trim().isEmpty()) {
-                psmSetSettingsWarnings.
-                get(IdentificationKeySettings.SOURCE_ID.toString()).
-                add(psm.getFile().getID());
-            }
-            if ((psm.getSpectrumTitle() == null)
-                    || psm.getSpectrumTitle().trim().isEmpty()) {
-                psmSetSettingsWarnings.
-                get(IdentificationKeySettings.SPECTRUM_TITLE.toString()).
-                add(psm.getFile().getID());
-            }
-            if ((psm.getSequence() == null) ||
-                    psm.getSequence().trim().isEmpty()) {
-                psmSetSettingsWarnings.
-                get(IdentificationKeySettings.SEQUENCE.toString()).
-                add(psm.getFile().getID());
-            }
+            PeptideSpectrumMatch psm = createPSMfromXML(psmXML);
 
             // put the PSM into the map
             psms.put(psm.getID(), psm);
 
-            // skip the whitespace between spectra
-            if (xmlr.getEventType() == XMLStreamConstants.CHARACTERS) {
-                xmlr.next();
-            }
+            skipWhitespacesInReader(xmlr);
         }
 
-        try {
-            xmlr.require(XMLStreamConstants.END_ELEMENT, null, "spectraList");
-            if (xmlr.hasNext()) {
-                xmlr.nextTag();
+        xmlr.require(XMLStreamConstants.END_ELEMENT, null, XML_TAG_SPECTRA_LIST);
+        if (xmlr.hasNext()) {
+            xmlr.nextTag();
+        }
+    }
+
+
+    /**
+     * Create a {@link PeptideSpectrumMatch} from the {@link SpectrumMatchXML}
+     * object.
+     *
+     * @param psmXML
+     * @return
+     */
+    private PeptideSpectrumMatch createPSMfromXML(SpectrumMatchXML psmXML) {
+        PeptideSpectrumMatch psm;
+
+        PIAInputFile file = files.get(psmXML.getFileRef());
+        SpectrumIdentification spectrumID = null;
+
+        if (file != null) {
+            if (psmXML.getSpectrumIdentificationRef() != null) {
+                spectrumID = file.getSpectrumIdentification(
+                        psmXML.getSpectrumIdentificationRef());
+
+                if (spectrumID == null) {
+                    LOGGER.warn("No SpectrumIdentification found for '" +
+                            psmXML.getSpectrumIdentificationRef() + "'");
+                }
             }
-        } catch (XMLStreamException e) {
-            LOGGER.warn("spectraList does not end correctly", e);
+
+        } else {
+            LOGGER.warn("PSM '" + psmXML.getId() + "' has no valid fileRef '" +
+                    psmXML.getFileRef() + "'.");
+        }
+
+        psm = new PeptideSpectrumMatch(psmXML.getId(),
+                psmXML.getCharge(),
+                psmXML.getMassToCharge(),
+                psmXML.getDeltaMass(),
+                psmXML.getRetentionTime(),
+                psmXML.getSequence(),
+                psmXML.getMissed(),
+                psmXML.getSourceID(),
+                psmXML.getTitle(),
+                files.get(psmXML.getFileRef()),
+                spectrumID
+                );
+
+        // add the scores
+        addPSMScoresFromXML(psm, psmXML);
+
+        // add the modifications
+        addPSMModificationsFromXML(psm, psmXML);
+
+        // if the PSM has decoy information, set it
+        if (psmXML.getIsDecoy() != null) {
+            psm.setIsDecoy(psmXML.getIsDecoy());
+        }
+
+        // if the PSM has uniqueness information, set it
+        if (psmXML.getIsUnique() != null) {
+            psm.setIsUnique(psmXML.getIsUnique());
+        }
+
+        // the params
+        for (AbstractParam param : psmXML.getParamList()) {
+            psm.addParam(param);
+        }
+
+        // check for PSM set settings warnings
+        updatePSMSetSettingsWarnings(psm);
+
+        return psm;
+    }
+
+
+    /**
+     * Adds the scores from the {@link SpectrumMatchXML} to the PSM.
+     *
+     * @param psm
+     * @param psmXML
+     */
+    private static void addPSMScoresFromXML(PeptideSpectrumMatch psm, SpectrumMatchXML psmXML) {
+        for (ScoreXML scoreXML : psmXML.getScores()) {
+            ScoreModel score = new ScoreModel(scoreXML.getValue(),
+                    scoreXML.getCvAccession(),
+                    scoreXML.getName());
+
+            psm.addScore(score);
+        }
+    }
+
+
+    /**
+     * Adds the modifications from the {@link SpectrumMatchXML} to the PSM.
+     *
+     * @param psm
+     * @param psmXML
+     */
+    private static void addPSMModificationsFromXML(PeptideSpectrumMatch psm, SpectrumMatchXML psmXML) {
+        for (ModificationXML modXML : psmXML.getModification()) {
+            Modification mod;
+
+            mod = new Modification(
+                    modXML.getResidue().charAt(0),
+                    modXML.getMass(),
+                    modXML.getDescription(),
+                    modXML.getAccession()
+                    );
+
+            psm.addModification(modXML.getLocation(), mod);
+        }
+    }
+
+
+    /**
+     * Update the warnings with information of the new PSM.
+     *
+     * @param psm
+     */
+    private void updatePSMSetSettingsWarnings(PeptideSpectrumMatch psm) {
+        if (psm.getRetentionTime() == null) {
+            psmSetSettingsWarnings.get(IdentificationKeySettings.RETENTION_TIME.toString())
+                    .add(psm.getFile().getID());
+        }
+        if ((psm.getSourceID() == null) || psm.getSourceID().trim().isEmpty()) {
+            psmSetSettingsWarnings.get(IdentificationKeySettings.SOURCE_ID.toString())
+                    .add(psm.getFile().getID());
+        }
+        if ((psm.getSpectrumTitle() == null) || psm.getSpectrumTitle().trim().isEmpty()) {
+            psmSetSettingsWarnings.get(IdentificationKeySettings.SPECTRUM_TITLE.toString())
+                    .add(psm.getFile().getID());
+        }
+        if ((psm.getSequence() == null) || psm.getSequence().trim().isEmpty()) {
+            psmSetSettingsWarnings.get(IdentificationKeySettings.SEQUENCE.toString())
+                    .add(psm.getFile().getID());
         }
     }
 
@@ -485,12 +582,12 @@ public class PIAIntermediateJAXBHandler {
      * {@link AccessionsListXML}.
      *
      * @param xmlr
-     * @throws JAXBException
      * @throws XMLStreamException
+     * @throws JAXBException
      */
-    public void parseAccessionsChunked(XMLStreamReader xmlr)
-            throws JAXBException, XMLStreamException {
-        xmlr.require(XMLStreamConstants.START_ELEMENT, null, "accessionsList");
+    private void parseAccessionsChunked(XMLStreamReader xmlr)
+            throws XMLStreamException, JAXBException {
+        xmlr.require(XMLStreamConstants.START_ELEMENT, null, XML_TAG_ACCESSIONS_LIST);
 
         JAXBContext jaxbContext = JAXBContext.newInstance(AccessionXML.class);
         Unmarshaller um = jaxbContext.createUnmarshaller();
@@ -528,19 +625,12 @@ public class PIAIntermediateJAXBHandler {
 
             accessions.put(accession.getID(), accession);
 
-            // skip the whitespaces
-            if (xmlr.getEventType() == XMLStreamConstants.CHARACTERS) {
-                xmlr.next();
-            }
+            skipWhitespacesInReader(xmlr);
         }
 
-        try {
-            xmlr.require(XMLStreamConstants.END_ELEMENT, null, "accessionsList");
-            if (xmlr.hasNext()) {
-                xmlr.nextTag();
-            }
-        } catch (XMLStreamException e) {
-            LOGGER.warn("accessionsList does not end correctly", e);
+        xmlr.require(XMLStreamConstants.END_ELEMENT, null, XML_TAG_ACCESSIONS_LIST);
+        if (xmlr.hasNext()) {
+            xmlr.nextTag();
         }
     }
 
@@ -550,12 +640,12 @@ public class PIAIntermediateJAXBHandler {
      * {@link XMLStreamReader} is at the position of a {@link PeptidesListXML}.
      *
      * @param xmlr
-     * @throws JAXBException
      * @throws XMLStreamException
+     * @throws JAXBException
      */
-    public void parsePeptidesChunked(XMLStreamReader xmlr)
-            throws JAXBException, XMLStreamException {
-        xmlr.require(XMLStreamConstants.START_ELEMENT, null, "peptidesList");
+    private void parsePeptidesChunked(XMLStreamReader xmlr)
+            throws XMLStreamException, JAXBException {
+        xmlr.require(XMLStreamConstants.START_ELEMENT, null, XML_TAG_PEPTIDES_LIST);
 
         JAXBContext jaxbContext = JAXBContext.newInstance(PeptideXML.class);
         Unmarshaller um = jaxbContext.createUnmarshaller();
@@ -600,19 +690,12 @@ public class PIAIntermediateJAXBHandler {
 
             peptides.put(peptide.getID(), peptide);
 
-            // skip the whitespaces
-            if (xmlr.getEventType() == XMLStreamConstants.CHARACTERS) {
-                xmlr.next();
-            }
+            skipWhitespacesInReader(xmlr);
         }
 
-        try {
-            xmlr.require(XMLStreamConstants.END_ELEMENT, null, "peptidesList");
-            if (xmlr.hasNext()) {
-                xmlr.nextTag();
-            }
-        } catch (XMLStreamException e) {
-            LOGGER.warn("peptidesList does not end correctly", e);
+        xmlr.require(XMLStreamConstants.END_ELEMENT, null, XML_TAG_PEPTIDES_LIST);
+        if (xmlr.hasNext()) {
+            xmlr.nextTag();
         }
     }
 
@@ -622,15 +705,14 @@ public class PIAIntermediateJAXBHandler {
      * {@link XMLStreamReader} is at the position of a {@link GroupsListXML}.
      *
      * @param xmlr
-     * @throws JAXBException
      * @throws XMLStreamException
+     * @throws JAXBException
      */
-    public void parseGroupsChunked(XMLStreamReader xmlr)
-            throws JAXBException, XMLStreamException {
-        xmlr.require(XMLStreamConstants.START_ELEMENT, null, "groupsList");
+    private void parseGroupsChunked(XMLStreamReader xmlr)
+            throws XMLStreamException, JAXBException {
+        Map<Long, List<ChildRefXML>> groupsChildren = new HashMap<Long, List<ChildRefXML>>();
 
-        Map<Long, List<ChildRefXML>> groupsChildren =
-                new HashMap<Long, List<ChildRefXML>>();
+        xmlr.require(XMLStreamConstants.START_ELEMENT, null, XML_TAG_GROUPS_LIST);
 
         JAXBContext jaxbContext = JAXBContext.newInstance(GroupXML.class);
         Unmarshaller um = jaxbContext.createUnmarshaller();
@@ -645,52 +727,22 @@ public class PIAIntermediateJAXBHandler {
 
             group.setTreeID(groupXML.getTreeId());
 
-            for (AccessionRefXML accRef : groupXML.getAccessionsRefList()) {
-                Accession accession = accessions.get(accRef.getAccRefID());
+            parseGroupsAccessions(groupXML, group);
+            parseGroupsPeptides(groupXML, group);
 
-                if (accession != null) {
-                    group.addAccession(accession);
-                    // now the accession's group can be set
-                    accession.setGroup(group);
-                } else {
-                    LOGGER.warn("No accession found for groups reference '" +
-                            accRef.getAccRefID() + "'");
-                }
-            }
-
-            for (PeptideRefXML pepRef : groupXML.getPeptidesRefList()) {
-                Peptide peptide = peptides.get(pepRef.getPepRefID());
-
-                if (peptide != null) {
-                    group.addPeptide(peptide);
-                    // now the peptide's group can be set
-                    peptide.setGroup(group);
-                } else {
-                    LOGGER.warn("No peptide found for groups reference '" +
-                            pepRef.getPepRefID() + "'");
-                }
-            }
-
-            // to get the allAccessions right, children are set in a second round
+            // to get the "allAccessions" right, children are set in a second round
             if (groupXML.getChildrenRefList() != null) {
                 groupsChildren.put(group.getID(), groupXML.getChildrenRefList());
             }
 
             groups.put(group.getID(), group);
 
-            // skip the whitespaces
-            if (xmlr.getEventType() == XMLStreamConstants.CHARACTERS) {
-                xmlr.next();
-            }
+            skipWhitespacesInReader(xmlr);
         }
 
-        try {
-            xmlr.require(XMLStreamConstants.END_ELEMENT, null, "groupsList");
-            if (xmlr.hasNext()) {
-                xmlr.nextTag();
-            }
-        } catch (XMLStreamException e) {
-            LOGGER.warn("groupsList does not end correctly", e);
+        xmlr.require(XMLStreamConstants.END_ELEMENT, null, XML_TAG_GROUPS_LIST);
+        if (xmlr.hasNext()) {
+            xmlr.nextTag();
         }
 
         // now set the groups' connections
@@ -705,9 +757,52 @@ public class PIAIntermediateJAXBHandler {
                     group.addChild(child);
                     child.addParent(group);
                 } else {
-                    LOGGER.warn("No group found for child reference '" +
-                            childRef.getChildRefID() + "'");
+                    LOGGER.warn("No group found for child reference '" + childRef.getChildRefID() + "'");
                 }
+            }
+        }
+    }
+
+
+    /**
+     * Parses the Accessions from the {@link GroupXML} to the {@link Group}.
+     *
+     * @param groupXML
+     * @param group
+     */
+    private void parseGroupsAccessions(GroupXML groupXML, Group group) {
+        for (AccessionRefXML accRef : groupXML.getAccessionsRefList()) {
+            Accession accession = accessions.get(accRef.getAccRefID());
+
+            if (accession != null) {
+                group.addAccession(accession);
+                // now the accession's group can be set
+                accession.setGroup(group);
+            } else {
+                LOGGER.warn("No accession found for groups reference '" +
+                        accRef.getAccRefID() + "'");
+            }
+        }
+    }
+
+
+    /**
+     * Parses the Peptides from the {@link GroupXML} to the {@link Group}.
+     *
+     * @param groupXML
+     * @param group
+     */
+    private void parseGroupsPeptides(GroupXML groupXML, Group group) {
+        for (PeptideRefXML pepRef : groupXML.getPeptidesRefList()) {
+            Peptide peptide = peptides.get(pepRef.getPepRefID());
+
+            if (peptide != null) {
+                group.addPeptide(peptide);
+                // now the peptide's group can be set
+                peptide.setGroup(group);
+            } else {
+                LOGGER.warn("No peptide found for groups reference '" +
+                        pepRef.getPepRefID() + "'");
             }
         }
     }

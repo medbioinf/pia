@@ -117,8 +117,11 @@ public class ReportProteinTest {
         }
         br.close();
 
+        List<ReportProtein> proteins = piaModeller.getProteinModeller().getFilteredReportProteins(filters);
+        assertEquals("Wrong number of total proteins", expectedValues.size(), proteins.size());
+
         // compare the values
-        for (ReportProtein prot : piaModeller.getProteinModeller().getFilteredReportProteins(filters)) {
+        for (ReportProtein prot : proteins) {
             StringBuffer accSb = new StringBuffer();
             for (Accession acc : prot.getAccessions()) {
                 accSb.append(acc.getAccession());
