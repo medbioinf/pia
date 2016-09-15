@@ -36,23 +36,19 @@ import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 
 public class PIACompilerTest {
 
-    /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(PIACompilerTest.class);
-
     /*
     public static File mascotFile;
     public static File tandemFile;
     */
 
-    public static File mzid55mergeTandem;
-    public static File mzid55mergeMascot;
-    public static File mzid55mergeOmssa;
+    private File mzid55mergeTandem;
+    private File mzid55mergeMascot;
+    private File mzid55mergeOmssa;
 
-    public static File idXMLtandemFile;
-    public static File idXMLmsgfFile;
-    public static File idXMLexpectedFile;
+    private File idXMLtandemFile;
+    private File idXMLmsgfFile;
+    private File idXMLexpectedFile;
     private double scoreDelta = 0.000001;
-
 
     private String piaIntermediateFileName = "PIACompilerTest.pia.xml";
 
@@ -224,18 +220,13 @@ public class PIACompilerTest {
 
     @Test
     public void testPIACompilerMzidFiles() throws IOException {
-        Runtime runtime = Runtime.getRuntime();
-        double mb = 1024*1024;
-        final long startTime = System.nanoTime();
-        final long endTime;
-
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
         assertEquals("X!TAndem file could not be parsed", true,
                 piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
 
-        //assertEquals("OMSSA file could not be parsed", true,
-        //        piaCompiler.getDataFromFile("tandem", mzid55mergeOmssa.getAbsolutePath(), null, null));
+        assertEquals("OMSSA file could not be parsed", true,
+                piaCompiler.getDataFromFile("tandem", mzid55mergeOmssa.getAbsolutePath(), null, null));
 
         assertEquals("Mascot file could not be parsed", true,
                 piaCompiler.getDataFromFile("mascot", mzid55mergeMascot.getAbsolutePath(), null, null));
@@ -257,13 +248,6 @@ public class PIACompilerTest {
         piaIntermediateFile.delete();
 
         piaCompiler.finish();
-
-        endTime = System.nanoTime();
-        LOGGER.info("Total Memory: " + runtime.totalMemory() / mb + " MB");
-        LOGGER.info("Used Memory: " + (runtime.totalMemory() - runtime.freeMemory()) / mb + " MB");
-        LOGGER.info("Free Memory: " + runtime.freeMemory() / mb + " MB");
-        LOGGER.info("Max Memory: " + runtime.maxMemory() / mb + " MB");
-        LOGGER.info("Execution time: " + ((endTime - startTime) / 1000000000.0) + " s");
     }
 
 

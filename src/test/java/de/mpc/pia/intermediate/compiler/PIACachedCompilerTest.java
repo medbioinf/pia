@@ -35,16 +35,12 @@ import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 
 public class PIACachedCompilerTest {
 
-    /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(PIACachedCompilerTest.class);
+    private File mzid55mergeTandem;
+    private File mzid55mergeOmssa;
 
-
-    public static File mzid55mergeTandem;
-    public static File mzid55mergeOmssa;
-
-    public static File idXMLtandemFile;
-    public static File idXMLmsgfFile;
-    public static File idXMLexpectedFile;
+    private File idXMLtandemFile;
+    private File idXMLmsgfFile;
+    private File idXMLexpectedFile;
     private double scoreDelta = 0.000001;
 
     private String piaIntermediateFileName = "PIACompilerTest.pia.xml";
