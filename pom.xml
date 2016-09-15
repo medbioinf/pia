@@ -284,7 +284,15 @@
 					</execution>
 				</executions>
 			</plugin>
-
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.19</version>
+				<configuration>
+					<argLine>-Xmx2G</argLine>
+				</configuration>
+			</plugin>
 		</plugins>
 
 		<pluginManagement>
@@ -302,7 +310,7 @@
 									<pluginExecutionFilter>
 										<groupId>org.jacoco</groupId>
 										<artifactId>jacoco-maven-plugin</artifactId>
-										<versionRange>[0.5,)</versionRange>
+										<versionRange>[0.7,)</versionRange>
 										<goals>
 											<goal>prepare-agent</goal>
 										</goals>
