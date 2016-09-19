@@ -326,6 +326,8 @@ public class PrideXMLParser {
 
                 // add the PSM in the compiler (or overwrite it), this might give warning
                 compiler.insertCompletePeptideSpectrumMatch(psm);
+
+                // TODO: this should be restructured: first get a list of all peptides, then add them to avoid adding a PSM multiple times
             }
         }
 
