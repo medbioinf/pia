@@ -257,7 +257,7 @@ public class UnimodParser {
      * @param mod
      * @return
      */
-    private static boolean isAnyName(String query, ModT mod) {
+    public static boolean isAnyName(String query, ModT mod) {
         boolean nameFound;
 
         if (mod.getTitle().equalsIgnoreCase(query) ||
