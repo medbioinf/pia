@@ -347,18 +347,19 @@ public class MzTabExporter {
                         uk.ac.ebi.pride.jmztab.model.Param scoreParam = null;
 
                         // do NOT add the PSM-level FDR for the overview
-                        if (!scoreType.equals(ScoreModelEnum.PSM_LEVEL_FDR_SCORE)) {
-                            if (scoreType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
-                                scoreParam = new uk.ac.ebi.pride.jmztab.model.UserParam(
-                                        piaModeller.getPSMModeller().getScoreName(scoreShort),
-                                        "");
-                            } else {
-                                scoreParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
-                                        scoreType.getCvAccession(),
-                                        scoreType.getCvName(),
-                                        "");
-                            }
+                        if (scoreType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+                            scoreParam = new uk.ac.ebi.pride.jmztab.model.UserParam(
+                                    piaModeller.getPSMModeller().getScoreName(scoreShort),
+                                    "");
+                        } else {
+                            scoreParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                                    scoreType.getCvAccession(),
+                                    scoreType.getCvName(),
+                                    "");
+                        }
 
+                        if (!scoreType.equals(ScoreModelEnum.PSM_LEVEL_FDR_SCORE)
+                                || !piaModeller.getCreatePSMSets()) {
                             mtd.addPsmSearchEngineScoreParam(scoreID, scoreParam);
                             psmScoreShortToId.put(scoreShort, scoreID);
                         }
