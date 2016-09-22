@@ -1,6 +1,6 @@
 # PIA - Protein Inference Algorithms
 
-[![Build Status](https://api.travis-ci.org/mpc-bioinformatics/pia.svg)](https://api.travis-ci.org/mpc-bioinformatics/pia)
+[![Build Status](https://api.travis-ci.org/mpc-bioinformatics/pia.svg)](https://travis-ci.org/mpc-bioinformatics/pia)
 
 PIA is a toolbox for MS based protein inference and identification analysis.
 
