@@ -35,7 +35,7 @@
 		<commons-lang3.version>3.4</commons-lang3.version>
 		<commons-collections.version>4.1</commons-collections.version>
 		<jmzidentml.version>1.2.4</jmzidentml.version>
-		<jmztab.version>3.0.3</jmztab.version>
+		<jmztab.version>3.0.4</jmztab.version>
 		<pride-mod.version>2.1.2</pride-mod.version>
 		<pride-jaxb.version>1.0.14</pride-jaxb.version>
 		<mascotdatfile.version>3.4.32</mascotdatfile.version>
@@ -46,10 +46,10 @@
 		<PDLibrary.version>0.0.1-SNAPSHOT</PDLibrary.version>
 		<sqlite4java.version>1.0.392</sqlite4java.version>
 		<sqlite-jdbc.version>3.8.10.1</sqlite-jdbc.version>
-		<jfreechart.version>1.0.19</jfreechart.version>
-		<jung-graph-impl.version>2.0.1</jung-graph-impl.version>
+		<jfreechart.version>1.0.19</jfreechart.version>		
+		<jung-graph-impl.version>2.0.1</jung-graph-impl.version>		
 		<jung-visualization.version>2.0.1</jung-visualization.version>
-		<inspector-mzgraph.version>2.0.1</inspector-mzgraph.version>
+		<inspector-mzgraph-browser.version>2.0.1</inspector-mzgraph-browser.version>
 		<ehcache.version>3.1.1</ehcache.version>
 	</properties>
 
@@ -187,7 +187,7 @@
 		<dependency>
 			<groupId>uk.ac.ebi.pride.toolsuite</groupId>
 			<artifactId>inspector-mzgraph-browser</artifactId>
-			<version>${inspector-mzgraph.version}</version>
+			<version>${inspector-mzgraph-browser.version}</version>
 		</dependency>
 		<!-- End visualization packages -->
 
@@ -300,7 +300,7 @@
 		<!-- EBI repo -->
 		<repository>
 			<id>nexus-ebi-repo</id>
-			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release/</url>
 		</repository>
 		
 		<repository>
