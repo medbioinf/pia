@@ -23,6 +23,7 @@ import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.AccessionOccurrence;
 import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.PIAInputFile;
+import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.modeller.PIAModeller;
 import de.mpc.pia.modeller.peptide.ReportPeptide;
 import de.mpc.pia.modeller.protein.ReportProtein;
@@ -85,6 +86,7 @@ public class MzTabExporter {
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(MzTabExporter.class);
 
+
     /** the modeller, that should be exported */
     private PIAModeller piaModeller;
 
@@ -110,6 +112,16 @@ public class MzTabExporter {
     private Long exportFileID;
 
 
+    /** caching the modifications by their accessions */
+    private Map<String, ModT> accessionsToModifications;
+
+    /** caching the modifications by their residues and masses */
+    private Map<String, Map<Double, Set<ModT>>> resAndMassToModifications;
+
+    /** mapping from the peptide sequence to the accessions and occurrences [pre, post, start, stop]*/
+    private Map<String, Map<String, String[]>> peptideOccurrences;
+
+
     /**
      * Basic constructor to export the
      * @param modeller
@@ -117,6 +129,10 @@ public class MzTabExporter {
     public MzTabExporter(PIAModeller modeller) {
         this.piaModeller = modeller;
         this.unimodParser = null;
+
+        accessionsToModifications = new HashMap<>();
+        resAndMassToModifications = new HashMap<>();
+        peptideOccurrences = new HashMap<>();
     }
 
 
@@ -174,6 +190,11 @@ public class MzTabExporter {
             boolean proteinLevel, boolean peptideLevelStatistics, boolean filterExport) {
         boolean error = false;
         exportFileID = fileID;
+
+        LOGGER.info("Start writing mzTab export"
+                + "\n\tproteinLevel " + proteinLevel
+                + "\n\tpepLevelStats " + peptideLevelStatistics
+                + "\n\tfiltered " + filterExport);
 
         outWriter = new BufferedWriter(exportWriter);
         try {
@@ -270,6 +291,7 @@ public class MzTabExporter {
             }
         }
 
+        LOGGER.info("finished mzTab export " + (error ? "with" : "without") + " errors");
         return !error;
     }
 
@@ -1014,6 +1036,8 @@ public class MzTabExporter {
         int mzTabPSMid = 0;
 
         // now write the PSMs
+        int nrPSMsExport = report.size();
+        int count = 0;
         ListIterator<PSMReportItem> psmIt = report.listIterator();
         while (psmIt.hasNext()) {
             PSMReportItem psmItem = psmIt.next();
@@ -1036,17 +1060,18 @@ public class MzTabExporter {
                 mzTabPSMid++;
             }
 
+            mztabPsm.setPSM_ID(mzTabPSMid);
+
             // collect the SpectrumIdRefs and softwareRefs from the ReportPSMs
-            Set<String> specIdRefs = new HashSet<String>();
             Set<String> softwareRefs = new HashSet<String>();
             for (ReportPSM reportPSM : reportPSMs) {
-                specIdRefs.add(reportPSM.getSpectrum().getSpectrumIdentification().getId());
+
+                addSpecRefForPSM(mztabPsm, psmItem.getSourceID(),
+                        reportPSM.getSpectrum().getSpectrumIdentification().getId());
 
                 softwareRefs.add(reportPSM.getFile().getAnalysisProtocolCollection().
                         getSpectrumIdentificationProtocol().get(0).getAnalysisSoftwareRef());
             }
-
-            mztabPsm.setPSM_ID(mzTabPSMid);
 
             if (psmItem.getAccessions().size() > 1) {
                 mztabPsm.setUnique(MZBoolean.False);
@@ -1057,24 +1082,7 @@ public class MzTabExporter {
             for (Map.Entry<Integer, Modification> modIt
                     : psmItem.getModifications().entrySet()) {
                 uk.ac.ebi.pride.jmztab.model.Modification mod;
-                ModT uniMod = unimodParser.getModification(
-                        modIt.getValue().getAccession(),
-                        modIt.getValue().getDescription(),
-                        modIt.getValue().getMass(),
-                        modIt.getValue().getResidue().toString());
-
-                if (uniMod != null) {
-                    mod = new uk.ac.ebi.pride.jmztab.model.Modification(
-                            Section.PSM,
-                            uk.ac.ebi.pride.jmztab.model.Modification.Type.UNIMOD,
-                            uniMod.getRecordId().toString());
-                } else {
-                    // not found in UNIMOD, create a CHEMMOD mass-shift
-                    mod = new uk.ac.ebi.pride.jmztab.model.Modification(
-                            Section.PSM,
-                            uk.ac.ebi.pride.jmztab.model.Modification.Type.CHEMMOD,
-                            modIt.getValue().getMass().toString());
-                }
+                mod = getUnimodModification(modIt.getValue());
 
                 mod.addPosition(modIt.getKey(), null);
                 mztabPsm.addModification(mod);
@@ -1089,18 +1097,6 @@ public class MzTabExporter {
             mztabPsm.setExpMassToCharge(psmItem.getMassToCharge());
             mztabPsm.setCalcMassToCharge(
                     psmItem.getMassToCharge() - psmItem.getDeltaMass());
-
-            if (psmItem.getSourceID() != null) {
-                for (String specIdRef : specIdRefs) {
-                    List<MsRun> runList = specIdRefToMsRuns.get(specIdRef);
-                    if ((runList != null) && (runList.size() == 1)) {
-                        // TODO: what, if there is more than one msRun per file?
-                        SpectraRef specRef = new SpectraRef(runList.get(0),
-                                psmItem.getSourceID());
-                        mztabPsm.addSpectraRef(specRef);
-                    }
-                }
-            }
 
             // add the scores
             boolean calculatedPIAScore = false;
@@ -1196,7 +1192,7 @@ public class MzTabExporter {
                 mztabPsm.setAccession(accession.getAccession());
 
                 // set the first available dbName and dbVersion
-                for (String dbRef :     accession.getSearchDatabaseRefs()) {
+                for (String dbRef : accession.getSearchDatabaseRefs()) {
                     String[] nameAndVersion =
                             dbRefToDbNameAndVersion.get(dbRef);
                     // cache the name and version of databases
@@ -1232,38 +1228,13 @@ public class MzTabExporter {
                     }
                 }
 
-                for (AccessionOccurrence occurrence
-                        : psmItem.getPeptide().getAccessionOccurrences()) {
-
-                    if (accession.equals(occurrence.getAccession())) {
-                        String dbSequence = accession.getDbSequence();
-                        if (dbSequence != null) {
-                            if (occurrence.getStart() > 1) {
-                                mztabPsm.setPre(
-                                        dbSequence.substring(
-                                                occurrence.getStart()-2,
-                                                occurrence.getStart()-1));
-                            } else {
-                                mztabPsm.setPre("-");
-                            }
-
-
-                            if (occurrence.getEnd() < dbSequence.length()) {
-                                mztabPsm.setPost(
-                                        dbSequence.substring(
-                                                occurrence.getEnd(),
-                                                occurrence.getEnd()+1));
-                            } else {
-                                mztabPsm.setPost("-");
-                            }
-                        }
-
-                        mztabPsm.setStart(occurrence.getStart().toString());
-                        mztabPsm.setEnd(occurrence.getEnd().toString());
-                    }
-                    // TODO: multiple occurrences in the the same protein?
+                String occData[] = getPeptideOccurrences(psmItem.getPeptide(), accession.getAccession());
+                if (occData != null) {
+                    mztabPsm.setPre(occData[0]);
+                    mztabPsm.setPost(occData[1]);
+                    mztabPsm.setStart(occData[2]);
+                    mztabPsm.setEnd(occData[3]);
                 }
-
 
                 if (peptideLevelStatistics) {
                     addPeptideLevelColumns(mztabPsm, psmItem, reportPeptides,
@@ -1272,6 +1243,12 @@ public class MzTabExporter {
 
                 outWriter.append(mztabPsm.toString());
                 outWriter.append(MZTabConstants.NEW_LINE);
+            }
+
+            count++;
+            if (count % 10000 == 0) {
+                LOGGER.debug("exported " + count + " / " + nrPSMsExport + " PSMs "
+                        + "(" + (100.0 * count / nrPSMsExport) + "%)");
             }
         }
     }
@@ -1628,5 +1605,212 @@ public class MzTabExporter {
             outWriter.append(mzTabProtein.toString());
             outWriter.append(MZTabConstants.NEW_LINE);
         }
+    }
+
+
+    /**
+     * Get the Unimod modification for the Modification. If this is not yet in
+     * the caches, create it. If there is no UniMod modification for the
+     * residue, mass and possible name, create a simple ChemMod modification.
+     *
+     * @param modification
+     * @return
+     */
+    private uk.ac.ebi.pride.jmztab.model.Modification getUnimodModification(Modification modification) {
+        uk.ac.ebi.pride.jmztab.model.Modification mod;
+
+        ModT uniMod = getCachedModification(modification);
+
+        if (uniMod == null) {
+            // modification was not yet cached
+            createNewCachedModification(modification);
+        }
+
+        if (uniMod != null) {
+            mod = new uk.ac.ebi.pride.jmztab.model.Modification(
+                    Section.PSM,
+                    uk.ac.ebi.pride.jmztab.model.Modification.Type.UNIMOD,
+                    uniMod.getRecordId().toString());
+        } else {
+            // not found in UNIMOD, create a CHEMMOD mass-shift
+            mod = new uk.ac.ebi.pride.jmztab.model.Modification(
+                    Section.PSM,
+                    uk.ac.ebi.pride.jmztab.model.Modification.Type.CHEMMOD,
+                    modification.getMass().toString());
+        }
+
+        return mod;
+    }
+
+
+    /**
+     * Check in the caches for a ModT type modification of the given
+     * Modification and return it, if it was found.
+     *
+     * @param modification
+     * @return
+     */
+    private ModT getCachedModification(Modification modification) {
+        ModT uniMod;
+
+        // look in accessions cached modifications
+        String acc = modification.getAccession();
+        if (acc.startsWith("UNIMOD:")) {
+            acc = acc.substring(7);
+        }
+        uniMod = accessionsToModifications.get(acc);
+
+        if (uniMod == null) {
+            // look in the res-mass-cache
+            uniMod = getModInResAndMassCache(modification);
+        }
+
+        return uniMod;
+    }
+
+
+    /**
+     * Look for the modification in the modifications cached by residue and mono
+     * delta mass.
+     *
+     * @param modification
+     * @return
+     */
+    private ModT getModInResAndMassCache(Modification modification) {
+        String residue = modification.getResidue().toString();
+
+        Set<ModT> possibleMods = new HashSet<>();
+        Map<Double, Set<ModT>> massToMods = resAndMassToModifications.get(residue);
+        if (massToMods != null) {
+            for (Map.Entry<Double, Set<ModT>> massModsIt : massToMods.entrySet()) {
+                if (Math.abs(massModsIt.getKey() - modification.getMass()) <= UnimodParser.UNIMOD_MASS_TOLERANCE) {
+                    possibleMods.addAll(massModsIt.getValue());
+                }
+            }
+        }
+
+        ModT uniMod = null;
+        if (!possibleMods.isEmpty()) {
+            String name = modification.getDescription().trim();
+            if ((name != null) && !name.isEmpty()) {
+                for (ModT mod : possibleMods) {
+                    if (UnimodParser.isAnyName(name, mod)) {
+                        uniMod = mod;
+                        break;
+                    }
+                }
+            } else {
+                // no name is given, return any of the possible modifications
+                uniMod = possibleMods.iterator().next();
+            }
+
+        }
+
+        return uniMod;
+    }
+
+
+    /**
+     * Create a ModT type modification and put it into the caches.
+     *
+     * @param modification
+     * @return
+     */
+    private ModT createNewCachedModification(Modification modification) {
+        ModT uniMod  = unimodParser.getModification(
+                modification.getAccession(),
+                modification.getDescription(),
+                modification.getMass(),
+                modification.getResidue().toString());
+
+        // it can still be null, if the modification was not found in unimod
+        if (uniMod != null) {
+            accessionsToModifications.put(uniMod.getRecordId().toString(), uniMod);
+
+            String residue = modification.getResidue().toString();
+            Map<Double, Set<ModT>> massToMods = resAndMassToModifications.get(residue);
+            if (massToMods == null) {
+                massToMods = new HashMap<>();
+                resAndMassToModifications.put(residue, massToMods);
+            }
+            Set<ModT> massMods = massToMods.get(uniMod.getDelta().getMonoMass());
+            if (massMods == null) {
+                massMods = new HashSet<>();
+                massToMods.put(uniMod.getDelta().getMonoMass(), massMods);
+            }
+            massMods.add(uniMod);
+        }
+
+        return uniMod;
+    }
+
+
+    /**
+     * Add the spectrum ID references for the PSM, given the source ID and the
+     * specIdRef
+     *
+     * @param mztabPsm
+     * @param sourceID
+     * @param specIdRefs
+     */
+    private void addSpecRefForPSM(PSM mztabPsm, String sourceID, String specIdRef) {
+        if (sourceID == null) {
+            return;
+        }
+
+        List<MsRun> runList = specIdRefToMsRuns.get(specIdRef);
+        if ((runList != null) && (runList.size() == 1)) {
+            // TODO: what, if there is more than one msRun per file?
+            SpectraRef specRef = new SpectraRef(runList.get(0), sourceID);
+            mztabPsm.addSpectraRef(specRef);
+        }
+    }
+
+
+    /**
+     * Get the peptide occurrences for the given peptide and the accessions.
+     * This method uses a map as cache and fills it accordingly.
+     *
+     * @param sequence
+     * @param accession
+     * @param pepOccurrences
+     * @return
+     */
+    private String[] getPeptideOccurrences(Peptide peptide, String accession) {
+        String sequence = peptide.getSequence();
+        Map<String, String[]> occurrences = peptideOccurrences.get(sequence);
+
+        if (occurrences == null) {
+            occurrences = new HashMap<>();
+            peptideOccurrences.put(sequence, occurrences);
+
+            // add the occurrences' data to the cache
+            for (AccessionOccurrence occ : peptide.getAccessionOccurrences()) {
+                String[] occData = new String[4];
+
+                String dbSequence = occ.getAccession().getDbSequence();
+                if (dbSequence != null) {
+                    if (occ.getStart() > 1) {
+                        occData[0] = dbSequence.substring(occ.getStart()-2, occ.getStart()-1);
+                    } else {
+                        occData[0] = "-";
+                    }
+
+                    if (occ.getEnd() < dbSequence.length()) {
+                        occData[1] = dbSequence.substring(occ.getEnd(), occ.getEnd()+1);
+                    } else {
+                        occData[1] = "-";
+                    }
+                }
+
+                occData[2] = occ.getStart().toString();
+                occData[3] = occ.getEnd().toString();
+
+                occurrences.put(occ.getAccession().getAccession(), occData);
+                // TODO: multiple occurrences in the the same protein?
+            }
+        }
+
+        return occurrences.get(accession);
     }
 }
