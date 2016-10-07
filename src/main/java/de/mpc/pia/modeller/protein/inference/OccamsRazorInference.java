@@ -1,6 +1,7 @@
 package de.mpc.pia.modeller.protein.inference;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import de.mpc.pia.intermediate.Group;
+import de.mpc.pia.modeller.peptide.ReportPeptide;
 import de.mpc.pia.modeller.protein.ReportProtein;
 import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.modeller.report.filter.RegisteredFilters;
@@ -28,11 +30,6 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
  * Groups, which have the peptides). If the pepChildGroups are not fully
  * explained by any other Group fulfilling 1), report the Group. (If it is
  * explained by any other, set it as a subGroup of it).
- *
- * <p>
- *
- * TODO: to make this even faster it would be possible to thread the method by
- * the tree IDs
  *
  * @author julian
  *
@@ -109,7 +106,8 @@ public class OccamsRazorInference extends AbstractProteinInference {
     public List<ReportProtein> calculateInference(Map<Long, Group> groupMap,
             Map<String, ReportPSMSet> reportPSMSetMap,
             boolean considerModifications,
-            Map<String, Boolean> psmSetSettings) {
+            Map<String, Boolean> psmSetSettings,
+            Collection<ReportPeptide> reportPeptides) {
         progress = 0.0;
         LOGGER.info(NAME + " calculateInference started...");
         LOGGER.info("scoring: " + getScoring().getName() + " with " +
@@ -132,8 +130,10 @@ public class OccamsRazorInference extends AbstractProteinInference {
             treeGroups.put(groupIt.getKey(), groupIt.getValue());
         }
         treeGroupsIterator = treeGroupMap.entrySet().iterator();
-
         LOGGER.info("PIA trees sorted, " + treeGroupMap.size() + " trees");
+
+        // sort the peptides
+        Map<String, ReportPeptide> reportPeptidesMap = sortPeptidesInMap(reportPeptides);
 
         // initialize the reported list
         reportProteins = new ArrayList<ReportProtein>();
@@ -157,7 +157,8 @@ public class OccamsRazorInference extends AbstractProteinInference {
                             filters,
                             reportPSMSetMap,
                             considerModifications,
-                            psmSetSettings);
+                            psmSetSettings,
+                            reportPeptidesMap);
             threads.add(workerThread);
             workerThread.start();
         }

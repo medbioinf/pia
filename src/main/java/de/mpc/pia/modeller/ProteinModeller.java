@@ -217,7 +217,8 @@ public class ProteinModeller {
                     intermediateGroups,
                     psmModeller.getReportPSMSets(),
                     peptideModeller.getConsiderModifications(),
-                    psmModeller.getPSMSetSettings());
+                    psmModeller.getPSMSetSettings(),
+                    peptideModeller.getFilteredReportPeptides(0L, peptideModeller.getFilters(0L)));
         } else {
             LOGGER.error("No inference method set!");
             appliedProteinInference = null;
