@@ -26,7 +26,6 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
 import de.mpc.pia.modeller.score.ScoreModel;
-import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.LabelValueContainer;
 
 
@@ -505,8 +504,8 @@ public abstract class AbstractProteinInference {
             if (peptide.getPeptide().equals(mapPeptide.getPeptide())) {
                 // the referenced Peptides are equal, compare the PSM sets
 
-                Set pepSet = new HashSet<>(peptide.getPSMs());
-                Set mapSet = new HashSet<>(mapPeptide.getPSMs());
+                Set<PSMReportItem> pepSet = new HashSet<>(peptide.getPSMs());
+                Set<PSMReportItem> mapSet = new HashSet<>(mapPeptide.getPSMs());
 
                 if (pepSet.equals(mapSet)) {
                     // all equal, return the mapPeptide
