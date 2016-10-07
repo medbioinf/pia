@@ -282,6 +282,7 @@ public class MzTabExporter {
             LOGGER.debug("exportToMzTab done");
         } catch (IOException ex) {
             LOGGER.error("Error exporting mzTab", ex);
+            error = true;
         } finally {
             try {
                 outWriter.close();

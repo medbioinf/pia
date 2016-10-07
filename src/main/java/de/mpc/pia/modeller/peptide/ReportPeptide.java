@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.Peptide;
@@ -35,6 +37,10 @@ import de.mpc.pia.modeller.score.comparator.Rankable;
  *
  */
 public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRScoreComputable {
+
+    /** logger for this class */
+    private static final Logger LOGGER = Logger.getLogger(ReportPeptide.class);
+
 
     /** identifier for the peptide*/
     private String stringID;
@@ -412,11 +418,32 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
 
 
     /**
-     * Returns the best score value with the given name.
+     * Returns the best score value with the given name or the respective
+     * peptide level score (FDR, q-value).
+     *
      */
     @Override
     public Double getScore(String scoreName) {
-        return getBestScore(scoreName);
+        Double retVal;
+
+        if (ScoreModelEnum.PEPTIDE_LEVEL_Q_VALUE.getShortName().equals(scoreName)) {
+            retVal = getQValue();
+        } else if (ScoreModelEnum.PEPTIDE_LEVEL_FDR_SCORE.getShortName().equals(scoreName)) {
+            ScoreModel fdrScoreModel = getFDRScore();
+            if (fdrScoreModel != null) {
+                retVal = fdrScoreModel.getValue();
+            } else {
+                retVal = Double.NaN;
+            }
+        } else if (ScoreModelEnum.PEPTIDE_LEVEL_COMBINED_FDR_SCORE.getShortName().equals(scoreName)) {
+            // TODO: check and implement, or delete here!
+            LOGGER.error("not yet implemented for ScoreModelEnum.PEPTIDE_LEVEL_COMBINED_FDR_SCORE");
+            retVal = Double.NaN;
+        } else {
+            retVal = getBestScore(scoreName);
+        }
+
+        return retVal;
     }
 
 

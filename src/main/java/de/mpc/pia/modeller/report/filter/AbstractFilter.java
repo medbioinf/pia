@@ -260,25 +260,34 @@ public abstract class AbstractFilter {
      * @return
      */
     private boolean satisfiesNumericalFilter(Number o) {
+        boolean retVal;
+
         switch (getFilterComparator()) {
         case less:
-            return getFilterNegate() ^ (o.doubleValue() < ((Number)getFilterValue()).doubleValue());
+            retVal = getFilterNegate() ^ (o.doubleValue() < ((Number)getFilterValue()).doubleValue());
+            break;
 
         case less_equal:
-            return getFilterNegate() ^ (o.doubleValue() <= ((Number)getFilterValue()).doubleValue());
+            retVal = getFilterNegate() ^ (o.doubleValue() <= ((Number)getFilterValue()).doubleValue());
+            break;
 
         case equal:
-            return getFilterNegate() ^ getFilterValue().equals(o);
+            retVal = getFilterNegate() ^ getFilterValue().equals(o);
+            break;
 
         case greater_equal:
-            return getFilterNegate() ^ (o.doubleValue() >= ((Number)getFilterValue()).doubleValue());
+            retVal = getFilterNegate() ^ (o.doubleValue() >= ((Number)getFilterValue()).doubleValue());
+            break;
 
         case greater:
-            return getFilterNegate() ^ (o.doubleValue() > ((Number)getFilterValue()).doubleValue());
+            retVal = getFilterNegate() ^ (o.doubleValue() > ((Number)getFilterValue()).doubleValue());
+            break;
 
         default:
-            return false;
+            retVal =  false;
         }
+
+        return retVal;
     }
 
 

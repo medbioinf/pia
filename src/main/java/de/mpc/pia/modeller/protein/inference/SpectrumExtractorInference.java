@@ -1,6 +1,7 @@
 package de.mpc.pia.modeller.protein.inference;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -187,7 +188,8 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
     public List<ReportProtein> calculateInference(Map<Long, Group> groupMap,
             Map<String, ReportPSMSet> reportPSMSetMap,
             boolean considerModifications,
-            Map<String, Boolean> psmSetSettings) {
+            Map<String, Boolean> psmSetSettings,
+            Collection<ReportPeptide> reportPeptides) {
         nrSpectra = 0;
         nrUsedSpectra = 0;
         nrFinishedSplits = 0;

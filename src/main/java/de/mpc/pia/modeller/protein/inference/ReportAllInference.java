@@ -1,6 +1,7 @@
 package de.mpc.pia.modeller.protein.inference;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -71,17 +72,21 @@ public class ReportAllInference extends AbstractProteinInference {
     public List<ReportProtein> calculateInference(Map<Long, Group> groupMap,
             Map<String, ReportPSMSet> reportPSMSetMap,
             boolean considerModifications,
-            Map<String, Boolean> psmSetSettings) {
+            Map<String, Boolean> psmSetSettings,
+            Collection<ReportPeptide> reportPeptides) {
         progress = 0.0;
         LOGGER.info("calculateInference started...");
         LOGGER.info("scoring: " + getScoring().getName() + " with " +
                 getScoring().getScoreSetting().getValue() + ", " +
                 getScoring().getPSMForScoringSetting().getValue());
 
+        // sort the peptides
+        Map<String, ReportPeptide> peptidesMap = sortPeptidesInMap(reportPeptides);
+
         // maps from the groups' IDs to the reportPeptides
         Map<Long, List<ReportPeptide>> reportPeptidesMap =
                 createFilteredReportPeptides(groupMap, reportPSMSetMap,
-                        considerModifications, psmSetSettings);
+                        considerModifications, psmSetSettings, peptidesMap);
 
         // groups with the IDs in this set should be reported
         Set<Long> reportGroupsIDs = new HashSet<Long>();

@@ -30,7 +30,6 @@ public class MzTabExporterTest {
     @Before
     public void setUp() {
         piaFile = new File(MzTabExporterTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
-        //piaFile = new File("/mnt/data/uniNOBACKUP/PIA/PRD000397/PRD000397.pia.xml");
     }
 
 
