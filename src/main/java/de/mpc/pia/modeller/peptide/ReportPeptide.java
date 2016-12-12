@@ -1,13 +1,7 @@
 package de.mpc.pia.modeller.peptide;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -511,13 +505,11 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * Returns the modifications of the first PSM.<br/>
      * WARNING: this makes no sense, if the considerModifications is false in
      *
-     * @return
      */
     public Map<Integer, Modification> getModifications() {
-        for (PSMReportItem psm : psmList) {
-            return psm.getModifications();
-        }
-        return new HashMap<>(1);
+        if(psmList != null && psmList.size() > 0)
+            return psmList.iterator().next().getModifications();
+        return Collections.emptyMap();
     }
 
 
@@ -526,9 +518,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * Generates the idString for a peptide for the given PSM.<br/>
      * This takes the considerModifications into account and calls
      *
-     *
      * @param psm
-     * @return
      */
     public static String createStringID(PSMReportItem psm, boolean considerModifications) {
         return psm.getPeptideStringID(considerModifications);
@@ -539,7 +529,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * Returns a set containing the IDs of all the used Spectra, not only the
      * scoring spectra.
      *
-     * @return
      */
     public List<String> getSpectraIdentificationKeys() {
         if (allSpectraKeySet == null) {
@@ -555,7 +544,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * Returns a set containing the IDs of all the used Spectra, not only the
      * scoring spectra, given the maximal IdentificationKeySet.
      *
-     * @return
      */
     public List<String> getSpectraIdentificationKeys(Map<String, Boolean> maximalKeySettings) {
         Set<String> SpectraKeySet = new HashSet<>();
@@ -578,7 +566,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * Returns the settings, which are available for identification key
      * calculation, i.e. the {@link IdentificationKeySettings} which are
      * available on all spectra in this peptide.
-     * @return
      */
     public Map<String, Boolean> getAvailableIdentificationKeySettings() {
         if (maximalSpectraIdentificationSettings == null) {
@@ -616,7 +603,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * calculation, i.e. the {@link IdentificationKeySettings} which are
      * available on all spectra in this peptide and are not redundant, i.e. the
      * best minimal set of settings.
-     * @return
      */
     public Map<String, Boolean> getNotRedundantIdentificationKeySettings() {
         if (maximalNonRedundantSpectraIdentificationSettings == null) {
@@ -629,7 +615,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
 
     /**
      * Getter for the number of spectra (not only scoring, but all).
-     * @return
      */
     public Integer getNrSpectra() {
         return getSpectraIdentificationKeys().size();
@@ -637,8 +622,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
 
 
     /**
-     * returns a set containing the ID keys of the scoring Spectra.
-     * @return
+     * Returns a set containing the ID keys of the scoring Spectra.
      */
     public List<String> getScoringSpectraIdentificationKeys() {
         Set<String> scoringSpectraKeySet = new HashSet<>();
@@ -663,7 +647,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
 
     /**
      * Getter for the number of PSMs.
-     * @return
      */
     public Integer getNrPSMs() {
         // the psmList should be consistent with the number of PSMs, as the
@@ -674,18 +657,15 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
 
     /**
      * Returns a List of all the sourceIDs in this peptide.
-     * @return
      */
     public List<String> getSourceIDs() {
         Set<String> sourcesSet = psmList.stream().filter(psm -> psm.getSourceID() != null).map(PSMItem::getSourceID).collect(Collectors.toSet());
-
         return new ArrayList<>(sourcesSet);
     }
 
 
     /**
      * Returns a List of all the spectrum titles in this peptide.
-     * @return
      */
     public List<String> getSpectrumTitles() {
         Set<String> titlesSet = psmList.stream().filter(psm -> psm.getSpectrumTitle() != null).map(PSMItem::getSpectrumTitle).collect(Collectors.toSet());
@@ -697,9 +677,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
     /**
      * Returns a nice NAME / header for the spectrum in the PSM or PSM set
      * specified by the spectrumKey.
-     *
-     * @param spectrumKey
-     * @return
      */
     public String getNiceSpectrumName(String spectrumKey) {
         String name = null;
@@ -725,7 +702,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
 
     /**
      * Setter for isDecoy
-     * @param isDecoy
      */
     public void setIsDecoy(boolean isDecoy) {
         this.isDecoy = isDecoy;
