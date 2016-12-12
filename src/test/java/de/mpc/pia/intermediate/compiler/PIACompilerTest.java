@@ -129,7 +129,6 @@ public class PIACompilerTest {
         File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
         piaCompiler.writeOutXML(piaIntermediateFile);
         piaCompiler.finish();
-        piaCompiler = null;
 
         // now make an analysis
         PIAModeller piaModeller = new PIAModeller(piaIntermediateFile.getAbsolutePath());
@@ -205,10 +204,10 @@ public class PIACompilerTest {
             assertNotNull("These accessions are not expected: " + accSb.toString(), values);
 
             assertEquals("Wrong score for " + accSb.toString(), (Double)(values.get(0)), prot.getScore(), scoreDelta);
-            assertEquals("Wrong number of peptides for " + accSb.toString(), (Integer)(values.get(1)), prot.getNrPeptides());
-            assertEquals("Wrong number of PSMs for " + accSb.toString(), (Integer)(values.get(2)), prot.getNrPSMs());
-            assertEquals("Wrong number of spectra for " + accSb.toString(), (Integer)(values.get(3)), prot.getNrSpectra());
-            assertEquals("Wrong decoy state for " + accSb.toString(), (Boolean)(values.get(4)), prot.getIsDecoy());
+            assertEquals("Wrong number of peptides for " + accSb.toString(), values.get(1), prot.getNrPeptides());
+            assertEquals("Wrong number of PSMs for " + accSb.toString(), values.get(2), prot.getNrPSMs());
+            assertEquals("Wrong number of spectra for " + accSb.toString(), values.get(3), prot.getNrSpectra());
+            assertEquals("Wrong decoy state for " + accSb.toString(), values.get(4), prot.getIsDecoy());
             assertEquals("Wrong FDR for " + accSb.toString(), (Double)(values.get(5)), prot.getFDR(), scoreDelta);
             assertEquals("Wrong q-value for " + accSb.toString(), (Double)(values.get(6)), prot.getQValue(), scoreDelta);
         }

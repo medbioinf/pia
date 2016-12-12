@@ -12,10 +12,6 @@ import org.junit.Test;
 
 public class UnimodParserTest {
 
-    @Before
-    public void setUp() throws Exception {
-    }
-
     @After
     public void tearDown() throws Exception {
     }

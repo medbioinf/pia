@@ -16,7 +16,6 @@ import java.net.URI;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
- * @date 15/02/2016
  */
 public class PrideXMLParserTest {
 
@@ -31,14 +30,19 @@ public class PrideXMLParserTest {
 
     @Before
     public void setUp() throws Exception {
-        URI uri = PrideXMLParserTest.class.getClassLoader().getResource("PRIDE_Example.xml").toURI();
+        URI uri = (PrideXMLParserTest.class.getClassLoader().getResource("PRIDE_Example.xml")) != null ? (PrideXMLParserTest.class.getClassLoader().getResource("PRIDE_Example.xml")).toURI(): null;
+
+        if(uri == null)
+            throw new IOException("File not found");
 
         prideXMLFile = new File(uri);
         reader = new PrideXmlReader(uri.toURL());
+
+
     }
 
     @Test
-    public void getDataFromPrideXMLFileTest() throws IOException, JAXBException, XMLStreamException {
+    public void getDataFromPrideXMLFileTest() throws IOException {
         PIACompiler compiler = new PIASimpleCompiler();
 
         compiler.getDataFromFile(prideXMLFile.getName(),
@@ -83,8 +87,4 @@ public class PrideXMLParserTest {
         */
     }
 
-    @After
-    public void tearDown() throws Exception {
-
-    }
 }

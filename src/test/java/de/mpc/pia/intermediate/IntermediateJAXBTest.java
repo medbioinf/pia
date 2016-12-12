@@ -27,12 +27,6 @@ public class IntermediateJAXBTest {
     }
 
 
-    @Before
-    public void setUp() throws Exception {
-
-    }
-
-
     @Test
     public void testIntermediateJAXB() {
         PIAIntermediateJAXBHandler intermediateHandler;
