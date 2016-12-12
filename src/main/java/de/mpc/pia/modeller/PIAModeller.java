@@ -894,12 +894,8 @@ public class PIAModeller {
         }
 
         if ((informationFileName != null) && !informationFileName.trim().isEmpty()) {
-            try {
-                model.getPSMModeller().writePSMInformation(informationFileName, calculateInfo);
-                // TODO: write information from other layers...
-            } catch (IOException e) {
-                LOGGER.error("Error writing PSM information", e);
-            }
+            model.getPSMModeller().writePSMInformation(informationFileName, calculateInfo);
+            // TODO: write information from other layers...
         }
     }
 

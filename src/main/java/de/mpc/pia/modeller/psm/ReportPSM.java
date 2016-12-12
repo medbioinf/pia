@@ -78,8 +78,7 @@ public class ReportPSM  implements PSMReportItem {
     public ReportPSM(Long id, PeptideSpectrumMatch spectrum) {
         this.id = id;
         this.spectrum = spectrum;
-        isDecoy = ((spectrum.getIsDecoy() != null) && spectrum.getIsDecoy()) ?
-                true : false;
+        isDecoy = ((spectrum.getIsDecoy() != null) && spectrum.getIsDecoy());
         isFDRGood = false;
         accessions = new TreeMap<>();
         qValue = null;

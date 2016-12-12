@@ -112,7 +112,7 @@ public class AmbiguityGroupVisualizationHandler implements GraphMouseListener<Ve
         pickedState = visualizationViewer.getPickedVertexState();
 
         // set the special vertex and labeller for the nodes
-        ProteinVertexLabeller labeller = new ProteinVertexLabeller(visualizationViewer.getRenderContext(), 5);
+        ProteinVertexLabeller labeller = new ProteinVertexLabeller(visualizationViewer.getRenderContext());
         ProteinVertexShapeTransformer shaper = new ProteinVertexShapeTransformer(visualizationViewer.getRenderContext(), 5);
         ProteinVertexFillColorTransformer filler = new ProteinVertexFillColorTransformer(visGraph);
         ProteinVertexBorderColorTransformer borderColorizer = new ProteinVertexBorderColorTransformer(visGraph, pickedState);

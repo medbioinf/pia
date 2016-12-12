@@ -814,7 +814,6 @@ public class PeptideModeller {
         if (fdrData == null) {
             LOGGER.error("No FDR settings given for file with ID=" + fileID
                     + " this function must be called after getFDRDataFromPSMLevel");
-            return;
         } else {
             Pattern p = Pattern.compile(fdrData.getDecoyPattern());
 

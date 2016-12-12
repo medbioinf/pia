@@ -137,8 +137,7 @@ public enum RegisteredFilters {
             if (o instanceof PSMReportItem) {
                 return ((PSMReportItem) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -187,8 +186,7 @@ public enum RegisteredFilters {
             if (o instanceof PSMReportItem) {
                 return ((PSMReportItem) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -240,8 +238,7 @@ public enum RegisteredFilters {
                 // if we get an ReportPSM, return its PSMs
                 return ((ReportPSMSet)o).getPSMs();
             } else if (o instanceof List<?>) {
-                List<ReportPSM> objList = ((List<?>) o).stream().filter(obj -> obj instanceof ReportPSM).map(obj -> (ReportPSM) obj).collect(Collectors.toList());
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof ReportPSM).map(obj -> (ReportPSM) obj).collect(Collectors.toList());
             } else {
                 // nothing supported
                 return null;
@@ -313,11 +310,9 @@ public enum RegisteredFilters {
         @Override
         public Object getObjectsValue(Object o) {
             if (o instanceof PSMReportItem) {
-                List<Modification> modList = ((PSMReportItem) o).getModifications().entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
-                return modList;
+                return ((PSMReportItem) o).getModifications().entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
             } else if (o instanceof List<?>) {
-                List<Modification> modList = ((List<?>) o).stream().filter(obj -> obj instanceof Modification).map(obj -> (Modification) obj).collect(Collectors.toList());
-                return modList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof Modification).map(obj -> (Modification) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -421,8 +416,7 @@ public enum RegisteredFilters {
             if (o instanceof PSMReportItem) {
                 return ((PSMReportItem) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -522,8 +516,7 @@ public enum RegisteredFilters {
             if (o instanceof ReportPeptide) {
                 return ((ReportPeptide) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -571,8 +564,7 @@ public enum RegisteredFilters {
             if (o instanceof ReportPeptide) {
                 return ((ReportPeptide) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -666,8 +658,7 @@ public enum RegisteredFilters {
             if (o instanceof ReportPeptide) {
                 return ((ReportPeptide) o).getModificationsList();
             } else if (o instanceof List<?>) {
-                List<Modification> modList = ((List<?>) o).stream().filter(obj -> obj instanceof Modification).map(obj -> (Modification) obj).collect(Collectors.toList());
-                return modList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof Modification).map(obj -> (Modification) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -736,11 +727,10 @@ public enum RegisteredFilters {
                 for (PSMReportItem psmReportItem : ((ReportPeptide) o).getPSMs()) {
                     Boolean isUnique = null;
 
-                    PSMReportItem psm = psmReportItem;
-                    if (psm instanceof ReportPSMSet) {
-                        isUnique = ((ReportPSMSet) psm).getPSMs().iterator().next().getSpectrum().getIsUnique();
-                    } else if (psm instanceof ReportPSM) {
-                        isUnique = ((ReportPSM) psm).getSpectrum().getIsUnique();
+                    if (psmReportItem instanceof ReportPSMSet) {
+                        isUnique = ((ReportPSMSet) psmReportItem).getPSMs().iterator().next().getSpectrum().getIsUnique();
+                    } else if (psmReportItem instanceof ReportPSM) {
+                        isUnique = ((ReportPSM) psmReportItem).getSpectrum().getIsUnique();
                     }
 
                     if ((isUnique == null) || (isUnique == false)) {
@@ -824,8 +814,7 @@ public enum RegisteredFilters {
             if (o instanceof ReportProtein) {
                 return ((ReportProtein) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -873,8 +862,7 @@ public enum RegisteredFilters {
             if (o instanceof ReportProtein) {
                 ((ReportProtein) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -954,8 +942,7 @@ public enum RegisteredFilters {
                 }
                 return modList;
             } else if (o instanceof List<?>) {
-                List<Modification> modList = ((List<?>) o).stream().filter(obj -> obj instanceof Modification).map(obj -> (Modification) obj).collect(Collectors.toList());
-                return modList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof Modification).map(obj -> (Modification) obj).collect(Collectors.toList());
             }
 
             // nothing supported

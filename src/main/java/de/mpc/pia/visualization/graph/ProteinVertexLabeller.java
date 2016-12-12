@@ -45,11 +45,10 @@ public class ProteinVertexLabeller
 
     /**
      * Constructor
+     *  @param rc
      *
-     * @param rc
-     * @param margin
      */
-    public ProteinVertexLabeller(RenderContext<VertexObject, String> rc, int margin) {
+    public ProteinVertexLabeller(RenderContext<VertexObject, String> rc) {
         this.rc = rc;
     }
 

@@ -680,7 +680,7 @@ public class MzTabExporter {
 
             // add additional search params
             ParamList additionalSearchParams = preprocessAdditionalParams(
-                    specIdProtocol.getAdditionalSearchParams(), mtd, softwareID);
+                    specIdProtocol.getAdditionalSearchParams(), mtd);
 
             if (additionalSearchParams != null) {
                 for (CvParam param : additionalSearchParams.getCvParam()) {
@@ -811,11 +811,10 @@ public class MzTabExporter {
      *
      * @param paramList
      * @param mtd
-     * @param softwareID
      * @return
      */
     private ParamList preprocessAdditionalParams(ParamList paramList,
-            Metadata mtd, Integer softwareID) {
+                                                 Metadata mtd) {
         if (paramList == null) {
             return new ParamList();
         }

@@ -1117,7 +1117,6 @@ public class PSMModeller {
         if (fdrData == null) {
             LOGGER.error("No FDR settings given for file with ID=" + fileID);
             // TODO: throw an exception or something
-            return;
         } else {
             Pattern p = Pattern.compile(fdrData.getDecoyPattern());
 
@@ -1168,7 +1167,6 @@ public class PSMModeller {
         if (fdrData == null) {
             LOGGER.error("No FDR settings given for file with ID=" + fileID);
             // TODO: throw an exception
-            return;
         } else {
             fdrData.setScoreShortName(getFilesPreferredFDRScore(fileID));
             LOGGER.info("set the score for FDR calculation for fileID="
@@ -1206,12 +1204,10 @@ public class PSMModeller {
                         false,
                         fdrData.getScoreShortName()));
 
-                List<PSMReportItem> filteredList = FilterFactory.applyFilters(
+                listForFDR = FilterFactory.applyFilters(
                         listForFDR,
                         topRankFilter,
                         fileID);
-
-                listForFDR = filteredList;
             }
 
 
@@ -2052,7 +2048,7 @@ public class PSMModeller {
      *
      * @throws IOException
      */
-    public void writePSMInformation(String fileName, boolean calculate) throws IOException {
+    public void writePSMInformation(String fileName, boolean calculate) {
         Writer writer = null;
         try {
             writer = new FileWriter(fileName, false);

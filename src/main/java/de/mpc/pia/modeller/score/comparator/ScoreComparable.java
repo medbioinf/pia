@@ -9,5 +9,5 @@ public interface ScoreComparable {
      * @param scoreShortname
      * @return
      */
-    public ScoreModel getCompareScore(String scoreShortname);
+    ScoreModel getCompareScore(String scoreShortname);
 }
