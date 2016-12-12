@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -18,11 +17,11 @@ public class IntermediateJAXBTest {
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(IntermediateJAXBTest.class);
 
-    public static File piaFile;
+    private static File piaFile;
 
 
     @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
+    public static void setUpBeforeClass() {
         piaFile = new File(PIAModellerTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
     }
 

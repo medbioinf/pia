@@ -49,7 +49,7 @@ public class PIACompilerTest {
     private File idXMLexpectedFile;
     private double scoreDelta = 0.000001;
 
-    private String piaIntermediateFileName = "PIACompilerTest.pia.xml";
+    private final String piaIntermediateFileName = "PIACompilerTest.pia.xml";
 
 
     @Before

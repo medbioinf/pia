@@ -1,11 +1,6 @@
 package de.mpc.pia.modeller.protein.inference;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
@@ -128,13 +123,10 @@ public class OccamsRazorWorkerThread extends Thread {
 
             // get the proteins with same peptides and subgroups
             Set<Long> sameSet = new HashSet<>();
-            for (Map.Entry<Long, Set<String>> peptideKeyIt
-                    : peptideKeysMap.entrySet()) {
-                if (peptideKeyIt.getValue().equals(peptideKeys)) {
-                    sameSet.add(peptideKeyIt.getKey());
-                    sameSetMap.get(peptideKeyIt.getKey()).add(groupIt.getKey());
-                }
-            }
+            peptideKeysMap.entrySet().stream().filter(peptideKeyIt -> peptideKeyIt.getValue().equals(peptideKeys)).forEach(peptideKeyIt -> {
+                sameSet.add(peptideKeyIt.getKey());
+                sameSetMap.get(peptideKeyIt.getKey()).add(groupIt.getKey());
+            });
             sameSetMap.put(groupIt.getKey(), sameSet);
 
             peptideKeysMap.put(groupIt.getKey(), peptideKeys);
@@ -153,26 +145,26 @@ public class OccamsRazorWorkerThread extends Thread {
             ReportProtein protein = proteins.get(protID);
             if (protein != null) {
                 // the protein is not yet deleted due to samesets
-                for (Long sameID : sameSetIt.getValue()) {
-                    if (sameID != protID) {
-                        ReportProtein sameProtein = proteins.get(sameID);
-                        if (sameProtein != null) {
-                            // add the accessions of sameProtein to protein
-                            sameProtein.getAccessions().forEach(protein::addAccession);
+                // add the accessions of sameProtein to protein
+// and remove the same-protein
+// this makes sure, the protein does not get removed, when it is iterated over sameProtein
+                sameSetIt.getValue().stream().filter(sameID -> !Objects.equals(sameID, protID)).forEach(sameID -> {
+                    ReportProtein sameProtein = proteins.get(sameID);
+                    if (sameProtein != null) {
+                        // add the accessions of sameProtein to protein
+                        sameProtein.getAccessions().forEach(protein::addAccession);
 
-                            // and remove the same-protein
-                            proteins.remove(sameID);
-                            peptideKeysMap.remove(sameID);
+                        // and remove the same-protein
+                        proteins.remove(sameID);
+                        peptideKeysMap.remove(sameID);
 
-                            // this makes sure, the protein does not get removed, when it is iterated over sameProtein
-                            sameSetMap.get(sameID).remove(protID);
-                        }
+                        // this makes sure, the protein does not get removed, when it is iterated over sameProtein
+                        sameSetMap.get(sameID).remove(protID);
                     }
-                }
+                });
             }
         }
         // the sameSetMap is no longer needed
-        sameSetMap = null;
 
         // check the proteins whether they satisfy the filters
         Set<Long> removeProteins = new HashSet<>(proteins.size());

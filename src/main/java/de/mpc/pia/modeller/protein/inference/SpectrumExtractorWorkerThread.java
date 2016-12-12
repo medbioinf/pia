@@ -236,7 +236,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
                                 // try to get FDRScore values (if they are not yet set)
                                 if (psmSet.getFDRScore() == null) {
                                     // get the ReportPSMSet, which was build by the PSM Viewer
-                                    String key = ((ReportPSMSet) psmSet).getIdentificationKey(psmSetSettings);
+                                    String key = psmSet.getIdentificationKey(psmSetSettings);
                                     ReportPSMSet givenSet = reportPSMSetMap.get(key);
                                     if ((givenSet != null) &&
                                             (givenSet.getFDRScore() != null)) {
@@ -407,12 +407,10 @@ public class SpectrumExtractorWorkerThread extends Thread {
                         for (String peptideKey : peptides) {
                             ReportPeptide peptide = peptideMap.get(peptideKey);
 
-                            peptide.getPSMs().stream().filter(repPSM -> repPSM instanceof ReportPSMSet).forEach(repPSM -> {
-                                allSpectra.addAll(((ReportPSMSet) repPSM).getPSMs().stream().filter(psm -> !peptide.getNonScoringPSMIDs().contains(
-                                        psm.getId())).map(psm -> psm.getSpectrum().
-                                        getSpectrumIdentificationKey(
-                                                psmSetSettings)).collect(Collectors.toList()));
-                            });
+                            peptide.getPSMs().stream().filter(repPSM -> repPSM instanceof ReportPSMSet).forEach(repPSM -> allSpectra.addAll(((ReportPSMSet) repPSM).getPSMs().stream().filter(psm -> !peptide.getNonScoringPSMIDs().contains(
+                                    psm.getId())).map(psm -> psm.getSpectrum().
+                                    getSpectrumIdentificationKey(
+                                            psmSetSettings)).collect(Collectors.toList())));
                         }
 
                         // check for all peptides, if they have all spectra
@@ -846,17 +844,10 @@ public class SpectrumExtractorWorkerThread extends Thread {
             // remove the questionable spectra from scoring
             ReportPeptide peptide = peptideMap.get(peptideKey);
 
-            peptide.getPSMs().stream().filter(reportPSM -> reportPSM instanceof ReportPSMSet).forEach(reportPSM -> {
-                for (ReportPSM psm
-                        : ((ReportPSMSet) reportPSM).getPSMs()) {
-                    if (questionableSpectra.contains(
-                            psm.getSpectrum().
-                                    getSpectrumIdentificationKey(
-                                            psmSetSettings))) {
-                        peptide.addToNonScoringPSMs(psm.getId());
-                    }
-                }
-            });
+            peptide.getPSMs().stream().filter(reportPSM -> reportPSM instanceof ReportPSMSet).forEach(reportPSM -> ((ReportPSMSet) reportPSM).getPSMs().stream().filter(psm -> questionableSpectra.contains(
+                    psm.getSpectrum().
+                            getSpectrumIdentificationKey(
+                                    psmSetSettings))).forEach(psm -> peptide.addToNonScoringPSMs(psm.getId())));
         });
     }
 }

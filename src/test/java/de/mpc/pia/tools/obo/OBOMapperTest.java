@@ -26,7 +26,7 @@ public class OBOMapperTest {
     }
 
 
-    public void testMapper(OBOMapper oboMapper) {
+    private void testMapper(OBOMapper oboMapper) {
         boolean foundTrypsin = false;
         boolean foundMascotScore = false;
         boolean foundMSGF = false;

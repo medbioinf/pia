@@ -41,7 +41,7 @@ public class PIACachedCompilerTest {
     private File idXMLtandemFile;
     private File idXMLmsgfFile;
     private File idXMLexpectedFile;
-    private double scoreDelta = 0.000001;
+    private final double scoreDelta = 0.000001;
 
     private String piaIntermediateFileName = "PIACompilerTest.pia.xml";
 

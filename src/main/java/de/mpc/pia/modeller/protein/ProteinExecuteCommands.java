@@ -447,12 +447,8 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                 } else if ("oneAccessionPerLine".equals(command)) {
                     if ((commandParams != null) &&
                             (commandParams.length > 0)) {
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            oneAccessionPerLine = true;
-                        } else {
-                            oneAccessionPerLine = false;
-                        }
+                        oneAccessionPerLine = "yes".equals(commandParams[0]) ||
+                                "true".equals(commandParams[0]);
                     } else {
                         // only setting the flag is equivalent to true
                         oneAccessionPerLine = true;
@@ -460,12 +456,8 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                 } else if ("exportPeptides".equals(command)) {
                     if ((commandParams != null) &&
                             (commandParams.length > 0)) {
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            exportPeptides = true;
-                        } else {
-                            exportPeptides = false;
-                        }
+                        exportPeptides = "yes".equals(commandParams[0]) ||
+                                "true".equals(commandParams[0]);
                     } else {
                         // only setting the flag is equivalent to true
                         exportPeptides = true;
@@ -473,24 +465,16 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                 } else if ("exportPSMSets".equals(command)) {
                     if ((commandParams != null) &&
                             (commandParams.length > 0)) {
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            exportPSMSets = true;
-                        } else {
-                            exportPSMSets = false;
-                        }
+                        exportPSMSets = "yes".equals(commandParams[0]) ||
+                                "true".equals(commandParams[0]);
                     } else {
                         // only setting the flag is equivalent to true
                         exportPSMSets = true;
                     }
                 } else if ("exportPSMs".equals(command)) {
                     if ((commandParams != null) && (commandParams.length > 0)) {
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            exportPSMs = true;
-                        } else {
-                            exportPSMs = false;
-                        }
+                        exportPSMs = "yes".equals(commandParams[0]) ||
+                                "true".equals(commandParams[0]);
                     } else {
                         // only setting the flag is equivalent to true
                         exportPSMs = true;

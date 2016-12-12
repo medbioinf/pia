@@ -320,7 +320,7 @@ public abstract class AbstractFilter {
             boolean contains = false;
             if (o != null) {
                 for (String objStr : o) {
-                    if (objStr.equals((String)getFilterValue())) {
+                    if (objStr.equals(getFilterValue())) {
                         contains = true;
                         break;
                     }
@@ -333,12 +333,12 @@ public abstract class AbstractFilter {
             boolean containsOnly = false;
 
             if ((o != null) && !o.isEmpty()
-                    && o.get(0).equals((String)getFilterValue())) {
+                    && o.get(0).equals(getFilterValue())) {
                 // ok, the first one is our string
                 containsOnly = true;
                 // but are all the others?
                 for (String objStr : o) {
-                    if (!objStr.equals((String)getFilterValue())) {
+                    if (!objStr.equals(getFilterValue())) {
                         containsOnly = false;
                         break;
                     }
@@ -408,7 +408,7 @@ public abstract class AbstractFilter {
                 for (Modification mod : o) {
 
                     if ((mod.getDescription() != null) &&
-                            (mod.getDescription().equals((String)getFilterValue()))) {
+                            (mod.getDescription().equals(getFilterValue()))) {
                         has_description = true;
                         break;
                     }

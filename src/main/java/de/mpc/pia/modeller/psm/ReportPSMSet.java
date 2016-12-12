@@ -564,11 +564,8 @@ public class ReportPSMSet implements PSMReportItem {
      * @return
      */
     public static boolean isPSMSetScore(String scoreShortName) {
-        if (ScoreModelEnum.AVERAGE_FDR_SCORE.isValidDescriptor(scoreShortName) ||
-                ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.isValidDescriptor(scoreShortName)) {
-            return true;
-        }
-        return false;
+        return ScoreModelEnum.AVERAGE_FDR_SCORE.isValidDescriptor(scoreShortName) ||
+                ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.isValidDescriptor(scoreShortName);
     }
 
 

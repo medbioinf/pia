@@ -2074,7 +2074,7 @@ public class PSMModeller {
      */
     public void writePSMInformation(Writer writer, boolean calculate) throws IOException {
         FDRData fdrData;
-        List<Double> fdrThresholds = Arrays.asList(new Double[] {0.01, 0.03, 0.05});
+        List<Double> fdrThresholds = Arrays.asList(0.01, 0.03, 0.05);
         Double originalFDRThreshold;
         String nl = System.getProperty("line.separator");
 

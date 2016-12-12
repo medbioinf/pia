@@ -1,12 +1,6 @@
 package de.mpc.pia.modeller.protein.inference;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -409,7 +403,7 @@ public abstract class AbstractProteinInference {
                                     boolean found = false;
 
                                     for (ReportPSM q : checkSet.getPSMs()) {
-                                        if (p.getId() == q.getId()) {
+                                        if (Objects.equals(p.getId(), q.getId())) {
                                             found = true;
                                             break;
                                         }

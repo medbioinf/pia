@@ -160,7 +160,7 @@ public class MzTabExporter {
 
     public boolean exportToMzTab(Long fileID, OutputStream exportStream,
             boolean proteinLevel, boolean peptideLevelStatistics, boolean filterExport) {
-        boolean exportOK = true;
+        boolean exportOK;
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(exportStream));
             exportOK = exportToMzTab(fileID, writer, proteinLevel, peptideLevelStatistics, filterExport);
@@ -363,7 +363,7 @@ public class MzTabExporter {
                         ScoreModelEnum scoreType =
                                 ScoreModelEnum.getModelByDescription(scoreShort);
 
-                        uk.ac.ebi.pride.jmztab.model.Param scoreParam = null;
+                        uk.ac.ebi.pride.jmztab.model.Param scoreParam;
 
                         // do NOT add the PSM-level FDR for the overview
                         if (scoreType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
@@ -416,7 +416,7 @@ public class MzTabExporter {
                     ScoreModelEnum scoreType =
                             ScoreModelEnum.getModelByDescription(scoreShort);
 
-                    uk.ac.ebi.pride.jmztab.model.Param scoreParam = null;
+                    uk.ac.ebi.pride.jmztab.model.Param scoreParam;
 
                     if (scoreType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
                         scoreParam = new uk.ac.ebi.pride.jmztab.model.UserParam(
@@ -443,7 +443,6 @@ public class MzTabExporter {
             Integer id = spectraDataID.size() + 1;
             spectraDataID.put(inputSpectra.getSpectraDataRef(), id);
         });
-        inputSpectraList = null;
 
         // add msRuns and samples
         for (Map.Entry<String, Integer> spectraIt : spectraDataID.entrySet()) {
@@ -452,7 +451,7 @@ public class MzTabExporter {
             MsRun msRun = new MsRun(spectraIt.getValue());
 
             // there are sometimes errors in the URl encoding of the files...
-            URL locationUrl = null;
+            URL locationUrl;
             try {
                 locationUrl = new URL(sd.getLocation());
             } catch (MalformedURLException ex) {
@@ -543,7 +542,7 @@ public class MzTabExporter {
                 }
 
                 for (String position : positions) {
-                    Mod mod = null;
+                    Mod mod;
 
                     if (searchMod.isFixedMod()) {
                         mod = new FixedMod(nrFixedMods+1);
@@ -610,7 +609,7 @@ public class MzTabExporter {
         Map<String, Integer> softwareToID = new HashMap<>();
         Set<String> enzymeNames = new HashSet<>();
 
-        Integer softwareID = null;
+        Integer softwareID;
         for (AnalysisProtocolCollection protocol : analysisProtocols) {
             SpectrumIdentificationProtocol specIdProtocol =
                     protocol.getSpectrumIdentificationProtocol().get(0);
@@ -788,7 +787,7 @@ public class MzTabExporter {
         }
 
         if (filterExport) {
-            List<AbstractFilter> filters = null;
+            List<AbstractFilter> filters;
             if (proteinLevel) {
                 filters = piaModeller.getProteinModeller().getReportFilters();
             } else {

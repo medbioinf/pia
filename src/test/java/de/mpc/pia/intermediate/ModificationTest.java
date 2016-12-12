@@ -8,12 +8,12 @@ import org.junit.Test;
 
 public class ModificationTest {
 
-    Modification oxidationM = null;
-    Modification anotherOxidationM = null;
-    Modification carbamidomethylC = null;
+    private Modification oxidationM = null;
+    private Modification anotherOxidationM = null;
+    private Modification carbamidomethylC = null;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         oxidationM = new Modification('M', 15.994915, "Oxidation", "UNIMOD:35");
         anotherOxidationM = new Modification('M', 15.994915, "Oxidation", "UNIMOD:35");
         carbamidomethylC = new Modification('C', 57.021464, "Carbamidomethyl", "UNIMOD:4");

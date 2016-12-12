@@ -96,7 +96,7 @@ public class PrideXMLParser {
 
         // add the spectraData
         // the spectra are from the original search file, e.g. mascot dat
-        SpectraData spectraData = null;
+        SpectraData spectraData;
         spectraData = new SpectraData();
         spectraData.setId("sourceFile");
 
@@ -232,7 +232,7 @@ public class PrideXMLParser {
                 PeptideSpectrumMatch psm = keysToPSMs.get(psmKey);
                 if (psm == null) {
                     String mzStr = getValueFromSpectrumPrecursor(spectrumDesc, mzAccessions);
-                    Double precursorMZ = null;
+                    Double precursorMZ;
                     double deltaMass = Double.NaN;
                     if (mzStr != null) {
                         precursorMZ = Double.parseDouble(mzStr);

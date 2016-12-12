@@ -253,7 +253,6 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         LOGGER.info("reportPSMMap build");
 
         nrSpectra = usedSpectra.size();
-        usedSpectra = null;
 
         LOGGER.info("creating disjoint splits");
 
@@ -332,8 +331,6 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                 mergeToSplitIDs.add(psmIdKey);
             }
         }
-        psmIDsplitID = null;
-        splitIdSpectraID = null;
 
         nrSplits = splitIdAccessions.size();
 
@@ -379,11 +376,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                     Boolean notInSplit = null;
                     for (Accession acc : group.getAccessions().values()) {
                         if (notInSplit == null) {
-                            if (!splitAccessions.contains(acc.getID())) {
-                                notInSplit = true;
-                            } else {
-                                notInSplit = false;
-                            }
+                            notInSplit = !splitAccessions.contains(acc.getID());
                         }
 
                         repProtein.addAccession(acc);
@@ -584,7 +577,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                                             }
 
                                             // try to get info/scores on the PSMSet (only possible, if Set is equal to one in reportPSMSetMap)
-                                            String key = ((ReportPSMSet) psmSet).getIdentificationKey(psmSetSettings);
+                                            String key = psmSet.getIdentificationKey(psmSetSettings);
                                             ReportPSMSet givenSet = reportPSMSetMap.get(key);
                                             if ((givenSet != null) &&
                                                     (givenSet.getFDRScore() != null)) {

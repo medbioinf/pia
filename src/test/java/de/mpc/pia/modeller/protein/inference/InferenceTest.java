@@ -3,12 +3,8 @@ package de.mpc.pia.modeller.protein.inference;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
 
 import org.junit.Before;
 
@@ -22,8 +18,7 @@ public class InferenceTest {
 
 
     @Before
-    public void initialize()
-            throws JAXBException, XMLStreamException, IOException {
+    public void initialize() {
         File piaFile = new File(InferenceTest.class.getResource("/07-12_MW_58-mascot_tandem.pia.xml").getPath());
         piaModeller = new PIAModeller(piaFile.getAbsolutePath());
 

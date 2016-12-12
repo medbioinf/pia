@@ -305,7 +305,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
             PSMReportItem psm = psmIter.next();
 
             if (psm instanceof ReportPSMSet) {
-                if (remIdKey.equals(((ReportPSMSet) psm).getIdentificationKey(psmSetSettings))) {
+                if (remIdKey.equals(psm.getIdentificationKey(psmSetSettings))) {
                     // the PSM is found, remove it from List and return it
                     psmIter.remove();
                     return (ReportPSMSet)psm;

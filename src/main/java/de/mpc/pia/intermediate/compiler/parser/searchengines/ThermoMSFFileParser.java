@@ -746,7 +746,7 @@ public class ThermoMSFFileParser {
 
         split = split[1].split("Da");
 
-        Float massShift = null;
+        Float massShift;
         try {
             massShift = Float.parseFloat(split[0]);
         } catch (NumberFormatException e) {

@@ -247,11 +247,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            if ((c instanceof ReportPSMSet) || (c instanceof ReportPSM)) {
-                return true;
-            } else {
-                return false;
-            }
+            return (c instanceof ReportPSMSet) || (c instanceof ReportPSM);
         }
 
         @Override
@@ -1274,55 +1270,49 @@ public enum RegisteredFilters {
 
     /** list of filters for PSMs */
     private static final List<RegisteredFilters> psmFilters = Arrays.asList(
-            new RegisteredFilters[]{
-                    CHARGE_FILTER,
-                    DELTA_MASS_FILTER,
-                    DELTA_PPM_FILTER,
-                    MZ_FILTER,
-                    PSM_ACCESSIONS_FILTER,
-                    PSM_DESCRIPTION_FILTER,
-                    PSM_FILE_LIST_FILTER,
-                    PSM_MISSED_CLEAVAGES_FILTER,
-                    PSM_MODIFICATIONS_FILTER,
-                    PSM_RANK_FILTER,
-                    PSM_SEQUENCE_FILTER,
-                    PSM_UNIQUE_FILTER,
-                    PSM_SOURCE_ID_FILTER,
-                    NR_ACCESSIONS_PER_PSM_FILTER,
-                    NR_PSMS_PER_PSM_SET_FILTER,
-            });
+            CHARGE_FILTER,
+            DELTA_MASS_FILTER,
+            DELTA_PPM_FILTER,
+            MZ_FILTER,
+            PSM_ACCESSIONS_FILTER,
+            PSM_DESCRIPTION_FILTER,
+            PSM_FILE_LIST_FILTER,
+            PSM_MISSED_CLEAVAGES_FILTER,
+            PSM_MODIFICATIONS_FILTER,
+            PSM_RANK_FILTER,
+            PSM_SEQUENCE_FILTER,
+            PSM_UNIQUE_FILTER,
+            PSM_SOURCE_ID_FILTER,
+            NR_ACCESSIONS_PER_PSM_FILTER,
+            NR_PSMS_PER_PSM_SET_FILTER);
 
     /** list of filters for peptides */
     private static final List<RegisteredFilters> peptideFilters = Arrays.asList(
-            new RegisteredFilters[]{
-                    PEPTIDE_ACCESSIONS_FILTER,
-                    PEPTIDE_DESCRIPTION_FILTER,
-                    PEPTIDE_FILE_LIST_FILTER,
-                    PEPTIDE_MISSED_CLEAVAGES_FILTER,
-                    PEPTIDE_MODIFICATIONS_FILTER,
-                    PEPTIDE_SEQUENCE_FILTER,
-                    PEPTIDE_SOURCE_ID_LIST_FILTER,
-                    PEPTIDE_UNIQUE_FILTER,
-                    NR_PSMS_PER_PEPTIDE_FILTER,
-                    NR_SPECTRA_PER_PEPTIDE_FILTER,
-            });
+            PEPTIDE_ACCESSIONS_FILTER,
+            PEPTIDE_DESCRIPTION_FILTER,
+            PEPTIDE_FILE_LIST_FILTER,
+            PEPTIDE_MISSED_CLEAVAGES_FILTER,
+            PEPTIDE_MODIFICATIONS_FILTER,
+            PEPTIDE_SEQUENCE_FILTER,
+            PEPTIDE_SOURCE_ID_LIST_FILTER,
+            PEPTIDE_UNIQUE_FILTER,
+            NR_PSMS_PER_PEPTIDE_FILTER,
+            NR_SPECTRA_PER_PEPTIDE_FILTER);
 
     /** list of filters for proteins */
     private static final List<RegisteredFilters> proteinFilters = Arrays.asList(
-            new RegisteredFilters[]{
-                    PROTEIN_SCORE_FILTER,
-                    PROTEIN_RANK_FILTER,
-                    NR_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER,
-                    NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER,
-                    PROTEIN_ACCESSIONS_FILTER,
-                    PROTEIN_DESCRIPTION_FILTER,
-                    PROTEIN_FILE_LIST_FILTER,
-                    PROTEIN_MODIFICATIONS_FILTER,
-                    PROTEIN_SEQUENCE_LIST_FILTER,
-                    NR_PEPTIDES_PER_PROTEIN_FILTER,
-                    NR_PSMS_PER_PROTEIN_FILTER,
-                    NR_SPECTRA_PER_PROTEIN_FILTER,
-            });
+            PROTEIN_SCORE_FILTER,
+            PROTEIN_RANK_FILTER,
+            NR_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER,
+            NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER,
+            PROTEIN_ACCESSIONS_FILTER,
+            PROTEIN_DESCRIPTION_FILTER,
+            PROTEIN_FILE_LIST_FILTER,
+            PROTEIN_MODIFICATIONS_FILTER,
+            PROTEIN_SEQUENCE_LIST_FILTER,
+            NR_PEPTIDES_PER_PROTEIN_FILTER,
+            NR_PSMS_PER_PROTEIN_FILTER,
+            NR_SPECTRA_PER_PROTEIN_FILTER);
 
 
     /** a copy of all filters */

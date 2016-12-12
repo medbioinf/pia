@@ -196,7 +196,7 @@ public class MzIdentMLExporter {
 
     public boolean exportToMzIdentML(Long fileID, OutputStream exportStream,
             boolean proteinLevel, boolean filterExport) {
-        boolean exportOK = true;
+        boolean exportOK;
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(exportStream));
             exportOK = exportToMzIdentML(fileID, writer, proteinLevel, filterExport);
@@ -1090,7 +1090,7 @@ public class MzIdentMLExporter {
 
             scoreModels = new ArrayList<>(scoreShorts.size() + 1);
 
-            ScoreModel combinedFDRScore = ((ReportPSMSet) psm).getFDRScore();
+            ScoreModel combinedFDRScore = psm.getFDRScore();
             if ((combinedFDRScore != null)
                     && !combinedFDRScore.getValue().equals(Double.NaN)) {
                 // there is a valid Combined FDR Score to add

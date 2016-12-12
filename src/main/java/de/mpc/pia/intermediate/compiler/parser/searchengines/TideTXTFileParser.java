@@ -94,7 +94,7 @@ public class TideTXTFileParser {
         int pepNr = 0;
         int specNr = 0;
 
-        String line = null;
+        String line;
         int lineNr = 0;
 
         Map<String, Integer> columnMap = new HashMap<>(colNames.size());
@@ -229,7 +229,7 @@ public class TideTXTFileParser {
                 // add the scores
                 ScoreModel score;
 
-                Double scoreValue = null;
+                Double scoreValue;
                 try {
                     scoreValue = Double.parseDouble(columns[columnMap.get(HEADER_XCORR)]);
                     score = new ScoreModel(scoreValue,
@@ -333,7 +333,6 @@ public class TideTXTFileParser {
                 unimod = compiler.getUnimodParser().getModificationByMass(
                         massShift, residue);
             } catch (NumberFormatException e) {
-                massShift = null;
                 LOGGER.error("could not parse mass of modification: " + modWeight, e);
             }
 

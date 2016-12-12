@@ -396,11 +396,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
             Boolean createSets = null;
 
             if ((params != null) && (params.length > 0) && (params[0] != null)) {
-                if ("true".equals(params[0]) || "yes".equals(params[0])) {
-                    createSets = true;
-                } else {
-                    createSets = false;
-                }
+                createSets = "true".equals(params[0]) || "yes".equals(params[0]);
             }
 
             if (createSets == null) {
@@ -487,12 +483,8 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                     if ((commandParams != null) &&
                             (commandParams.length > 0)) {
 
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            spectralCount = true;
-                        } else {
-                            spectralCount = false;
-                        }
+                        spectralCount = "yes".equals(commandParams[0]) ||
+                                "true".equals(commandParams[0]);
                     } else {
                         // only setting the flag is equivalent to true
                         spectralCount = true;

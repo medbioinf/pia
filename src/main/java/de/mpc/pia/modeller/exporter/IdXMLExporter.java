@@ -450,7 +450,7 @@ public class IdXMLExporter {
      * @return
      */
     private String getSearchDatabase(Long fileID) {
-        String db = null;
+        String db;
         try {
             String sdbRef = piaModeller.getFiles().get(fileID).getAnalysisCollection().getSpectrumIdentification().get(0).getSearchDatabaseRef().get(0).getSearchDatabaseRef();
             db = piaModeller.getSearchDatabases().get(sdbRef).getLocation();

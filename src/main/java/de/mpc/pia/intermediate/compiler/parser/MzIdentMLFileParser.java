@@ -133,12 +133,8 @@ class MzIdentMLFileParser {
                 specIdListIDtoSpecIdID.put(specIdListID, id);
 
                 neededSpectrumIdentificationProtocols.add(si.getSpectrumIdentificationProtocolRef());
-                for (InputSpectra spectra : si.getInputSpectra()) {
-                    neededSpectraData.add(spectra.getSpectraDataRef());
-                }
-                for (SearchDatabaseRef db : si.getSearchDatabaseRef()) {
-                    neededSearchDatabases.add(db.getSearchDatabaseRef());
-                }
+                neededSpectraData.addAll(si.getInputSpectra().stream().map(InputSpectra::getSpectraDataRef).collect(Collectors.toList()));
+                neededSearchDatabases.addAll(si.getSearchDatabaseRef().stream().map(SearchDatabaseRef::getSearchDatabaseRef).collect(Collectors.toList()));
             } else {
                 // TODO: better error / exception
                 logger.warn("file contains SpectrumIdentification (" +
@@ -149,93 +145,85 @@ class MzIdentMLFileParser {
         // get the necessary AnalysisProtocolCollection:SpectrumIdentificationProtocol
         AnalysisProtocolCollection analysisProtocolCollection =
                 unmarshaller.unmarshal(AnalysisProtocolCollection.class);
-        for (SpectrumIdentificationProtocol idProtocol
-                : analysisProtocolCollection.getSpectrumIdentificationProtocol()) {
-            if (neededSpectrumIdentificationProtocols.contains(idProtocol.getId())) {
-                // this protocol is needed, add it to the PIAFile
-                String ref = idProtocol.getId();
-                String id = file.addSpectrumIdentificationProtocol(idProtocol);
-                spectrumIdentificationProtocolRefs.put(ref, id);
-                neededAnalysisSoftwares.add(idProtocol.getAnalysisSoftwareRef());
+        // this protocol is needed, add it to the PIAFile
+// look through the enzymes and get regexes, when not given
+// no siteRegexp given, so look for it in the obo file
+// we still need the regExp for this enzyme
+//Todo: We should use this in some way
+        analysisProtocolCollection.getSpectrumIdentificationProtocol().stream().filter(idProtocol -> neededSpectrumIdentificationProtocols.contains(idProtocol.getId())).forEach(idProtocol -> {
+            // this protocol is needed, add it to the PIAFile
+            String ref = idProtocol.getId();
+            String id = file.addSpectrumIdentificationProtocol(idProtocol);
+            spectrumIdentificationProtocolRefs.put(ref, id);
+            neededAnalysisSoftwares.add(idProtocol.getAnalysisSoftwareRef());
 
-                // look through the enzymes and get regexes, when not given
-                if ((idProtocol.getEnzymes() != null) &&
-                        (idProtocol.getEnzymes().getEnzyme() != null)) {
-                    for (Enzyme enzyme : idProtocol.getEnzymes().getEnzyme()) {
-                        ParamList enzymeName = enzyme.getEnzymeName();
-                        if ((enzyme.getSiteRegexp() == null) &&
-                                (enzymeName != null)) {
-                            // no siteRegexp given, so look for it in the obo file
-                            List<AbstractParam> paramList = enzymeName.getParamGroup();
-                            if (paramList.size() > 0) {
+            // look through the enzymes and get regexes, when not given
+            if ((idProtocol.getEnzymes() != null) &&
+                    (idProtocol.getEnzymes().getEnzyme() != null)) {
+                for (Enzyme enzyme : idProtocol.getEnzymes().getEnzyme()) {
+                    ParamList enzymeName = enzyme.getEnzymeName();
+                    if ((enzyme.getSiteRegexp() == null) &&
+                            (enzymeName != null)) {
+                        // no siteRegexp given, so look for it in the obo file
+                        List<AbstractParam> paramList = enzymeName.getParamGroup();
+                        if (paramList.size() > 0) {
 
-                                if (paramList.get(0) instanceof CvParam) {
-                                    String oboID = ((CvParam)(paramList.get(0))).getAccession();
+                            if (paramList.get(0) instanceof CvParam) {
+                                String oboID = ((CvParam) (paramList.get(0))).getAccession();
 
-                                    if (enzymesToRegexes.get(oboID) == null) {
-                                        // we still need the regExp for this enzyme
+                                if (enzymesToRegexes.get(oboID) == null) {
+                                    // we still need the regExp for this enzyme
 
-                                        Term oboTerm = compiler.getOBOMapper().getTerm(oboID);
-                                        if (oboTerm != null) {
-                                            Set<Triple> tripleSet = compiler.getOBOMapper().getTriples(oboTerm, null, null);
+                                    Term oboTerm = compiler.getOBOMapper().getTerm(oboID);
+                                    if (oboTerm != null) {
+                                        Set<Triple> tripleSet = compiler.getOBOMapper().getTriples(oboTerm, null, null);
 
-                                            tripleSet.stream().filter(triple -> triple.getPredicate().getName().equals(OBOMapper.obo_relationship) &&
-                                                    triple.getObject().getName().startsWith(OBOMapper.obo_has_regexp)).forEach(triple -> {
-                                                String regExpID = triple.getObject().getName().substring(11).trim();
-                                                Term regExpTerm = compiler.getOBOMapper().getTerm(regExpID);
+                                        tripleSet.stream().filter(triple -> triple.getPredicate().getName().equals(OBOMapper.obo_relationship) &&
+                                                triple.getObject().getName().startsWith(OBOMapper.obo_has_regexp)).forEach(triple -> {
+                                            String regExpID = triple.getObject().getName().substring(11).trim();
+                                            Term regExpTerm = compiler.getOBOMapper().getTerm(regExpID);
 
-                                                if (regExpTerm != null) {
-                                                    enzymesToRegexes.put(oboID, StringEscapeUtils.unescapeJava(regExpTerm.getDescription()));
-                                                }
-                                            });
-                                        }
+                                            if (regExpTerm != null) {
+                                                enzymesToRegexes.put(oboID, StringEscapeUtils.unescapeJava(regExpTerm.getDescription()));
+                                            }
+                                        });
                                     }
-
-                                } else if (paramList.get(0) instanceof UserParam) {
-                                    //Todo: We should use this in some way
                                 }
+
+                            } else if (paramList.get(0) instanceof UserParam) {
+                                //Todo: We should use this in some way
                             }
                         }
                     }
-                } else {
-                    logger.warn("No enzymes in mzIdentML, this should not happen!");
                 }
-
+            } else {
+                logger.warn("No enzymes in mzIdentML, this should not happen!");
             }
-        }
-        neededSpectrumIdentificationProtocols = null;
+
+        });
 
         // get the necessary inputs:SpectraData
         Inputs inputs = unmarshaller.unmarshal(Inputs.class);
-        for (SpectraData spectraData : inputs.getSpectraData()) {
-            if (neededSpectraData.contains(spectraData.getId())) {
-                String ref = spectraData.getId();
-                SpectraData sd = compiler.putIntoSpectraDataMap(spectraData);
-                spectraDataRefs.put(ref, sd);
-            }
-        }
-        neededSpectraData = null;
+        inputs.getSpectraData().stream().filter(spectraData -> neededSpectraData.contains(spectraData.getId())).forEach(spectraData -> {
+            String ref = spectraData.getId();
+            SpectraData sd = compiler.putIntoSpectraDataMap(spectraData);
+            spectraDataRefs.put(ref, sd);
+        });
 
         // get the necessary inputs:SearchDBs
-        for (SearchDatabase searchDB : inputs.getSearchDatabase()) {
-            if (neededSearchDatabases.contains(searchDB.getId())) {
-                String ref = searchDB.getId();
-                SearchDatabase sDB = compiler.putIntoSearchDatabasesMap(searchDB);
-                searchDBRefs.put(ref, sDB);
-            }
-        }
-        neededSearchDatabases = null;
+        inputs.getSearchDatabase().stream().filter(searchDB -> neededSearchDatabases.contains(searchDB.getId())).forEach(searchDB -> {
+            String ref = searchDB.getId();
+            SearchDatabase sDB = compiler.putIntoSearchDatabasesMap(searchDB);
+            searchDBRefs.put(ref, sDB);
+        });
 
         // get the necessary AnalysisSoftwares
         AnalysisSoftwareList analysisSoftwareList = unmarshaller.unmarshal(AnalysisSoftwareList.class);
-        for (AnalysisSoftware software : analysisSoftwareList.getAnalysisSoftware()) {
-            if (neededAnalysisSoftwares.contains(software.getId())) {
-                String ref = software.getId();
-                AnalysisSoftware as = compiler.putIntoSoftwareMap(software);
-                analysisSoftwareRefs.put(ref, as);
-            }
-        }
-        neededAnalysisSoftwares = null;
+        analysisSoftwareList.getAnalysisSoftware().stream().filter(software -> neededAnalysisSoftwares.contains(software.getId())).forEach(software -> {
+            String ref = software.getId();
+            AnalysisSoftware as = compiler.putIntoSoftwareMap(software);
+            analysisSoftwareRefs.put(ref, as);
+        });
 
         // update the PIAFile's references for SpectraData, SearchDBs and AnalysisSoftwares
         file.updateReferences(spectraDataRefs, searchDBRefs, analysisSoftwareRefs);

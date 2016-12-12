@@ -207,7 +207,6 @@ public class TandemFileParser {
                 searchDatabaseMap.put(performParam.getValue(), searchDatabase);
             }
         }
-        tandemParser = null;
 
         // now go on with the XTandemFile (easier access)
         XTandemFile xtandemFile;

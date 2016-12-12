@@ -1220,7 +1220,7 @@ public abstract class PIACompiler {
         }
 
         String outFileName = null;
-        String piaName = null;
+        String piaName;
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
         // parse the command line arguments

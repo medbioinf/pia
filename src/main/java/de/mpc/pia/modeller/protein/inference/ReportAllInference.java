@@ -1,12 +1,6 @@
 package de.mpc.pia.modeller.protein.inference;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -152,7 +146,7 @@ public class ReportAllInference extends AbstractProteinInference {
 
                 // check against the groups in the tree
                 for (Long checkID : treeMap.get(treeID)) {
-                    if (gIt.getKey() == checkID) {
+                    if (Objects.equals(gIt.getKey(), checkID)) {
                         // don't check against self
                         continue;
                     }
