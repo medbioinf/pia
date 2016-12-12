@@ -260,12 +260,7 @@ public class UnimodParser {
     public static boolean isAnyName(String query, ModT mod) {
         boolean nameFound;
 
-        if (mod.getTitle().equalsIgnoreCase(query) ||
-                mod.getFullName().equalsIgnoreCase(query)) {
-            nameFound = true;
-        } else {
-            nameFound = isAlternativeName(query, mod);
-        }
+        nameFound = mod.getTitle().equalsIgnoreCase(query) || mod.getFullName().equalsIgnoreCase(query) || isAlternativeName(query, mod);
 
         return nameFound;
     }

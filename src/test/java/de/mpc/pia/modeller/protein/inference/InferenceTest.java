@@ -3,31 +3,17 @@ package de.mpc.pia.modeller.protein.inference;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
 import org.junit.Before;
-import org.junit.Test;
 
-import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.modeller.PIAModeller;
-import de.mpc.pia.modeller.protein.ReportProtein;
-import de.mpc.pia.modeller.protein.scoring.AbstractScoring;
-import de.mpc.pia.modeller.protein.scoring.MultiplicativeScoring;
-import de.mpc.pia.modeller.protein.scoring.settings.PSMForScoring;
-import de.mpc.pia.modeller.report.filter.FilterComparator;
-import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
-import de.mpc.pia.modeller.score.ScoreModelEnum;
+
 
 
 public class InferenceTest {

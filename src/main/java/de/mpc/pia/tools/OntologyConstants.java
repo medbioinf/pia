@@ -157,9 +157,9 @@ public enum OntologyConstants {
      * Initializes the ontology entry without pride references
      *
      * @param psiName
-     * @param psiaccession
+     * @param psiAccession
      */
-    private OntologyConstants(String psiName, String psiAccession) {
+    OntologyConstants(String psiName, String psiAccession) {
         this.psiName = psiName;
         this.psiAccession = psiAccession;
         this.prideName = null;
@@ -171,11 +171,11 @@ public enum OntologyConstants {
      * Initializes the ontology entry with pride references
      *
      * @param psiName
-     * @param psiaccession
+     * @param psiAccession
      * @param prideName
      * @param prideAccession
      */
-    private OntologyConstants(String psiName, String psiAccession,
+    OntologyConstants(String psiName, String psiAccession,
             String prideName, String prideAccession) {
         this(psiName, psiAccession);
         this.prideName = prideName;

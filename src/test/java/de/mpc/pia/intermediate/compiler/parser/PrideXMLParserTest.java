@@ -2,19 +2,8 @@ package de.mpc.pia.intermediate.compiler.parser;
 
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
-import de.mpc.pia.modeller.PIAModeller;
-import de.mpc.pia.modeller.protein.ReportProtein;
-import de.mpc.pia.modeller.protein.inference.SpectrumExtractorInference;
-import de.mpc.pia.modeller.protein.scoring.AbstractScoring;
-import de.mpc.pia.modeller.protein.scoring.MultiplicativeScoring;
-import de.mpc.pia.modeller.protein.scoring.settings.PSMForScoring;
-import de.mpc.pia.modeller.report.filter.FilterComparator;
-import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
-import de.mpc.pia.modeller.score.FDRData;
-import de.mpc.pia.modeller.score.ScoreModelEnum;
 import org.apache.log4j.Logger;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import uk.ac.ebi.pride.jaxb.xml.PrideXmlReader;
@@ -24,10 +13,6 @@ import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)

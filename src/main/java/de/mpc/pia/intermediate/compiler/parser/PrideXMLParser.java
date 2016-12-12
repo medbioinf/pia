@@ -429,8 +429,7 @@ public class PrideXMLParser {
     /**
      * Converting the modification Items to intermediate modifications
      *
-     * @param sequence
-     * @param modificationItem
+     * @param modifications
      * @return
      */
     private static double[] getPtmMassesForTheoreticalMass(Map<Integer, Modification> modifications) {
@@ -439,7 +438,7 @@ public class PrideXMLParser {
 
             int i=0;
             for (Modification mod : modifications.values()) {
-                ptmMasses[i++] = new Double(mod.getMass());
+                ptmMasses[i++] = mod.getMass();
             }
 
             // add the ubiquous water loss

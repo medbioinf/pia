@@ -103,7 +103,7 @@ public class ReportPeptideComparatorFactory {
 				return new Comparator<ReportPeptide>() {
 					@Override
 					public int compare(ReportPeptide o1, ReportPeptide o2) {
-						return Integer.valueOf(o1.getNrPSMs()).compareTo(o2.getNrPSMs());
+						return o1.getNrPSMs().compareTo(o2.getNrPSMs());
 					}
 				};
 			}

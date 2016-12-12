@@ -5,9 +5,6 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
-
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;

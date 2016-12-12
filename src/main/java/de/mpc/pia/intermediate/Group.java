@@ -344,7 +344,7 @@ public class Group implements Serializable {
 		
 		if (accessions != null) {
 			for (Map.Entry<String, Accession> acc : accessions.entrySet()) {
-				sb.append(acc.getKey() + " ");
+				sb.append(acc.getKey()).append(" ");
 			}
 		}
 		
@@ -364,7 +364,7 @@ public class Group implements Serializable {
 		if (accessions != null) {
 			accessionsArr = new String[accessions.size()];
 			for (Map.Entry<String, Accession> acc : accessions.entrySet()) {
-				accessionsArr[i] = new String(acc.getKey());
+				accessionsArr[i] = acc.getKey();
 				i++;
 			}
 		}

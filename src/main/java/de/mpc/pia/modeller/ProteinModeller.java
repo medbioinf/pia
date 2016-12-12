@@ -452,11 +452,7 @@ public class ProteinModeller {
      * Add a new filter to the report filters.
      */
     public boolean addReportFilter(AbstractFilter newFilter) {
-        if (newFilter != null) {
-            return getReportFilters().add(newFilter);
-        } else {
-            return false;
-        }
+        return newFilter != null && getReportFilters().add(newFilter);
     }
 
 
@@ -497,11 +493,7 @@ public class ProteinModeller {
      * set filters, but a list of filters which may be used for inference.
      */
     public boolean addInferenceFilter(AbstractFilter newFilter) {
-        if (newFilter != null) {
-            return getInferenceFilters().add(newFilter);
-        } else {
-            return false;
-        }
+        return newFilter != null && getInferenceFilters().add(newFilter);
     }
 
 

@@ -1640,11 +1640,7 @@ public class PSMModeller {
      * Add a new filter for the given file
      */
     public boolean addFilter(Long fileID, AbstractFilter newFilter) {
-        if (newFilter != null) {
-            return getFilters(fileID).add(newFilter);
-        } else {
-            return false;
-        }
+        return newFilter != null && getFilters(fileID).add(newFilter);
     }
 
 

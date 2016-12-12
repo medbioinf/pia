@@ -16,14 +16,12 @@ import de.mpc.pia.modeller.IdentificationKeySettings;
 import de.mpc.pia.modeller.PIAModeller;
 import de.mpc.pia.modeller.protein.inference.AbstractProteinInference;
 import de.mpc.pia.modeller.protein.inference.OccamsRazorInference;
-import de.mpc.pia.modeller.protein.inference.SpectrumExtractorInference;
 import de.mpc.pia.modeller.protein.scoring.AbstractScoring;
 import de.mpc.pia.modeller.protein.scoring.MultiplicativeScoring;
 import de.mpc.pia.modeller.protein.scoring.settings.PSMForScoring;
 import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
-import de.mpc.pia.modeller.score.FDRData;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 
 

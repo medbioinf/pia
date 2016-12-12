@@ -419,7 +419,7 @@ public enum RegisteredFilters {
                 if (isUnique != null) {
                     return isUnique;
                 } else {
-                    return new Boolean(false);
+                    return Boolean.FALSE;
                 }
             } else if (o instanceof Boolean) {
                 return o;
@@ -796,7 +796,7 @@ public enum RegisteredFilters {
                     }
                 }
                 // all PSMs were unique
-                return new Boolean(true);
+                return Boolean.TRUE;
             } else if (o instanceof Boolean) {
                 return o;
             }
@@ -1418,7 +1418,8 @@ public enum RegisteredFilters {
      * @param longName
      * @param filteringListName
      */
-    private RegisteredFilters(FilterType filterType, Class<?> valueInstance,
+
+    RegisteredFilters(FilterType filterType, Class<?> valueInstance,
             String longName, String filteringListName) {
         this.filterType = filterType;
         this.valueInstance = valueInstance;

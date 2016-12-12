@@ -45,7 +45,7 @@ public enum PrideSoftwareList {
      * @param psiAccession accession in PSI OBO, must not be null
      * @param uri URI to the software, may be null
      */
-    private PrideSoftwareList(String shortName, String prideName, String psiName,
+    PrideSoftwareList(String shortName, String prideName, String psiName,
             String psiAccession, String uri) {
         this.shortName = shortName;
         this.prideName = prideName;

@@ -149,86 +149,78 @@ public abstract class AbstractFilter {
 
         if (objValue != null) {
             switch (getFilterType()) {
-            case bool:
-                if (objValue instanceof Boolean) {
-                    return satisfiesBooleanFilter((Boolean)objValue);
-                } else if (objValue instanceof Collection<?>) {
-                    for (Object obj : (Collection<?>)objValue) {
-                        // if any of the objects in the collection does not satisfy the filter or is not numerical, return false
-                        if (obj instanceof Boolean) {
-                            if (!satisfiesBooleanFilter((Boolean)obj)) {
+                case bool:
+                    if (objValue instanceof Boolean) {
+                        return satisfiesBooleanFilter((Boolean) objValue);
+                    } else if (objValue instanceof Collection<?>) {
+                        for (Object obj : (Collection<?>) objValue) {
+                            // if any of the objects in the collection does not satisfy the filter or is not numerical, return false
+                            if (obj instanceof Boolean) {
+                                if (!satisfiesBooleanFilter((Boolean) obj)) {
+                                    return false;
+                                }
+                            } else {
                                 return false;
                             }
-                        } else {
-                            return false;
                         }
+                        // all objects in collection satisfy the filter, return true
+                        return true;
+                    } else {
+                        // TODO: throw exception or something
+                        return false;
                     }
-                    // all objects in collection satisfy the filter, return true
-                    return true;
-                } else {
-                    // TODO: throw exception or something
-                    return false;
-                }
 
-            case numerical:
-                if (objValue instanceof Number) {
-                    return satisfiesNumericalFilter((Number)objValue);
-                } else if (objValue instanceof Collection<?>) {
-                    for (Object obj : (Collection<?>)objValue) {
-                        // if any of the objects in the collection does not satisfy the filter or is not numerical, return false
-                        if (obj instanceof Number) {
-                            if (!satisfiesNumericalFilter((Number)obj)) {
+                case numerical:
+                    if (objValue instanceof Number) {
+                        return satisfiesNumericalFilter((Number) objValue);
+                    } else if (objValue instanceof Collection<?>) {
+                        for (Object obj : (Collection<?>) objValue) {
+                            // if any of the objects in the collection does not satisfy the filter or is not numerical, return false
+                            if (obj instanceof Number) {
+                                if (!satisfiesNumericalFilter((Number) obj)) {
+                                    return false;
+                                }
+                            } else {
                                 return false;
                             }
-                        } else {
-                            return false;
                         }
+                        // all objects in collection satisfy the filter, return true
+                        return true;
+                    } else {
+                        // TODO: throw exception or something
+                        return false;
                     }
-                    // all objects in collection satisfy the filter, return true
-                    return true;
-                } else {
-                    // TODO: throw exception or something
-                    return false;
-                }
 
-            case literal:
-                if (objValue instanceof String) {
-                    return satisfiesLiteralFilter((String)objValue);
-                } else if(objValue instanceof Collection<?>) {
-                    for (Object obj : (Collection<?>)objValue) {
-                        // if any of the objects in the collection does not satisfy the filter or is no String, return false
-                        if (obj instanceof String) {
-                            if (!satisfiesLiteralFilter((String)obj)) {
+                case literal:
+                    if (objValue instanceof String) {
+                        return satisfiesLiteralFilter((String) objValue);
+                    } else if (objValue instanceof Collection<?>) {
+                        for (Object obj : (Collection<?>) objValue) {
+                            // if any of the objects in the collection does not satisfy the filter or is no String, return false
+                            if (obj instanceof String) {
+                                if (!satisfiesLiteralFilter((String) obj)) {
+                                    return false;
+                                }
+                            } else {
                                 return false;
                             }
-                        } else {
-                            return false;
                         }
+                        // all objects in collection satisfy the filter, return true
+                        return true;
+                    } else {
+                        // TODO: throw exception or something
+                        return false;
                     }
-                    // all objects in collection satisfy the filter, return true
-                    return true;
-                } else {
-                    // TODO: throw exception or something
-                    return false;
-                }
 
-            case literal_list:
-                if (objValue instanceof List<?>) {
-                    return satisfiesLiteralListFilter((List<String>)objValue);
-                } else {
-                    // TODO: throw exception or something
-                    return false;
-                }
+                case literal_list:
+                    return objValue instanceof List<?> && satisfiesLiteralListFilter((List<String>) objValue);
+// TODO: throw exception or something
 
-            case modification:
-                if (objValue instanceof List<?>) {
-                    return satisfiesModificationFilter((List<Modification>)objValue);
-                } else {
-                    // TODO: throw exception or something
+                case modification:
+                    return objValue instanceof List<?> && satisfiesModificationFilter((List<Modification>) objValue);
+// TODO: throw exception or something
+                default:
                     return false;
-                }
-            default:
-                return false;
             }
         }
 
