@@ -34,10 +34,10 @@ import edu.uci.ics.jung.visualization.util.Animator;
 public class AmbiguityGroupVisualizationHandler implements GraphMouseListener<VertexObject> {
 
     /** handler for the shown graph */
-    private ProteinVisualizationGraphHandler visGraph;
+    private final ProteinVisualizationGraphHandler visGraph;
 
     /** the currently selected vertex */
-    private VertexObject selectedVertex;
+    private final VertexObject selectedVertex;
 
     /** the default used layout */
     private static final Class<? extends Layout> defaultLayout = ProteinLayout.class;
@@ -88,10 +88,10 @@ public class AmbiguityGroupVisualizationHandler implements GraphMouseListener<Ve
      */
     private void setUpVisualizationPane() {
         // set up the layout
-        layout = new ProteinLayout<String>(visGraph.getGraph());
-        Layout<VertexObject, String> staticLayout = new StaticLayout<VertexObject, String>(visGraph.getGraph(), layout, layout.getSize());
+        layout = new ProteinLayout<>(visGraph.getGraph());
+        Layout<VertexObject, String> staticLayout = new StaticLayout<>(visGraph.getGraph(), layout, layout.getSize());
 
-        visualizationViewer = new VisualizationViewer<VertexObject,String>(staticLayout, layout.getSize());
+        visualizationViewer = new VisualizationViewer<>(staticLayout, layout.getSize());
         visualizationViewer.setBackground(Color.white);
 
         // listen to viewer resizing
@@ -130,11 +130,11 @@ public class AmbiguityGroupVisualizationHandler implements GraphMouseListener<Ve
         visualizationViewer.setVertexToolTipTransformer(labeller);
 
         // customize the edges to be straight lines
-        visualizationViewer.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<VertexObject, String>());
+        visualizationViewer.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<>());
 
 
         // define a manipulation mouse
-        graphMouse = new DefaultModalGraphMouse<VertexObject, String>();
+        graphMouse = new DefaultModalGraphMouse<>();
         // set PICKING as default mouse behaviour
         graphMouse.setMode(Mode.PICKING);
 
@@ -157,10 +157,10 @@ public class AmbiguityGroupVisualizationHandler implements GraphMouseListener<Ve
         }
 
         StaticLayout<VertexObject, String> staticLayout =
-                new StaticLayout<VertexObject, String>(visGraph.getGraph(), layout, layout.getSize());
+                new StaticLayout<>(visGraph.getGraph(), layout, layout.getSize());
 
         LayoutTransition<VertexObject, String> lt =
-                new LayoutTransition<VertexObject, String>(visualizationViewer,
+                new LayoutTransition<>(visualizationViewer,
                         visualizationViewer.getGraphLayout(),
                         staticLayout);
 

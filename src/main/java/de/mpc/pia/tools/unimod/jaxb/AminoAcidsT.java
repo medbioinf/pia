@@ -66,7 +66,7 @@ public class AminoAcidsT {
      */
     public List<AaT> getAa() {
         if (aa == null) {
-            aa = new ArrayList<AaT>();
+            aa = new ArrayList<>();
         }
         return this.aa;
     }

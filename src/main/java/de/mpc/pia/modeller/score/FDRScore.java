@@ -28,7 +28,7 @@ public class FDRScore {
 		// set the stepPoints
 		ListIterator<T> it;
 		FDRScoreComputable item;
-		List<Integer> stepPoints = new ArrayList<Integer>();
+		List<Integer> stepPoints = new ArrayList<>();
 		
 		it = reportItems.listIterator(reportItems.size());
 		double qValue = Double.NaN;

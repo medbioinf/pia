@@ -115,7 +115,7 @@ public class ModT {
      */
     public List<SpecificityT> getSpecificity() {
         if (specificity == null) {
-            specificity = new ArrayList<SpecificityT>();
+            specificity = new ArrayList<>();
         }
         return this.specificity;
     }
@@ -168,7 +168,7 @@ public class ModT {
      */
     public List<CompositionT> getIgnore() {
         if (ignore == null) {
-            ignore = new ArrayList<CompositionT>();
+            ignore = new ArrayList<>();
         }
         return this.ignore;
     }
@@ -197,7 +197,7 @@ public class ModT {
      */
     public List<String> getAltName() {
         if (altName == null) {
-            altName = new ArrayList<String>();
+            altName = new ArrayList<>();
         }
         return this.altName;
     }
@@ -226,7 +226,7 @@ public class ModT {
      */
     public List<XrefT> getXref() {
         if (xref == null) {
-            xref = new ArrayList<XrefT>();
+            xref = new ArrayList<>();
         }
         return this.xref;
     }

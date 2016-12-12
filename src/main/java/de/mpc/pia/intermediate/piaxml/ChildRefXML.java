@@ -36,7 +36,6 @@ public class ChildRefXML {
 	
 	/**
 	 * Sets the value of the childRefID attribute.
-	 * @param id
 	 */
 	public void setChildRefID(Long childRefID) {
 		this.childRefID = childRefID;

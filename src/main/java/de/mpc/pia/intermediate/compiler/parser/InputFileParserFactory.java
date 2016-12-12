@@ -103,7 +103,7 @@ public class InputFileParserFactory {
             @Override
             public boolean parseFile(String name, String fileName,
                     PIACompiler compiler, String additionalInfoFileName) {
-                return MzTabParser.getDataFromMzTabFile(name, fileName,
+                return MzTabParser.getDataFromMzTabFile(fileName,
                         compiler);
             }
 
@@ -312,7 +312,7 @@ public class InputFileParserFactory {
      * Returns the {@link InputFileTypes} specified by the given fileSuffix or
      * null.
      */
-    public static InputFileTypes getFileTypeBySuffix(String fileSuffix) {
+    private static InputFileTypes getFileTypeBySuffix(String fileSuffix) {
         if (fileSuffix != null) {
             for (InputFileTypes type : InputFileTypes.values()) {
                 if (type.getFileSuffix().equalsIgnoreCase(fileSuffix)) {
@@ -329,7 +329,7 @@ public class InputFileParserFactory {
      * Returns the {@link InputFileTypes} specified by the given shortName or
      * null.
      */
-    public static InputFileTypes getFileTypeByShortName(String shortName) {
+    private static InputFileTypes getFileTypeByShortName(String shortName) {
         for (InputFileTypes type : InputFileTypes.values()) {
             if (type.getFileTypeShort().equalsIgnoreCase(shortName)) {
                 return type;
@@ -344,7 +344,7 @@ public class InputFileParserFactory {
      * Returns a List of the short names of the available {@link InputFileTypes}.
      */
     public static List<String> getAvailableTypeShorts() {
-        List<String> typeList = new ArrayList<String>();
+        List<String> typeList = new ArrayList<>();
 
         for (InputFileTypes type : InputFileTypes.values()) {
             typeList.add(type.getFileTypeShort());

@@ -36,7 +36,6 @@ public class PeptideXML {
 	
 	/**
 	 * Basic constructor setting the data from the given peptide.
-	 * @param psm
 	 */
 	public PeptideXML(Peptide peptide) {
 		id = peptide.getID();
@@ -91,7 +90,6 @@ public class PeptideXML {
 	
 	/**
 	 * Sets the value of the sequence property.
-	 * @param fileName
 	 */
 	public void setSequence(String sequence) {
 		this.sequence = sequence;
@@ -110,7 +108,6 @@ public class PeptideXML {
 	
 	/**
 	 * Sets the value of the spectrumRefList property.
-	 * @param fileName
 	 */
 	public void setSpectrumRefList(SpectrumRefListXML spectrumRefList) {
 		this.spectrumRefList = spectrumRefList;
@@ -129,7 +126,6 @@ public class PeptideXML {
 	
 	/**
 	 * Sets the value of the occurrences property.
-	 * @param fileName
 	 */
 	public void setOccurrences(OccurrencesXML occurrences) {
 		this.occurrences = occurrences;

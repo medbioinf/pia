@@ -93,7 +93,7 @@ public class SpecificityT {
      */
     public List<NeutralLossT> getNeutralLoss() {
         if (neutralLoss == null) {
-            neutralLoss = new ArrayList<NeutralLossT>();
+            neutralLoss = new ArrayList<>();
         }
         return this.neutralLoss;
     }
@@ -122,7 +122,7 @@ public class SpecificityT {
      */
     public List<PepNeutralLossT> getPepNeutralLoss() {
         if (pepNeutralLoss == null) {
-            pepNeutralLoss = new ArrayList<PepNeutralLossT>();
+            pepNeutralLoss = new ArrayList<>();
         }
         return this.pepNeutralLoss;
     }

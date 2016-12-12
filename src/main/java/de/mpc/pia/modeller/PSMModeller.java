@@ -16,7 +16,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import de.mpc.pia.modeller.score.*;
 import org.apache.log4j.Logger;
 import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
@@ -37,10 +39,6 @@ import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.FilterFactory;
 import de.mpc.pia.modeller.report.filter.impl.PSMTopIdentificationFilter;
-import de.mpc.pia.modeller.score.FDRData;
-import de.mpc.pia.modeller.score.FDRScore;
-import de.mpc.pia.modeller.score.ScoreModel;
-import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 import de.mpc.pia.modeller.score.comparator.RankCalculator;
 import de.mpc.pia.modeller.score.comparator.ScoreComparator;
@@ -157,22 +155,22 @@ public class PSMModeller {
             int nrPSMs) {
 
         // create the file mapping and also add the overview file with ID 0
-        this.inputFiles = new HashMap<Long, PIAInputFile>(inputFiles.size()+1);
+        this.inputFiles = new HashMap<>(inputFiles.size() + 1);
         this.inputFiles.put(0L, new PIAInputFile(0L, "All files",
                 "Overview_of_all_files", "none"));
         this.inputFiles.putAll(inputFiles);
 
-        fileFiltersMap = new HashMap<Long, List<AbstractFilter>>(inputFiles.size());
+        fileFiltersMap = new HashMap<>(inputFiles.size());
 
         this.fileName = fileName;
 
-        this.scoreShortToScoreName = new HashMap<String, String>();
+        this.scoreShortToScoreName = new HashMap<>();
 
         // TODO: get defaults from ini-file (or something like that)
         defaultDecoyPattern = "s.*";
         defaultFDRThreshold = 0.01;
         defaultFDRTopIdentifications = 0;
-        preferredFDRScores = new ArrayList<String>();
+        preferredFDRScores = new ArrayList<>();
 
         // initialize the used PSM set settings
         this.psmSetSettingsWarnings = psmSetSettingsWarnings;
@@ -206,20 +204,19 @@ public class PSMModeller {
 
         // map to create the PSMSets
         Map<String, List<ReportPSM>> psmSetsMap =
-                new HashMap<String, List<ReportPSM>>();
+                new HashMap<>();
 
         // sort the PSMs in sets with their identificationKeys
-        for (ReportPSM psm : spectraPSMs.values()) {
-            if (FilterFactory.satisfiesFilterList(psm, 0L, filters)) {
-                String psmKey = psm.getIdentificationKey(this.psmSetSettings);
+        // put the PSM in the psmKey -> ReportPSM map
+        spectraPSMs.values().stream().filter(psm -> FilterFactory.satisfiesFilterList(psm, 0L, filters)).forEach(psm -> {
+            String psmKey = psm.getIdentificationKey(this.psmSetSettings);
 
-                // put the PSM in the psmKey -> ReportPSM map
-                if (!psmSetsMap.containsKey(psmKey)) {
-                    psmSetsMap.put(psmKey, new ArrayList<ReportPSM>());
-                }
-                psmSetsMap.get(psmKey).add(psm);
+            // put the PSM in the psmKey -> ReportPSM map
+            if (!psmSetsMap.containsKey(psmKey)) {
+                psmSetsMap.put(psmKey, new ArrayList<>());
             }
-        }
+            psmSetsMap.get(psmKey).add(psm);
+        });
 
         createReportPSMSets(psmSetsMap);
     }
@@ -275,7 +272,7 @@ public class PSMModeller {
      * @return
      */
     public Map<String, Boolean> getMaximalPSMSetSettings() {
-        Map<String, Boolean> settings = new HashMap<String, Boolean>(IdentificationKeySettings.values().length);
+        Map<String, Boolean> settings = new HashMap<>(IdentificationKeySettings.values().length);
 
         for (IdentificationKeySettings setting : IdentificationKeySettings.values()) {
             if ((getPSMSetSettingsWarnings().get(setting.toString()) != null) &&
@@ -314,19 +311,19 @@ public class PSMModeller {
         Integer psmsPerFile = nrAllPSMs / (inputFiles.size()-1);
 
         // reset the PSMs
-        spectraPSMs = new HashMap<Long, ReportPSM>();
-        fileReportPSMs = new HashMap<Long, List<ReportPSM>>();
+        spectraPSMs = new HashMap<>();
+        fileReportPSMs = new HashMap<>();
 
         // reset the scores
-        fileScoreShortNames = new HashMap<Long, List<String>>();
+        fileScoreShortNames = new HashMap<>();
 
         // reset the available sortings
-        fileSortables = new HashMap<Long, Set<String>>();
-        fileSortables.put(0L, new HashSet<String>());
+        fileSortables = new HashMap<>();
+        fileSortables.put(0L, new HashSet<>());
 
         // reset the FDR data
-        fileFDRData = new HashMap<Long, FDRData>();
-        fileFDRCalculated = new HashMap<Long, Boolean>();
+        fileFDRData = new HashMap<>();
+        fileFDRCalculated = new HashMap<>();
 
         // reset the FDR data for the overview
         fileFDRData.put(0L, new FDRData(FDRData.DecoyStrategy.ACCESSIONPATTERN,
@@ -334,31 +331,27 @@ public class PSMModeller {
         fileFDRCalculated.put(0L, false);
 
         // reset the value for used top identifications in FDR calculation
-        fileTopIdentifications = new HashMap<Long, Integer>();
+        fileTopIdentifications = new HashMap<>();
 
         // reset internal decoy knowledge
-        fileHasInternalDecoy = new HashMap<Long, Boolean>(inputFiles.size());
-        for (Long fileID : inputFiles.keySet()) {
-            if (fileID > 0) {
-                fileHasInternalDecoy.put(fileID, false);
-            }
-        }
+        fileHasInternalDecoy = new HashMap<>(inputFiles.size());
+        inputFiles.keySet().stream().filter(fileID -> fileID > 0).forEach(fileID -> fileHasInternalDecoy.put(fileID, false));
 
         scoreShortToComparator =
-                new HashMap<String, Comparator<PSMReportItem>>();
+                new HashMap<>();
 
-        scoreShortToHigherScoreBetter = new HashMap<String, Boolean>();
+        scoreShortToHigherScoreBetter = new HashMap<>();
 
-        scoreShortToHigherScoreBetterChangeable = new HashMap<String, Boolean>();
+        scoreShortToHigherScoreBetterChangeable = new HashMap<>();
 
         // map to create the PSMSets
         Map<String, List<ReportPSM>> psmSetsMap =
-                new HashMap<String, List<ReportPSM>>();
+                new HashMap<>();
 
         // this map is used, to get the identification ranking for each score of a PSMs
         //  fileID    spectrumID  scoreShort        psm
         Map<Long, Map<String, Map<String, ArrayList<ReportPSM>>>> fileToRankings =
-                new HashMap<Long, Map<String,Map<String, ArrayList<ReportPSM>>>>();
+                new HashMap<>();
 
 
         // iterate through the groups
@@ -377,13 +370,8 @@ public class PSMModeller {
                             String psmKey = spec.getIdentificationKey(psmSetSettings);
 
                             // add the accessions
-                            for (Accession acc
-                                    : groupIt.getValue().getAllAccessions().values()) {
-                                // only add accession, if it was found in the spectrum's file
-                                if (acc.foundInFile(fileID)) {
-                                    psm.addAccession(acc);
-                                }
-                            }
+                            // only add accession, if it was found in the spectrum's file
+                            groupIt.getValue().getAllAccessions().values().stream().filter(acc -> acc.foundInFile(fileID)).forEach(psm::addAccession);
 
                             if (spectraPSMs.put(spec.getID(), psm) != null) {
                                 // TODO: better warning
@@ -394,13 +382,13 @@ public class PSMModeller {
                             // put the PSM in the fileID -> ReportPSMs mapping
                             List<ReportPSM> filesPSMList = fileReportPSMs.get(fileID);
                             if (filesPSMList == null) {
-                                filesPSMList = new ArrayList<ReportPSM>(psmsPerFile);
+                                filesPSMList = new ArrayList<>(psmsPerFile);
                                 fileReportPSMs.put(fileID, filesPSMList);
 
                                 // this file is new, so also add the scoreName-Maps and sorting maps
-                                fileScoreShortNames.put(fileID, new ArrayList<String>());
+                                fileScoreShortNames.put(fileID, new ArrayList<>());
 
-                                fileSortables.put(fileID, new HashSet<String>());
+                                fileSortables.put(fileID, new HashSet<>());
 
                                 // also re-initialise the FDR data
                                 fileFDRData.put(fileID,
@@ -418,7 +406,7 @@ public class PSMModeller {
                             // also put the PSM in the psmKey -> ReportPSM map, which is needed for the creation of the ReportPSMSets
                             List<ReportPSM> psmSets = psmSetsMap.get(psmKey);
                             if (psmSets == null) {
-                                psmSets = new ArrayList<ReportPSM>();
+                                psmSets = new ArrayList<>();
                                 psmSetsMap.put(psmKey, psmSets);
                             }
                             psmSets.add(psm);
@@ -428,7 +416,7 @@ public class PSMModeller {
                             Map<String, Map<String, ArrayList<ReportPSM>>> spectraToPSMs =
                                     fileToRankings.get(fileID);
                             if (spectraToPSMs == null) {
-                                spectraToPSMs = new HashMap<String, Map<String, ArrayList<ReportPSM>>>(psmsPerFile);
+                                spectraToPSMs = new HashMap<>(psmsPerFile);
                                 fileToRankings.put(fileID, spectraToPSMs);
                             }
 
@@ -438,7 +426,7 @@ public class PSMModeller {
                                     spectraToPSMs.get(psmScoreRankKey);
                             if (scoreshortsToPSMs == null) {
                                 scoreshortsToPSMs =
-                                        new HashMap<String, ArrayList<ReportPSM>>();
+                                        new HashMap<>();
                                 spectraToPSMs.put(psmScoreRankKey, scoreshortsToPSMs);
                             }
 
@@ -520,7 +508,7 @@ public class PSMModeller {
                                         scoreShortToHigherScoreBetter.put(
                                                 score.getShortName(),
                                                 higherscorebetter);
-                                        comp = new ScoreComparator<PSMReportItem>(
+                                        comp = new ScoreComparator<>(
                                                 score.getShortName(),
                                                 higherscorebetter);
                                     }
@@ -534,7 +522,7 @@ public class PSMModeller {
                                 ArrayList<ReportPSM> psmsOfSpectrum =
                                         scoreshortsToPSMs.get(score.getShortName());
                                 if (psmsOfSpectrum == null) {
-                                    psmsOfSpectrum = new ArrayList<ReportPSM>(10);
+                                    psmsOfSpectrum = new ArrayList<>(10);
                                     scoreshortsToPSMs.put(score.getShortName(),
                                             psmsOfSpectrum);
                                 }
@@ -625,7 +613,7 @@ public class PSMModeller {
      * @param psmSetsMap
      */
     private void createReportPSMSets(Map<String, List<ReportPSM>> psmSetsMap) {
-        reportPSMSetMap = new HashMap<String, ReportPSMSet>(psmSetsMap.size());
+        reportPSMSetMap = new HashMap<>(psmSetsMap.size());
 
         for (Map.Entry<String, List<ReportPSM>> psmSetsIt : psmSetsMap.entrySet()) {
             ReportPSMSet psmSet =
@@ -633,7 +621,7 @@ public class PSMModeller {
             reportPSMSetMap.put(psmSetsIt.getKey(), psmSet);
         }
 
-        reportPSMSets = new ArrayList<ReportPSMSet>(
+        reportPSMSets = new ArrayList<>(
                 reportPSMSetMap.values());
 
         fileFDRData.put(0L,
@@ -752,7 +740,7 @@ public class PSMModeller {
                     filters, fileID);
         } else {
             LOGGER.error("There are no ReportPSMs for the fileID " + fileID);
-            return new ArrayList<ReportPSM>(1);
+            return new ArrayList<>(1);
         }
     }
 
@@ -766,20 +754,18 @@ public class PSMModeller {
      */
     public List<ReportPSMSet> getFilteredReportPSMSets(
             List<AbstractFilter> filters) {
-        List<ReportPSMSet> filteredPSMSets = new ArrayList<ReportPSMSet>();
+        List<ReportPSMSet> filteredPSMSets = new ArrayList<>();
 
         // the PSM sets need a special filtering, some of the sets can become empty, due to filters on PSM level
-        for (ReportPSMSet psmSet : reportPSMSets) {
-            if (FilterFactory.satisfiesFilterList(psmSet, 0L, filters)) {
-                List<ReportPSM> psms = FilterFactory.applyFilters(psmSet.getPSMs(), filters);
+        reportPSMSets.stream().filter(psmSet -> FilterFactory.satisfiesFilterList(psmSet, 0L, filters)).forEach(psmSet -> {
+            List<ReportPSM> psms = FilterFactory.applyFilters(psmSet.getPSMs(), filters);
 
-                if (!psms.isEmpty()) {
-                    ReportPSMSet set = new ReportPSMSet(psms, psmSetSettings);
-                    set.copyInfo(psmSet);
-                    filteredPSMSets.add(set);
-                }
+            if (!psms.isEmpty()) {
+                ReportPSMSet set = new ReportPSMSet(psms, psmSetSettings);
+                set.copyInfo(psmSet);
+                filteredPSMSets.add(set);
             }
-        }
+        });
 
         return filteredPSMSets;
     }
@@ -830,7 +816,7 @@ public class PSMModeller {
             scoreShortToHigherScoreBetter.put(scoreShort, higherScoreBetter);
 
             scoreShortToComparator.put(scoreShort,
-                    new ScoreComparator<PSMReportItem>(
+                    new ScoreComparator<>(
                             scoreShort, higherScoreBetter));
 
             LOGGER.debug("setHigherScoreBetter: " + scoreShortToComparator.get(scoreShort));
@@ -879,7 +865,7 @@ public class PSMModeller {
         if (fileScoreShortNames.containsKey(fileID)) {
             return fileScoreShortNames.get(fileID);
         } else {
-            return new ArrayList<String>(1);
+            return new ArrayList<>(1);
         }
     }
 
@@ -1021,18 +1007,14 @@ public class PSMModeller {
      * @return
      */
     public List<String> getFilesAvailableScoreShortsForFDR(Long fileID) {
-        List<String> fdrScoreNames = new ArrayList<String>();
+        List<String> fdrScoreNames = new ArrayList<>();
 
         // the overview is treated separately (it has no available scores, but only the FDRScore
         if (fileID > 0) {
             if (fileScoreShortNames.containsKey(fileID)) {
                 List<String> scoreShorts = fileScoreShortNames.get(fileID);
-                for (int i=0; i < scoreShorts.size(); i++) {
-                    if (!ScoreModelEnum.PSM_LEVEL_FDR_SCORE.isValidDescriptor(scoreShorts.get(i))) {
-                        // FDR score is not available for FDR calculation
-                        fdrScoreNames.add(scoreShorts.get(i));
-                    }
-                }
+                // FDR score is not available for FDR calculation
+                fdrScoreNames.addAll(scoreShorts.stream().filter(scoreShort -> !ScoreModelEnum.PSM_LEVEL_FDR_SCORE.isValidDescriptor(scoreShort)).collect(Collectors.toList()));
             } else {
                 LOGGER.error("No scores available for FDR calculation for the file with ID "+fileID);
             }
@@ -1049,7 +1031,7 @@ public class PSMModeller {
      * @return
      */
     public Map<Long, String> getFileIDsToScoreOfFDRCalculation() {
-        Map<Long, String> filenameToScoreOfFDRCalculation = new HashMap<Long, String>(inputFiles.size()-1);
+        Map<Long, String> filenameToScoreOfFDRCalculation = new HashMap<>(inputFiles.size() - 1);
 
         for (PIAInputFile file : inputFiles.values()) {
             if (file.getID() != 0L) {
@@ -1170,9 +1152,7 @@ public class PSMModeller {
      * If no score for the FDR calculation is given, use a default.
      */
     public void calculateAllFDR() {
-        for (Long fileID : fileReportPSMs.keySet()) {
-            calculateFDR(fileID);
-        }
+        fileReportPSMs.keySet().forEach(this::calculateFDR);
     }
 
 
@@ -1205,7 +1185,7 @@ public class PSMModeller {
             }
 
             // get a List of the ReportPSMs for FDR calculation
-            List<PSMReportItem> listForFDR = new ArrayList<PSMReportItem>(fileReportPSMs.get(fileID));
+            List<PSMReportItem> listForFDR = new ArrayList<>(fileReportPSMs.get(fileID));
 
             if ((fileTopIdentifications.get(fileID) != null) &&
                     (fileTopIdentifications.get(fileID) > 0)) {
@@ -1214,13 +1194,11 @@ public class PSMModeller {
                         fileTopIdentifications.get(fileID) + " for " +
                         fdrData.getScoreShortName());
 
-                for (PSMReportItem psm : listForFDR) {
-                    // as the used ReportPSMs may change with the filter, clear all prior FDR information
-                    psm.dumpFDRCalculation();
-                }
+                // as the used ReportPSMs may change with the filter, clear all prior FDR information
+                listForFDR.forEach(FDRComputable::dumpFDRCalculation);
 
                 // only the topIdentifications should be used, so a filter is needed
-                List<AbstractFilter> topRankFilter = new ArrayList<AbstractFilter>(1);
+                List<AbstractFilter> topRankFilter = new ArrayList<>(1);
 
                 topRankFilter.add(new PSMTopIdentificationFilter(
                         FilterComparator.less_equal,
@@ -1271,7 +1249,7 @@ public class PSMModeller {
      */
     private void addPSMLevelFDRSCoreToFilesScores(Long fileID) {
         if (!fileScoreShortNames.containsKey(fileID)) {
-            fileScoreShortNames.put(fileID, new ArrayList<String>());
+            fileScoreShortNames.put(fileID, new ArrayList<>());
         }
 
         List<String> scoreShorts = fileScoreShortNames.get(fileID);
@@ -1282,7 +1260,7 @@ public class PSMModeller {
                     ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
                     ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getName());
             scoreShortToComparator.put(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
-                    new ScoreComparator<PSMReportItem>(
+                    new ScoreComparator<>(
                             ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName(),
                             false));
             scoreShortToHigherScoreBetter.put(
@@ -1306,11 +1284,7 @@ public class PSMModeller {
         preferredFDRScores.clear();
 
         // set all FDR data scoreshorts for the regular files to null
-        for (Map.Entry<Long, FDRData> fdrIt : fileFDRData.entrySet()) {
-            if (!fdrIt.getKey().equals(0L)) {
-                fdrIt.getValue().setScoreShortName(null);
-            }
-        }
+        fileFDRData.entrySet().stream().filter(fdrIt -> !fdrIt.getKey().equals(0L)).forEach(fdrIt -> fdrIt.getValue().setScoreShortName(null));
     }
 
 
@@ -1327,9 +1301,7 @@ public class PSMModeller {
      * Adds the given scoreShortNames to the preferred FDR scores.
      */
     public void addPreferredFDRScores(List<String> scoreShortNames) {
-        for (String scoreShortName : scoreShortNames) {
-            addPreferredFDRScore(scoreShortName);
-        }
+        scoreShortNames.forEach(this::addPreferredFDRScore);
     }
 
 
@@ -1396,7 +1368,7 @@ public class PSMModeller {
      * Calculates the Combined FDR Score for the PSM sets in the overview
      */
     public void calculateCombinedFDRScore() {
-        Map<String, List<ReportPSMSet>> fileLists = new HashMap<String, List<ReportPSMSet>>();
+        Map<String, List<ReportPSMSet>> fileLists = new HashMap<>();
         String key;
 
         updateDecoyStates(0L);
@@ -1409,14 +1381,9 @@ public class PSMModeller {
                 // put the PSM set into the List, which holds the sets identified in the same files
                 if (set.getPSMs().size() > 1) {
 
-                    Set<Long> files = new TreeSet<Long>();
-                    for (ReportPSM psm : set.getPSMs()) {
-                        if ((psm.getFDRScore() != null) &&
-                                !psm.getFDRScore().getValue().equals(Double.NaN)) {
-                            // the psm has a valid FDR for this file
-                            files.add(psm.getFileID());
-                        }
-                    }
+                    Set<Long> files = set.getPSMs().stream().filter(psm -> (psm.getFDRScore() != null) &&
+                            !psm.getFDRScore().getValue().equals(Double.NaN)).map(ReportPSM::getFileID).collect(Collectors.toCollection(TreeSet::new));
+                    // the psm has a valid FDR for this file
 
                     StringBuilder sbKey = new StringBuilder("");
 
@@ -1432,7 +1399,7 @@ public class PSMModeller {
                 }
 
                 if (!fileLists.containsKey(key)) {
-                    fileLists.put(key, new ArrayList<ReportPSMSet>());
+                    fileLists.put(key, new ArrayList<>());
                 }
 
                 fileLists.get(key).add(set);
@@ -1448,7 +1415,7 @@ public class PSMModeller {
             LOGGER.info("Calculation of Combined FDR Score for " + seSetIt.getKey());
 
             Collections.sort(seSetIt.getValue(),
-                    new ScoreComparator<ReportPSMSet>(ScoreModelEnum.AVERAGE_FDR_SCORE.getShortName()));
+                    new ScoreComparator<>(ScoreModelEnum.AVERAGE_FDR_SCORE.getShortName()));
 
             FDRData fdrData = fileFDRData.get(0L);
 
@@ -1471,13 +1438,13 @@ public class PSMModeller {
                 PSMReportItemComparator.getScoreSortName(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()) );
 
         // and add to the score fields
-        fileScoreShortNames.put(0L, new ArrayList<String>(1));
+        fileScoreShortNames.put(0L, new ArrayList<>(1));
         fileScoreShortNames.get(0L).add(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName());
         scoreShortToScoreName.put(
                 ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName(),
                 ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getName());
         scoreShortToComparator.put(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName(),
-                new ScoreComparator<PSMReportItem>(
+                new ScoreComparator<>(
                         ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName(),
                         false));
         scoreShortToHigherScoreBetter.put(
@@ -1527,7 +1494,7 @@ public class PSMModeller {
     public void sortReport(Long fileID, List<String> sortOrders,
             Map<String, SortOrder> sortables) {
         List<Comparator<PSMReportItem>> compares =
-                new ArrayList<Comparator<PSMReportItem>>();
+                new ArrayList<>();
 
         for (String sortKey : sortOrders) {
             Comparator<PSMReportItem> comp = getScoreComparator(sortKey);
@@ -1564,12 +1531,10 @@ public class PSMModeller {
      * @return
      */
     public List<String> getFilesAvailableScoreShortsForRanking(Long fileID) {
-        List<String> rankingScoreNames = new ArrayList<String>();
+        List<String> rankingScoreNames = new ArrayList<>();
 
         if (fileScoreShortNames.containsKey(fileID)) {
-            for (String scoreShort : fileScoreShortNames.get(fileID)) {
-                rankingScoreNames.add(scoreShort);
-            }
+            rankingScoreNames.addAll(fileScoreShortNames.get(fileID));
         }
 
         if (rankingScoreNames.isEmpty() && (fileID > 0)) {
@@ -1599,23 +1564,19 @@ public class PSMModeller {
             reports = reportPSMSets;
         }
         if (reports != null) {
-            for (Object obj : reports) {
-                if (obj instanceof PSMReportItem) {
-                    ((PSMReportItem) obj).setRank(-1L);
-                }
-            }
+            reports.stream().filter(obj -> obj instanceof PSMReportItem).forEach(obj -> ((PSMReportItem) obj).setRank(-1L));
         }
 
         if (fileID > 0) {
             RankCalculator.calculateRanking(rankableShortName,
                     FilterFactory.applyFilters(fileReportPSMs.get(fileID),
                             filters, fileID),
-                    new ScoreComparator<ReportPSM>(rankableShortName));
+                    new ScoreComparator<>(rankableShortName));
         } else {
             RankCalculator.calculateRanking(rankableShortName,
                     FilterFactory.applyFilters(reportPSMSets,
                             filters, fileID),
-                    new ScoreComparator<ReportPSMSet>(rankableShortName));
+                    new ScoreComparator<>(rankableShortName));
         }
     }
 
@@ -1628,7 +1589,7 @@ public class PSMModeller {
     public List<AbstractFilter> getFilters(Long fileID) {
         List<AbstractFilter> filters = fileFiltersMap.get(fileID);
         if (filters == null) {
-            filters = new ArrayList<AbstractFilter>();
+            filters = new ArrayList<>();
             fileFiltersMap.put(fileID, filters);
         }
 
@@ -1673,23 +1634,11 @@ public class PSMModeller {
 
         // put all PPM shifts into the array
         if (fileID > 0) {
-            ppmData = new ArrayList<Double>(fileReportPSMs.get(fileID).size());
-            ListIterator<ReportPSM> iter = fileReportPSMs.get(fileID).listIterator();
-            while (iter.hasNext()) {
-                ReportPSM psm = iter.next();
-                if (!fdrGood || (!psm.getIsDecoy() && psm.getIsFDRGood())) {
-                    ppmData.add(psm.getDeltaPPM());
-                }
-            }
+            ppmData = new ArrayList<>(fileReportPSMs.get(fileID).size());
+            ppmData.addAll(fileReportPSMs.get(fileID).stream().filter(psm -> !fdrGood || (!psm.getIsDecoy() && psm.getIsFDRGood())).map(ReportPSM::getDeltaPPM).collect(Collectors.toList()));
         } else {
-            ppmData = new ArrayList<Double>(reportPSMSets.size());
-            ListIterator<ReportPSMSet> iter = reportPSMSets.listIterator();
-            while (iter.hasNext()) {
-                ReportPSMSet psm = iter.next();
-                if (!fdrGood || (!psm.getIsDecoy() && psm.getIsFDRGood())) {
-                    ppmData.add(psm.getDeltaPPM());
-                }
-            }
+            ppmData = new ArrayList<>(reportPSMSets.size());
+            ppmData.addAll(reportPSMSets.stream().filter(psm -> !fdrGood || (!psm.getIsDecoy() && psm.getIsFDRGood())).map(ReportPSMSet::getDeltaPPM).collect(Collectors.toList()));
         }
 
         double[] ppmResult = new double[ppmData.size()];
@@ -1714,13 +1663,13 @@ public class PSMModeller {
      */
     public List<List<Integer>> getPPMs(Long fileID, boolean fdrGood) {
         if (fdrGood && !isFDRCalculated(fileID)) {
-            List<List<Integer>> labelled = new ArrayList<List<Integer>>();
-            labelled.add(new ArrayList<Integer>());
-            labelled.add(new ArrayList<Integer>());
+            List<List<Integer>> labelled = new ArrayList<>();
+            labelled.add(new ArrayList<>());
+            labelled.add(new ArrayList<>());
             return labelled;
         }
 
-        Map<Integer, Integer> ppmMap = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> ppmMap = new HashMap<>();
         int counted = 0;
         int labelMax = 0;
         int labelMin = 0;
@@ -1769,8 +1718,8 @@ public class PSMModeller {
         }
 
         // create the PPM counts and labels list from the map
-        List<Integer> ppms = new ArrayList<Integer>();
-        List<Integer> labels = new ArrayList<Integer>();
+        List<Integer> ppms = new ArrayList<>();
+        List<Integer> labels = new ArrayList<>();
         int drawn = 0;
 
         labels.add(0);
@@ -1818,7 +1767,7 @@ public class PSMModeller {
         labels.add(0, null);
         ppms.add(0, drawn);
 
-        List<List<Integer>> labelled = new ArrayList<List<Integer>>();
+        List<List<Integer>> labelled = new ArrayList<>();
         labelled.add(ppms);
         labelled.add(labels);
         return labelled;
@@ -1835,12 +1784,12 @@ public class PSMModeller {
      */
     public List<Integer> getNrIdentifications(boolean fdrGood) {
         if (fdrGood && !isCombinedFDRScoreCalculated()) {
-            List<Integer> idLIst = new ArrayList<Integer>(1);
+            List<Integer> idLIst = new ArrayList<>(1);
             idLIst.add(0);
             return idLIst;
         }
 
-        Map<Integer, Integer> idMap = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> idMap = new HashMap<>();
         int maxIDs = 0;
 
         // count the number of identifications
@@ -1861,7 +1810,7 @@ public class PSMModeller {
             }
         }
 
-        List<Integer> IDs = new ArrayList<Integer>(maxIDs);
+        List<Integer> IDs = new ArrayList<>(maxIDs);
         for (int i=1; i <= maxIDs; i++) {
             if (idMap.containsKey(i)) {
                 IDs.add(idMap.get(i));
@@ -1892,18 +1841,18 @@ public class PSMModeller {
                     getFilteredReportPSMs(fileID, getFilters(fileID)) :
                         fileReportPSMs.get(fileID);
 
-                    report = new ArrayList<PSMReportItem>(rep.size());
+                    report = new ArrayList<>(rep.size());
                     report.addAll(rep);
         } else {
             if (!exportForSC) {
                 List<ReportPSMSet> rep = filterExport ?
                         getFilteredReportPSMSets(getFilters(fileID)) :
                             reportPSMSets;
-                        report = new ArrayList<PSMReportItem>(rep.size());
+                        report = new ArrayList<>(rep.size());
                         report.addAll(rep);
 
             } else {
-                report = new ArrayList<PSMReportItem>();
+                report = new ArrayList<>();
 
                 for (Long psmFileID: fileReportPSMs.keySet()) {
                     if (!getFilters(0L).isEmpty()) {

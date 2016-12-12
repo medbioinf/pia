@@ -74,7 +74,7 @@ public class LogMessageType {
      */
     public List<String> getLogMessage() {
         if (logMessage == null) {
-            logMessage = new ArrayList<String>();
+            logMessage = new ArrayList<>();
         }
         return this.logMessage;
     }

@@ -97,7 +97,7 @@ public class TandemFileParser {
         int pepNr = 0;
         int specNr = 0;
 
-        Map<Integer, Double> rtMap = new HashMap<Integer, Double>();
+        Map<Integer, Double> rtMap = new HashMap<>();
 
         if ((rtMapFileName != null) && (rtMapFileName.length() > 0)) {
             // additional RT info is given, parse the file
@@ -125,7 +125,7 @@ public class TandemFileParser {
 
         // TODO: test for multiple databases!
         Map<String, SearchDatabase> searchDatabaseMap = // maps from the "sequence source" to the SearchDatabse object
-                new HashMap<String, SearchDatabase>();
+                new HashMap<>();
         FileFormat fileFormat;
 
         /* tandemParser.getPerformParamMap()
@@ -501,7 +501,7 @@ public class TandemFileParser {
 
 
         // to later check, whether the PSM is already there, we need the psmSetSettings map
-        Map<String, Boolean> psmSetSettings = new HashMap<String, Boolean>();
+        Map<String, Boolean> psmSetSettings = new HashMap<>();
         psmSetSettings.put(IdentificationKeySettings.SOURCE_ID.name(), true);
         psmSetSettings.put(IdentificationKeySettings.SEQUENCE.name(), true);
         psmSetSettings.put(IdentificationKeySettings.MODIFICATIONS.name(), true);
@@ -572,7 +572,7 @@ public class TandemFileParser {
 
             // we need a map, to store the PSMs of this spectrum
             Map<String, PeptideSpectrumMatch> keysToPSMs;
-            keysToPSMs = new HashMap<String, PeptideSpectrumMatch>();
+            keysToPSMs = new HashMap<>();
 
             for (de.proteinms.xtandemparser.xtandem.Peptide pep : pepList) {
 
@@ -586,7 +586,7 @@ public class TandemFileParser {
 
                     // create the modifications
                     Map<Integer, Modification> modifications =
-                            new HashMap<Integer, Modification>();
+                            new HashMap<>();
 
                     // variable mods
                     modifications.putAll(createModifications(
@@ -746,7 +746,6 @@ public class TandemFileParser {
      * @param strParam modifications encoded as specified by the X!Tandem API
      * @param isFixed whether these are fixed or potential modifications
      * @param modParams the list of {@link SearchModification}s
-     * @param psiMS reference to the PSI-MS CV
      */
     private static void addSearchModifications(String strParam, boolean isFixed,
             ModificationParams modParams) {
@@ -766,7 +765,7 @@ public class TandemFileParser {
 
                     SearchModification searchMod = new SearchModification();
                     searchMod.setFixedMod(isFixed);
-                    searchMod.setMassDelta((float)Float.parseFloat(values[0]));
+                    searchMod.setMassDelta(Float.parseFloat(values[0]));
 
                     if (values[1].equals("[") || values[1].equals("]")) {
                         searchMod.getResidues().add(".");
@@ -812,7 +811,7 @@ public class TandemFileParser {
             ModificationParams modParams) {
 
         Map<Integer, Modification> modifications =
-                new HashMap<Integer, Modification>(mods.size());
+                new HashMap<>(mods.size());
 
         for (de.proteinms.xtandemparser.interfaces.Modification mod : mods) {
 

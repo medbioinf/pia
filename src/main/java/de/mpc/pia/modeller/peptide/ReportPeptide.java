@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import de.mpc.pia.modeller.psm.PSMItem;
 import org.apache.log4j.Logger;
 
 import de.mpc.pia.intermediate.Accession;
@@ -106,9 +108,9 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
         this.stringID = stringID;
         this.peptide = peptide;
         rank = null;
-        psmList = new ArrayList<PSMReportItem>();
-        nonScoringPSMIDs = new HashSet<Long>();
-        nonScoringSpectraIDKeys = new HashSet<String>();
+        psmList = new ArrayList<>();
+        nonScoringPSMIDs = new HashSet<>();
+        nonScoringSpectraIDKeys = new HashSet<>();
         allSpectraKeySet = null;
         maximalSpectraIdentificationSettings = null;
         maximalNonRedundantSpectraIdentificationSettings = null;
@@ -183,16 +185,14 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * @return
      */
     public List<Accession> getAccessions() {
-        Set<String> accSet = new HashSet<String>();
-        List<Accession> accList = new ArrayList<Accession>();
+        Set<String> accSet = new HashSet<>();
+        List<Accession> accList = new ArrayList<>();
 
         for (PSMReportItem psm : psmList) {
-            for (Accession acc : psm.getAccessions()) {
-                if (!accSet.contains(acc.getAccession())) {
-                    accSet.add(acc.getAccession());
-                    accList.add(acc);
-                }
-            }
+            psm.getAccessions().stream().filter(acc -> !accSet.contains(acc.getAccession())).forEach(acc -> {
+                accSet.add(acc.getAccession());
+                accList.add(acc);
+            });
         }
 
         return accList;
@@ -324,13 +324,9 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * @return
      */
     public List<String> getPSMsIdentificationKeys(Map<String, Boolean> psmSetSettings) {
-        Set<String> idKeySet = new HashSet<String>();
+        Set<String> idKeySet = psmList.stream().map(psm -> psm.getIdentificationKey(psmSetSettings)).collect(Collectors.toSet());
 
-        for (PSMReportItem psm : psmList) {
-            idKeySet.add(psm.getIdentificationKey(psmSetSettings));
-        }
-
-        return new ArrayList<String>(idKeySet);
+        return new ArrayList<>(idKeySet);
     }
 
 
@@ -339,19 +335,17 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * @return
      */
     public List<String> getFileNames() {
-        Set<String> fileNameSet = new HashSet<String>();
+        Set<String> fileNameSet = new HashSet<>();
 
         for (PSMReportItem psm : psmList) {
             if (psm instanceof ReportPSM) {
                 fileNameSet.add(((ReportPSM) psm).getFileName());
             } else if (psm instanceof ReportPSMSet) {
-                for (ReportPSM repPSM : ((ReportPSMSet) psm).getPSMs()) {
-                    fileNameSet.add(repPSM.getFileName());
-                }
+                fileNameSet.addAll(((ReportPSMSet) psm).getPSMs().stream().map(ReportPSM::getFileName).collect(Collectors.toList()));
             }
         }
 
-        return new ArrayList<String>(fileNameSet);
+        return new ArrayList<>(fileNameSet);
     }
 
 
@@ -360,7 +354,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * @return
      */
     public List<PSMReportItem> getPSMs() {
-        return new ArrayList<PSMReportItem>(psmList);
+        return new ArrayList<>(psmList);
     }
 
 
@@ -373,13 +367,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      */
     public List<PSMReportItem> getPSMsByIdentificationKey(String psmKey,
             Map<String, Boolean> psmSetSettings) {
-        List<PSMReportItem> list = new ArrayList<PSMReportItem>();
-
-        for (PSMReportItem psm : psmList) {
-            if (psm.getIdentificationKey(psmSetSettings).equals(psmKey)) {
-                list.add(psm);
-            }
-        }
+        List<PSMReportItem> list = psmList.stream().filter(psm -> psm.getIdentificationKey(psmSetSettings).equals(psmKey)).collect(Collectors.toList());
 
         return list;
     }
@@ -392,7 +380,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * @return
      */
     public List<PSMReportItem> getPSMsBySpectrumIdentificationKey(String spectrumKey) {
-        List<PSMReportItem> list = new ArrayList<PSMReportItem>();
+        List<PSMReportItem> list = new ArrayList<>();
 
         for (PSMReportItem psm : psmList) {
             if (psm instanceof ReportPSM) {
@@ -512,12 +500,10 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * @return
      */
     public List<Modification> getModificationsList() {
-        List<Modification> modList = new ArrayList<Modification>();
+        List<Modification> modList = new ArrayList<>();
 
         for (PSMReportItem psm : psmList) {
-            for(Map.Entry<Integer, Modification> modIt : psm.getModifications().entrySet()) {
-                modList.add(modIt.getValue());
-            }
+            modList.addAll(psm.getModifications().entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
         }
 
         return modList;
@@ -537,7 +523,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
             return psm.getModifications();
         }
 
-        return new HashMap<Integer, Modification>(1);
+        return new HashMap<>(1);
     }
 
 
@@ -563,11 +549,11 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      */
     public List<String> getSpectraIdentificationKeys() {
         if (allSpectraKeySet == null) {
-            allSpectraKeySet = new HashSet<String>(
+            allSpectraKeySet = new HashSet<>(
                     getSpectraIdentificationKeys(getNotRedundantIdentificationKeySettings()));
         }
 
-        return new ArrayList<String>(allSpectraKeySet);
+        return new ArrayList<>(allSpectraKeySet);
     }
 
 
@@ -578,21 +564,19 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * @return
      */
     public List<String> getSpectraIdentificationKeys(Map<String, Boolean> maximalKeySettings) {
-        Set<String> SpectraKeySet = new HashSet<String>();
+        Set<String> SpectraKeySet = new HashSet<>();
 
         for (PSMReportItem psm : psmList) {
             if (psm instanceof ReportPSM) {
                 SpectraKeySet.add(((ReportPSM) psm).getSpectrum().
                         getSpectrumIdentificationKey(maximalKeySettings));
             } else if (psm instanceof ReportPSMSet) {
-                for (ReportPSM reportPSM : ((ReportPSMSet) psm).getPSMs()) {
-                    SpectraKeySet.add(reportPSM.getSpectrum().
-                            getSpectrumIdentificationKey(maximalKeySettings));
-                }
+                SpectraKeySet.addAll(((ReportPSMSet) psm).getPSMs().stream().map(reportPSM -> reportPSM.getSpectrum().
+                        getSpectrumIdentificationKey(maximalKeySettings)).collect(Collectors.toList()));
             }
         }
 
-        return new ArrayList<String>(SpectraKeySet);
+        return new ArrayList<>(SpectraKeySet);
     }
 
 
@@ -605,7 +589,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
     public Map<String, Boolean> getAvailableIdentificationKeySettings() {
         if (maximalSpectraIdentificationSettings == null) {
             // initialise the map with maximal possible values
-            maximalSpectraIdentificationSettings = new HashMap<String, Boolean>(5);
+            maximalSpectraIdentificationSettings = new HashMap<>(5);
             maximalSpectraIdentificationSettings.put(
                     IdentificationKeySettings.MASSTOCHARGE.name(), true);
             maximalSpectraIdentificationSettings.put(
@@ -621,13 +605,9 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
             for (PSMReportItem psm : psmList) {
                 Map<String, Boolean> psmAvailables = psm.getAvailableIdentificationKeySettings();
 
-                Set<String> setAvailables = new HashSet<String>(maximalSpectraIdentificationSettings.keySet());
+                Set<String> setAvailables = new HashSet<>(maximalSpectraIdentificationSettings.keySet());
 
-                for (String setting : setAvailables) {
-                    if (!psmAvailables.containsKey(setting) || !psmAvailables.get(setting) ) {
-                        maximalSpectraIdentificationSettings.remove(setting);
-                    }
-                }
+                setAvailables.stream().filter(setting -> !psmAvailables.containsKey(setting) || !psmAvailables.get(setting)).forEach(setting -> maximalSpectraIdentificationSettings.remove(setting));
             }
 
             maximalNonRedundantSpectraIdentificationSettings = null;
@@ -667,7 +647,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * @return
      */
     public List<String> getScoringSpectraIdentificationKeys() {
-        Set<String> scoringSpectraKeySet = new HashSet<String>();
+        Set<String> scoringSpectraKeySet = new HashSet<>();
 
         for (PSMReportItem psm : psmList) {
             if (psm instanceof ReportPSM) {
@@ -676,18 +656,14 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
                             getSpectrumIdentificationKey(getNotRedundantIdentificationKeySettings()));
                 }
             } else if (psm instanceof ReportPSMSet) {
-                for (ReportPSM reportPSM : ((ReportPSMSet) psm).getPSMs()) {
-                    if (!nonScoringPSMIDs.contains(reportPSM.getId())) {
-                        scoringSpectraKeySet.add(reportPSM.getSpectrum().
-                                getSpectrumIdentificationKey(getNotRedundantIdentificationKeySettings()));
-                    }
-                }
+                scoringSpectraKeySet.addAll(((ReportPSMSet) psm).getPSMs().stream().filter(reportPSM -> !nonScoringPSMIDs.contains(reportPSM.getId())).map(reportPSM -> reportPSM.getSpectrum().
+                        getSpectrumIdentificationKey(getNotRedundantIdentificationKeySettings())).collect(Collectors.toList()));
             }
         }
 
         // now remove the ID keys from the non scoring set
         scoringSpectraKeySet.removeAll(nonScoringSpectraIDKeys);
-        return new ArrayList<String>(scoringSpectraKeySet);
+        return new ArrayList<>(scoringSpectraKeySet);
     }
 
 
@@ -707,15 +683,9 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * @return
      */
     public List<String> getSourceIDs() {
-        Set<String> sourcesSet = new HashSet<String>();
+        Set<String> sourcesSet = psmList.stream().filter(psm -> psm.getSourceID() != null).map(PSMItem::getSourceID).collect(Collectors.toSet());
 
-        for (PSMReportItem psm : psmList) {
-            if (psm.getSourceID() != null) {
-                sourcesSet.add(psm.getSourceID());
-            }
-        }
-
-        return new ArrayList<String>(sourcesSet);
+        return new ArrayList<>(sourcesSet);
     }
 
 
@@ -724,15 +694,9 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * @return
      */
     public List<String> getSpectrumTitles() {
-        Set<String> titlesSet = new HashSet<String>();
+        Set<String> titlesSet = psmList.stream().filter(psm -> psm.getSpectrumTitle() != null).map(PSMItem::getSpectrumTitle).collect(Collectors.toSet());
 
-        for (PSMReportItem psm : psmList) {
-            if (psm.getSpectrumTitle() != null) {
-                titlesSet.add(psm.getSpectrumTitle());
-            }
-        }
-
-        return new ArrayList<String>(titlesSet);
+        return new ArrayList<>(titlesSet);
     }
 
 
@@ -840,7 +804,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
             break;
 
         case SEARCHENGINE:
-            List<ReportPSM> psms = new ArrayList<ReportPSM>();
+            List<ReportPSM> psms = new ArrayList<>();
             for (PSMReportItem psm : getPSMs()) {
                 if (psm instanceof ReportPSM) {
                     psms.add((ReportPSM)psm);

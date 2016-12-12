@@ -70,7 +70,7 @@ public class CliType {
      */
     public List<CliElementType> getClielement() {
         if (clielement == null) {
-            clielement = new ArrayList<CliElementType>();
+            clielement = new ArrayList<>();
         }
         return this.clielement;
     }

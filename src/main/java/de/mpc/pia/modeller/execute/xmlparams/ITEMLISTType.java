@@ -70,7 +70,7 @@ public class ITEMLISTType
      */
     public List<LISTITEMType> getLISTITEM() {
         if (listitem == null) {
-            listitem = new ArrayList<LISTITEMType>();
+            listitem = new ArrayList<>();
         }
         return this.listitem;
     }

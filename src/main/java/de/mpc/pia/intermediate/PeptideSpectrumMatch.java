@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -117,11 +118,11 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
         this.isUnique = null;
         this.isDecoy = null;
 
-        this.scores = new ArrayList<ScoreModel>();
-        this.modifications = new TreeMap<Integer, Modification>();
-        this.paramList = new ArrayList<AbstractParam>();
+        this.scores = new ArrayList<>();
+        this.modifications = new TreeMap<>();
+        this.paramList = new ArrayList<>();
         this.modificationChanged = true;
-        this.identificationKeys = new HashMap<String, String>(2);
+        this.identificationKeys = new HashMap<>(2);
 
         this.peptide = null;
     }
@@ -294,7 +295,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
         }
         peptideStringID = modificationSB.toString();
 
-        identificationKeys = new HashMap<String, String>(2);
+        identificationKeys = new HashMap<>(2);
 
         modificationChanged = false;
     }
@@ -327,7 +328,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
         StringBuilder modSb = new StringBuilder();
         boolean first = true;
         TreeMap<Integer, Modification> treeModMap =
-                new TreeMap<Integer, Modification>(modifications);
+                new TreeMap<>(modifications);
 
         for (Map.Entry<Integer, Modification> modIt : treeModMap.entrySet()) {
             if (!first) {
@@ -368,7 +369,6 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
      * adds the given modification for the position
      *
      * @param pos
-     * @param type
      */
     public void addModification(int pos, Modification mod) {
         modifications.put(pos, mod);
@@ -490,7 +490,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
      */
     public String getSpectrumIdentificationKey(Map<String, Boolean> maximalKeySettings) {
         Map<String, Boolean> psmSetSettings =
-                new HashMap<String, Boolean>(maximalKeySettings);
+                new HashMap<>(maximalKeySettings);
 
         // remove the SEQUENCE and MODIFICATIONS, they are not needed for spectrumIdentificationKey
         psmSetSettings.remove(IdentificationKeySettings.SEQUENCE.name());
@@ -514,12 +514,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
             String modificationString, int charge, Double massToCharge,
             Double rt, String sourceID, String spectrumTitle, Long fileID) {
 
-        List<String> usedSettings = new ArrayList<String>();
-        for (Map.Entry<String, Boolean> setSetting : psmSetSettings.entrySet()) {
-            if (setSetting.getValue()) {
-                usedSettings.add(setSetting.getKey());
-            }
-        }
+        List<String> usedSettings = psmSetSettings.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList());
         Collections.sort(usedSettings);
 
         StringBuilder key = new StringBuilder();
@@ -591,19 +586,12 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
      * @return
      */
     public String getIdentificationKey(Map<String, Boolean> psmSetSettings) {
-        List<String> usedSettings = new ArrayList<String>();
-        for (Map.Entry<String, Boolean> setSetting : psmSetSettings.entrySet()) {
-            if (setSetting.getValue()) {
-                usedSettings.add(setSetting.getKey());
-            }
-        }
+        List<String> usedSettings = psmSetSettings.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList());
         Collections.sort(usedSettings);
 
         StringBuilder keyKey = new StringBuilder();
 
-        for (String key : usedSettings) {
-            keyKey.append(key);
-        }
+        usedSettings.forEach(keyKey::append);
 
         String key = identificationKeys.get(keyKey.toString());
 
@@ -682,7 +670,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
     public void addAllScores(List<ScoreModel> scores) {
         if(scores != null){
             if(this.scores == null)
-                this.scores = new ArrayList<ScoreModel>();
+                this.scores = new ArrayList<>();
             this.scores.addAll(scores);
         }
     }

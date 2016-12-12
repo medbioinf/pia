@@ -70,7 +70,7 @@ public class LogCollectionType {
      */
     public List<LogType> getLog() {
         if (log == null) {
-            log = new ArrayList<LogType>();
+            log = new ArrayList<>();
         }
         return this.log;
     }

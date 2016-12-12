@@ -70,9 +70,9 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_CONSIDER_MODS);
             param.add("no");
             param.add("yes");
@@ -169,28 +169,28 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_FILE_ID);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_FILTERNAME);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_COMPARISON);
             for (FilterComparator comp : FilterComparator.values()) {
                 param.add(comp.getCliShort());
             }
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_VALUE);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_NEGATE);
             param.add("no");
             param.add("yes");

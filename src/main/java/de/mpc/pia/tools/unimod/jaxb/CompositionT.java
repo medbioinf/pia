@@ -81,7 +81,7 @@ public class CompositionT {
      */
     public List<ElemRefT> getElement() {
         if (element == null) {
-            element = new ArrayList<ElemRefT>();
+            element = new ArrayList<>();
         }
         return this.element;
     }

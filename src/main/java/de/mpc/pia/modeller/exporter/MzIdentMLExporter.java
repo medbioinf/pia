@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -51,7 +52,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftwareList;
 import uk.ac.ebi.jmzidml.model.mzidml.CvList;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.DBSequence;
-import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 import uk.ac.ebi.jmzidml.model.mzidml.FileFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.InputSpectra;
 import uk.ac.ebi.jmzidml.model.mzidml.InputSpectrumIdentifications;
@@ -69,7 +69,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.ProteinDetectionList;
 import uk.ac.ebi.jmzidml.model.mzidml.ProteinDetectionProtocol;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabaseRef;
-import uk.ac.ebi.jmzidml.model.mzidml.SearchModification;
 import uk.ac.ebi.jmzidml.model.mzidml.SequenceCollection;
 import uk.ac.ebi.jmzidml.model.mzidml.SourceFile;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
@@ -156,7 +155,7 @@ public class MzIdentMLExporter {
      * static initializations
      */
     static {
-        SPECTRUM_IDENTIFICATION_RESULT_PSM_SET_SETTINGS = new HashMap<String, Boolean>();
+        SPECTRUM_IDENTIFICATION_RESULT_PSM_SET_SETTINGS = new HashMap<>();
         SPECTRUM_IDENTIFICATION_RESULT_PSM_SET_SETTINGS.put(IdentificationKeySettings.FILE_ID.toString(), true);
         SPECTRUM_IDENTIFICATION_RESULT_PSM_SET_SETTINGS.put(IdentificationKeySettings.CHARGE.toString(), true);
         SPECTRUM_IDENTIFICATION_RESULT_PSM_SET_SETTINGS.put(IdentificationKeySettings.RETENTION_TIME.toString(), true);
@@ -246,9 +245,9 @@ public class MzIdentMLExporter {
             analysisCollection = new AnalysisCollection();
             analysisProtocolCollection = new AnalysisProtocolCollection();
 
-            sequenceMap = new HashMap<String, DBSequence>();
-            peptideMap = new HashMap<String, Peptide>();
-            pepEvidenceMap = new HashMap<String, PeptideEvidence>();
+            sequenceMap = new HashMap<>();
+            peptideMap = new HashMap<>();
+            pepEvidenceMap = new HashMap<>();
 
             if (exportProteinLevel
                     && (piaModeller.getProteinModeller().getAppliedProteinInference() == null)) {
@@ -408,23 +407,19 @@ public class MzIdentMLExporter {
     private void createInputs() {
         inputs = new Inputs();
 
-        List<SearchDatabase> databases = new ArrayList<SearchDatabase>();
-        List<SpectraData> spectraData = new ArrayList<SpectraData>();
+        List<SearchDatabase> databases = new ArrayList<>();
+        List<SpectraData> spectraData = new ArrayList<>();
 
         if (exportFileID > 0) {
             // get spectrumIdentification of the input file
             SpectrumIdentification specID = piaModeller.getFiles().get(exportFileID)
                     .getAnalysisCollection().getSpectrumIdentification().get(0);
 
-            for (InputSpectra inputSpectra : specID.getInputSpectra()) {
-                // add the spectraData of the input file
-                spectraData.add(piaModeller.getSpectraData().get(inputSpectra.getSpectraDataRef()));
-            }
+            // add the spectraData of the input file
+            spectraData.addAll(specID.getInputSpectra().stream().map(inputSpectra -> piaModeller.getSpectraData().get(inputSpectra.getSpectraDataRef())).collect(Collectors.toList()));
 
-            for (SearchDatabaseRef dbRef : specID.getSearchDatabaseRef()) {
-                // add the search databases of the input file
-                databases.add(piaModeller.getSearchDatabases().get(dbRef.getSearchDatabaseRef()));
-            }
+            // add the search databases of the input file
+            databases.addAll(specID.getSearchDatabaseRef().stream().map(dbRef -> piaModeller.getSearchDatabases().get(dbRef.getSearchDatabaseRef())).collect(Collectors.toList()));
         } else {
             // add all SpectraData and SearchDatabase
             spectraData.addAll(piaModeller.getSpectraData().values());
@@ -456,18 +451,14 @@ public class MzIdentMLExporter {
         List<Long> fileIDs;
 
         if (exportFileID > 0) {
-            fileIDs = new ArrayList<Long>();
+            fileIDs = new ArrayList<>();
             fileIDs.add(exportFileID);
         } else {
-            fileIDs = new ArrayList<Long>(piaModeller.getFiles().keySet());
+            fileIDs = new ArrayList<>(piaModeller.getFiles().keySet());
         }
 
-        List<PIAInputFile> fileList = new ArrayList<PIAInputFile>(fileIDs.size());
-        for (Long fileID : fileIDs) {
-            if (piaModeller.getFiles().containsKey(fileID)) {
-                fileList.add(piaModeller.getFiles().get(fileID));
-            }
-        }
+        List<PIAInputFile> fileList = new ArrayList<>(fileIDs.size());
+        fileList.addAll(fileIDs.stream().filter(fileID -> piaModeller.getFiles().containsKey(fileID)).map(fileID -> piaModeller.getFiles().get(fileID)).collect(Collectors.toList()));
 
         return fileList;
     }
@@ -482,14 +473,14 @@ public class MzIdentMLExporter {
      */
     private Map<String, Set<Long>> getDatabasesInFiles(List<PIAInputFile> fileList) {
         Map<Long, List<SpectrumIdentification>> filesSpecIDs =
-                new HashMap<Long, List<SpectrumIdentification>>(fileList.size());
+                new HashMap<>(fileList.size());
 
         for (PIAInputFile file : fileList) {
             AnalysisCollection ac = file.getAnalysisCollection();
             if (ac != null) {
                 List<SpectrumIdentification> specIDs = filesSpecIDs.get(file.getID());
                 if (specIDs == null) {
-                    specIDs = new ArrayList<SpectrumIdentification>();
+                    specIDs = new ArrayList<>();
                     filesSpecIDs.put(file.getID(), specIDs);
                 }
 
@@ -497,14 +488,14 @@ public class MzIdentMLExporter {
             }
         }
 
-        Map<String, Set<Long>> dbsInFiles = new HashMap<String, Set<Long>>();
+        Map<String, Set<Long>> dbsInFiles = new HashMap<>();
 
         for (Map.Entry<Long, List<SpectrumIdentification>> specIDsIt : filesSpecIDs.entrySet()) {
             for (SpectrumIdentification specID : specIDsIt.getValue()) {
                 for (SearchDatabaseRef ref : specID.getSearchDatabaseRef()) {
                     Set<Long> files = dbsInFiles.get(ref.getSearchDatabaseRef());
                     if (files == null) {
-                        files = new HashSet<Long>();
+                        files = new HashSet<>();
                         dbsInFiles.put(ref.getSearchDatabaseRef(), files);
                     }
                     files.add(specIDsIt.getKey());
@@ -542,7 +533,7 @@ public class MzIdentMLExporter {
 
         siList.setId("spectrum_identification_list");
 
-        sirMap = new HashMap<String, SpectrumIdentificationResult>();
+        sirMap = new HashMap<>();
 
         // each PSM is one SpectrumIdentificationItem, iterate over the PSMs
         for (PSMReportItem psm : psmItems) {
@@ -586,11 +577,11 @@ public class MzIdentMLExporter {
         }
 
         if (exportFileID == 0) {
-            psmItems = new ArrayList<PSMReportItem>(
+            psmItems = new ArrayList<>(
                     piaModeller.getPSMModeller().getFilteredReportPSMSets(filters));
         } else {
 
-            psmItems = new ArrayList<PSMReportItem>(
+            psmItems = new ArrayList<>(
                     piaModeller.getPSMModeller().getFilteredReportPSMs(exportFileID, filters));
         }
 
@@ -830,7 +821,7 @@ public class MzIdentMLExporter {
     private static CvParam getLongestDescription(Accession accession, Map<String, Set<Long>> dbsInFiles) {
         CvParam descCvParam = MzIdentMLTools.createPSICvParam(OntologyConstants.PROTEIN_DESCRIPTION, null);
 
-        Map<Long, String> fileIdToDbRef = new HashMap<Long, String>();
+        Map<Long, String> fileIdToDbRef = new HashMap<>();
         for (Map.Entry<String, Set<Long>>  dbsIt : dbsInFiles.entrySet()) {
             Long firstFileId = dbsIt.getValue().iterator().next();
             if (accession.getSearchDatabaseRefs().contains(dbsIt.getKey())) {
@@ -839,16 +830,15 @@ public class MzIdentMLExporter {
         }
 
         // look for a good description
-        for (Map.Entry<Long, String> descIt : accession.getDescriptions().entrySet()) {
-            if (!descIt.getValue().trim().isEmpty()
-                    && fileIdToDbRef.containsKey(descIt.getKey())
-                    && ((descCvParam.getValue() == null)
-                            || (descIt.getValue().trim().length() > descCvParam.getValue().length()))) {
-                // take this description and DBsequence_ref
-                descCvParam.setValue(descIt.getValue().trim());
-                descCvParam.setUnitName(fileIdToDbRef.get(descIt.getKey()));
-            }
-        }
+        // take this description and DBsequence_ref
+        accession.getDescriptions().entrySet().stream().filter(descIt -> !descIt.getValue().trim().isEmpty()
+                && fileIdToDbRef.containsKey(descIt.getKey())
+                && ((descCvParam.getValue() == null)
+                || (descIt.getValue().trim().length() > descCvParam.getValue().length()))).forEach(descIt -> {
+            // take this description and DBsequence_ref
+            descCvParam.setValue(descIt.getValue().trim());
+            descCvParam.setUnitName(fileIdToDbRef.get(descIt.getKey()));
+        });
 
         return descCvParam;
     }
@@ -1018,7 +1008,7 @@ public class MzIdentMLExporter {
     private SpectraData getRepresentingSpectraData(PSMReportItem psm) {
         List<ReportPSM> psmList = null;
         if (psm instanceof ReportPSM) {
-            psmList = new ArrayList<ReportPSM>(1);
+            psmList = new ArrayList<>(1);
             psmList.add((ReportPSM)psm);
         } else if (psm instanceof ReportPSMSet) {
             psmList = ((ReportPSMSet) psm).getPSMs();
@@ -1093,14 +1083,12 @@ public class MzIdentMLExporter {
         if (psm instanceof ReportPSM) {
             scoreModels = ((ReportPSM) psm).getScores();
         } else {
-            Set<String> scoreShorts = new HashSet<String>();
+            Set<String> scoreShorts = new HashSet<>();
             for (ReportPSM psmIt : ((ReportPSMSet) psm).getPSMs()) {
-                for (ScoreModel scoreModel : psmIt.getScores()) {
-                    scoreShorts.add(scoreModel.getShortName());
-                }
+                scoreShorts.addAll(psmIt.getScores().stream().map(ScoreModel::getShortName).collect(Collectors.toList()));
             }
 
-            scoreModels = new ArrayList<ScoreModel>(scoreShorts.size()+1);
+            scoreModels = new ArrayList<>(scoreShorts.size() + 1);
 
             ScoreModel combinedFDRScore = ((ReportPSMSet) psm).getFDRScore();
             if ((combinedFDRScore != null)
@@ -1109,9 +1097,7 @@ public class MzIdentMLExporter {
                 scoreModels.add(combinedFDRScore);
             }
 
-            for (String scoreShort : scoreShorts) {
-                scoreModels.add(((ReportPSMSet) psm).getBestScoreModel(scoreShort));
-            }
+            scoreModels.addAll(scoreShorts.stream().map(((ReportPSMSet) psm)::getBestScoreModel).collect(Collectors.toList()));
 
         }
 
@@ -1321,23 +1307,21 @@ public class MzIdentMLExporter {
         }
 
         // if there are enzymes, check whether they can be given names by their regexp
-        for (Enzyme enzyme : specIdProt.getEnzymes().getEnzyme()) {
-            if ((enzyme.getEnzymeName() == null) && (enzyme.getSiteRegexp() != null)) {
-                CleavageAgent agent = CleavageAgent.getBySiteRegexp(enzyme.getSiteRegexp());
-                if (agent != null) {
-                    ParamList enzymeNameList = new ParamList();
+        specIdProt.getEnzymes().getEnzyme().stream().filter(enzyme -> (enzyme.getEnzymeName() == null) && (enzyme.getSiteRegexp() != null)).forEach(enzyme -> {
+            CleavageAgent agent = CleavageAgent.getBySiteRegexp(enzyme.getSiteRegexp());
+            if (agent != null) {
+                ParamList enzymeNameList = new ParamList();
 
-                    CvParam cvParam = MzIdentMLTools.createCvParam(
-                            agent.getAccession(),
-                            MzIdentMLTools.getCvPSIMS(),
-                            agent.getName(),
-                            null);
+                CvParam cvParam = MzIdentMLTools.createCvParam(
+                        agent.getAccession(),
+                        MzIdentMLTools.getCvPSIMS(),
+                        agent.getName(),
+                        null);
 
-                    enzymeNameList.getCvParam().add(cvParam);
-                    enzyme.setEnzymeName(enzymeNameList);
-                }
+                enzymeNameList.getCvParam().add(cvParam);
+                enzyme.setEnzymeName(enzymeNameList);
             }
-        }
+        });
     }
 
     /**
@@ -1354,25 +1338,24 @@ public class MzIdentMLExporter {
             return;
         }
 
-        for (SearchModification mod : specIdProt.getModificationParams().getSearchModification()) {
-            if (mod.getCvParam().isEmpty()) {
-                // the cvParam of the modification is not set, try to do so
-                ModT unimod = unimodParser.getModificationByMass(
-                                Double.valueOf(mod.getMassDelta()),
-                                mod.getResidues());
+        // the cvParam of the modification is not set, try to do so
+        specIdProt.getModificationParams().getSearchModification().stream().filter(mod -> mod.getCvParam().isEmpty()).forEach(mod -> {
+            // the cvParam of the modification is not set, try to do so
+            ModT unimod = unimodParser.getModificationByMass(
+                    Double.valueOf(mod.getMassDelta()),
+                    mod.getResidues());
 
-                if (unimod != null) {
-                    CvParam tempCvParam = MzIdentMLTools.createCvParam(
-                            "UNIMOD:" + unimod.getRecordId(),
-                            UnimodParser.getCv(),
-                            unimod.getTitle(),
-                            null);
+            if (unimod != null) {
+                CvParam tempCvParam = MzIdentMLTools.createCvParam(
+                        "UNIMOD:" + unimod.getRecordId(),
+                        UnimodParser.getCv(),
+                        unimod.getTitle(),
+                        null);
 
-                    mod.getCvParam().add(tempCvParam);
-                    mod.setMassDelta(unimod.getDelta().getMonoMass().floatValue());
-                }
+                mod.getCvParam().add(tempCvParam);
+                mod.setMassDelta(unimod.getDelta().getMonoMass().floatValue());
             }
-        }
+        });
     }
 
 
@@ -1384,7 +1367,7 @@ public class MzIdentMLExporter {
      */
     private void addDecoyRegexpToDatabase() {
         // get files to handle
-        List<Long> fileIDs = new ArrayList<Long>(piaModeller.getFiles().size());
+        List<Long> fileIDs = new ArrayList<>(piaModeller.getFiles().size());
         if (exportFileID > 0) {
             fileIDs.add(exportFileID);
         } else {
@@ -1392,12 +1375,8 @@ public class MzIdentMLExporter {
         }
 
         // get FDRData to handle
-        List<FDRData> fdrDatas = new ArrayList<FDRData>(piaModeller.getFiles().size());
-        for (Long fileId : fileIDs) {
-            if (piaModeller.getPSMModeller().isFDRCalculated(fileId)) {
-                fdrDatas.add(piaModeller.getPSMModeller().getFileFDRData().get(fileId));
-            }
-        }
+        List<FDRData> fdrDatas = new ArrayList<>(piaModeller.getFiles().size());
+        fdrDatas.addAll(fileIDs.stream().filter(fileId -> piaModeller.getPSMModeller().isFDRCalculated(fileId)).map(fileId -> piaModeller.getPSMModeller().getFileFDRData().get(fileId)).collect(Collectors.toList()));
 
         // check patterns in the FDRData
         String decoyPattern = null;
@@ -1673,7 +1652,7 @@ public class MzIdentMLExporter {
                 Long.toString(protein.getAccessions().get(0).getGroup().getTreeID())));
 
         StringBuilder leadingPDHsSB = new StringBuilder();
-        List<String> leadingPDHsList = new ArrayList<String>(protein.getAccessions().size());
+        List<String> leadingPDHsList = new ArrayList<>(protein.getAccessions().size());
         // the reported proteins/accessions are the "main" proteins
         for (Accession acc : protein.getAccessions()) {
             ProteinDetectionHypothesis pdh = createPDH(pag.getId(), acc, protein, passThreshold);
@@ -1700,8 +1679,8 @@ public class MzIdentMLExporter {
         // now add the sub-proteins
         for (ReportProtein subProtein : protein.getSubSets()) {
             List<ProteinDetectionHypothesis> samePDHs =
-                    new ArrayList<ProteinDetectionHypothesis>(subProtein.getAccessions().size());
-            List<String> samePDHsIdsList = new ArrayList<String>(subProtein.getAccessions().size());
+                    new ArrayList<>(subProtein.getAccessions().size());
+            List<String> samePDHsIdsList = new ArrayList<>(subProtein.getAccessions().size());
 
             for (Accession subAcc : subProtein.getAccessions()) {
                 ProteinDetectionHypothesis pdh = createPDH(pag.getId(), subAcc, subProtein, false);
@@ -1738,7 +1717,7 @@ public class MzIdentMLExporter {
     private static void addSameSetProteinDetectionHypotheses(List<ProteinDetectionHypothesis> pdhList,
             List<String> pdhIds) {
         for (ProteinDetectionHypothesis pdh : pdhList) {
-            List<String> otherPDHsList = new ArrayList<String>(pdhIds);
+            List<String> otherPDHsList = new ArrayList<>(pdhIds);
             otherPDHsList.remove(pdh.getId());
 
             StringBuilder otherPDHs = new StringBuilder();
@@ -1778,7 +1757,7 @@ public class MzIdentMLExporter {
 
         pdh.setPassThreshold(passThreshold);
 
-        Map<String, PeptideHypothesis> peptideHypotheses = new HashMap<String, PeptideHypothesis>();
+        Map<String, PeptideHypothesis> peptideHypotheses = new HashMap<>();
 
         boolean allOk = true;
         for (ReportPeptide pep : protein.getPeptides()) {
@@ -1814,7 +1793,7 @@ public class MzIdentMLExporter {
      * @return
      */
     private static List<String> getPeptideEvidenceIdsForAccession(PSMReportItem psm, Accession acc) {
-        List<String> peptideEvidenceIDs = new ArrayList<String>();
+        List<String> peptideEvidenceIDs = new ArrayList<>();
         String peptideId = psm.getPeptideStringID(true);
         boolean foundOccurrence = false;
 

@@ -55,7 +55,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
     },
     /**
@@ -94,7 +94,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -146,7 +146,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -197,7 +197,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -244,7 +244,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -294,7 +294,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -345,7 +345,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -392,7 +392,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -437,14 +437,14 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getAdditionalAccessions(){
-            List<String> accessions = new ArrayList<String>();
+            List<String> accessions = new ArrayList<>();
             accessions.add(OntologyConstants.MASCOT_EXPECTATION_VALUE.getPrideAccession());
             return accessions;
         }
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -489,7 +489,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getAdditionalAccessions(){
-            List<String> accessions = new ArrayList<String>();
+            List<String> accessions = new ArrayList<>();
             accessions.add(OntologyConstants.MASCOT_SCORE.getPrideAccession());
             return accessions;
         }
@@ -501,7 +501,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -559,7 +559,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -603,14 +603,14 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getAdditionalAccessions(){
-            List<String> accessions = new ArrayList<String>();
+            List<String> accessions = new ArrayList<>();
             accessions.add(OntologyConstants.SEQUEST_SP.getPrideAccession());
             return accessions;
         }
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -655,7 +655,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getAdditionalAccessions(){
-            List<String> accessions = new ArrayList<String>();
+            List<String> accessions = new ArrayList<>();
             accessions.add(OntologyConstants.SEQUEST_XCORR.getPrideAccession());
             return accessions;
         }
@@ -667,7 +667,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -712,7 +712,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getAdditionalAccessions(){
-            List<String> accessions = new ArrayList<String>();
+            List<String> accessions = new ArrayList<>();
             accessions.add(OntologyConstants.XTANDEM_EXPECT.getPrideAccession());
             return accessions;
         }
@@ -724,7 +724,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -771,14 +771,14 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getAdditionalAccessions(){
-            List<String> accessions = new ArrayList<String>();
+            List<String> accessions = new ArrayList<>();
             accessions.add(OntologyConstants.XTANDEM_HYPERSCORE.getPrideAccession());
             return accessions;
         }
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -836,7 +836,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -883,7 +883,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -935,7 +935,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add("SpecEValue_openmsmainscore");
@@ -984,7 +984,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -1041,7 +1041,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -1097,7 +1097,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -1146,7 +1146,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add("Posterior Error Probability_openmsmainscore");
             descs.add("Posterior Error Probability_score");
@@ -1194,7 +1194,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add("Posterior Probability_openmsmainscore");
             descs.add("Posterior Probability_score");
@@ -1242,7 +1242,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add("Consensus_PEPMatrix (Posterior Error Probability)_score");
             descs.add("Consensus_PEPMatrix (Posterior Error Probability)_openmsmainscore");
@@ -1290,7 +1290,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -1337,7 +1337,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -1385,7 +1385,7 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<String>();
+            List<String> descs = new ArrayList<>();
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -1402,7 +1402,7 @@ public enum ScoreModelEnum {
     /**
      * The scores in this list should not be used for FDR estimation on PSM level
      */
-    protected static final List<ScoreModelEnum> notForPSMFdrScore = new ArrayList<ScoreModelEnum>(
+    protected static final List<ScoreModelEnum> notForPSMFdrScore = new ArrayList<>(
             Arrays.asList(new ScoreModelEnum[]{
                     AVERAGE_FDR_SCORE,
                     FASTA_ACCESSION_COUNT,
@@ -1428,7 +1428,7 @@ public enum ScoreModelEnum {
      *
      * @return
      */
-    public static final String getName(String scoreModelDescriptor) {
+    public static String getName(String scoreModelDescriptor) {
         ScoreModelEnum model = getModelByDescription(scoreModelDescriptor);
 
         if (model.equals(UNKNOWN_SCORE)) {
@@ -1520,7 +1520,7 @@ public enum ScoreModelEnum {
      * @param desc
      * @return
      */
-    public static final ScoreModelEnum getModelByDescription(String desc) {
+    public static ScoreModelEnum getModelByDescription(String desc) {
         for (ScoreModelEnum model : values()) {
             if (!model.equals(UNKNOWN_SCORE) &&
                     model.isValidDescriptor(desc)) {
@@ -1536,7 +1536,7 @@ public enum ScoreModelEnum {
      * Returns the scores which should not be used for FDR estimation on PSM level.
      * @return
      */
-    public static final List<ScoreModelEnum> getNotForPSMFdrScore() {
+    public static List<ScoreModelEnum> getNotForPSMFdrScore() {
         return notForPSMFdrScore;
     }
 }

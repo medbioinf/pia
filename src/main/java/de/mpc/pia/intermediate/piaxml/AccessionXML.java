@@ -3,6 +3,7 @@ package de.mpc.pia.intermediate.piaxml;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -30,12 +31,15 @@ public class AccessionXML {
 	private String sequence;
 	
 	@XmlElement(name = "FileRef")
+	private
 	List<FileRefXML> fileRefs;
 	
 	@XmlElement(name = "SearchDatabaseRef")
+	private
 	List<SearchDatabaseRefXML> searchDatabaseRefs;
 	
 	@XmlElement(name = "Description")
+	private
 	List<DescriptionXML> descriptions;
 	
 	
@@ -48,7 +52,6 @@ public class AccessionXML {
 	
 	/**
 	 * Basic constructor setting the data from the given peptide.
-	 * @param psm
 	 */
 	public AccessionXML(Accession accession) {
 		id = accession.getID();
@@ -56,18 +59,14 @@ public class AccessionXML {
 		
 		sequence = accession.getDbSequence();
 		
-		fileRefs = new ArrayList<FileRefXML>(accession.getFiles().size());
-		for (Long fileID : accession.getFiles()) {
-			fileRefs.add(new FileRefXML(fileID));
-		}
+		fileRefs = new ArrayList<>(accession.getFiles().size());
+		fileRefs.addAll(accession.getFiles().stream().map(FileRefXML::new).collect(Collectors.toList()));
 		
-		searchDatabaseRefs = new ArrayList<SearchDatabaseRefXML>(
+		searchDatabaseRefs = new ArrayList<>(
 				accession.getSearchDatabaseRefs().size());
-		for (String ref : accession.getSearchDatabaseRefs()) {
-			searchDatabaseRefs.add(new SearchDatabaseRefXML(ref));
-		}
+		searchDatabaseRefs.addAll(accession.getSearchDatabaseRefs().stream().map(SearchDatabaseRefXML::new).collect(Collectors.toList()));
 		
-		descriptions = new ArrayList<DescriptionXML>(
+		descriptions = new ArrayList<>(
 				accession.getDescriptions().size());
 		for (Map.Entry<Long, String> descIt : accession.getDescriptions().entrySet()) {
 			DescriptionXML desc = new DescriptionXML();
@@ -129,7 +128,6 @@ public class AccessionXML {
 	
 	/**
 	 * Sets the value of the sequence property.
-	 * @param fileName
 	 */
 	public void setSequence(String sequence) {
 		this.sequence = sequence;
@@ -142,7 +140,7 @@ public class AccessionXML {
 	 */
 	public List<FileRefXML> getFileRefs() {
 		if (fileRefs == null) {
-			fileRefs = new ArrayList<FileRefXML>();
+			fileRefs = new ArrayList<>();
 		}
 		return fileRefs;
 	}
@@ -154,7 +152,7 @@ public class AccessionXML {
 	 */
 	public List<DescriptionXML> getDescriptions() {
 		if (descriptions == null) {
-			descriptions = new ArrayList<DescriptionXML>();
+			descriptions = new ArrayList<>();
 		}
 		return descriptions;
 	}
@@ -166,7 +164,7 @@ public class AccessionXML {
 	 */
 	public List<SearchDatabaseRefXML> getSearchDatabaseRefs() {
 		if (searchDatabaseRefs == null) {
-			searchDatabaseRefs = new ArrayList<SearchDatabaseRefXML>();
+			searchDatabaseRefs = new ArrayList<>();
 		}
 		return searchDatabaseRefs;
 	}

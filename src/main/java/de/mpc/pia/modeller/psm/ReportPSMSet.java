@@ -82,12 +82,8 @@ public class ReportPSMSet implements PSMReportItem {
      * @param psms
      */
     public ReportPSMSet(Map<String, Boolean> psmSetSettings) {
-        this.psmSetSettings = new HashMap<String, Boolean>();
-        for (Map.Entry<String, Boolean> setting : psmSetSettings.entrySet()) {
-            if (setting.getValue()) {
-                this.psmSetSettings.put(setting.getKey(), true);
-            }
-        }
+        this.psmSetSettings = new HashMap<>();
+        psmSetSettings.entrySet().stream().filter(Map.Entry::getValue).forEach(setting -> this.psmSetSettings.put(setting.getKey(), true));
 
         this.averageFDRScore = null;
         this.fdrScore = null;
@@ -96,14 +92,14 @@ public class ReportPSMSet implements PSMReportItem {
         this.isDecoy = false;
         this.isFDRGood = true;
         this.qValue = null;
-        this.psmsList = new ArrayList<ReportPSM>();
+        this.psmsList = new ArrayList<>();
         this.sequence = null;
         this.rebuildModificationsString = true;
         this.modificationsString = null;
         this.peptideStringID = null;
 
         // initialise the map with maximal possible values
-        maximalSpectraIdentificationSettings = new HashMap<String, Boolean>(5);
+        maximalSpectraIdentificationSettings = new HashMap<>(5);
         maximalSpectraIdentificationSettings.put(
                 IdentificationKeySettings.MASSTOCHARGE.name(), true);
         maximalSpectraIdentificationSettings.put(
@@ -130,9 +126,7 @@ public class ReportPSMSet implements PSMReportItem {
     public ReportPSMSet(List<ReportPSM> psms,
             Map<String, Boolean> psmSetSettings) {
         this(psmSetSettings);
-        for (ReportPSM psm : psms) {
-            addReportPSM(psm);
-        }
+        psms.forEach(this::addReportPSM);
     }
 
 
@@ -193,14 +187,10 @@ public class ReportPSMSet implements PSMReportItem {
         }
 
         // adjust the maximalSpectraIdentificationSettings
-        Set<String> setAvailables = new HashSet<String>(maximalSpectraIdentificationSettings.keySet());
+        Set<String> setAvailables = new HashSet<>(maximalSpectraIdentificationSettings.keySet());
         Map<String, Boolean> psmAvailables = psm.getAvailableIdentificationKeySettings();
-        for (String setting : setAvailables) {
-            if (!psmAvailables.containsKey(setting)
-                    || !psmAvailables.get(setting) ) {
-                maximalSpectraIdentificationSettings.remove(setting);
-            }
-        }
+        setAvailables.stream().filter(setting -> !psmAvailables.containsKey(setting)
+                || !psmAvailables.get(setting)).forEach(setting -> maximalSpectraIdentificationSettings.remove(setting));
 
         maximalNotRedundantSpectraIdentificationSettings =
                 IdentificationKeySettings.noRedundantSettings(maximalSpectraIdentificationSettings);
@@ -261,7 +251,7 @@ public class ReportPSMSet implements PSMReportItem {
     @Override
     public Map<Integer, Modification> getModifications() {
         TreeMap<Integer, Modification> modifications =
-                new TreeMap<Integer, Modification>();
+                new TreeMap<>();
 
         for (ReportPSM psm : psmsList) {
             for (Map.Entry<Integer, Modification> modIt : psm.getModifications().entrySet()) {
@@ -653,14 +643,14 @@ public class ReportPSMSet implements PSMReportItem {
             Set<Long> nonScoringPSMs, Set<String> nonScoringSpectra) {
         Set<Long> nsPSMs;
         if (nonScoringPSMs == null) {
-            nsPSMs = new HashSet<Long>(0);
+            nsPSMs = new HashSet<>(0);
         } else {
             nsPSMs = nonScoringPSMs;
         }
 
         Set<String> nsSpectra;
         if (nonScoringSpectra == null) {
-            nsSpectra = new HashSet<String>(0);
+            nsSpectra = new HashSet<>(0);
         } else {
             nsSpectra = nonScoringSpectra;
         }
@@ -794,7 +784,7 @@ public class ReportPSMSet implements PSMReportItem {
 
     @Override
     public List<Accession> getAccessions() {
-        TreeMap<String, Accession> accs = new TreeMap<String, Accession>();
+        TreeMap<String, Accession> accs = new TreeMap<>();
 
         for (ReportPSM psm : psmsList) {
             for (Accession acc : psm.getAccessions()) {
@@ -802,7 +792,7 @@ public class ReportPSMSet implements PSMReportItem {
             }
         }
 
-        return new ArrayList<Accession>(accs.values());
+        return new ArrayList<>(accs.values());
     }
 
 
@@ -841,7 +831,7 @@ public class ReportPSMSet implements PSMReportItem {
      * @param otherSet
      */
     public void copyInfo(ReportPSMSet otherSet) {
-        psmSetSettings = new HashMap<String, Boolean>(otherSet.psmSetSettings);
+        psmSetSettings = new HashMap<>(otherSet.psmSetSettings);
 
         if (otherSet.averageFDRScore != null) {
             averageFDRScore = new ScoreModel(otherSet.getAverageFDRScore().getValue(),
@@ -863,9 +853,9 @@ public class ReportPSMSet implements PSMReportItem {
         isFDRGood = otherSet.getIsFDRGood();
         qValue = otherSet.getQValue();
         maximalSpectraIdentificationSettings =
-                new HashMap<String, Boolean>(otherSet.maximalSpectraIdentificationSettings);
+                new HashMap<>(otherSet.maximalSpectraIdentificationSettings);
         maximalNotRedundantSpectraIdentificationSettings =
-                new HashMap<String, Boolean>(otherSet.maximalNotRedundantSpectraIdentificationSettings);
+                new HashMap<>(otherSet.maximalNotRedundantSpectraIdentificationSettings);
         niceSpectrumName = otherSet.getNiceSpectrumName();
         sequence = otherSet.getSequence();
         rebuildModificationsString = true;

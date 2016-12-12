@@ -66,7 +66,7 @@ public class ModBricksT {
      */
     public List<BrickT> getBrick() {
         if (brick == null) {
-            brick = new ArrayList<BrickT>();
+            brick = new ArrayList<>();
         }
         return this.brick;
     }

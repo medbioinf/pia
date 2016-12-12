@@ -56,7 +56,7 @@ import de.mpc.pia.tools.unimod.jaxb.ModT;
  * @author julian
  *
  */
-public class IdXMLFileParser {
+class IdXMLFileParser {
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(IdXMLFileParser.class);
@@ -377,7 +377,7 @@ public class IdXMLFileParser {
                     int charge = pepHit.getCharge().intValue();
 
                     Map<Integer, Modification> modifications =
-                            new HashMap<Integer, Modification>(5);
+                            new HashMap<>(5);
 
                     if (sequence.contains("(")) {
                         sequence = extractModifications(
@@ -538,11 +538,7 @@ public class IdXMLFileParser {
                         if ((acc.getDbSequence() != null) && (acc.getDbSequence().trim().length() > 0)) {
                             List<Integer> startSites = getStartSites(sequence, acc.getDbSequence());
                             for (Integer start : startSites) {
-                                Integer corrStart = start;
-
-                                peptide.addAccessionOccurrence(acc,
-                                        corrStart,
-                                        corrStart + sequence.length() - 1);
+                                peptide.addAccessionOccurrence(acc, start, start + sequence.length() - 1);
                             }
                         }
 
@@ -750,7 +746,7 @@ public class IdXMLFileParser {
      * @return
      */
     private static List<Integer> getStartSites(String peptideSeq, String proteinSeq) {
-        List<Integer> startSites = new ArrayList<Integer>();
+        List<Integer> startSites = new ArrayList<>();
         proteinSeq = proteinSeq.toUpperCase();
 
         if (peptideSeq.contains("X")) {

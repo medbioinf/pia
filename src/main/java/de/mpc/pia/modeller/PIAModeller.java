@@ -279,7 +279,7 @@ public class PIAModeller {
     public Map<String, Set<Long>> getPSMSetSettingsWarnings() {
         return (intermediateHandler != null) ?
                 intermediateHandler.getPSMSetSettingsWarnings() :
-                    new HashMap<String, Set<Long>>(1);
+                new HashMap<>(1);
     }
 
 
@@ -432,7 +432,7 @@ public class PIAModeller {
         if (intermediateHandler != null) {
             return intermediateHandler.getFiles();
         } else {
-            return new HashMap<Long, PIAInputFile>(1);
+            return new HashMap<>(1);
         }
     }
 
@@ -447,7 +447,7 @@ public class PIAModeller {
         if (intermediateHandler != null) {
             return intermediateHandler.getSearchDatabase();
         } else {
-            return new HashMap<String, SearchDatabase>(0);
+            return new HashMap<>(0);
         }
     }
 
@@ -462,7 +462,7 @@ public class PIAModeller {
         if (intermediateHandler != null) {
             return intermediateHandler.getAnalysisSoftware();
         } else {
-            return new HashMap<String, AnalysisSoftware>(0);
+            return new HashMap<>(0);
         }
     }
 
@@ -477,7 +477,7 @@ public class PIAModeller {
         if (intermediateHandler != null) {
             return intermediateHandler.getSpectraData();
         } else {
-            return new HashMap<String, SpectraData>(0);
+            return new HashMap<>(0);
         }
     }
 
@@ -491,7 +491,7 @@ public class PIAModeller {
         if (intermediateHandler != null) {
             return intermediateHandler.getGroups();
         } else {
-            return new HashMap<Long, Group>(1);
+            return new HashMap<>(1);
         }
     }
 
@@ -911,7 +911,7 @@ public class PIAModeller {
      * @param model
      */
     private static void processPSMExport(String[] params, PIAModeller model) {
-        List<String> paramList = new ArrayList<String>();
+        List<String> paramList = new ArrayList<>();
 
         if ((params.length > 0)
                 && !params[0].trim().isEmpty()) {
@@ -943,7 +943,7 @@ public class PIAModeller {
      * @param model
      */
     private static void processPeptideExport(String[] params, PIAModeller model) {
-        List<String> paramList = new ArrayList<String>();
+        List<String> paramList = new ArrayList<>();
 
         if ((params.length > 0)
                 && !params[0].trim().isEmpty()) {
@@ -981,7 +981,7 @@ public class PIAModeller {
      * @param model
      */
     private static void processProteinExport(String[] params, PIAModeller model) {
-        List<String> paramList = new ArrayList<String>();
+        List<String> paramList = new ArrayList<>();
 
         if ((params.length > 0) &&
                 (params[0].trim().length() > 0)) {

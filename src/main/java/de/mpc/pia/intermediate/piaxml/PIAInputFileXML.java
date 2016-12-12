@@ -75,7 +75,6 @@ public class PIAInputFileXML {
 	
 	/**
 	 * Sets the value of the name property.
-	 * @param fileName
 	 */
 	public void setName(String name) {
 		this.name = name;

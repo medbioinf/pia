@@ -80,7 +80,7 @@ public class SearchParameters {
      */
     public List<FixedModification> getFixedModification() {
         if (fixedModification == null) {
-            fixedModification = new ArrayList<FixedModification>();
+            fixedModification = new ArrayList<>();
         }
         return this.fixedModification;
     }
@@ -109,7 +109,7 @@ public class SearchParameters {
      */
     public List<VariableModification> getVariableModification() {
         if (variableModification == null) {
-            variableModification = new ArrayList<VariableModification>();
+            variableModification = new ArrayList<>();
         }
         return this.variableModification;
     }
@@ -138,7 +138,7 @@ public class SearchParameters {
      */
     public List<UserParamIdXML> getUserParam() {
         if (userParam == null) {
-            userParam = new ArrayList<UserParamIdXML>();
+            userParam = new ArrayList<>();
         }
         return this.userParam;
     }

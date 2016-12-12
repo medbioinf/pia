@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "groupsList")
 public class GroupsListXML {
 	@XmlElement(name = "group")
+	private
 	List<GroupXML> groups;
 	
 	
@@ -43,7 +44,7 @@ public class GroupsListXML {
 	 */
 	public List<GroupXML> getGroups() {
 		if (groups == null) {
-			groups = new ArrayList<GroupXML>();
+			groups = new ArrayList<>();
 		}
 		return groups;
 	}

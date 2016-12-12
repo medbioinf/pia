@@ -12,6 +12,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -149,7 +150,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
     @Override
     public List<RegisteredFilters> getAvailablePSMFilters() {
         List<RegisteredFilters> filters =
-                new ArrayList<RegisteredFilters>(RegisteredFilters.getPSMFilters());
+                new ArrayList<>(RegisteredFilters.getPSMFilters());
 
         filters.add(RegisteredFilters.PSM_SCORE_FILTER);
 
@@ -158,7 +159,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 
     @Override
     public List<RegisteredFilters> getAvailablePeptideFilters() {
-        List<RegisteredFilters> filters = new ArrayList<RegisteredFilters>();
+        List<RegisteredFilters> filters = new ArrayList<>();
 
         filters.add(RegisteredFilters.NR_PSMS_PER_PEPTIDE_FILTER);
         filters.add(RegisteredFilters.NR_SPECTRA_PER_PEPTIDE_FILTER);
@@ -171,7 +172,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 
     @Override
     public List<RegisteredFilters> getAvailableProteinFilters() {
-        List<RegisteredFilters> filters = new ArrayList<RegisteredFilters>();
+        List<RegisteredFilters> filters = new ArrayList<>();
 
         filters.add(RegisteredFilters.NR_SPECTRA_PER_PROTEIN_FILTER);
         filters.add(RegisteredFilters.NR_PSMS_PER_PROTEIN_FILTER);
@@ -216,13 +217,13 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                 );
 
         // map from the spectra to the associated accessions' IDs
-        Map<String, Set<Long>> spectraAccessions = new HashMap<String, Set<Long>>(reportPSMSetMap.size() / 2);
+        Map<String, Set<Long>> spectraAccessions = new HashMap<>(reportPSMSetMap.size() / 2);
 
         // the reportPSMs are needed frequently, map them from the spectrum ID
-        Map<Long, ReportPSM> reportPSMMap = new HashMap<Long, ReportPSM>(reportPSMSetMap.size() / 2);
+        Map<Long, ReportPSM> reportPSMMap = new HashMap<>(reportPSMSetMap.size() / 2);
 
         // list of the spectrumIdentificationKeys of the already used spectra (this set gets filled while reporting proteins)
-        Set<String> usedSpectra = new HashSet<String>();
+        Set<String> usedSpectra = new HashSet<>();
 
         LOGGER.info("building reportPSMMap...");
 
@@ -240,7 +241,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                     // populate the spectraAccessions map
                     Set<Long> accessions = spectraAccessions.get(psmIdKey);
                     if (accessions == null) {
-                        accessions = new HashSet<Long>();
+                        accessions = new HashSet<>();
                         spectraAccessions.put(psmIdKey, accessions);
                     }
                     for (Accession acc : reportPSM.getAccessions()) {
@@ -257,11 +258,11 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         LOGGER.info("creating disjoint splits");
 
         Long splitIDcounter = 0L;
-        Map<Long, Set<Long>> splitIdReportPSMid = new HashMap<Long, Set<Long>>();
-        Map<Long, Set<Long>> splitIdAccessions = new HashMap<Long, Set<Long>>();
+        Map<Long, Set<Long>> splitIdReportPSMid = new HashMap<>();
+        Map<Long, Set<Long>> splitIdAccessions = new HashMap<>();
 
-        Map<String, Long> psmIDsplitID = new HashMap<String, Long>();
-        Map<Long, Set<String>> splitIdSpectraID = new HashMap<Long, Set<String>>();
+        Map<String, Long> psmIDsplitID = new HashMap<>();
+        Map<Long, Set<String>> splitIdSpectraID = new HashMap<>();
 
         for (Map.Entry<Long, ReportPSM> reportPSMIt : reportPSMMap.entrySet()) {
             String psmIdKey = reportPSMIt.getValue().getSpectrum().getSpectrumIdentificationKey(psmSetSettings);
@@ -278,7 +279,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                 Iterator<Entry<Long, Set<Long>>> it = splitIdAccessions.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry<Long, Set<Long>> splitIt = it.next();
-                    Set<Long> accessions = new HashSet<Long>(spectraAccessions.get(psmIdKey));
+                    Set<Long> accessions = new HashSet<>(spectraAccessions.get(psmIdKey));
 
                     if (accessions.removeAll(splitIdAccessions.get(splitIt.getKey()))) {
                         // overlap in accessions
@@ -313,13 +314,13 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                     // a new split
                     splitIDcounter++;
                     splitID = splitIDcounter;
-                    mergeToReportPSMs = new HashSet<Long>();
+                    mergeToReportPSMs = new HashSet<>();
                     splitIdReportPSMid.put(splitID, mergeToReportPSMs);
 
-                    mergeToAccessions = new HashSet<Long>();
+                    mergeToAccessions = new HashSet<>();
                     splitIdAccessions.put(splitID, mergeToAccessions);
 
-                    mergeToSplitIDs = new HashSet<String>();
+                    mergeToSplitIDs = new HashSet<>();
                     splitIdSpectraID.put(splitID, mergeToSplitIDs);
                 }
 
@@ -345,22 +346,22 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         }
         LOGGER.debug("used threads: " + nrThreads);
 
-        List<SpectrumExtractorWorkerThread> threads = new ArrayList<SpectrumExtractorWorkerThread>(nrThreads);
+        List<SpectrumExtractorWorkerThread> threads = new ArrayList<>(nrThreads);
 
         // the proteins of all splits
-        List<ReportProtein> completeReportProteinList = new ArrayList<ReportProtein>(groupMap.size());
+        List<ReportProtein> completeReportProteinList = new ArrayList<>(groupMap.size());
 
         // the remaining group IDs, which were not yet processed
-        Set<Long> leftGroupIDs = new HashSet<Long>(groupMap.keySet());
+        Set<Long> leftGroupIDs = new HashSet<>(groupMap.keySet());
 
         for (Map.Entry<Long, Set<Long>> splitIt : splitIdReportPSMid.entrySet()) {
             // maps from groupID / proteinID to the peptides, for rescoring / scoring
             Map<Long, Set<Peptide>> groupsPeptides =
-                    new HashMap<Long, Set<Peptide>>(groupMap.size());
+                    new HashMap<>(groupMap.size());
 
             // the (remaining) proteins
             List<ReportProtein> proteinList =
-                    new ArrayList<ReportProtein>(groupMap.size());
+                    new ArrayList<>(groupMap.size());
 
             Set<Long> splitAccessions = splitIdAccessions.get(splitIt.getKey());
 
@@ -396,36 +397,34 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 
                     // prepare peptide cache for protein
                     Set<Peptide> pepSet =
-                            new HashSet<Peptide>(group.getAllPeptides().size());
+                            new HashSet<>(group.getAllPeptides().size());
                     groupsPeptides.put(repProtein.getID(), pepSet);
 
-                    for (Peptide pep : group.getAllPeptides().values()) {
-                        // put peptide into cache
-                        pepSet.add(pep);
-                    }
+                    // put peptide into cache
+                    pepSet.addAll(group.getAllPeptides().values());
                 }
 
                 // remove group ID of group without accession or added to split
                 groupIt.remove();
             }
 
-            Map<Long, ReportPSM> splitReportPSMMap = new HashMap<Long, ReportPSM>(splitIt.getValue().size());
+            Map<Long, ReportPSM> splitReportPSMMap = new HashMap<>(splitIt.getValue().size());
             for (Long psmID : splitIt.getValue()) {
                 splitReportPSMMap.put(psmID, reportPSMMap.get(psmID));
             }
 
             // the PSMSets used by an already used reportPeptide (this map gets filled while reporting proteins)
             Map<String, Set<ReportPSMSet>> peptidesSpectra =
-                    new HashMap<String, Set<ReportPSMSet>>();
+                    new HashMap<>();
 
             // this is the list, that is going to be returned
             List<ReportProtein> reportProteinList =
-                    new ArrayList<ReportProtein>(proteinList.size());
+                    new ArrayList<>(proteinList.size());
 
             // reset the used spectra
-            usedSpectra = new HashSet<String>();
+            usedSpectra = new HashSet<>();
 
-            changedAccessions = new HashSet<Long>();
+            changedAccessions = new HashSet<>();
             boolean iterate = true;
             while (iterate) {
                 // now the (remaining) proteins get rebuild (with usable spectra) and scored
@@ -503,8 +502,8 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                         } else {
                             if (proteinsPeptides == null) {
                                 // get proteins peptides (if not yet  done)
-                                proteinsPeptides = new HashSet<String>(protein.getPeptides().size());
-                                proteinsSpectra = new HashSet<String>(proteinsPeptides.size());
+                                proteinsPeptides = new HashSet<>(protein.getPeptides().size());
+                                proteinsSpectra = new HashSet<>(proteinsPeptides.size());
                                 for (ReportPeptide peptide : protein.getPeptides()) {
                                     if (!peptidesSpectra.containsKey(peptide.getStringID())) {
                                         newPeptides++;
@@ -515,8 +514,8 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                             }
 
                             // get the protein's peptides and spectra
-                            Set<String> nextProteinsPeptides = new HashSet<String>();
-                            Set<String> nextProteinsSpectra = new HashSet<String>();
+                            Set<String> nextProteinsPeptides = new HashSet<>();
+                            Set<String> nextProteinsSpectra = new HashSet<>();
                             for (ReportPeptide peptide : nextProt.getPeptides()) {
                                 nextProteinsPeptides.add(peptide.getStringID());
                                 nextProteinsSpectra.addAll(peptide.getScoringSpectraIdentificationKeys());
@@ -525,9 +524,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                             if (nextProteinsPeptides.equals(proteinsPeptides) &&
                                     nextProteinsSpectra.equals(proteinsSpectra)) {
                                 // add the accessions to lastIt
-                                for (Accession acc : nextProt.getAccessions()) {
-                                    protein.addAccession(acc);
-                                }
+                                nextProt.getAccessions().forEach(protein::addAccession);
 
                                 // remove the next protein from the list
                                 proteinListIt.remove();
@@ -545,7 +542,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                         // check for subprotein
                         if (proteinsPeptides == null) {
                             // get proteins peptides (if not yet  done)
-                            proteinsPeptides = new HashSet<String>(protein.getPeptides().size());
+                            proteinsPeptides = new HashSet<>(protein.getPeptides().size());
                             for (ReportPeptide peptide : protein.getPeptides()) {
                                 if (!peptidesSpectra.containsKey(peptide.getStringID())) {
                                     newPeptides++;
@@ -562,12 +559,12 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 
                                 if (!peptidesSpectra.containsKey(peptideKey)) {
                                     // peptide is not yet stored
-                                    Set<ReportPSMSet> psms = new HashSet<ReportPSMSet>();
+                                    Set<ReportPSMSet> psms = new HashSet<>();
 
                                     for (PSMReportItem psmSet : peptide.getPSMs()) {
                                         if (psmSet instanceof ReportPSMSet) {
                                             psms.add((ReportPSMSet) psmSet);
-                                            Set<Long> psmIDs = new HashSet<Long>();
+                                            Set<Long> psmIDs = new HashSet<>();
 
                                             // add the used spectra to the set
                                             for (ReportPSM psm : ((ReportPSMSet) psmSet).getPSMs()) {
@@ -591,10 +588,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                                             ReportPSMSet givenSet = reportPSMSetMap.get(key);
                                             if ((givenSet != null) &&
                                                     (givenSet.getFDRScore() != null)) {
-                                                Set<Long> givenPSMids = new HashSet<Long>();
-                                                for (ReportPSM psm : givenSet.getPSMs()) {
-                                                    givenPSMids.add(psm.getSpectrum().getID());
-                                                }
+                                                Set<Long> givenPSMids = givenSet.getPSMs().stream().map(psm -> psm.getSpectrum().getID()).collect(Collectors.toSet());
 
                                                 if (psmIDs.equals(givenPSMids)) {
                                                     psmSet.setFDRScore(givenSet.getFDRScore().getValue());
@@ -625,7 +619,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 
                             // get all the protein's spectra
                             if (proteinsSpectra == null) {
-                                proteinsSpectra = new HashSet<String>(proteinsPeptides.size());
+                                proteinsSpectra = new HashSet<>(proteinsPeptides.size());
                                 for (ReportPeptide peptide : protein.getPeptides()) {
                                     proteinsSpectra.addAll(
                                             peptide.getSpectraIdentificationKeys());
@@ -634,8 +628,8 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 
                             for (ReportProtein reportProtein : reportProteinList) {
                                 // get the spectra and peptides of the reported protein
-                                Set<String> reportProteinsSpectra = new HashSet<String>();
-                                Set<String> reportProteinsPeptides = new HashSet<String>();
+                                Set<String> reportProteinsSpectra = new HashSet<>();
+                                Set<String> reportProteinsPeptides = new HashSet<>();
                                 for (ReportPeptide peptide : reportProtein.getPeptides()) {
                                     reportProteinsSpectra.addAll(
                                             peptide.getSpectraIdentificationKeys());
@@ -654,16 +648,14 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                                                 reportProteinsPeptides.containsAll(proteinsPeptides)) {
                                             // TODO: this check should be irrelevant, as it is checked before
                                             // also the peptides are the same -> add the accession(s)
-                                            for (Accession acc : protein.getAccessions()) {
-                                                reportProtein.addAccession(acc);
-                                            }
+                                            protein.getAccessions().forEach(reportProtein::addAccession);
                                         }
                                     } else {
                                         boolean subSetAlreadyThere = false;
                                         // check, if the protein is a sameSet of another subSet
                                         for (ReportProtein subSet : reportProtein.getSubSets()) {
-                                            reportProteinsSpectra = new HashSet<String>();
-                                            reportProteinsPeptides = new HashSet<String>();
+                                            reportProteinsSpectra = new HashSet<>();
+                                            reportProteinsPeptides = new HashSet<>();
                                             for (ReportPeptide peptide : subSet.getPeptides()) {
                                                 reportProteinsSpectra.addAll(
                                                         peptide.getSpectraIdentificationKeys());
@@ -674,9 +666,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                                             if (proteinsPeptides.equals(reportProteinsPeptides) &&
                                                     proteinsSpectra.equals(reportProteinsSpectra)) {
                                                 // protein is same as subSet, add the accessions
-                                                for (Accession acc : protein.getAccessions()) {
-                                                    subSet.addAccession(acc);
-                                                }
+                                                protein.getAccessions().forEach(subSet::addAccession);
 
                                                 subSetAlreadyThere = true;
                                                 break;
@@ -764,11 +754,11 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
     @Override
     public Long getProgressValue() {
         if (inferenceDone) {
-            return Long.valueOf(101);
+            return 101L;
         } else {
             Long p;
             if ((nrUsedSpectra == 0) || (nrSpectra == 0) || (nrSplits == 0)) {
-                p = Long.valueOf(0);
+                p = 0L;
             } else {
                 p = (long)(((double)nrFinishedSplits + (double)nrUsedSpectra / (double)nrSpectra) / (double)nrSplits * 100.0);
             }

@@ -51,7 +51,7 @@ public abstract class AbstractScoring {
 				initialKey, SettingType.SELECT_ONE_RADIO.getShortName(),
 				scoreNameMap);
 		
-		Map<String, String> psmSettingsMap = new HashMap<String, String>();
+		Map<String, String> psmSettingsMap = new HashMap<>();
 		for (PSMForScoring psmForScoring : PSMForScoring.values()) {
 			psmSettingsMap.put(psmForScoring.getShortName(),
 					psmForScoring.getName());
@@ -69,7 +69,7 @@ public abstract class AbstractScoring {
 	 * @return
 	 */
 	public List<Setting> getSettings() {
-		List<Setting> settingsList = new ArrayList<Setting>(2);
+		List<Setting> settingsList = new ArrayList<>(2);
 		
 		settingsList.add(getScoreSetting());
 		settingsList.add(psmForScoringSetting);
@@ -117,7 +117,7 @@ public abstract class AbstractScoring {
 	 * @return
 	 */
 	public String getDescriptiveSettings() {
-		StringBuffer description = new StringBuffer();
+		StringBuilder description = new StringBuilder();
 		
 		description.append(getName());
 		description.append(", ");
@@ -182,18 +182,14 @@ public abstract class AbstractScoring {
 	 * @param proteinList
 	 */
 	public final void calculateProteinScores(List<ReportProtein> proteinList) {
-		Map<Long, ReportProtein> subProteins = new HashMap<Long, ReportProtein>();
+		Map<Long, ReportProtein> subProteins = new HashMap<>();
 		
 		// calculate scores for the reported proteins
 		for (ReportProtein protein : proteinList) {
 			protein.setScore(calculateProteinScore(protein));
 			
 			// get the subset proteins
-			for (ReportProtein subProtein : protein.getSubSets()) {
-				if (!subProteins.containsKey(subProtein.getID())) {
-					subProteins.put(subProtein.getID(), subProtein);
-				}
-			}
+			protein.getSubSets().stream().filter(subProtein -> !subProteins.containsKey(subProtein.getID())).forEach(subProtein -> subProteins.put(subProtein.getID(), subProtein));
 		}
 		
 		// and the scores for the subset proteins
@@ -207,7 +203,7 @@ public abstract class AbstractScoring {
 	 * @return
 	 */
 	public final AbstractScoring smallCopy() {
-		Map<String, String> scoreNameMap = new HashMap<String, String>(1);
+		Map<String, String> scoreNameMap = new HashMap<>(1);
 		
 		String scoreName = getScoreSetting().getValue();
 		scoreNameMap.put(scoreName, ScoreModelEnum.getName(scoreName));

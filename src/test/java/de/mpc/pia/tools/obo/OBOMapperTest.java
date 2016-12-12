@@ -2,7 +2,6 @@ package de.mpc.pia.tools.obo;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Iterator;
 import java.util.Set;
 
 import org.biojava.nbio.ontology.Term;
@@ -33,10 +32,7 @@ public class OBOMapperTest {
         boolean foundMSGF = false;
 
         Set<Term> keys = oboMapper.getTerms();
-        Iterator<Term> iter = keys.iterator();
-        while (iter.hasNext()){
-            Term term = (Term) iter.next();
-
+        for (Term term : keys) {
             if (term.getName().equals("MS:1001176")) {
                 foundTrypsin = true;
             }

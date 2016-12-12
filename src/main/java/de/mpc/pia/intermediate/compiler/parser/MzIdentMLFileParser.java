@@ -19,6 +19,7 @@ import uk.ac.ebi.jmzidml.xml.io.MzIdentMLUnmarshaller;
 import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 
 /**
@@ -28,7 +29,7 @@ import java.util.regex.Matcher;
  * @author julian
  *
  */
-public class MzIdentMLFileParser {
+class MzIdentMLFileParser {
 
     /** logger for this class */
     private static final Logger logger = Logger.getLogger(MzIdentMLFileParser.class);
@@ -68,43 +69,43 @@ public class MzIdentMLFileParser {
 
         // maps from the ID to the SpectrumIdentificationList
         Map<String, SpectrumIdentificationList> specIdLists =
-                new HashMap<String, SpectrumIdentificationList>();
+                new HashMap<>();
 
         // maps from the file's ID to the compiler's ID of the SpectrumIdentification
-        Map<String, String> spectrumIdentificationRefs = new HashMap<String, String>();
+        Map<String, String> spectrumIdentificationRefs = new HashMap<>();
 
         // maps from the file's ID to the compiler's ID of the SpectrumIdentificationProtocol
-        Map<String, String> spectrumIdentificationProtocolRefs = new HashMap<String, String>();
+        Map<String, String> spectrumIdentificationProtocolRefs = new HashMap<>();
 
         // maps from the file's ID to the compiler's SpectraData
-        Map<String, SpectraData> spectraDataRefs = new HashMap<String, SpectraData>();
+        Map<String, SpectraData> spectraDataRefs = new HashMap<>();
 
         // maps from the file's ID to the compiler's searchDB
-        Map<String, SearchDatabase> searchDBRefs = new HashMap<String, SearchDatabase>();
+        Map<String, SearchDatabase> searchDBRefs = new HashMap<>();
 
         // maps from the file's ID to the compiler's analysisSoftware
-        Map<String, AnalysisSoftware> analysisSoftwareRefs = new HashMap<String, AnalysisSoftware>();
+        Map<String, AnalysisSoftware> analysisSoftwareRefs = new HashMap<>();
 
         // maps from the ID to the PeptideEvidence
-        Map<String, PeptideEvidence> peptideEvidences = new HashMap<String, PeptideEvidence>();
+        Map<String, PeptideEvidence> peptideEvidences = new HashMap<>();
 
         // maps from the ID to the DBSequence
-        Map<String, DBSequence> dbSequences = new HashMap<String, DBSequence>();
+        Map<String, DBSequence> dbSequences = new HashMap<>();
 
         // maps from the ID to the Protein
-        Map<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide> peptides = new HashMap<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide>();
+        Map<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide> peptides = new HashMap<>();
 
         // maps from the SpectrumIdentificationList IDs to the SpectrumIdentification IDs
-        Map<String, String> specIdListIDtoSpecIdID = new HashMap<String, String>();
+        Map<String, String> specIdListIDtoSpecIdID = new HashMap<>();
 
         // maps from the enzyme ID (from the OBO) to the regex, only used, if no siteRegex param is given
-        Map<String, String> enzymesToRegexes = new HashMap<String, String>();
+        Map<String, String> enzymesToRegexes = new HashMap<>();
 
 
-        Set<String> neededSpectrumIdentificationProtocols = new HashSet<String>();
-        Set<String> neededSpectraData = new HashSet<String>();
-        Set<String> neededSearchDatabases= new HashSet<String>();
-        Set<String> neededAnalysisSoftwares= new HashSet<String>();
+        Set<String> neededSpectrumIdentificationProtocols = new HashSet<>();
+        Set<String> neededSpectraData = new HashSet<>();
+        Set<String> neededSearchDatabases= new HashSet<>();
+        Set<String> neededAnalysisSoftwares= new HashSet<>();
 
         int accNr = 0;
         int pepNr = 0;
@@ -178,22 +179,20 @@ public class MzIdentMLFileParser {
                                         if (oboTerm != null) {
                                             Set<Triple> tripleSet = compiler.getOBOMapper().getTriples(oboTerm, null, null);
 
-                                            for (Triple triple : tripleSet) {
-                                                if (triple.getPredicate().getName().equals(OBOMapper.obo_relationship) &&
-                                                        triple.getObject().getName().startsWith(OBOMapper.obo_has_regexp)) {
-                                                    String regExpID = triple.getObject().getName().substring(11).trim();
-                                                    Term regExpTerm = compiler.getOBOMapper().getTerm(regExpID);
+                                            tripleSet.stream().filter(triple -> triple.getPredicate().getName().equals(OBOMapper.obo_relationship) &&
+                                                    triple.getObject().getName().startsWith(OBOMapper.obo_has_regexp)).forEach(triple -> {
+                                                String regExpID = triple.getObject().getName().substring(11).trim();
+                                                Term regExpTerm = compiler.getOBOMapper().getTerm(regExpID);
 
-                                                    if (regExpTerm != null) {
-                                                        enzymesToRegexes.put(oboID, StringEscapeUtils.unescapeJava(regExpTerm.getDescription()));
-                                                    }
+                                                if (regExpTerm != null) {
+                                                    enzymesToRegexes.put(oboID, StringEscapeUtils.unescapeJava(regExpTerm.getDescription()));
                                                 }
-                                            }
+                                            });
                                         }
                                     }
 
                                 } else if (paramList.get(0) instanceof UserParam) {
-                                    // userParam is given, no use here
+                                    //Todo: We should use this in some way
                                 }
                             }
                         }
@@ -263,17 +262,15 @@ public class MzIdentMLFileParser {
         for (SpectrumIdentificationList specIDList : specIdLists.values()) {
 
             // get some information from the SpectrumIdentification
-            Set<String> specIDListsDBRefs = new HashSet<String>();
+            Set<String> specIDListsDBRefs = new HashSet<>();
             SpectrumIdentification spectrumID = null;
             Enzymes specIDListsEnzymes = null;
-            Set<InputSpectra> inputSpectraSet = new HashSet<InputSpectra>();
+            Set<InputSpectra> inputSpectraSet = new HashSet<>();
             for (SpectrumIdentification specID
                     : file.getAnalysisCollection().getSpectrumIdentification()) {
                 if (specID.getId().equals(specIdListIDtoSpecIdID.get(specIDList.getId()))) {
                     // this is the SpectrumIdentification for this list
-                    for (SearchDatabaseRef dbRef : specID.getSearchDatabaseRef()) {
-                        specIDListsDBRefs.add(dbRef.getSearchDatabaseRef());
-                    }
+                    specIDListsDBRefs.addAll(specID.getSearchDatabaseRef().stream().map(SearchDatabaseRef::getSearchDatabaseRef).collect(Collectors.toList()));
                     spectrumID = specID;
 
                     // get the enzymes
@@ -518,15 +515,11 @@ public class MzIdentMLFileParser {
                         }
                     }
 
-                    for (UserParam userParam : specIdItem.getUserParam()) {
-                        // add the userParam to the params of the PSM
-                        psm.addParam(userParam);
-                    }
+                    // add the userParam to the params of the PSM
+                    specIdItem.getUserParam().forEach(psm::addParam);
 
-                    for (AbstractParam param : resultParams.getParamGroup()) {
-                        // add the params from the specIdResult to the PSM
-                        psm.addParam(param);
-                    }
+                    // add the params from the specIdResult to the PSM
+                    resultParams.getParamGroup().forEach(psm::addParam);
 
                     // adding the modifications
                     // the modifications are in SequenceCollection:Peptide
@@ -544,7 +537,7 @@ public class MzIdentMLFileParser {
                             String description = null;
                             String accession = null;
                             Double massDelta = (mod.getMonoisotopicMassDelta() != null) ?
-                                    mod.getMonoisotopicMassDelta().doubleValue() : null;
+                                    mod.getMonoisotopicMassDelta() : null;
 
 
                             if ((mod.getLocation() == 0) ||

@@ -121,7 +121,7 @@ public class ProteinModeller {
         this.fdrData = new FDRData(defaultDecoyStrategy, defaultDecoyPattern,
                 defaultFDRThreshold);
 
-        this.reportFilters = new ArrayList<AbstractFilter>();
+        this.reportFilters = new ArrayList<>();
     }
 
 
@@ -141,15 +141,11 @@ public class ProteinModeller {
      * @return
      */
     public List<String> getAllScoreShortNames() {
-        List<String> scoreShortNames = new ArrayList<String>();
+        List<String> scoreShortNames = new ArrayList<>();
 
         // get the scores from the files
         for (Long fileID : psmModeller.getFiles().keySet()) {
-            for (String scoreShort : psmModeller.getScoreShortNames(fileID)) {
-                if (!scoreShortNames.contains(scoreShort)) {
-                    scoreShortNames.add(scoreShort);
-                }
-            }
+            psmModeller.getScoreShortNames(fileID).stream().filter(scoreShort -> !scoreShortNames.contains(scoreShort)).forEach(scoreShortNames::add);
         }
 
         return scoreShortNames;
@@ -209,7 +205,7 @@ public class ProteinModeller {
      * inference.
      */
     public void infereProteins(AbstractProteinInference proteinInference) {
-        reportProteins = new ArrayList<ReportProtein>();
+        reportProteins = new ArrayList<>();
 
         if (proteinInference != null) {
             appliedProteinInference = proteinInference;
@@ -229,7 +225,7 @@ public class ProteinModeller {
                 defaultFDRThreshold);
 
         // create the protein map
-        reportProteinsMap = new HashMap<Long, ReportProtein>();
+        reportProteinsMap = new HashMap<>();
         for (ReportProtein protein : reportProteins) {
             reportProteinsMap.put(protein.getID(), protein);
 
@@ -319,7 +315,7 @@ public class ProteinModeller {
             Map<String, SortOrder> sortables) {
 
         List<Comparator<ReportProtein>> compares =
-                new ArrayList<Comparator<ReportProtein>>();
+                new ArrayList<>();
 
         for (String sortKey : sortOrders) {
             SortOrder order = sortables.get(sortKey);
@@ -441,7 +437,7 @@ public class ProteinModeller {
      */
     public List<AbstractFilter> getReportFilters() {
         if (reportFilters == null) {
-            reportFilters = new ArrayList<AbstractFilter>();
+            reportFilters = new ArrayList<>();
         }
 
         return reportFilters;
@@ -481,7 +477,7 @@ public class ProteinModeller {
      */
     public List<AbstractFilter> getInferenceFilters() {
         if (inferenceFilters == null) {
-            inferenceFilters = new ArrayList<AbstractFilter>();
+            inferenceFilters = new ArrayList<>();
         }
 
         return inferenceFilters;

@@ -34,7 +34,6 @@ public class ModificationXML {
 	
 	/**
 	 * Sets the value of the location property.
-	 * @param fileName
 	 */
 	public void setLocation(Integer location) {
 		this.location = location;
@@ -53,7 +52,6 @@ public class ModificationXML {
 	
 	/**
 	 * Sets the value of the mass property.
-	 * @param fileName
 	 */
 	public void setMass(Double mass) {
 		this.mass = mass;
@@ -72,7 +70,6 @@ public class ModificationXML {
 	
 	/**
 	 * Sets the value of the residue property.
-	 * @param fileName
 	 */
 	public void setResidue(String residue) {
 		this.residue = residue;
@@ -91,7 +88,6 @@ public class ModificationXML {
 	
 	/**
 	 * Sets the value of the accession property.
-	 * @param fileName
 	 */
 	public void setAccession(String accession) {
 		this.accession = accession;
@@ -110,7 +106,6 @@ public class ModificationXML {
 	
 	/**
 	 * Sets the value of the description property.
-	 * @param fileName
 	 */
 	public void setDescription(String description) {
 		this.description = description;

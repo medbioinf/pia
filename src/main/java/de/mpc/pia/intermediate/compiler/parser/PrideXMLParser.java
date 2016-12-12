@@ -43,17 +43,17 @@ public class PrideXMLParser {
     /** logger for this class */
     private static final Logger logger = Logger.getLogger(PrideXMLParser.class);
 
-    private static final Set<String> chargeAccessions = new HashSet<String>(Arrays.asList(new String[]{
+    private static final Set<String> chargeAccessions = new HashSet<>(Arrays.asList(new String[]{
             "PSI:1000041",
             "MS:1000041"}));
 
-    private static final Set<String> mzAccessions = new HashSet<String>(Arrays.asList(new String[]{
+    private static final Set<String> mzAccessions = new HashSet<>(Arrays.asList(new String[]{
             "PSI:1000040",
             "MS:1000040",
             "PSI:1000744",
             "MS:1000744"}));
 
-    private static final Set<String> rtAccessions = new HashSet<String>(Arrays.asList(new String[]{
+    private static final Set<String> rtAccessions = new HashSet<>(Arrays.asList(new String[]{
             "PRIDE:0000203",
             "PSI:1000894",
             "MS:1000894",
@@ -72,7 +72,6 @@ public class PrideXMLParser {
      * Parse the PRIDE Xml into a PIA structure, The concept of PSM is not provided in PRIDE Files
      * this is the main reason why we will considered peptides as PSMs here.
      *
-     * @param name
      * @param fileName
      * @param compiler
      * @return
@@ -155,20 +154,20 @@ public class PrideXMLParser {
         boolean decoysFound = false;
 
         // to check, whether the PSM is already there, we need the psmSetSettings map
-        Map<String, Boolean> psmSetSettings = new HashMap<String, Boolean>();
+        Map<String, Boolean> psmSetSettings = new HashMap<>();
         psmSetSettings.put(IdentificationKeySettings.SOURCE_ID.name(), true);
         psmSetSettings.put(IdentificationKeySettings.SEQUENCE.name(), true);
         psmSetSettings.put(IdentificationKeySettings.MODIFICATIONS.name(), true);
         psmSetSettings.put(IdentificationKeySettings.CHARGE.name(), true);
 
         // map to store the already created PSMs
-        Map<String, PeptideSpectrumMatch> keysToPSMs = new HashMap<String, PeptideSpectrumMatch>();
+        Map<String, PeptideSpectrumMatch> keysToPSMs = new HashMap<>();
 
         // mapping from the enzyme accessions to regular expressions of the enzyme
-        Map<String, String> enzymesToRegexes = new HashMap<String, String>();
+        Map<String, String> enzymesToRegexes = new HashMap<>();
 
         // stores the modifications
-        Set<Modification> foundModifications = new HashSet<Modification>();
+        Set<Modification> foundModifications = new HashSet<>();
 
         // go through the identifications (they refer to accessions)
         for (String identifier: prideParser.getIdentIds()) {
@@ -359,7 +358,7 @@ public class PrideXMLParser {
      * @return
      */
     private static List<ScoreModel> transformScoreModels(uk.ac.ebi.pride.jaxb.model.Param additional) {
-        List<ScoreModel> scoreModels = new ArrayList<ScoreModel>();
+        List<ScoreModel> scoreModels = new ArrayList<>();
 
         for (uk.ac.ebi.pride.jaxb.model.CvParam cvParam : additional.getCvParam()) {
             ScoreModelEnum model = ScoreModelEnum.getModelByDescription(cvParam.getAccession());
@@ -385,7 +384,7 @@ public class PrideXMLParser {
     private static Map<Integer, Modification> transformModifications(String sequence,
             List<ModificationItem> modificationItem, UnimodParser unimodParser) {
         if(modificationItem != null && !modificationItem.isEmpty()) {
-            Map<Integer, Modification> modificationMap = new HashMap<Integer, Modification>();
+            Map<Integer, Modification> modificationMap = new HashMap<>();
 
             for (ModificationItem mod : modificationItem) {
                 Double mass = null;
@@ -623,7 +622,6 @@ public class PrideXMLParser {
      * Checks whether the given sourceFile contains a valid fileType and
      * creates an mzIdentML SpectraData if it is.
      *
-     * @param fileType
      * @return
      */
     private static SpectraData spectraDataFromSourceFile(SourceFile sourceFile,
@@ -662,7 +660,6 @@ public class PrideXMLParser {
     /**
      * Parses the instrument section of the PRIDE XML file
      *
-     * @param adminSection
      * @param additionalInformation
      */
     private static void parseInstrumentInformations(Instrument instrumentSection,
@@ -693,7 +690,6 @@ public class PrideXMLParser {
     /**
      * Parses the dataProcessing section of the PRIDE XML file
      *
-     * @param adminSection
      * @param additionalInformation
      */
     private static void parseDataProcessingInformations(DataProcessing dataProcessingSection,
@@ -768,7 +764,6 @@ public class PrideXMLParser {
     /**
      * Parses the additional section of the PRIDE XML file
      *
-     * @param adminSection
      * @param additionalInformation
      */
     private static void parseAdditionalInformations(uk.ac.ebi.pride.jaxb.model.Param additionalParams,

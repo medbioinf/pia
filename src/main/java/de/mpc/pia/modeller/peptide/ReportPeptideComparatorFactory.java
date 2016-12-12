@@ -32,12 +32,7 @@ public class ReportPeptideComparatorFactory {
 		SEQUENCE_SORT {
 			@Override
 			public Comparator<ReportPeptide> getNewInstance() {
-				return new Comparator<ReportPeptide>() {
-					@Override
-					public int compare(ReportPeptide o1, ReportPeptide o2) {
-						return o1.getSequence().compareTo(o2.getSequence());
-					}
-				};
+				return (o1, o2) -> o1.getSequence().compareTo(o2.getSequence());
 			}
 
 			@Override
@@ -57,12 +52,7 @@ public class ReportPeptideComparatorFactory {
 		MISSED_SORT {
 			@Override
 			public Comparator<ReportPeptide> getNewInstance() {
-				return new Comparator<ReportPeptide>() {
-					@Override
-					public int compare(ReportPeptide o1, ReportPeptide o2) {
-						return Integer.valueOf(o1.getMissedCleavages()).compareTo(o2.getMissedCleavages());
-					}
-				};
+				return (o1, o2) -> Integer.valueOf(o1.getMissedCleavages()).compareTo(o2.getMissedCleavages());
 			}
 
 			@Override
@@ -81,7 +71,7 @@ public class ReportPeptideComparatorFactory {
 		RANK_SORT {
 			@Override
 			public Comparator<ReportPeptide> getNewInstance() {
-				return new RankComparator<ReportPeptide>();
+				return new RankComparator<>();
 			}
 
 			@Override
@@ -100,12 +90,7 @@ public class ReportPeptideComparatorFactory {
 		NR_PSMS_SORT {
 			@Override
 			public Comparator<ReportPeptide> getNewInstance() {
-				return new Comparator<ReportPeptide>() {
-					@Override
-					public int compare(ReportPeptide o1, ReportPeptide o2) {
-						return o1.getNrPSMs().compareTo(o2.getNrPSMs());
-					}
-				};
+				return (o1, o2) -> o1.getNrPSMs().compareTo(o2.getNrPSMs());
 			}
 
 			@Override
@@ -124,12 +109,7 @@ public class ReportPeptideComparatorFactory {
 		NR_SPECTRA_SORT {
 			@Override
 			public Comparator<ReportPeptide> getNewInstance() {
-				return new Comparator<ReportPeptide>() {
-					@Override
-					public int compare(ReportPeptide o1, ReportPeptide o2) {
-						return Integer.valueOf(o1.getNrSpectra()).compareTo(o2.getNrSpectra());
-					}
-				};
+				return (o1, o2) -> o1.getNrSpectra().compareTo(o2.getNrSpectra());
 			}
 
 			@Override
@@ -154,7 +134,7 @@ public class ReportPeptideComparatorFactory {
 			
 			@Override
 			public Comparator<ReportPeptide> getNewInstance(final String scoreName) {
-				return new ScoreComparator<ReportPeptide>(scoreName);
+				return new ScoreComparator<>(scoreName);
 			}
 			
 			@Override
@@ -195,12 +175,7 @@ public class ReportPeptideComparatorFactory {
 	 * @return
 	 */
 	public static Comparator<ReportPeptide> descending(final Comparator<ReportPeptide> other) {
-		return new Comparator<ReportPeptide>() {
-			@Override
-			public int compare(ReportPeptide o1, ReportPeptide o2) {
-				return -1 * other.compare(o1, o2);
-			}
-		};
+		return (o1, o2) -> -1 * other.compare(o1, o2);
     }
 	
 	
@@ -211,19 +186,17 @@ public class ReportPeptideComparatorFactory {
 	 * @return
 	 */
 	public static Comparator<ReportPeptide> getComparator(final List<Comparator<ReportPeptide>> multipleOptions) {
-		return new Comparator<ReportPeptide>() {
-			public int compare(ReportPeptide o1, ReportPeptide o2) {
-				int result;
-				// check all options, the first not returning 0 (equal) gets returned
-				for (Comparator<ReportPeptide> option : multipleOptions) {
-					result = option.compare(o1, o2);
-					if (result != 0) {
-						return result;
-					}
-				}
-				return 0;
-			}
-		};
+		return (o1, o2) -> {
+            int result;
+            // check all options, the first not returning 0 (equal) gets returned
+            for (Comparator<ReportPeptide> option : multipleOptions) {
+                result = option.compare(o1, o2);
+                if (result != 0) {
+                    return result;
+                }
+            }
+            return 0;
+        };
 	}
 	
 	
@@ -264,7 +237,7 @@ public class ReportPeptideComparatorFactory {
 	 * @return
 	 */
 	public static Map<String, SortOrder> getInitialSortOrders() {
-		Map<String, SortOrder> orders = new HashMap<String, SortOrder>();
+		Map<String, SortOrder> orders = new HashMap<>();
 		
 		for (ReportPeptideComparatorFactory.CompareType comp : CompareType.values()) {
 			if (!comp.toString().startsWith(score_prefix)) {

@@ -339,7 +339,7 @@ public class FDRData {
 	 */
 	public <T extends FDRComputable> void calculateFDR(List<T> reportItems) {
 		calculateFDR(reportItems,
-				new ScoreComparator<T>(scoreShortName));
+				new ScoreComparator<>(scoreShortName));
 	}
 	
 	
@@ -354,9 +354,9 @@ public class FDRData {
 		Comparator<T> comp;
 		
 		if (higherScoreBetter == null) {
-			comp = new ScoreComparator<T>(scoreShortName);
+			comp = new ScoreComparator<>(scoreShortName);
 		} else {
-			comp = new ScoreComparator<T>(scoreShortName,
+			comp = new ScoreComparator<>(scoreShortName,
 					higherScoreBetter);
 		}
 		
@@ -403,7 +403,7 @@ public class FDRData {
 		
 		rankScore = Double.NaN;
 		lastGoodScoreItem = null;
-		rankItems = new ArrayList<T>();
+		rankItems = new ArrayList<>();
 		
 		for (T item : reportItems) {
 			if (!rankScore.equals(item.getScore(scoreShortName))) {
@@ -424,7 +424,7 @@ public class FDRData {
 				}
 				
 				rankScore = item.getScore(scoreShortName);
-				rankItems = new ArrayList<T>();
+				rankItems = new ArrayList<>();
 			}
 			
 			// check for decoy
@@ -455,8 +455,8 @@ public class FDRData {
 		}
 		
 		// iterate again to set FDR-good flags
-		nrFDRGoodTargets = new Integer(0);
-		nrFDRGoodDecoys = new Integer(0);
+		nrFDRGoodTargets = 0;
+		nrFDRGoodDecoys = 0;
 		for (T item : reportItems) {
 			Integer comp;
 			
@@ -475,7 +475,7 @@ public class FDRData {
 			
 		}
 		
-		nrItems = new Integer(reportItems.size());
+		nrItems = reportItems.size();
 		if (lastGoodScoreItem != null) {
 			scoreAtThreshold =
 					lastGoodScoreItem.getScore(scoreShortName);

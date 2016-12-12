@@ -25,7 +25,6 @@ public class OccurenceXML {
 	
 	/**
 	 * Sets the value of the accessionRefID attribute.
-	 * @param id
 	 */
 	public void setAccessionRefID(Long accessionRefID) {
 		this.accessionRefID = accessionRefID;
@@ -44,7 +43,6 @@ public class OccurenceXML {
 	
 	/**
 	 * Sets the value of the start attribute.
-	 * @param id
 	 */
 	public void setStart(int start) {
 		this.start = start;
@@ -63,7 +61,6 @@ public class OccurenceXML {
 	
 	/**
 	 * Sets the value of the end attribute.
-	 * @param id
 	 */
 	public void setEnd(int end) {
 		this.end = end;

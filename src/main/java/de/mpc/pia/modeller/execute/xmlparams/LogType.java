@@ -88,7 +88,7 @@ public class LogType {
      */
     public List<String> getExecutionWarnings() {
         if (executionWarnings == null) {
-            executionWarnings = new ArrayList<String>();
+            executionWarnings = new ArrayList<>();
         }
         return this.executionWarnings;
     }
@@ -117,7 +117,7 @@ public class LogType {
      */
     public List<String> getExecutionErrors() {
         if (executionErrors == null) {
-            executionErrors = new ArrayList<String>();
+            executionErrors = new ArrayList<>();
         }
         return this.executionErrors;
     }
@@ -146,7 +146,7 @@ public class LogType {
      */
     public List<String> getExecutionMessage() {
         if (executionMessage == null) {
-            executionMessage = new ArrayList<String>();
+            executionMessage = new ArrayList<>();
         }
         return this.executionMessage;
     }

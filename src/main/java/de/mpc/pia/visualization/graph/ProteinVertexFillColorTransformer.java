@@ -22,7 +22,7 @@ public class ProteinVertexFillColorTransformer
         implements Transformer<VertexObject, Paint> {
 
     /** the graph handler which holds also information about the inferred proteins */
-    private ProteinVisualizationGraphHandler graphHandler;
+    private final ProteinVisualizationGraphHandler graphHandler;
 
     // some color values
     protected static final Color FADED_COLOR = Color.WHITE;

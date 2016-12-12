@@ -62,7 +62,7 @@ public enum PrideSoftwareList {
      * @param prideName
      * @return
      */
-    public final static PrideSoftwareList getByPrideName(String prideName) {
+    public static PrideSoftwareList getByPrideName(String prideName) {
         for (PrideSoftwareList software : values()) {
             if (software.prideName.equals(prideName)) {
                 return software;

@@ -2,6 +2,7 @@ package de.mpc.pia.modeller.report.filter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.report.filter.impl.PSMTopIdentificationFilter;
@@ -40,7 +41,7 @@ public class FilterFactory {
             }
         }
 
-        return new ArrayList<FilterComparator>();
+        return new ArrayList<>();
     }
 
 
@@ -239,14 +240,10 @@ public class FilterFactory {
             return reportItems;
         }
 
-        List<T> filteredReportItems = new ArrayList<T>();
+        List<T> filteredReportItems = new ArrayList<>();
 
         if (reportItems != null) {
-            for (T item : reportItems) {
-                if (satisfiesFilterList(item, fileID, filters)) {
-                    filteredReportItems.add(item);
-                }
-            }
+            filteredReportItems.addAll(reportItems.stream().filter(item -> satisfiesFilterList(item, fileID, filters)).collect(Collectors.toList()));
         }
 
         return filteredReportItems;

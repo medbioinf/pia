@@ -140,7 +140,7 @@ public class ProteinScoringFactory {
 	 * @return
 	 */
 	public static Map<String, String> getAllScoringNames() {
-		Map<String, String> scoringMap = new HashMap<String, String>(ScoringType.values().length);
+		Map<String, String> scoringMap = new HashMap<>(ScoringType.values().length);
 		
 		for (ScoringType scoring : ScoringType.values()) {
 			scoringMap.put(scoring.getShortName(), scoring.getName());

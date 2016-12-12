@@ -287,7 +287,7 @@ public enum FilterComparator {
 	 * @return
 	 */
 	public static String getComparatorRegexes() {
-		StringBuffer comparatorRegex = new StringBuffer();
+		StringBuilder comparatorRegex = new StringBuilder();
 		// build the regex for the comparators
 		for (FilterComparator fc : FilterComparator.values()) {
 			if (comparatorRegex.length() > 0) {

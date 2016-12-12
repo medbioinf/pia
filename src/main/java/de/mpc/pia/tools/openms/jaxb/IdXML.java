@@ -62,7 +62,7 @@ public class IdXML {
      */
     public List<SearchParameters> getSearchParameters() {
         if (searchParameters == null) {
-            searchParameters = new ArrayList<SearchParameters>();
+            searchParameters = new ArrayList<>();
         }
         return this.searchParameters;
     }
@@ -91,7 +91,7 @@ public class IdXML {
      */
     public List<IdentificationRun> getIdentificationRun() {
         if (identificationRun == null) {
-            identificationRun = new ArrayList<IdentificationRun>();
+            identificationRun = new ArrayList<>();
         }
         return this.identificationRun;
     }

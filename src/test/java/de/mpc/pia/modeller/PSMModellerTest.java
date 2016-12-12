@@ -30,14 +30,14 @@ public class PSMModellerTest {
 
     @Test
     public void testGetAndSetPSMSetSettings() {
-        Map<String, Boolean> psmSetSettings = new HashMap<String, Boolean>();
+        Map<String, Boolean> psmSetSettings = new HashMap<>();
         psmSetSettings.put(IdentificationKeySettings.SEQUENCE.toString(), true);
         psmSetSettings.put(IdentificationKeySettings.SOURCE_ID.toString(), true);
         psmSetSettings.put(IdentificationKeySettings.MODIFICATIONS.toString(), true);
         psmSetSettings.put(IdentificationKeySettings.CHARGE.toString(), true);
         psmModeller.setPSMSetSettings(psmSetSettings);
 
-        psmSetSettings = new HashMap<String, Boolean>();
+        psmSetSettings = new HashMap<>();
         psmSetSettings.put(IdentificationKeySettings.FILE_ID.toString(), true);
         psmSetSettings.put(IdentificationKeySettings.SOURCE_ID.toString(), false);
 

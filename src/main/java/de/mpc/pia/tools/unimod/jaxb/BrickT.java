@@ -79,7 +79,7 @@ public class BrickT {
      */
     public List<ElemRefT> getElement() {
         if (element == null) {
-            element = new ArrayList<ElemRefT>();
+            element = new ArrayList<>();
         }
         return this.element;
     }

@@ -63,7 +63,7 @@ public class PeptideIdentification {
      */
     public List<PeptideHit> getPeptideHit() {
         if (peptideHit == null) {
-            peptideHit = new ArrayList<PeptideHit>();
+            peptideHit = new ArrayList<>();
         }
         return this.peptideHit;
     }
@@ -92,7 +92,7 @@ public class PeptideIdentification {
      */
     public List<UserParamIdXML> getUserParam() {
         if (userParam == null) {
-            userParam = new ArrayList<UserParamIdXML>();
+            userParam = new ArrayList<>();
         }
         return this.userParam;
     }

@@ -135,7 +135,7 @@ public class PIACachedCompiler extends PIACompiler {
 
     @Override
     public Accession insertNewAccession(String accessionStr, String dbSequence) {
-        Long accId = new Long(accessions.size() + 1);
+        Long accId = (long) (accessions.size() + 1);
         Accession acc = new Accession(accId, accessionStr, dbSequence);
 
         accessions.add(acc);
@@ -176,7 +176,7 @@ public class PIACachedCompiler extends PIACompiler {
 
     @Override
     public Peptide insertNewPeptide(String sequence) {
-        Long pepId = new Long(peptides.size() + 1);
+        Long pepId = (long) (peptides.size() + 1);
 
         Peptide peptide = new Peptide(pepId, sequence);
         peptides.add(peptide);
@@ -209,7 +209,7 @@ public class PIACachedCompiler extends PIACompiler {
             double massToCharge, double deltaMass, Double rt, String sequence,
             int missed, String sourceID, String spectrumTitle,
             PIAInputFile file, SpectrumIdentification spectrumID) {
-        Long id = new Long(spectraIDs.size() + 1);
+        Long id = (long) (spectraIDs.size() + 1);
 
         // the PSM is added later, as it might be changed
         return  new PeptideSpectrumMatch(id, charge,

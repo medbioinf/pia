@@ -78,7 +78,7 @@ public class CliElementType {
      */
     public List<MappingType> getMapping() {
         if (mapping == null) {
-            mapping = new ArrayList<MappingType>();
+            mapping = new ArrayList<>();
         }
         return this.mapping;
     }

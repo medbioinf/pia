@@ -75,7 +75,7 @@ public class ReportProteinTest {
         seInference.addFilter(
                 new PSMScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName()));
 
-        seInference.setScoring(new MultiplicativeScoring(new HashMap<String, String>()));
+        seInference.setScoring(new MultiplicativeScoring(new HashMap<>()));
         seInference.getScoring().setSetting(AbstractScoring.scoringSettingID, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
         seInference.getScoring().setSetting(AbstractScoring.scoringSpectraSettingID, PSMForScoring.ONLY_BEST.getShortName());
 
@@ -86,13 +86,13 @@ public class ReportProteinTest {
         piaModeller.getProteinModeller().calculateFDR();
 
 
-        List<AbstractFilter> filters = new ArrayList<AbstractFilter>();
+        List<AbstractFilter> filters = new ArrayList<>();
         filters.add(RegisteredFilters.NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER.newInstanceOf(
                         FilterComparator.greater_equal, 2, false));
 
 
         // get the expected values
-        Map<String, List<Object>> expectedValues = new HashMap<String, List<Object>>(426);
+        Map<String, List<Object>> expectedValues = new HashMap<>(426);
 
         BufferedReader br = new BufferedReader(new FileReader(expectedFile));
         String line;
@@ -103,7 +103,7 @@ public class ReportProteinTest {
             }
 
             String split[] = line.split("\",\"");
-            List<Object> entries = new ArrayList<Object>();
+            List<Object> entries = new ArrayList<>();
 
             entries.add(Double.parseDouble(split[1]));
             entries.add(Integer.parseInt(split[2]));
@@ -122,7 +122,7 @@ public class ReportProteinTest {
 
         // compare the values
         for (ReportProtein prot : proteins) {
-            StringBuffer accSb = new StringBuffer();
+            StringBuilder accSb = new StringBuilder();
             for (Accession acc : prot.getAccessions()) {
                 accSb.append(acc.getAccession());
                 accSb.append(",");

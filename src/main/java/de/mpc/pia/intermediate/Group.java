@@ -36,10 +36,10 @@ public class Group implements Serializable {
 		this.ID = id;
 		this.treeID = -1;
 		this.peptides = null;
-		this.children = new HashMap<Long, Group>();
-		this.parents = new HashMap<Long, Group>();
-		this.accessions = new HashMap<String, Accession>();
-		this.allAccessions = new HashMap<String, Accession>();
+		this.children = new HashMap<>();
+		this.parents = new HashMap<>();
+		this.accessions = new HashMap<>();
+		this.allAccessions = new HashMap<>();
 	}
 	
 	
@@ -51,18 +51,14 @@ public class Group implements Serializable {
 		}
 		
 		Group objGroup = (Group)obj;
-	    if ((objGroup.ID == this.ID) &&
-	    		(objGroup.treeID == this.treeID) &&
-	    		(((peptides != null) && peptides.equals(objGroup.peptides)) ||
-	    				((peptides == null) && (objGroup.peptides == null))) &&
-	    		objGroup.children.equals(children) &&
-	    		objGroup.parents.equals(parents) &&
-	    		objGroup.accessions.equals(accessions) &&
-	    		objGroup.allAccessions.equals(allAccessions)) {
-	    	return true;
-	    } else {
-	    	return false;
-	    }
+		return (objGroup.ID == this.ID) &&
+				(objGroup.treeID == this.treeID) &&
+				(((peptides != null) && peptides.equals(objGroup.peptides)) ||
+						((peptides == null) && (objGroup.peptides == null))) &&
+				objGroup.children.equals(children) &&
+				objGroup.parents.equals(parents) &&
+				objGroup.accessions.equals(accessions) &&
+				objGroup.allAccessions.equals(allAccessions);
 	}
 	
 	
@@ -138,12 +134,11 @@ public class Group implements Serializable {
 	
 	/**
 	 * Adds a single peptide to the group.
-	 * 
-	 * @param peptides
+	 *
 	 */
 	public void addPeptide(Peptide peptide) {
 		if (peptides == null) {
-			peptides = new HashMap<String, Peptide>();
+			peptides = new HashMap<>();
 		}
 		
 		peptides.put(peptide.getSequence(), peptide);
@@ -157,7 +152,7 @@ public class Group implements Serializable {
 	 */
 	public Map<String, Peptide> getPeptides() {
 		if (peptides == null) {
-			peptides = new HashMap<String, Peptide>();
+			peptides = new HashMap<>();
 		}
 		
 		return peptides;
@@ -169,7 +164,7 @@ public class Group implements Serializable {
 	 * @return
 	 */
 	public Map<String, Peptide> getAllPeptides() {
-		Map<String, Peptide> ret = new HashMap<String, Peptide>();
+		Map<String, Peptide> ret = new HashMap<>();
 		
 		if (peptides != null) {
 			for (Map.Entry<String, Peptide> pep : peptides.entrySet()) {
@@ -192,8 +187,7 @@ public class Group implements Serializable {
 	/**
 	 * Adds a child to the children map.
 	 * If the map is not yet initialized, initialize it.
-	 * 
-	 * @param peptides
+	 *
 	 */
 	public void addChild(Group child) {
 		children.put(child.getID(), child);
@@ -220,8 +214,8 @@ public class Group implements Serializable {
 	 * Getter for all children groups of this group, including children's
 	 * children and so on.
 	 */
-	public Map<Long, Group> getAllChildren(){
-		Map<Long, Group> allChildren = new HashMap<Long, Group>();
+	private Map<Long, Group> getAllChildren(){
+		Map<Long, Group> allChildren = new HashMap<>();
 		
 		for (Map.Entry<Long, Group> cIt : children.entrySet()) {
 			allChildren.put(cIt.getKey(), cIt.getValue());
@@ -241,7 +235,7 @@ public class Group implements Serializable {
 	 * peptide, recursive, i.e. get the reporting peptide groups.
 	 */
 	public Map<Long, Group> getAllPeptideChildren(){
-		Map<Long, Group> allChildren = new HashMap<Long, Group>();
+		Map<Long, Group> allChildren = new HashMap<>();
 		Map<Long, Group> childChildren;
 		
 		for (Map.Entry<Long, Group> cIt : children.entrySet()) {
@@ -290,8 +284,7 @@ public class Group implements Serializable {
 	/**
 	 * Adds a new accession to the map of accessions.
 	 * If the map is not yet initialized, initialize it.
-	 * 
-	 * @param peptides
+	 *
 	 */
 	public void addAccession(Accession accession) {
 		accessions.put(accession.getAccession(), accession);
@@ -315,7 +308,7 @@ public class Group implements Serializable {
 	 * 
 	 * @param accession
 	 */
-	protected void addToAllAccessions(Accession accession) {
+	private void addToAllAccessions(Accession accession) {
 		allAccessions.put(accession.getAccession(), accession);
 		
 		for (Map.Entry<Long, Group> child : children.entrySet()) {
@@ -340,7 +333,7 @@ public class Group implements Serializable {
 	 * @return
 	 */
 	public String getAccessionsStr() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		
 		if (accessions != null) {
 			for (Map.Entry<String, Accession> acc : accessions.entrySet()) {
@@ -378,8 +371,8 @@ public class Group implements Serializable {
 	 * 
 	 * @return
 	 */
-	public String getPeptidesStr() {
-		StringBuffer sb = new StringBuffer();
+	private String getPeptidesStr() {
+		StringBuilder sb = new StringBuilder();
 		
 		if (peptides != null) {
 			for (Map.Entry<String, Peptide> pep : peptides.entrySet()) {
@@ -408,14 +401,14 @@ public class Group implements Serializable {
 		this.ID += offset;
 		
 		// offset the children keys
-		tmpMap = new HashMap<Long, Group>(children.size());
+		tmpMap = new HashMap<>(children.size());
 		for (Map.Entry<Long, Group> childrenIt : children.entrySet()) {
 			tmpMap.put( childrenIt.getKey()+offset, childrenIt.getValue());
 		}
 		children = tmpMap;
 		
 		// offset the parents' keys
-		tmpMap = new HashMap<Long, Group>(parents.size());
+		tmpMap = new HashMap<>(parents.size());
 		for (Map.Entry<Long, Group> parentsIt : parents.entrySet()) {
 			tmpMap.put( parentsIt.getKey()+offset, parentsIt.getValue());
 		}

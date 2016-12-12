@@ -52,9 +52,9 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_SCORE_NAME);
             params.add(param);
 
@@ -83,7 +83,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
             LOGGER.info(LOGGING_PREAMBEL + name());
-            ArrayList<String> list = new ArrayList<String>(params.length);
+            ArrayList<String> list = new ArrayList<>(params.length);
             Collections.addAll(list, params);
             psmModeller.addPreferredFDRScores(list);
             return true;
@@ -128,9 +128,9 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_NUMBER_NAME);
             params.add(param);
 
@@ -176,9 +176,9 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_DECOY_PATTERN);
             params.add(param);
 
@@ -325,28 +325,28 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_FILE_ID);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_FILTERNAME);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_COMPARISON);
             for (FilterComparator comp : FilterComparator.values()) {
                 param.add(comp.getCliShort());
             }
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_VALUE);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_NEGATE);
             param.add("no");
             param.add("yes");
@@ -420,9 +420,9 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_CREATE_PSM_SETS);
             param.add("no");
             param.add("yes");
