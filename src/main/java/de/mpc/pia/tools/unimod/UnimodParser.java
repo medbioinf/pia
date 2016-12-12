@@ -101,7 +101,6 @@ public class UnimodParser {
 
     /**
      * Creates a {@link Modification} from the given UNIMOD modification.
-     * @param mod
      * @return
      */
     public Modification createModification(ModT uniMod, Integer position,
@@ -164,8 +163,6 @@ public class UnimodParser {
     /**
      * Looks for a modification given the accession (UNIMOD:X)
      *
-     * @param query
-     * @param residue
      * @return
      */
     public ModT getModificationByAccession(String accession) {
@@ -289,7 +286,6 @@ public class UnimodParser {
     /**
      * Looks for a modification given the mass shift and a residue.
      *
-     * @param query
      * @param residue
      * @return
      */
@@ -303,7 +299,6 @@ public class UnimodParser {
     /**
      * Looks for a modification given the mass shift on the allowed residues.
      *
-     * @param query
      * @param massdelta
      * @param residues
      * @return

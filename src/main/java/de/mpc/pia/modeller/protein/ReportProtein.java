@@ -27,10 +27,7 @@ import de.mpc.pia.modeller.score.comparator.Rankable;
 
 /**
  * This class holds the information of a protein, as it will be reported in the
- * {@link ProteinViewer}
- *
  * @author julian
- *
  */
 public class ReportProtein implements Rankable, Filterable, FDRComputable {
 
@@ -182,7 +179,6 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
      * Puts the given peptide with its stringID into the peptide map, if there
      * is no peptide with this key in the map yet.
      *
-     * @param acc
      */
     public void addPeptide(ReportPeptide pep) {
         if(!peptideMap.containsKey(pep.getStringID())) {

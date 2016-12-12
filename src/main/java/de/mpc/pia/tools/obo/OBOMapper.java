@@ -39,7 +39,6 @@ public class OBOMapper {
      * Constructor for the OBOMapper. Uses the online OBO file (if accessible)
      * or a locally shipped file.
      *
-     * @param pathToFile
      */
     public OBOMapper() {
         this(true);

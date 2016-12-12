@@ -133,7 +133,6 @@ public class PeptideModeller {
 
     /**
      * Returns the Score NAME, given the scoreShortName.
-     * @param fileID
      * @param shortName
      * @return
      */
@@ -623,7 +622,6 @@ public class PeptideModeller {
     /**
      * Processes the command line on the peptide level.
      *
-     * @param model
      * @param commands
      * @return
      */

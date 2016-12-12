@@ -368,13 +368,11 @@ public class InputFileParserFactory {
         if (fileType == null) {
             String fileSuffix = fileName.substring(fileName.lastIndexOf('.')+1);
 
-            if (fileSuffix != null) {
-                InputFileTypes type = getFileTypeBySuffix(fileSuffix);
-                if (type != null) {
-                    logger.info("'" + fileName + "' seems to be a " +
-                            type.getFileTypeName()+" file");
-                    return type.parseFile(name, fileName, compiler, additionalInfoFileName);
-                }
+            InputFileTypes type = getFileTypeBySuffix(fileSuffix);
+            if (type != null) {
+                logger.info("'" + fileName + "' seems to be a " +
+                        type.getFileTypeName()+" file");
+                return type.parseFile(name, fileName, compiler, additionalInfoFileName);
             }
 
             logger.error("File '" + fileName + "' could not be parsed, " +

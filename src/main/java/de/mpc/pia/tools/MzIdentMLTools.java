@@ -119,7 +119,7 @@ public class MzIdentMLTools {
             boolean equal = true;
 
             // required
-            equal &= x.getAccession().equals(y.getAccession());
+            equal = x.getAccession().equals(y.getAccession());
             equal &= x.getCvRef().equals(y.getCvRef());
             equal &= x.getName().equals(y.getName());
 
@@ -150,7 +150,7 @@ public class MzIdentMLTools {
             boolean equal = true;
 
             // required
-            equal &= x.getName().equals(y.getName());
+            equal = x.getName().equals(y.getName());
 
             // optional
             equal &= PIATools.bothNullOrEqual(x.getType(),

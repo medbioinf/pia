@@ -188,7 +188,6 @@ public class PiaPsmToSpectrum<P extends PSMItem> {
      * Finds a spectrumID for a spectrum in the controller, that fits into the
      * MZ range of the given PSM
      *
-     * @param precursorMz
      * @return
      */
     private Comparable findMatchingSpectrumId(PSMItem psm, Collection<Comparable> spectraIDs) {

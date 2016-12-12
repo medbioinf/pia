@@ -33,8 +33,6 @@ import de.mpc.pia.modeller.score.comparator.Rankable;
 
 /**
  * This class holds the information of a peptide, as it will be reported in the
- * {@link PeptideViewer}
- *
  * @author julian
  *
  */
@@ -291,7 +289,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
     /**
      * Removes the ReportPSMSet with the given key from the PSM List.
      *
-     * @param psmKey
      * @return the removed PSM, or null if none is removed
      */
     public ReportPSMSet removeReportPSMSet(ReportPSMSet remSet, Map<String, Boolean> psmSetSettings) {
@@ -513,7 +510,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * Getter for the modifications.<br/>
      * Returns the modifications of the first PSM.<br/>
      * WARNING: this makes no sense, if the considerModifications is false in
-     * the {@link PeptideViewer}.
      *
      * @return
      */
@@ -521,7 +517,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
         for (PSMReportItem psm : psmList) {
             return psm.getModifications();
         }
-
         return new HashMap<>(1);
     }
 
@@ -530,7 +525,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
     /**
      * Generates the idString for a peptide for the given PSM.<br/>
      * This takes the considerModifications into account and calls
-     * {@link ReportPeptide#getIdString(String, Map, boolean)}
+     *
      *
      * @param psm
      * @return

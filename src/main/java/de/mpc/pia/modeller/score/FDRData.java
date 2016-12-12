@@ -144,7 +144,6 @@ public class FDRData {
 	
 	/**
 	 * Set the decoyStrategy by the decoy String
-	 * @param strategyString
 	 */
 	public void setDecoyStrategy(DecoyStrategy strategy) {
 		if ((strategy == null) || (strategy != decoyStrategy)) {
@@ -191,8 +190,7 @@ public class FDRData {
 	/**
 	 * Setter for the fdrThreshold.
 	 * If the threshold changes, delete all the results.
-	 * 
-	 * @param pattern
+	 *
 	 */
 	public void setFDRThreshold(Double threshold) {
 		if (!this.fdrThreshold.equals(threshold)) {

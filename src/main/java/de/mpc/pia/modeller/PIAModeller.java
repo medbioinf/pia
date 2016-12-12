@@ -305,7 +305,6 @@ public class PIAModeller {
      * Parses in the intermediate structure from the given file.<br/>
      * The progress gets increased by 100.
      *
-     * @param progress the first entry in this array holds the progress
      * @param notifier progress is notified on this object
      *
      * @throws IOException
@@ -564,7 +563,7 @@ public class PIAModeller {
     /**
      * This method initialises a new pipeline XML file with only the NAME
      * given. This file then can be filled by pipeline modeling procedures and
-     * finally be executed by {@link #processPipelineFile(String)}.
+     * finally be executed by .
      *
      * @param fileName
      */

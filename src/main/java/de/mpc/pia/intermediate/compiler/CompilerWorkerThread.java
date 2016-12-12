@@ -412,7 +412,6 @@ class CompilerWorkerThread extends Thread {
                     }
                 }
             }
-
             // remove the accessions of the found group from the accessions set
             if ((mostId > 0) && (mostGroup != null)) {
                 mostGroup.getAllAccessions().keySet().forEach(accessions::remove);
@@ -424,10 +423,9 @@ class CompilerWorkerThread extends Thread {
 
         remainingSet.clear();
         // if there is still an accession in the map, which has an
-// assigned group, so there were accessions in the group, which
-// were not in the accessions map -> put it into the remainingSet
+        // assigned group, so there were accessions in the group, which
+        // were not in the accessions map -> put it into the remainingSet
         remainingSet.addAll(accessions.values().stream().filter(accession -> accession.getGroup() != null).map(accession -> accession.getGroup().getID()).collect(Collectors.toList()));
-
         return subTreeSet;
     }
 }

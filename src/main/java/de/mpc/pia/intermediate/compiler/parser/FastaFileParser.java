@@ -303,7 +303,6 @@ class FastaFileParser {
             //Todo: Julian you should review this loop because is strange it returns in the first loop.
             for (PeptideSpectrumMatch psm : peptide.getSpectra()) {
                 ScoreModel score = psm.getScore(ScoreModelEnum.FASTA_ACCESSION_COUNT.getShortName());
-
                 Double value = score.getValue();
                 score.setValue(value + 1);
                 break;

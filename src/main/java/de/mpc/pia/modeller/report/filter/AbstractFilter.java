@@ -37,8 +37,6 @@ public abstract class AbstractFilter {
 
     /**
      * Return the {@link RegisteredFilters} this filter is based on
-     *
-     * @return
      */
     public final RegisteredFilters getRegisteredFilter() {
         return filter;
@@ -47,7 +45,6 @@ public abstract class AbstractFilter {
 
     /**
      * returns the machine readable NAME of the filter
-     * @return
      */
     public final String getShortName() {
         return filter.getShortName();
@@ -56,7 +53,6 @@ public abstract class AbstractFilter {
 
     /**
      * returns the human readable long NAME of the filter
-     * @return
      */
     public final String getName() {
         return filter.getLongName();
@@ -65,7 +61,6 @@ public abstract class AbstractFilter {
 
     /**
      * returns the NAME, which should be displayed at a filter list
-     * @return
      */
     public final String getFilteringListName() {
         return filter.getFilteringListName();
@@ -74,14 +69,12 @@ public abstract class AbstractFilter {
 
     /**
      * returns the value, against which is filtered
-     * @return
      */
     public abstract Object getFilterValue();
 
 
     /**
      * returns the type of the filter, i.e. the kind of comparison
-     * @return
      */
     public final FilterType getFilterType() {
         return filter.getFilterType();
@@ -90,17 +83,12 @@ public abstract class AbstractFilter {
 
     /**
      * returns, whether this filter is negating or not
-     * @return
      */
     public final boolean getFilterNegate() {
         return negate;
     }
 
 
-    /**
-     * getter for the filter's comparator
-     * @return
-     */
     public final FilterComparator getFilterComparator() {
         return comparator;
     }
@@ -125,7 +113,6 @@ public abstract class AbstractFilter {
      * of this filter.
      *
      * @param obj
-     * @return
      */
     public boolean supportsClass(Object obj) {
         return filter.supportsClass(obj);
@@ -137,7 +124,6 @@ public abstract class AbstractFilter {
      * and thus returns, whether the object satisfies the filter.
      *
      * @param o
-     * @return
      */
     @SuppressWarnings("unchecked")
     public boolean satisfiesFilter(Object o, Long fileID) {
@@ -231,8 +217,7 @@ public abstract class AbstractFilter {
     /**
      * checks whether the given Boolean satisfies a boolean filter
      *
-     * @param o
-     * @return
+     * @param o Comparator Object
      */
     private boolean satisfiesBooleanFilter(Boolean o) {
         switch (getFilterComparator()) {
@@ -249,7 +234,6 @@ public abstract class AbstractFilter {
      * checks whether the given Number satisfies a numerical filter
      *
      * @param o
-     * @return
      */
     private boolean satisfiesNumericalFilter(Number o) {
         boolean retVal;

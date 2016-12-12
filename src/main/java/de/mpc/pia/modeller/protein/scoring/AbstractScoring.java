@@ -154,11 +154,11 @@ public abstract class AbstractScoring {
 	
 	
 	/**
-	 * Updates the available {@link ScoreModel}s for this scoring.<br/>
-	 * This should be called every time a new {@link ScoreModel} (like e.g. the
+	 * Updates the available {@link de.mpc.pia.modeller.score.ScoreModel}s for this scoring.<br/>
+	 * This should be called every time a new {@link de.mpc.pia.modeller.score.ScoreModel} (like e.g. the
 	 * combined FDR Score) is added / calculated.
 	 * 
-	 * @param scoreNameMap map of the {@link ScoreModel}s shortNames to its corresponding NAME
+	 * @param scoreNameMap map of the {@link de.mpc.pia.modeller.score.ScoreModel}s shortNames to its corresponding NAME
 	 */
 	public void updateAvailableScores(Map<String, String> scoreNameMap) {
 		scoreSetting.updateParams(scoreNameMap);
@@ -207,12 +207,9 @@ public abstract class AbstractScoring {
 		
 		String scoreName = getScoreSetting().getValue();
 		scoreNameMap.put(scoreName, ScoreModelEnum.getName(scoreName));
-		
-		AbstractScoring scoring = ProteinScoringFactory.getNewInstanceByName(
-				getShortName(), scoreNameMap);
-		
-		scoring.getPSMForScoringSetting().setValue(
-				getPSMForScoringSetting().getValue());
+		AbstractScoring scoring = ProteinScoringFactory.getNewInstanceByName(getShortName(), scoreNameMap);
+		if(scoring != null)
+		   scoring.getPSMForScoringSetting().setValue(getPSMForScoringSetting().getValue());
 		
 		return scoring;
 	}

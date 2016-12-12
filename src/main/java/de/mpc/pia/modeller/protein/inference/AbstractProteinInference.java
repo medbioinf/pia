@@ -79,8 +79,6 @@ public abstract class AbstractProteinInference {
      * @param considerModifications whether to consider modifications when
      * infering peptides
      * @param psmSetSettings settings to create PSM sets
-     * @param reportPeptideMap the infered peptides for the overview (may or may
-     * not be used by the protein inference)
      * @return
      */
     public abstract List<ReportProtein> calculateInference(
@@ -276,7 +274,6 @@ public abstract class AbstractProteinInference {
 
     /**
      * Getter for the allowed number of threads, smaller 1 means all available.
-     * @param threads
      */
     public int getAllowedThreads() {
         return allowedThreads;
@@ -509,7 +506,7 @@ public abstract class AbstractProteinInference {
     /**
      * Tests for the given group, if it has any direct {@link ReportPeptide}s,
      * in the given Map. This Map should by created by
-     * {@link AbstractProteinInference#createFilteredReportPeptides(Map, Map, boolean)}
+     *
      * prior to calling this function.
      *
      * @param group
@@ -526,7 +523,7 @@ public abstract class AbstractProteinInference {
     /**
      * Tests for the given group, if it has any {@link ReportPeptide}s, whether
      * direct or in the peptideChildren, in the given Map. This Map should be
-     * created by {@link AbstractProteinInference#createFilteredReportPeptides(Map, Map, boolean)}
+     * created by
      * prior to calling this function.
      *
      * @param group

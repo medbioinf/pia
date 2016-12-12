@@ -480,15 +480,9 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                         fileName = commandParams[0];
                     }
                 } else if ("spectral_count".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-
-                        spectralCount = "yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0]);
-                    } else {
-                        // only setting the flag is equivalent to true
-                        spectralCount = true;
-                    }
+                    spectralCount = !((commandParams != null) &&
+                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
+// only setting the flag is equivalent to true
                 }
             }
 

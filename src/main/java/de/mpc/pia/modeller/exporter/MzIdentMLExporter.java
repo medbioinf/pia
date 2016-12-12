@@ -215,9 +215,6 @@ public class MzIdentMLExporter {
      * selected as well, also this will be exported (and accordingly the PSMs of
      * all merged files).
      *
-     * @param exportFileID export the selected file
-     * @param exportFile
-     * @param exportProteinLevel export the protein level
      * @param filterExport whether the export should be filtered (on any level)
      * @return
      */
@@ -980,7 +977,6 @@ public class MzIdentMLExporter {
      * it was found.
      *
      * @param sir
-     * @param psmIdentificationKey
      * @return the SII with the given Id or null, if none is in the SIR
      */
     private static SpectrumIdentificationItem sirContainsSII(SpectrumIdentificationResult sir, String id) {
@@ -1014,14 +1010,16 @@ public class MzIdentMLExporter {
             psmList = ((ReportPSMSet) psm).getPSMs();
         }
 
-        for (ReportPSM repPSM : psmList) {
-            if ((repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra() != null) &&
-                    !repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra().isEmpty()) {
-                SpectraData specData = piaModeller.getSpectraData().get(
-                                repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra().get(0).getSpectraDataRef());
-                // TODO: make the choice of spectrumID and spectraData more sophisticated
-                if (specData != null) {
-                    return specData;
+        if(psmList != null){
+            for (ReportPSM repPSM : psmList) {
+                if ((repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra() != null) &&
+                        !repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra().isEmpty()) {
+                    SpectraData specData = piaModeller.getSpectraData().get(
+                            repPSM.getSpectrum().getSpectrumIdentification().getInputSpectra().get(0).getSpectraDataRef());
+                    // TODO: make the choice of spectrumID and spectraData more sophisticated
+                    if (specData != null) {
+                        return specData;
+                    }
                 }
             }
         }
@@ -1183,7 +1181,6 @@ public class MzIdentMLExporter {
     /**
      * Create or fill the analysis collection and protocol.
      *
-     * @param forProteinExport
      */
     private void createAnalysisCollectionAndAnalysisProtocolCollection(Boolean filterPSM) {
         // update and write the analysisCollection and the analysisProtocolCollection
@@ -1363,7 +1360,6 @@ public class MzIdentMLExporter {
      * Sets the regexp for the decoys in the SpectrumIdentificationProtocol, if
      * it is the same for all processed input files.
      *
-     * @param specIdProt
      */
     private void addDecoyRegexpToDatabase() {
         // get files to handle

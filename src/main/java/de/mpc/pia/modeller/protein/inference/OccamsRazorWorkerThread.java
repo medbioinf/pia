@@ -208,7 +208,7 @@ public class OccamsRazorWorkerThread extends Thread {
             intersectingProteinMap.put(proteinID, intersectingProteins);
 
             for (Long subProtID : proteins.keySet()) {
-                if (proteinID == subProtID) {
+                if (Objects.equals(proteinID, subProtID)) {
                     continue;
                 }
 

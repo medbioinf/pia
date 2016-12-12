@@ -92,7 +92,6 @@ public class ProteinModeller {
      * There will be no inference, but only initialization.
      *
      * @param groups
-     * @param considerModifications
      */
     public ProteinModeller(PSMModeller psmModeller,
             PeptideModeller peptideModeller, Map<Long, Group> groups) {
@@ -154,7 +153,6 @@ public class ProteinModeller {
 
     /**
      * Returns the Score NAME, given the scoreShortName.
-     * @param fileID
      * @param shortName
      * @return
      */
@@ -281,8 +279,6 @@ public class ProteinModeller {
      * Calculates the ranking. If the filter List is not null or empty, the
      * Report is filtered before ranking.
      *
-     * @param fileID
-     * @param rankableShortName
      * @param filters
      */
     public void calculateRanking(List<AbstractFilter> filters) {
@@ -364,7 +360,6 @@ public class ProteinModeller {
      * Returns, whether there are any PSMs in the PIA XML file, which are
      * flagged as decoys.
      *
-     * @param fileID
      * @return
      */
     public Boolean getInternalDecoysExist() {
@@ -381,7 +376,6 @@ public class ProteinModeller {
     /**
      * Updates the {@link FDRData} for the protein FDR
      *
-     * @param fileID
      * @return
      */
     public void updateFDRData(DecoyStrategy decoyStrategy,
@@ -422,7 +416,6 @@ public class ProteinModeller {
     /**
      * Calculate the protein FDR
      *
-     * @param fileID
      */
     public void calculateFDR() {
         // calculate the FDR values
@@ -432,7 +425,6 @@ public class ProteinModeller {
 
     /**
      * Returns the report filters.
-     * @param fileID
      * @return
      */
     public List<AbstractFilter> getReportFilters() {
@@ -454,7 +446,6 @@ public class ProteinModeller {
 
     /**
      * Removes the report filter at the given index.
-     * @param fileID
      * @param removingIndex
      * @return
      */
@@ -472,7 +463,6 @@ public class ProteinModeller {
     /**
      * Returns the list of inference filters. These are not the currently set
      * filters, but a list of filters which may be used for inference.
-     * @param fileID
      * @return
      */
     public List<AbstractFilter> getInferenceFilters() {
@@ -899,7 +889,6 @@ public class ProteinModeller {
     /**
      * Processes the command line on the protein level.
      *
-     * @param model
      * @param commands
      * @return
      */

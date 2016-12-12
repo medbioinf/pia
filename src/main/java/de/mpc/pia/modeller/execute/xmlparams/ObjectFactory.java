@@ -65,7 +65,7 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Tool }
+     * Create an instance of {@link CTDTool }
      * 
      */
     public CTDTool createTool() {

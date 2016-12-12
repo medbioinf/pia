@@ -179,8 +179,6 @@ public class MzTabExporter {
      * selected as well, also this will be exported (and accordingly the PSMs of
      * all merged files).
      *
-     * @param exportFileID export the selected file
-     * @param exportFile
      * @param proteinLevel export the protein level
      * @param peptideLevelStatistics export peptide level statistics in PSMs
      * @param filterExport whether the export should be filtered (on any level)
@@ -1317,12 +1315,8 @@ public class MzTabExporter {
     /**
      * Writes the protein section into an mzTab file
      *
-     * @param metadata
      * @param report
-     * @param specIDRefToMsRuns
      * @param reportPSMs
-     * @param writer
-     * @param unimodParser
      * @throws IOException
      */
     private void writeProteins(List<ReportProtein> report,
@@ -1714,7 +1708,6 @@ public class MzTabExporter {
      *
      * @param mztabPsm
      * @param sourceID
-     * @param specIdRefs
      */
     private void addSpecRefForPSM(PSM mztabPsm, String sourceID, String specIdRef) {
         if (sourceID == null) {
@@ -1734,9 +1727,7 @@ public class MzTabExporter {
      * Get the peptide occurrences for the given peptide and the accessions.
      * This method uses a map as cache and fills it accordingly.
      *
-     * @param sequence
      * @param accession
-     * @param pepOccurrences
      * @return
      */
     private String[] getPeptideOccurrences(Peptide peptide, String accession) {

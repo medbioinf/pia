@@ -14,9 +14,6 @@ public class FDRScore {
 	 * 
 	 * @param reportItems the list of items, for which the FDR should be
 	 * calculated
-	 * @param scoreShortName the SHORT_NAME of the Score used for FDR calculation
-	 * @param artificialDecoyFDR the FDR value of an artificial decoy at the
-	 * end of the list
 	 */
 	public static <T extends FDRScoreComputable> void calculateFDRScore(
 			List<T> reportItems, FDRData fdrData, boolean higherScoreBetter) {

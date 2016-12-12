@@ -18,7 +18,7 @@ import de.mpc.pia.modeller.score.comparator.RankComparator;
 public class ReportProteinComparatorFactory {
 
     /**
-     * the types of sorting available for a {@link ReportPeptide}
+     * the types of sorting available for a {@link de.mpc.pia.modeller.peptide.ReportPeptide}
      *
      * @author julian
      *

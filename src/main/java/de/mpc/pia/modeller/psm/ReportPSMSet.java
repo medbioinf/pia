@@ -79,7 +79,6 @@ public class ReportPSMSet implements PSMReportItem {
 
     /**
      * Basic constructor
-     * @param psms
      */
     public ReportPSMSet(Map<String, Boolean> psmSetSettings) {
         this.psmSetSettings = new HashMap<>();
@@ -560,7 +559,6 @@ public class ReportPSMSet implements PSMReportItem {
      * Returns, whether the score given by the score NAME is a PSM set score
      * and can be directly processed by this class, or another score and may be
      * passed down to the PSMs.
-     * @param scoreShort
      * @return
      */
     public static boolean isPSMSetScore(String scoreShortName) {

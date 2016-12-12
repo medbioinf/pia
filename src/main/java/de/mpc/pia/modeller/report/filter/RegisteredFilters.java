@@ -729,7 +729,7 @@ public enum RegisteredFilters {
                         isUnique = ((ReportPSM) psmReportItem).getSpectrum().getIsUnique();
                     }
 
-                    if ((isUnique == null) || (isUnique == false)) {
+                    if ((isUnique == null) || (!isUnique)) {
                         return false;
                     }
                 }

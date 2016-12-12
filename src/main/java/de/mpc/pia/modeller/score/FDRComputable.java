@@ -15,7 +15,6 @@ public interface FDRComputable extends ScoreComparable {
 	/**
 	 * Returns the score value of the model with the given NAME.
 	 * 
-	 * @param scoreName
 	 * @return
 	 */
 	Double getScore(String scoreShortName);

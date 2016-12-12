@@ -79,7 +79,6 @@ public class FilterFactory {
      * this filter type and the input of a valid type.
      *
      * @param filterShort
-     * @param comparatorName
      * @param input
      * @param negate
      * @param messageBuffer
@@ -269,7 +268,6 @@ public class FilterFactory {
      * Checks whether all the inference filters in the given List are satisfied
      * for the filterable object.
      *
-     * @param o
      * @return
      */
     public static <T extends Filterable> boolean satisfiesFilterList(T item,

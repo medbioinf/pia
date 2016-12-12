@@ -265,31 +265,16 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                         fileName = commandParams[0];
                     }
                 } else if ("oneAccessionPerLine".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        oneAccessionPerLine = "yes".equals(commandParams[0])
-                                || "true".equals(commandParams[0]);
-                    } else {
-                        // only setting the flag is equivalent to true
-                        oneAccessionPerLine = true;
-                    }
+                    oneAccessionPerLine = !((commandParams != null) &&
+                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
+// only setting the flag is equivalent to true
                 } else if ("exportPSMSets".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        exportPSMSets = "yes".equals(commandParams[0])
-                                || "true".equals(commandParams[0]);
-                    } else {
-                        // only setting the flag is equivalent to true
-                        exportPSMSets = true;
-                    }
+                    exportPSMSets = !((commandParams != null) &&
+                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
+// only setting the flag is equivalent to true
                 } else if ("exportPSMs".equals(command)) {
-                    if ((commandParams != null) && (commandParams.length > 0)) {
-                        exportPSMs = "yes".equals(commandParams[0])
-                                || "true".equals(commandParams[0]);
-                    } else {
-                        // only setting the flag is equivalent to true
-                        exportPSMs = true;
-                    }
+                    exportPSMs = !((commandParams != null) && (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
+                    // only setting the flag is equivalent to true
                 }
             }
 

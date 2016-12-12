@@ -145,8 +145,6 @@ public class PSMModeller {
      *
      * @param groups groups of the PIA intermediate file
      * @param inputFiles the used {@link PIAInputFile}s
-     * @param fileScoreNames a map, which will be filled with the scoreNames for each file
-     * @param fileScoreShortNames a map, which will be filled with the scoreShortNames for each file
      */
     public PSMModeller(Map<Long, Group> groups,
             Map<Long, PIAInputFile> inputFiles,
@@ -773,7 +771,6 @@ public class PSMModeller {
 
     /**
      * Returns the Score NAME, given the scoreShortName.
-     * @param fileID
      * @param shortName
      * @return
      */
@@ -786,7 +783,6 @@ public class PSMModeller {
      * Returns, whether the "higherscorebetter" can be changed by the user for
      * this score.
      *
-     * @param shortName
      * @return
      */
     public Boolean getHigherScoreBetterChangeable(String scoreShort) {
@@ -928,7 +924,6 @@ public class PSMModeller {
      * Sets the number of top identifications used for the FDR calculation for
      * all files.
      *
-     * @param fileID
      * @return
      */
     public void setAllTopIdentifications(Integer topIDs) {
@@ -2237,7 +2232,6 @@ public class PSMModeller {
 
     /**
      * Processes the command line on the PSM level
-     * @param model
      * @param commands
      * @return
      */

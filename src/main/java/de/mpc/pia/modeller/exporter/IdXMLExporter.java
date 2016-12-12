@@ -264,15 +264,14 @@ public class IdXMLExporter {
             for (ReportProtein protein : piaModeller.getProteinModeller().getFilteredReportProteins(filters)) {
                 Double qvalue = null;
 
-                List<String> phIDs = writeAccessionsToXML(streamWriter,
-                        protein.getAccessions(), protein.getScore(), qvalue, fileID, accessionToPH);
+                List<String> phIDs = writeAccessionsToXML(streamWriter, protein.getAccessions(), protein.getScore(), qvalue, fileID, accessionToPH);
 
                 Object[] indisObject = new Object[protein.getAccessions().size() + 1];
 
                 indisObject[0] = protein.getScore();
-                for (int idx = 0; idx < phIDs.size(); idx++) {
+
+                for (int idx = 0; idx < phIDs.size(); idx++)
                     indisObject[idx + 1] = phIDs.get(idx);
-                }
 
                 indistinguishableList.add(indisObject);
             }
