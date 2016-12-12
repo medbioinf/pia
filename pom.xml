@@ -24,6 +24,16 @@
 			</roles>
 			<timezone>1</timezone>
 		</developer>
+		<developer>
+			<id>ypriverol</id>
+			<name>Yasset PErez-Riverol</name>
+			<organization>EMBL-EBI</organization>
+			<organizationUrl>http://www.ebi.ac.uk</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>1</timezone>
+		</developer>
 	</developers>
 
 	<properties>
@@ -38,8 +48,8 @@
 		<jmztab.version>3.0.4</jmztab.version>
 		<pride-mod.version>2.1.2</pride-mod.version>
 		<pride-jaxb.version>1.0.14</pride-jaxb.version>
-		<mascotdatfile.version>3.4.32</mascotdatfile.version>
-		<xtandem-parser.version>1.11.0</xtandem-parser.version>
+		<mascotdatfile.version>3.5.0</mascotdatfile.version>
+		<xtandem-parser.version>1.12.0</xtandem-parser.version>
 		<biojava-ontology.version>4.0.0</biojava-ontology.version>
 		<BaseLib.version>0.0.1-SNAPSHOT</BaseLib.version>
 		<CvtBaseLib.version>0.0.1-SNAPSHOT</CvtBaseLib.version>
@@ -51,6 +61,8 @@
 		<jung-visualization.version>2.0.1</jung-visualization.version>
 		<inspector-mzgraph-browser.version>2.0.1</inspector-mzgraph-browser.version>
 		<ehcache.version>3.1.1</ehcache.version>
+        <argLine></argLine>
+
 	</properties>
 
 	<dependencies>
@@ -297,19 +309,13 @@
 	</build>
 
 	<repositories>
-		<!-- EBI repo -->
 		<repository>
-			<id>nexus-ebi-repo</id>
-			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release/</url>
+			<id>nexus-ebi-release-repo</id>
+			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
 		</repository>
-		
 		<repository>
-			<id>nexus-ebi-repo-old</id>
-			<name>The EBI internal repository</name>
-			<url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
+			<id>nexus-ebi-snapshot-repo</id>
+			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
 		</repository>
 
 		<!-- UGent Genesis Maven 2 repository -->
