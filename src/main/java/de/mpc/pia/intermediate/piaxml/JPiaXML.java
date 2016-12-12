@@ -33,13 +33,13 @@ import uk.ac.ebi.jmzidml.model.mzidml.Inputs;
         "peptidesList",
         "groupsList"
 })
-public class JPiaXML {
+class JPiaXML {
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(JPiaXML.class);
 
 
-    /** name of the compilation/project */
+    /** NAME of the compilation/project */
     private String name;
 
     /** the creation date of the compilation/project */
@@ -79,8 +79,7 @@ public class JPiaXML {
 
 
     /**
-     * Sets the value of the name property.
-     * @param fileName
+     * Sets the value of the NAME property.
      */
     public void setName(String name) {
         this.name = name;
@@ -108,7 +107,6 @@ public class JPiaXML {
 
     /**
      * Sets the value of the date property, given a {@link Date} object.
-     * @param value
      */
     public void setDate(Date d) {
         GregorianCalendar gc = new GregorianCalendar();

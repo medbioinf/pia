@@ -44,7 +44,7 @@ import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModeller> {
 
     AddFilter {
-        /** the identification string for the filter name */
+        /** the identification string for the filter NAME */
         private static final String ID_FILTERNAME= "filtername";
 
         /** the identification string for the equation */
@@ -103,7 +103,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
         @Override
         public String describe() {
             return "Adds a protein level filter to a specified file. A " +
-                    "filter is added by its name, an abbreviation for the " +
+                    "filter is added by its NAME, an abbreviation for the " +
                     "comparison, the compared value and (optional), whether " +
                     "the comparison should be negated " +
                     "e.g. \"" + name() + "=charge_filter,EQ,2,no\". \n" +
@@ -113,24 +113,24 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_FILTERNAME);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_COMPARISON);
             for (FilterComparator comp : FilterComparator.values()) {
                 param.add(comp.getCliShort());
             }
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_VALUE);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_NEGATE);
             param.add("no");
             param.add("yes");
@@ -167,7 +167,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
 
     AddInferenceFilter {
-        /** the identification string for the filter name */
+        /** the identification string for the filter NAME */
         private static final String ID_FILTERNAME = "filtername";
 
         /** the identification string for the equation */
@@ -226,7 +226,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
         @Override
         public String describe() {
             return "Adds a filter used by the protein inference. A filter is"
-                    + " added by its name, an abbreviation for the comparison,"
+                    + " added by its NAME, an abbreviation for the comparison,"
                     + " the compared value and (optional), whether the"
                     + " comparison should be negated e.g."
                     + " \"" + name() + "=charge_filter,EQ,2,no\"";
@@ -234,24 +234,24 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_FILTERNAME);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_COMPARISON);
             for (FilterComparator comp : FilterComparator.values()) {
                 param.add(comp.getCliShort());
             }
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_VALUE);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_NEGATE);
             param.add("no");
             param.add("yes");
@@ -312,14 +312,12 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
                 if (inference != null) {
                     // add any filters
-                    for (AbstractFilter filter : proteinModeller.getInferenceFilters()) {
-                        inference.addFilter(filter);
-                    }
+                    proteinModeller.getInferenceFilters().forEach(inference::addFilter);
 
                     // set the scoring
                     AbstractScoring scoring;
                     scoring = ProteinScoringFactory.getNewInstanceByName(
-                            scoringName, new HashMap<String, String>());
+                            scoringName, new HashMap<>());
                     // set the scoring settings
                     if ((params.length > 2) && (params[2] != null)) {
                         for (String param : params[2].split(";")) {
@@ -334,7 +332,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
                     proteinModeller.infereProteins(inference);
                 } else {
-                    LOGGER.error("Could not create inference method with name: " + inferenceName);
+                    LOGGER.error("Could not create inference method with NAME: " + inferenceName);
                     return false;
                 }
             }
@@ -355,27 +353,27 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_INFERENCE_METHOD);
             param.add(ProteinInferenceFactory.ProteinInferenceMethod.REPORT_SPECTRUM_EXTRACTOR.getShortName());
             param.add(ProteinInferenceFactory.ProteinInferenceMethod.REPORT_ALL.getShortName());
             param.add(ProteinInferenceFactory.ProteinInferenceMethod.REPORT_OCCAMS_RAZOR.getShortName());
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_SCORING_METHOD);
             for (ScoringType type : ProteinScoringFactory.ScoringType.values()) {
                 param.add(type.getShortName());
             }
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_USED_SCORE);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_USED_SPECTRA);
             for (PSMForScoring psmScoring : PSMForScoring.values()) {
                 param.add(psmScoring.getShortName());
@@ -447,56 +445,20 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                         fileName = commandParams[0];
                     }
                 } else if ("oneAccessionPerLine".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            oneAccessionPerLine = true;
-                        } else {
-                            oneAccessionPerLine = false;
-                        }
-                    } else {
-                        // only setting the flag is equivalent to true
-                        oneAccessionPerLine = true;
-                    }
+                    oneAccessionPerLine = !((commandParams != null) &&
+                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
+// only setting the flag is equivalent to true
                 } else if ("exportPeptides".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            exportPeptides = true;
-                        } else {
-                            exportPeptides = false;
-                        }
-                    } else {
-                        // only setting the flag is equivalent to true
-                        exportPeptides = true;
-                    }
+                    exportPeptides = !((commandParams != null) &&
+                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
+// only setting the flag is equivalent to true
                 } else if ("exportPSMSets".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            exportPSMSets = true;
-                        } else {
-                            exportPSMSets = false;
-                        }
-                    } else {
-                        // only setting the flag is equivalent to true
-                        exportPSMSets = true;
-                    }
+                    exportPSMSets = !((commandParams != null) &&
+                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
+// only setting the flag is equivalent to true
                 } else if ("exportPSMs".equals(command)) {
-                    if ((commandParams != null) && (commandParams.length > 0)) {
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            exportPSMs = true;
-                        } else {
-                            exportPSMs = false;
-                        }
-                    } else {
-                        // only setting the flag is equivalent to true
-                        exportPSMs = true;
-                    }
+                    exportPSMs = !((commandParams != null) && (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
+// only setting the flag is equivalent to true
                 }
             }
 
@@ -546,7 +508,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                     "valid parameters are:" +
                     "\nformat: csv [default], mzIdentML" +
                     "\nfileID: default 0 (overview)" +
-                    "\nfileName: the report file name [report.peptide.csv]" +
+                    "\nfileName: the report file NAME [report.peptide.csv]" +
                     "\noneAccessionPerLine: write one accession per line " +
                     "(useful for spectral counting), defaults to false" +
                     "\nexportPeptides: defaults to false" +
@@ -620,15 +582,15 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_DECOY_STRATEGY);
             param.add(FDRData.DecoyStrategy.ACCESSIONPATTERN.toString());
             param.add(FDRData.DecoyStrategy.INHERIT.toString());
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_DECOY_PATTERN);
             params.add(param);
 

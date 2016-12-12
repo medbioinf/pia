@@ -101,7 +101,6 @@ public class UnimodParser {
 
     /**
      * Creates a {@link Modification} from the given UNIMOD modification.
-     * @param mod
      * @return
      */
     public Modification createModification(ModT uniMod, Integer position,
@@ -126,7 +125,7 @@ public class UnimodParser {
 
     public Modification createModification(ModT uniMod, Integer position,
             String residue) {
-        List<String> residueList = new ArrayList<String>(1);
+        List<String> residueList = new ArrayList<>(1);
         residueList.add(residue);
         return createModification(uniMod, position, residueList);
     }
@@ -134,7 +133,7 @@ public class UnimodParser {
 
     public ModT getModification(String accession, String name, Double massdelta,
             String residue) {
-        List<String> residueList = new ArrayList<String>(1);
+        List<String> residueList = new ArrayList<>(1);
         residueList.add(residue);
         return getModification(accession, name, massdelta, residueList);
     }
@@ -164,8 +163,6 @@ public class UnimodParser {
     /**
      * Looks for a modification given the accession (UNIMOD:X)
      *
-     * @param query
-     * @param residue
      * @return
      */
     public ModT getModificationByAccession(String accession) {
@@ -189,7 +186,7 @@ public class UnimodParser {
 
 
     /**
-     * Looks for a modification given the name and (some) residues.
+     * Looks for a modification given the NAME and (some) residues.
      *
      * @param query
      * @param residues
@@ -210,21 +207,21 @@ public class UnimodParser {
 
 
     /**
-     * Looks for a modification given the name and a residue.
+     * Looks for a modification given the NAME and a residue.
      *
      * @param query
      * @param residue
      * @return
      */
     public ModT getModificationByName(String query, String residue) {
-        List<String> residueList = new ArrayList<String>(1);
+        List<String> residueList = new ArrayList<>(1);
         residueList.add(residue);
         return getModificationByName(query, residueList);
     }
 
 
     /**
-     * Looks for a modification with the given name and mass shift on the
+     * Looks for a modification with the given NAME and mass shift on the
      * allowed residues.
      *
      * @param query
@@ -250,7 +247,7 @@ public class UnimodParser {
 
 
     /**
-     * Checks whether the query is either title, full name or alternative name
+     * Checks whether the query is either title, full NAME or alternative NAME
      * of the mod.
      *
      * @param query
@@ -260,19 +257,14 @@ public class UnimodParser {
     public static boolean isAnyName(String query, ModT mod) {
         boolean nameFound;
 
-        if (mod.getTitle().equalsIgnoreCase(query) ||
-                mod.getFullName().equalsIgnoreCase(query)) {
-            nameFound = true;
-        } else {
-            nameFound = isAlternativeName(query, mod);
-        }
+        nameFound = mod.getTitle().equalsIgnoreCase(query) || mod.getFullName().equalsIgnoreCase(query) || isAlternativeName(query, mod);
 
         return nameFound;
     }
 
 
     /**
-     * Checks whether the query is an alternative name of the modification.
+     * Checks whether the query is an alternative NAME of the modification.
      * @param query
      * @param mod
      * @return
@@ -294,12 +286,11 @@ public class UnimodParser {
     /**
      * Looks for a modification given the mass shift and a residue.
      *
-     * @param query
      * @param residue
      * @return
      */
     public ModT getModificationByMass(Double massdelta, String residue) {
-        List<String> residueList = new ArrayList<String>(1);
+        List<String> residueList = new ArrayList<>(1);
         residueList.add(residue);
         return getModificationByMass(massdelta, residueList);
     }
@@ -308,7 +299,6 @@ public class UnimodParser {
     /**
      * Looks for a modification given the mass shift on the allowed residues.
      *
-     * @param query
      * @param massdelta
      * @param residues
      * @return
@@ -335,7 +325,7 @@ public class UnimodParser {
      */
     private static boolean checkResidues(ModT modification, List<String> residues) {
         Set<String> specificities =
-                new HashSet<String>(modification.getSpecificity().size());
+                new HashSet<>(modification.getSpecificity().size());
         for (SpecificityT spec : modification.getSpecificity()) {
             specificities.add(spec.getSite());
 

@@ -71,13 +71,13 @@ public class ProteinInferenceFactory {
         ;
 
         /**
-         * Get the name of the filter.
+         * Get the NAME of the filter.
          * @return
          */
         public abstract String getName();
 
         /**
-         * Get the unique machine readable short name of the filter.
+         * Get the unique machine readable short NAME of the filter.
          * @return
          */
         public abstract String getShortName();
@@ -99,8 +99,8 @@ public class ProteinInferenceFactory {
 
 
     /**
-     * Returns a new instance of the inference filter given by the shortName or
-     * null, if no filter with this shortName exists.
+     * Returns a new instance of the inference filter given by the SHORT_NAME or
+     * null, if no filter with this SHORT_NAME exists.
      *
      * @param shortName
      * @return
@@ -117,13 +117,13 @@ public class ProteinInferenceFactory {
 
 
     /**
-     * Returns a map from each inference filter's shortName to the human
-     * readable name of the filter.
+     * Returns a map from each inference filter's SHORT_NAME to the human
+     * readable NAME of the filter.
      *
      * @return
      */
     public static Map<String, String> getAllProteinInferenceNames() {
-        Map<String, String> inferenceMap = new HashMap<String, String>(ProteinInferenceMethod.values().length);
+        Map<String, String> inferenceMap = new HashMap<>(ProteinInferenceMethod.values().length);
 
         for (ProteinInferenceMethod filter : ProteinInferenceMethod.values()) {
             inferenceMap.put(filter.getShortName(), filter.getName());
@@ -134,8 +134,8 @@ public class ProteinInferenceFactory {
 
 
     /**
-     * Returns the inference filter with the given shortName.<br/>
-     * If no inference filter with this name is found, returns <code>null</code>.
+     * Returns the inference filter with the given SHORT_NAME.<br/>
+     * If no inference filter with this NAME is found, returns <code>null</code>.
      *
      * @param shortName
      * @return

@@ -55,7 +55,7 @@ public class ProteinIdentification {
      */
     public List<ProteinHit> getProteinHit() {
         if (proteinHit == null) {
-            proteinHit = new ArrayList<ProteinHit>();
+            proteinHit = new ArrayList<>();
         }
         return this.proteinHit;
     }
@@ -84,7 +84,7 @@ public class ProteinIdentification {
      */
     public List<UserParamIdXML> getUserParam() {
         if (userParam == null) {
-            userParam = new ArrayList<UserParamIdXML>();
+            userParam = new ArrayList<>();
         }
         return this.userParam;
     }

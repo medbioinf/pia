@@ -1,15 +1,9 @@
 package de.mpc.pia.modeller.protein.inference;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
-import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Group;
 import de.mpc.pia.modeller.peptide.ReportPeptide;
 import de.mpc.pia.modeller.protein.ReportProtein;
@@ -25,7 +19,7 @@ public class OccamsRazorWorkerThread extends Thread {
     private int ID;
 
     /** the caller of this thread */
-    private OccamsRazorInference parent;
+    private final OccamsRazorInference parent;
 
     /** the applied inference filters */
     private List<AbstractFilter> filters;
@@ -88,15 +82,15 @@ public class OccamsRazorWorkerThread extends Thread {
 
         // the map of actually reported proteins
         Map<Long, ReportProtein> proteins =
-                new HashMap<Long, ReportProtein>(reportPeptidesMap.size());
+                new HashMap<>(reportPeptidesMap.size());
 
         // maps from the protein/group IDs to the peptide keys
         Map<Long, Set<String>> peptideKeysMap =
-                new HashMap<Long, Set<String>>();
+                new HashMap<>();
 
         // maps from the groups ID to the IDs, which have the same peptides
         Map<Long, Set<Long>> sameSetMap =
-                new HashMap<Long, Set<Long>>(reportPeptidesMap.size());
+                new HashMap<>(reportPeptidesMap.size());
 
         // create for each group, which has at least one peptide and accession, a ReportProtein
         for (Map.Entry<Long, Group> groupIt : groupMap.entrySet()) {
@@ -110,36 +104,29 @@ public class OccamsRazorWorkerThread extends Thread {
             ReportProtein protein = new ReportProtein(groupIt.getKey());
 
             // add the accessions
-            for (Accession acc : groupIt.getValue().getAccessions().values()) {
-                protein.addAccession(acc);
-            }
+            groupIt.getValue().getAccessions().values().forEach(protein::addAccession);
 
             // add the peptides
-            Set<Long> pepGroupIDs = new HashSet<Long>();
-            Set<String> peptideKeys = new HashSet<String>();
+            Set<Long> pepGroupIDs = new HashSet<>();
+            Set<String> peptideKeys = new HashSet<>();
             pepGroupIDs.add(groupIt.getKey());
             pepGroupIDs.addAll(groupIt.getValue().getAllPeptideChildren().keySet());
-            for (Long pepGroupID : pepGroupIDs) {
-                if (reportPeptidesMap.containsKey(pepGroupID)) {
-                    for (ReportPeptide peptide : reportPeptidesMap.get(pepGroupID)) {
-                        if (!peptideKeys.add(peptide.getStringID())) {
-                            LOGGER.warn("Peptide already in list of peptides '" + peptide.getStringID() + "'");
-                        } else {
-                            protein.addPeptide(peptide);
-                        }
+            pepGroupIDs.stream().filter(reportPeptidesMap::containsKey).forEach(pepGroupID -> {
+                for (ReportPeptide peptide : reportPeptidesMap.get(pepGroupID)) {
+                    if (!peptideKeys.add(peptide.getStringID())) {
+                        LOGGER.warn("Peptide already in list of peptides '" + peptide.getStringID() + "'");
+                    } else {
+                        protein.addPeptide(peptide);
                     }
                 }
-            }
+            });
 
             // get the proteins with same peptides and subgroups
-            Set<Long> sameSet = new HashSet<Long>();
-            for (Map.Entry<Long, Set<String>> peptideKeyIt
-                    : peptideKeysMap.entrySet()) {
-                if (peptideKeyIt.getValue().equals(peptideKeys)) {
-                    sameSet.add(peptideKeyIt.getKey());
-                    sameSetMap.get(peptideKeyIt.getKey()).add(groupIt.getKey());
-                }
-            }
+            Set<Long> sameSet = new HashSet<>();
+            peptideKeysMap.entrySet().stream().filter(peptideKeyIt -> peptideKeyIt.getValue().equals(peptideKeys)).forEach(peptideKeyIt -> {
+                sameSet.add(peptideKeyIt.getKey());
+                sameSetMap.get(peptideKeyIt.getKey()).add(groupIt.getKey());
+            });
             sameSetMap.put(groupIt.getKey(), sameSet);
 
             peptideKeysMap.put(groupIt.getKey(), peptideKeys);
@@ -158,31 +145,29 @@ public class OccamsRazorWorkerThread extends Thread {
             ReportProtein protein = proteins.get(protID);
             if (protein != null) {
                 // the protein is not yet deleted due to samesets
-                for (Long sameID : sameSetIt.getValue()) {
-                    if (sameID != protID) {
-                        ReportProtein sameProtein = proteins.get(sameID);
-                        if (sameProtein != null) {
-                            // add the accessions of sameProtein to protein
-                            for (Accession acc : sameProtein.getAccessions()) {
-                                protein.addAccession(acc);
-                            }
+                // add the accessions of sameProtein to protein
+// and remove the same-protein
+// this makes sure, the protein does not get removed, when it is iterated over sameProtein
+                sameSetIt.getValue().stream().filter(sameID -> !Objects.equals(sameID, protID)).forEach(sameID -> {
+                    ReportProtein sameProtein = proteins.get(sameID);
+                    if (sameProtein != null) {
+                        // add the accessions of sameProtein to protein
+                        sameProtein.getAccessions().forEach(protein::addAccession);
 
-                            // and remove the same-protein
-                            proteins.remove(sameID);
-                            peptideKeysMap.remove(sameID);
+                        // and remove the same-protein
+                        proteins.remove(sameID);
+                        peptideKeysMap.remove(sameID);
 
-                            // this makes sure, the protein does not get removed, when it is iterated over sameProtein
-                            sameSetMap.get(sameID).remove(protID);
-                        }
+                        // this makes sure, the protein does not get removed, when it is iterated over sameProtein
+                        sameSetMap.get(sameID).remove(protID);
                     }
-                }
+                });
             }
         }
         // the sameSetMap is no longer needed
-        sameSetMap = null;
 
         // check the proteins whether they satisfy the filters
-        Set<Long> removeProteins = new HashSet<Long>(proteins.size());
+        Set<Long> removeProteins = new HashSet<>(proteins.size());
         for (ReportProtein protein : proteins.values()) {
             // score the proteins before filtering
             Double protScore =
@@ -199,35 +184,35 @@ public class OccamsRazorWorkerThread extends Thread {
         }
 
         // this will be the list of reported proteins
-        List<ReportProtein> reportProteins = new ArrayList<ReportProtein>();
+        List<ReportProtein> reportProteins = new ArrayList<>();
 
         // the still unreported proteins
         HashMap<Long, ReportProtein> unreportedProteins =
-                new HashMap<Long, ReportProtein>(proteins);
+                new HashMap<>(proteins);
 
         // check proteins for sub-proteins and intersections. this cannot be
         // done before, because all proteins have to be built beforehand
         Map<Long, Set<Long>> subProteinMap =
-                new HashMap<Long, Set<Long>>(reportPeptidesMap.size());
+                new HashMap<>(reportPeptidesMap.size());
         Map<Long, Set<Long>> intersectingProteinMap =
-                new HashMap<Long, Set<Long>>(reportPeptidesMap.size());
-        Set<Long> isSubProtein = new HashSet<Long>();
-        Set<String> reportedPeptides = new HashSet<String>();
+                new HashMap<>(reportPeptidesMap.size());
+        Set<Long> isSubProtein = new HashSet<>();
+        Set<String> reportedPeptides = new HashSet<>();
         for (Long proteinID : proteins.keySet()) {
             Set<String> peptideKeys = peptideKeysMap.get(proteinID);
 
-            Set<Long> subProteins = new HashSet<Long>();
+            Set<Long> subProteins = new HashSet<>();
             subProteinMap.put(proteinID, subProteins);
 
-            Set<Long> intersectingProteins = new HashSet<Long>();
+            Set<Long> intersectingProteins = new HashSet<>();
             intersectingProteinMap.put(proteinID, intersectingProteins);
 
             for (Long subProtID : proteins.keySet()) {
-                if (proteinID == subProtID) {
+                if (Objects.equals(proteinID, subProtID)) {
                     continue;
                 }
 
-                Set<String> intersection = new HashSet<String>(
+                Set<String> intersection = new HashSet<>(
                         peptideKeysMap.get(subProtID));
                 intersection.retainAll(peptideKeys);
 
@@ -279,7 +264,7 @@ public class OccamsRazorWorkerThread extends Thread {
                 canReport.removeAll(reportedPeptides);
 
                 if (canReport.size() > nrMostPeps) {
-                    mostPepsIDs = new HashSet<Long>();
+                    mostPepsIDs = new HashSet<>();
                     mostPepsIDs.add(protein.getID());
                     nrMostPeps = canReport.size();
                     mostCanReport = canReport;

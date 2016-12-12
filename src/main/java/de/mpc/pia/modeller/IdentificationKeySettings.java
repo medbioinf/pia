@@ -128,8 +128,8 @@ public enum IdentificationKeySettings {
 
 
     /**
-     * Returns the {@link IdentificationKeySettings} given by the name or null, if
-     * none exists with the name.
+     * Returns the {@link IdentificationKeySettings} given by the NAME or null, if
+     * none exists with the NAME.
      *
      * @param name
      * @return
@@ -150,7 +150,7 @@ public enum IdentificationKeySettings {
      * failure tolerant ones.
      */
     public static Map<String, Boolean> noRedundantSettings(Map<String, Boolean> psmSetSettings) {
-        Map<String, Boolean> settings =         new HashMap<String, Boolean>(psmSetSettings);
+        Map<String, Boolean> settings = new HashMap<>(psmSetSettings);
 
         if (settings.containsKey(IdentificationKeySettings.SOURCE_ID.toString()) &&
                 settings.get(IdentificationKeySettings.SOURCE_ID.toString())) {

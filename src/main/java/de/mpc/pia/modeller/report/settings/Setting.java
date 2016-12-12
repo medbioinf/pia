@@ -3,10 +3,10 @@ package de.mpc.pia.modeller.report.settings;
 
 
 public class Setting {
-	/** the human readable name of this setting */
+	/** the human readable NAME of this setting */
 	private String name;
 	
-	/** the machine readable unique name of this setting */
+	/** the machine readable unique NAME of this setting */
 	private String shortName;
 	
 	/** the (unprocessed) value of this setting */
@@ -26,8 +26,8 @@ public class Setting {
 	/**
 	 * Basic constructor for the setting.
 	 * 
-	 * @param shortName	the unique machine readable name
-	 * @param name the human readable name
+	 * @param shortName	the unique machine readable NAME
+	 * @param name the human readable NAME
 	 * @param defaultValue the default value
 	 */
 	public Setting(String shortName, String name, String defaultValue,
@@ -42,7 +42,7 @@ public class Setting {
 	
 	
 	/**
-	 * Getter for the human readable name.
+	 * Getter for the human readable NAME.
 	 * 
 	 * @return
 	 */
@@ -52,7 +52,7 @@ public class Setting {
 	
 	
 	/**
-	 * Getter for the unique machine readable name.
+	 * Getter for the unique machine readable NAME.
 	 * 
 	 * @return
 	 */

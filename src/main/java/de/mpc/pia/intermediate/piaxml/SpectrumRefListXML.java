@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "spectrumRefList")
 public class SpectrumRefListXML {
 	@XmlElement(name = "spectrumRef")
+	private
 	List<SpectrumRefXML> spectrumRefs;
 	
 	
@@ -43,7 +44,7 @@ public class SpectrumRefListXML {
 	 */
 	public List<SpectrumRefXML> getSpectrumRefs() {
 		if (spectrumRefs == null) {
-			spectrumRefs = new ArrayList<SpectrumRefXML>();
+			spectrumRefs = new ArrayList<>();
 		}
 		return spectrumRefs;
 	}

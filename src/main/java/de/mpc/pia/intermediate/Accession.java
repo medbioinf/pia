@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -47,24 +48,22 @@ public class Accession implements Serializable {
      *
      * @param id
      * @param accession
-     * @param description
+     * @param dbSequence
      */
     public Accession(Long id, String accession, String dbSequence) {
         this.id = id;
         this.accessionStr = accession;
-        this.files = new HashSet<Long>();
-        this.descriptions = new HashMap<Long, String>();
+        this.files = new HashSet<>();
+        this.descriptions = new HashMap<>();
         this.dbSequence = dbSequence;
-        this.searchDatabaseRefs = new HashSet<String>();
+        this.searchDatabaseRefs = new HashSet<>();
         this.pGroup = null;
     }
 
     /**
      * Basic constructor for the accession.
      */
-    public Accession(long id, String accession, Set<Long> files,
-            Map<Long, String> descriptions, String dbSequence,
-            Set<String> searchDatabaseRefs, Group group) {
+    public Accession(long id, String accession, Set<Long> files, Map<Long, String> descriptions, String dbSequence, Set<String> searchDatabaseRefs, Group group) {
         this(id, accession, dbSequence);
         if (files != null) {
             this.files.addAll(files);
@@ -119,7 +118,7 @@ public class Accession implements Serializable {
 
     /**
      * Getter for the ID.
-     * @return
+     * @return id
      */
     public Long getID() {
         return id;
@@ -174,13 +173,8 @@ public class Accession implements Serializable {
         if (fileID > 0) {
             desc = descriptions.get(fileID);
         } else {
-            Set<String> differentDescriptions = new HashSet<String>();
-            for (Map.Entry<Long, String> descIt : descriptions.entrySet()) {
-                if ((descIt.getValue() != null) &&
-                        !descIt.getValue().trim().isEmpty()) {
-                    differentDescriptions.add(descIt.getValue().trim());
-                }
-            }
+            Set<String> differentDescriptions = descriptions.entrySet().stream().filter(descIt -> (descIt.getValue() != null) &&
+                    !descIt.getValue().trim().isEmpty()).map(descIt -> descIt.getValue().trim()).collect(Collectors.toSet());
 
             if (!differentDescriptions.isEmpty()) {
                 StringBuilder descSB = new StringBuilder();
@@ -250,7 +244,6 @@ public class Accession implements Serializable {
 
     /**
      * Adds the given dbRefs to the searchDatabaseRefs.
-     * @param dbRef
      */
     public void addSearchDatabaseRefs(Set<String> dbRefs) {
         searchDatabaseRefs.addAll(dbRefs);

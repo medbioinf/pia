@@ -25,7 +25,7 @@ import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.MzIdentMLTools;
 
-public class FastaFileParser {
+class FastaFileParser {
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(FastaFileParser.class);
@@ -251,7 +251,6 @@ public class FastaFileParser {
             double massToCharge = sequence.length();
 
             String sourceID = "index=" + spectrumCount;
-            String spectrumTitle = sequence;
 
             PeptideSpectrumMatch psm = compiler.createNewPeptideSpectrumMatch(
                     2,                          // just a pseudo-charge
@@ -261,7 +260,7 @@ public class FastaFileParser {
                     sequence,
                     missed,
                     sourceID,
-                    spectrumTitle,
+                    sequence,
                     inputFile,
                     spectrumID);
 
@@ -280,6 +279,7 @@ public class FastaFileParser {
             compiler.insertCompletePeptideSpectrumMatch(psm);
         } else {
             // increase the "FASTA Sequence Count" score
+            //Todo: Julian you should review this loop because is strange it returns in the first loop.
             for (PeptideSpectrumMatch psm : peptide.getSpectra()) {
                 ScoreModel score =
                         psm.getScore(ScoreModelEnum.FASTA_SEQUENCE_COUNT.getShortName());
@@ -300,10 +300,9 @@ public class FastaFileParser {
         }
         if (increaseAccessionCount) {
             // increase the "FASTA Accession Count" score
+            //Todo: Julian you should review this loop because is strange it returns in the first loop.
             for (PeptideSpectrumMatch psm : peptide.getSpectra()) {
-                ScoreModel score =
-                        psm.getScore(ScoreModelEnum.FASTA_ACCESSION_COUNT.getShortName());
-
+                ScoreModel score = psm.getScore(ScoreModelEnum.FASTA_ACCESSION_COUNT.getShortName());
                 Double value = score.getValue();
                 score.setValue(value + 1);
                 break;

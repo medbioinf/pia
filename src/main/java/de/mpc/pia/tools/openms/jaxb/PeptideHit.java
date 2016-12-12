@@ -63,7 +63,7 @@ public class PeptideHit {
      */
     public List<UserParamIdXML> getUserParam() {
         if (userParam == null) {
-            userParam = new ArrayList<UserParamIdXML>();
+            userParam = new ArrayList<>();
         }
         return this.userParam;
     }
@@ -249,7 +249,7 @@ public class PeptideHit {
      */
     public List<Object> getProteinRefs() {
         if (proteinRefs == null) {
-            proteinRefs = new ArrayList<Object>();
+            proteinRefs = new ArrayList<>();
         }
         return this.proteinRefs;
     }

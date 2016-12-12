@@ -31,7 +31,6 @@ public class ScoreXML {
 	
 	/**
 	 * Sets the value of the cvAccession property.
-	 * @param fileName
 	 */
 	public void setCvAccession(String cvAccession) {
 		this.cvAccession = cvAccession;
@@ -50,7 +49,6 @@ public class ScoreXML {
 	
 	/**
 	 * Sets the value of the cvName property.
-	 * @param fileName
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -69,7 +67,6 @@ public class ScoreXML {
 	
 	/**
 	 * Sets the value of the value property.
-	 * @param fileName
 	 */
 	public void setValue(Double value) {
 		this.value = value;

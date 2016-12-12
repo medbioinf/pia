@@ -20,11 +20,11 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="relocatorCollectionType">
+ * &lt;complexType NAME="relocatorCollectionType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="relocator" type="{}relocatorType"/>
+ *         &lt;element NAME="relocator" type="{}relocatorType"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>

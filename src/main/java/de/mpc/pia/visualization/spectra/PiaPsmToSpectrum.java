@@ -168,11 +168,8 @@ public class PiaPsmToSpectrum<P extends PSMItem> {
         LOGGER.debug("pre binning the spectra");
         Map<Integer, List<Comparable>> mzToSpectraBins = new HashMap<>();
 
-        Iterator<Comparable> specIter = daController.getSpectrumIds().iterator();
-        while (specIter.hasNext()) {
-            Comparable specID = specIter.next();
-
-            int mzBin = (int)(daController.getSpectrumPrecursorMz(specID) / BIN_WIDTH);
+        for (Comparable specID : daController.getSpectrumIds()) {
+            int mzBin = (int) (daController.getSpectrumPrecursorMz(specID) / BIN_WIDTH);
             List<Comparable> specIDs = mzToSpectraBins.get(mzBin);
             if (specIDs == null) {
                 specIDs = new ArrayList<>();
@@ -191,7 +188,6 @@ public class PiaPsmToSpectrum<P extends PSMItem> {
      * Finds a spectrumID for a spectrum in the controller, that fits into the
      * MZ range of the given PSM
      *
-     * @param precursorMz
      * @return
      */
     private Comparable findMatchingSpectrumId(PSMItem psm, Collection<Comparable> spectraIDs) {

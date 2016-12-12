@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "occurrences")
 public class OccurrencesXML {
 	@XmlElement(name = "occurrence")
+	private
 	List<OccurenceXML> occurrences;
 	
 	
@@ -43,7 +44,7 @@ public class OccurrencesXML {
 	 */
 	public List<OccurenceXML> getOccurrences() {
 		if (occurrences == null) {
-			occurrences = new ArrayList<OccurenceXML>();
+			occurrences = new ArrayList<>();
 		}
 		return occurrences;
 	}

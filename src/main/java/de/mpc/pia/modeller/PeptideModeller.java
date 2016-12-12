@@ -13,6 +13,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -49,7 +50,7 @@ public class PeptideModeller {
 
 
     /** the used {@link PSMModeller} */
-    private PSMModeller psmModeller;
+    private final PSMModeller psmModeller;
 
     /** maps from the file ID to the List of {@link ReportPeptide}s */
     private Map<Long, List<ReportPeptide>> fileReportPeptides;
@@ -85,13 +86,13 @@ public class PeptideModeller {
             throw new IllegalArgumentException("The given PSMModeller is null!");
         }
 
-        fileReportPeptides = new HashMap<Long, List<ReportPeptide>>();
-        fileFiltersMap = new HashMap<Long, List<AbstractFilter>>();
-        inferePeptides = new HashMap<Long, Boolean>();
+        fileReportPeptides = new HashMap<>();
+        fileFiltersMap = new HashMap<>();
+        inferePeptides = new HashMap<>();
 
         // initialize the FDR data maps
-        fileFDRData = new HashMap<Long, FDRData>();
-        fileFDRCalculated = new HashMap<Long, Boolean>();
+        fileFDRData = new HashMap<>();
+        fileFDRCalculated = new HashMap<>();
 
         this.considerModifications = CONSIDER_MODIFICATIONS_DEFAULT;
     }
@@ -116,7 +117,7 @@ public class PeptideModeller {
      * @return
      */
     public List<String> getScoreShortNames(Long fileID) {
-        LinkedHashSet<String> scoreShortNames = new LinkedHashSet<String>();
+        LinkedHashSet<String> scoreShortNames = new LinkedHashSet<>();
 
         if (fileID > 0) {
             scoreShortNames.addAll(psmModeller.getScoreShortNames(fileID));
@@ -126,13 +127,12 @@ public class PeptideModeller {
             }
         }
 
-        return new ArrayList<String>(scoreShortNames);
+        return new ArrayList<>(scoreShortNames);
     }
 
 
     /**
-     * Returns the Score name, given the scoreShortName.
-     * @param fileID
+     * Returns the Score NAME, given the scoreShortName.
      * @param shortName
      * @return
      */
@@ -152,15 +152,15 @@ public class PeptideModeller {
         LOGGER.info("Inferring peptides for " + fileID  +
                 " considerModifications=" + considerModifications);
         // first put the PSMs sorted by their stringID (this defines a peptide) into a Map
-        Map<String, ReportPeptide> peptides = new HashMap<String, ReportPeptide>();
+        Map<String, ReportPeptide> peptides = new HashMap<>();
 
         // take the (filtered) PSMs from the psmModeller
         List<PSMReportItem> reportPSMs;
         if (!fileID.equals(0L)) {
-            reportPSMs = new ArrayList<PSMReportItem>(
+            reportPSMs = new ArrayList<>(
                     psmModeller.getFilteredReportPSMs(fileID, getFilters(fileID)));
         } else {
-            reportPSMs = new ArrayList<PSMReportItem>(
+            reportPSMs = new ArrayList<>(
                     psmModeller.getFilteredReportPSMSets(getFilters(fileID)));
         }
 
@@ -177,10 +177,8 @@ public class PeptideModeller {
         }
 
         // create a List of the Map
-        List<ReportPeptide> repList = new ArrayList<ReportPeptide>(peptides.size());
-        for (Map.Entry<String, ReportPeptide> repIt : peptides.entrySet()) {
-            repList.add(repIt.getValue());
-        }
+        List<ReportPeptide> repList = new ArrayList<>(peptides.size());
+        repList.addAll(peptides.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
 
         // put this new list into the peptides' list
         fileReportPeptides.put(fileID, repList);
@@ -206,7 +204,7 @@ public class PeptideModeller {
     public List<AbstractFilter> getFilters(Long fileID) {
         List<AbstractFilter> filters = fileFiltersMap.get(fileID);
         if (filters == null) {
-            filters = new ArrayList<AbstractFilter>();
+            filters = new ArrayList<>();
             fileFiltersMap.put(fileID, filters);
         }
 
@@ -318,7 +316,7 @@ public class PeptideModeller {
                     filters, fileID);
         } else {
             LOGGER.error("There are no ReportPeptides for the fileID " + fileID);
-            return new ArrayList<ReportPeptide>(0);
+            return new ArrayList<>(0);
         }
     }
 
@@ -329,14 +327,9 @@ public class PeptideModeller {
     public void sortReport(Long fileID, List<String> sortOrders,
             Map<String, SortOrder> sortables) {
         List<Comparator<ReportPeptide>> compares =
-                new ArrayList<Comparator<ReportPeptide>>();
-
-        for (String sortKey : sortOrders) {
-            compares.add( ReportPeptideComparatorFactory.getComparatorByName(
-                    sortKey,
-                    sortables.get(sortKey))
-                    );
-        }
+                sortOrders.stream().map(sortKey -> ReportPeptideComparatorFactory.getComparatorByName(
+                        sortKey,
+                        sortables.get(sortKey))).collect(Collectors.toList());
 
         if (fileReportPeptides.get(fileID) != null) {
             Collections.sort(fileReportPeptides.get(fileID),
@@ -370,7 +363,7 @@ public class PeptideModeller {
     public void calculateRanking(Long fileID, String rankableShortName,
             List<AbstractFilter> filters) {
         if ((rankableShortName == null) || rankableShortName.trim().isEmpty()) {
-            LOGGER.error("No score shortName given for ranking calculation.");
+            LOGGER.error("No score SHORT_NAME given for ranking calculation.");
             return;
         }
 
@@ -387,7 +380,7 @@ public class PeptideModeller {
                 FilterFactory.applyFilters(
                         fileReportPeptides.get(fileID),
                         filters, fileID),
-                new ScoreComparator<ReportPeptide>(rankableShortName));
+                new ScoreComparator<>(rankableShortName));
     }
 
 
@@ -580,7 +573,7 @@ public class PeptideModeller {
 
 
                     if (psm instanceof ReportPSM) {
-                        // write the input file name before the remaining row
+                        // write the input file NAME before the remaining row
                         if (includePSMs) {
                             writer.append("\"PSM\"" + separator + "\"" +
                                     ((ReportPSM) psm).getInputFileName() + "\"" + separator);
@@ -629,7 +622,6 @@ public class PeptideModeller {
     /**
      * Processes the command line on the peptide level.
      *
-     * @param model
      * @param commands
      * @return
      */
@@ -702,7 +694,7 @@ public class PeptideModeller {
         }
 
         // create new list of the filters and leave only the PSM level filters
-        List<AbstractFilter> filters = new ArrayList<AbstractFilter>(getFilters(fileID));
+        List<AbstractFilter> filters = new ArrayList<>(getFilters(fileID));
         ListIterator<AbstractFilter> filterIt = filters.listIterator();
 
         while (filterIt.hasNext()) {
@@ -714,13 +706,13 @@ public class PeptideModeller {
         }
 
         // get a List of the ReportPeptides for FDR calculation
-        List<ReportPeptide> listForFDR = new ArrayList<ReportPeptide>(
+        List<ReportPeptide> listForFDR = new ArrayList<>(
                 getFilteredReportPeptides(fileID, filters));
 
         // get the comparator for the score
         boolean higherScoreBetter = psmModeller.getHigherScoreBetter(fdrData.getScoreShortName());
         Comparator<ReportPeptide> peptideComparator =
-                new ScoreComparator<ReportPeptide>(fdrData.getScoreShortName(), higherScoreBetter);
+                new ScoreComparator<>(fdrData.getScoreShortName(), higherScoreBetter);
 
         // calculate the FDR values
         fdrData.calculateFDR(listForFDR, peptideComparator);
@@ -820,7 +812,6 @@ public class PeptideModeller {
         if (fdrData == null) {
             LOGGER.error("No FDR settings given for file with ID=" + fileID
                     + " this function must be called after getFDRDataFromPSMLevel");
-            return;
         } else {
             Pattern p = Pattern.compile(fdrData.getDecoyPattern());
 

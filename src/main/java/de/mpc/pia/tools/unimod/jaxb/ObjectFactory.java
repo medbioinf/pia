@@ -166,7 +166,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "http://www.unimod.org/xmlns/schema/unimod_2", name = "unimod")
     public JAXBElement<UnimodT> createUnimod(UnimodT value) {
-        return new JAXBElement<UnimodT>(_Unimod_QNAME, UnimodT.class, null, value);
+        return new JAXBElement<>(_Unimod_QNAME, UnimodT.class, null, value);
     }
 
 }

@@ -47,7 +47,7 @@ public class IdXMLExporterTest {
         seInference.addFilter(
                 new PSMScoreFilter(FilterComparator.less_equal, false, 0.5, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()));
 
-        seInference.setScoring(new MultiplicativeScoring(new HashMap<String, String>()));
+        seInference.setScoring(new MultiplicativeScoring(new HashMap<>()));
         seInference.getScoring().setSetting(AbstractScoring.scoringSettingID, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName());
         seInference.getScoring().setSetting(AbstractScoring.scoringSpectraSettingID, PSMForScoring.ONLY_BEST.getShortName());
 

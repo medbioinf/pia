@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "spectraList")
 public class SpectraListXML {
 	@XmlElement(name = "spectrumMatch")
+	private
 	List<SpectrumMatchXML> spectra;
 	
 	
@@ -43,7 +44,7 @@ public class SpectraListXML {
 	 */
 	public List<SpectrumMatchXML> getSpectraList() {
 		if (spectra == null) {
-			spectra = new ArrayList<SpectrumMatchXML>();
+			spectra = new ArrayList<>();
 		}
 		return spectra;
 	}

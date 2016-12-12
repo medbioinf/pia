@@ -79,7 +79,7 @@ public abstract class PIACompiler {
     private static final Logger LOGGER = Logger.getLogger(PIACompiler.class);
 
 
-    /** just a name for the compilation */
+    /** just a NAME for the compilation */
     private String compilationName;
 
     /** the date, when the compiler was initialised */
@@ -130,8 +130,8 @@ public abstract class PIACompiler {
     private Map<Long, Group> groups;
 
 
-    /** the default name for a compilation */
-    public static final String DEFAULT_PIA_COMPILATION_NAME = "PIA compilation";
+    /** the default NAME for a compilation */
+    private static final String DEFAULT_PIA_COMPILATION_NAME = "PIA compilation";
 
     /** namespace declaration for jPiaXML */
     private static String nsjPiaXML = "http://www.medizinisches-proteom-center.de/PIA/piaintermediate";
@@ -142,7 +142,7 @@ public abstract class PIACompiler {
     /** namespace declaration for mzIdentML */
     private static String nsMzIdentML = "http://psidev.info/psi/pi/mzIdentML/1.1";
 
-    /** prefix declaration for mzIdentML */
+    /** PREFIX declaration for mzIdentML */
     private static String prefixMzIdentML = "ns2";
 
     /** encoding specification */
@@ -165,9 +165,9 @@ public abstract class PIACompiler {
 
         files = new HashMap<>();
 
-        spectraDataMap = new HashMap<String, SpectraData>();
-        searchDatabasesMap = new HashMap<String, SearchDatabase>();
-        softwareMap = new HashMap<String, AnalysisSoftware>();
+        spectraDataMap = new HashMap<>();
+        searchDatabasesMap = new HashMap<>();
+        softwareMap = new HashMap<>();
 
         unimodParser = null;
 
@@ -226,7 +226,7 @@ public abstract class PIACompiler {
     /**
      * Parses the data from the file, given by the fileName.
      *
-     * @param name just a name for easier identification
+     * @param name just a NAME for easier identification
      * @param fileName the path to the file
      * @param additionalInfoFileName an additional information file for the
      * search engine results (like RT for Tandem)
@@ -275,10 +275,9 @@ public abstract class PIACompiler {
     /**
      * Returns the {@link PIAInputFile} given by the id
      *
-     * @param acc
      * @return
      */
-    public final PIAInputFile getFile(Long fileId) {
+    private PIAInputFile getFile(Long fileId) {
         return files.get(fileId);
     }
 
@@ -286,10 +285,9 @@ public abstract class PIACompiler {
     /**
      * Returns all {@link PIAInputFile} IDs in the compilation
      *
-     * @param acc
      * @return
      */
-    public final Set<Long> getAllFileIDs() {
+    private Set<Long> getAllFileIDs() {
         return files.keySet();
     }
 
@@ -326,7 +324,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    public abstract int getNrAccessions();
+    protected abstract int getNrAccessions();
 
 
     /**
@@ -334,7 +332,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    public abstract Collection<Long> getAllAccessionIDs();
+    protected abstract Collection<Long> getAllAccessionIDs();
 
 
     /**
@@ -349,7 +347,6 @@ public abstract class PIACompiler {
     /**
      * Returns the peptide given by the peptide ID
      *
-     * @param sequence
      * @return
      */
     public abstract Peptide getPeptide(Long peptideID);
@@ -369,7 +366,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    public abstract int getNrPeptides();
+    protected abstract int getNrPeptides();
 
 
     /**
@@ -377,16 +374,15 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    public abstract Collection<Long> getAllPeptideIDs();
+    protected abstract Collection<Long> getAllPeptideIDs();
 
 
     /**
      * Returns the {@link SpectrumMatch} given by the ID
      *
-     * @param sequence
      * @return
      */
-    public abstract PeptideSpectrumMatch getPeptideSpectrumMatch(Long psmId);
+    protected abstract PeptideSpectrumMatch getPeptideSpectrumMatch(Long psmId);
 
 
     /**
@@ -415,7 +411,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    public abstract int getNrPeptideSpectrumMatches();
+    protected abstract int getNrPeptideSpectrumMatches();
 
 
     /**
@@ -423,7 +419,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    public abstract Collection<Long> getAllPeptideSpectrumMatcheIDs();
+    protected abstract Collection<Long> getAllPeptideSpectrumMatcheIDs();
 
 
     /**
@@ -453,24 +449,21 @@ public abstract class PIACompiler {
      * @param accId
      * @return
      */
-    public abstract Collection<Long> getPepIDsFromConnectionMap(Long accId);
+    protected abstract Collection<Long> getPepIDsFromConnectionMap(Long accId);
 
 
     /**
      * Returns the List of {@link Accession} IDs from the connection map for the
      * given peptide ID.
      *
-     * @param pep
      * @return
      */
-    public abstract Collection<Long> getAccIDsFromConnectionMap(Long pepId);
+    protected abstract Collection<Long> getAccIDsFromConnectionMap(Long pepId);
 
 
     /**
      * Puts the given connection from an accession to a peptide into the map.
      *
-     * @param acc
-     * @param peps
      * @return
      */
     public abstract void addAccessionPeptideConnection(Accession accession, Peptide peptide);
@@ -482,7 +475,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    public abstract void clearConnectionMap();
+    protected abstract void clearConnectionMap();
 
 
     /**
@@ -670,20 +663,20 @@ public abstract class PIACompiler {
         Set<Long> accessionsDone = new HashSet<>(getNrAccessions());
         clusteredPepAccMap = new ArrayList<>();
 
-        for (Long accID : getAllAccessionIDs()) {
-            if (!accessionsDone.contains(accID)) {
-                // this accession is not yet clustered, so start a new cluster
-                // and insert all the "connected" peptides and accessions
-                Map<Long, Collection<Long>> pepAccMapCluster =
+        // this accession is not yet clustered, so start a new cluster
+// and insert all the "connected" peptides and accessions
+        getAllAccessionIDs().stream().filter(accID -> !accessionsDone.contains(accID)).forEach(accID -> {
+            // this accession is not yet clustered, so start a new cluster
+            // and insert all the "connected" peptides and accessions
+            Map<Long, Collection<Long>> pepAccMapCluster =
                     createCluster(accID, peptidesDone, accessionsDone);
 
-                if (pepAccMapCluster != null) {
-                    clusteredPepAccMap.add(pepAccMapCluster);
-                } else {
-                    LOGGER.error("cluster could not be created!");
-                }
+            if (pepAccMapCluster != null) {
+                clusteredPepAccMap.add(pepAccMapCluster);
+            } else {
+                LOGGER.error("cluster could not be created!");
             }
-        }
+        });
 
         // the maps are no longer needed
         clearConnectionMap();
@@ -697,13 +690,13 @@ public abstract class PIACompiler {
      * map cluster.<br/>
      * This method should only be called by {@link PIACompiler#buildClusterList()}.
      *
-     * @param accession
+     * @param accessionID
      * @param peptidesDone
      * @param accessionsDone
      * @return
      */
-    private final Map<Long, Collection<Long>> createCluster(Long accessionID,
-            Set<Long> peptidesDone, Set<Long> accessionsDone) {
+    private Map<Long, Collection<Long>> createCluster(Long accessionID,
+                                                      Set<Long> peptidesDone, Set<Long> accessionsDone) {
         Set<Long> clusterAccessions = new HashSet<>();
         Set<Long> clusterPeptides = new HashSet<>();
 
@@ -782,7 +775,7 @@ public abstract class PIACompiler {
         }
 
         // initialize the groups map
-        groups = new HashMap<Long, Group>();
+        groups = new HashMap<>();
 
         // initialize the clusterIterator
         clusterIterator = clusteredPepAccMap.listIterator();
@@ -790,7 +783,7 @@ public abstract class PIACompiler {
         clusterOffset = 0L;
 
         // start the threads
-        threads = new ArrayList<CompilerWorkerThread>(nrThreads);
+        threads = new ArrayList<>(nrThreads);
         for (int i = 0; i < nrThreads; i++) {
             CompilerWorkerThread thread = new CompilerWorkerThread(i+1, this);
             threads.add(thread);
@@ -861,7 +854,7 @@ public abstract class PIACompiler {
 
 
     /**
-     * Setter for the name
+     * Setter for the NAME
      * @param name
      */
     public final void  setName(String name) {
@@ -870,7 +863,7 @@ public abstract class PIACompiler {
 
 
     /**
-     * Getter for the name.
+     * Getter for the NAME.
      * @return
      */
     public final String getName() {
@@ -926,7 +919,6 @@ public abstract class PIACompiler {
     /**
      * Write out the intermediate structure into an XML file.
      *
-     * @param fileName
      */
     public final void writeOutXML(OutputStream outputStream) {
         try (Writer out = new OutputStreamWriter(outputStream, encoding)) {
@@ -991,7 +983,6 @@ public abstract class PIACompiler {
     /**
      * Creates a marshaller for PIA XML for the given class.
      *
-     * @param context
      * @return
      * @throws JAXBException
      */
@@ -1034,13 +1025,13 @@ public abstract class PIACompiler {
      *
      * @throws JAXBException
      */
-    private static <T extends Object> void marshalToFormattedFragmentMarshaller(
+    private static <T> void marshalToFormattedFragmentMarshaller(
             XMLStreamWriter xmlOut, T object) throws JAXBException {
         QName aQName = ModelConstants.getQNameForClass(object.getClass());
 
         @SuppressWarnings("unchecked")
         Class<T> classCast = (Class<T>)object.getClass();
-        JAXBElement<T> jaxbElement = new JAXBElement<T>(aQName, classCast, object);
+        JAXBElement<T> jaxbElement = new JAXBElement<>(aQName, classCast, object);
 
         marshalToFormattedFragmentMarshaller(xmlOut, jaxbElement, classCast);
     }
@@ -1200,7 +1191,7 @@ public abstract class PIACompiler {
         Option nameOpt = Option.builder("name")
                 .argName("name")
                 .hasArg()
-                .desc("name of the PIA compilation")
+                .desc("NAME of the PIA compilation")
                 .build();
         options.addOption(nameOpt);
 
@@ -1212,7 +1203,7 @@ public abstract class PIACompiler {
                         + "multiple times. Any further information not given "
                         + "will be treated as null, the information is in this "
                         + "order:\n"
-                        + "name of the input file (as shown in the PIA viewers, "
+                        + "NAME of the input file (as shown in the PIA viewers, "
                         + "if not given will be set to the path of the input file), "
                         + "type of the file (usually guessed, but may also be "
                         + "explicitly given, possible values are "
@@ -1229,7 +1220,7 @@ public abstract class PIACompiler {
         }
 
         String outFileName = null;
-        String piaName = null;
+        String piaName;
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
         // parse the command line arguments
@@ -1270,7 +1261,7 @@ public abstract class PIACompiler {
 
     /**
      * Parses the files given from the command line in the String array into the
-     * given {@link PIACompiler}. The files may also contain the name and
+     * given {@link PIACompiler}. The files may also contain the NAME and
      * additionalFile separated by a semicolon.
      *
      * @param inputFiles
@@ -1289,7 +1280,7 @@ public abstract class PIACompiler {
 
     /**
      * Parses one file from the command line into the given {@link PIACompiler}.
-     * The file string may also contain the name and additionalFile separated by
+     * The file string may also contain the NAME and additionalFile separated by
      * a semicolon.
      *
      * @param inputFile
@@ -1314,13 +1305,13 @@ public abstract class PIACompiler {
             }
         } else {
             if (file.contains(File.separator)) {
-                // take the filename-only as name, if none is given
+                // take the filename-only as NAME, if none is given
                 name = new File(file).getName();
             }
         }
 
         LOGGER.info("file: " + file +
-                "\n\tname: " + name +
+                "\n\tNAME: " + name +
                 "\n\ttype: " + type +
                 "\n\tadditional info file: " + additionalInfoFile);
 

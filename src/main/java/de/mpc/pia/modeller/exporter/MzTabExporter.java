@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -31,7 +32,6 @@ import de.mpc.pia.modeller.psm.PSMReportItem;
 import de.mpc.pia.modeller.psm.ReportPSM;
 import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
-import de.mpc.pia.modeller.score.FDRData;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.CleavageAgent;
 import de.mpc.pia.tools.MzIdentMLTools;
@@ -88,7 +88,7 @@ public class MzTabExporter {
 
 
     /** the modeller, that should be exported */
-    private PIAModeller piaModeller;
+    private final PIAModeller piaModeller;
 
     /** the writer used to export the mzTab file */
     private BufferedWriter outWriter;
@@ -160,7 +160,7 @@ public class MzTabExporter {
 
     public boolean exportToMzTab(Long fileID, OutputStream exportStream,
             boolean proteinLevel, boolean peptideLevelStatistics, boolean filterExport) {
-        boolean exportOK = true;
+        boolean exportOK;
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(exportStream));
             exportOK = exportToMzTab(fileID, writer, proteinLevel, peptideLevelStatistics, filterExport);
@@ -179,8 +179,6 @@ public class MzTabExporter {
      * selected as well, also this will be exported (and accordingly the PSMs of
      * all merged files).
      *
-     * @param exportFileID export the selected file
-     * @param exportFile
      * @param proteinLevel export the protein level
      * @param peptideLevelStatistics export peptide level statistics in PSMs
      * @param filterExport whether the export should be filtered (on any level)
@@ -226,8 +224,8 @@ public class MzTabExporter {
                         MZTabDescription.Type.Identification);
             }
 
-            specIdRefToMsRuns = new HashMap<String, List<MsRun>>();
-            psmScoreShortToId = new HashMap<String, Integer>();
+            specIdRefToMsRuns = new HashMap<>();
+            psmScoreShortToId = new HashMap<>();
             metadata = createMetadataForMzTab(exportFileID, proteinLevel, filterExport,
                     tabDescription);
 
@@ -235,7 +233,7 @@ public class MzTabExporter {
             outWriter.append(metadata.toString());
 
             // the PSMs, which will be in th export
-            List<PSMReportItem> reportPSMs = new ArrayList<PSMReportItem>();
+            List<PSMReportItem> reportPSMs = new ArrayList<>();
 
             boolean exportReliabilitycolumn = false;
 
@@ -249,13 +247,13 @@ public class MzTabExporter {
                     LOGGER.warn("No report protein list, probably inference was not run.");
                 } else {
                     Map<String, PSMReportItem> reportPSMsMap =
-                            new HashMap<String, PSMReportItem>();
+                            new HashMap<>();
 
                     // write out the proteins
                     outWriter.append(MZTabConstants.NEW_LINE);
                     writeProteins(proteinList, reportPSMsMap);
 
-                    reportPSMs = new ArrayList<PSMReportItem>(reportPSMsMap.values());
+                    reportPSMs = new ArrayList<>(reportPSMsMap.values());
                     exportReliabilitycolumn = piaModeller.getPSMModeller().isCombinedFDRScoreCalculated();
                 }
             } else {
@@ -318,16 +316,16 @@ public class MzTabExporter {
         Metadata mtd = new Metadata(tabDescription);
         mtd.setDescription("PIA export of " + piaModeller.getFileName());
 
-        List<InputSpectra> inputSpectraList = new ArrayList<InputSpectra>();
+        List<InputSpectra> inputSpectraList = new ArrayList<>();
         // all needed search modifications
         List<SearchModification> searchModifications =
-                new ArrayList<SearchModification>();
+                new ArrayList<>();
         // all needed analysis protocol collections (for the software in MTD)
         List<AnalysisProtocolCollection> analysisProtocols =
-                new ArrayList<AnalysisProtocolCollection>();
+                new ArrayList<>();
         // maps from the spectrumIdentification ID to the spectraData ID
         Map<String, List<String>> spectrumIdentificationToSpectraData =
-                new HashMap<String, List<String>>();
+                new HashMap<>();
 
         if (fileID == 0) {
             for (PIAInputFile file : piaModeller.getPSMModeller().getFiles().values()) {
@@ -336,11 +334,7 @@ public class MzTabExporter {
                             getSpectrumIdentification().get(0);
                     List<InputSpectra> inputSpectras = specID.getInputSpectra();
                     if ((inputSpectras != null) && (inputSpectras.size() > 0)) {
-                        List<String> spectraDataRefs = new ArrayList<String>();
-                        for (InputSpectra inputSpectra : inputSpectras) {
-                            spectraDataRefs.add(
-                                    inputSpectra.getSpectraDataRef());
-                        }
+                        List<String> spectraDataRefs = inputSpectras.stream().map(InputSpectra::getSpectraDataRef).collect(Collectors.toList());
                         spectrumIdentificationToSpectraData.put( specID.getId(),
                                 spectraDataRefs);
 
@@ -367,7 +361,7 @@ public class MzTabExporter {
                         ScoreModelEnum scoreType =
                                 ScoreModelEnum.getModelByDescription(scoreShort);
 
-                        uk.ac.ebi.pride.jmztab.model.Param scoreParam = null;
+                        uk.ac.ebi.pride.jmztab.model.Param scoreParam;
 
                         // do NOT add the PSM-level FDR for the overview
                         if (scoreType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
@@ -394,10 +388,7 @@ public class MzTabExporter {
                     getAnalysisCollection().getSpectrumIdentification().get(0);
             List<InputSpectra> inputSpectras = specID.getInputSpectra();
             if ((inputSpectras != null) && (inputSpectras.size() > 0)) {
-                List<String> spectraDataRefs = new ArrayList<String>();
-                for (InputSpectra inputSpectra : inputSpectras) {
-                    spectraDataRefs.add(inputSpectra.getSpectraDataRef());
-                }
+                List<String> spectraDataRefs = inputSpectras.stream().map(InputSpectra::getSpectraDataRef).collect(Collectors.toList());
                 spectrumIdentificationToSpectraData.put(specID.getId(), spectraDataRefs);
 
                 inputSpectraList.addAll(inputSpectras);
@@ -423,7 +414,7 @@ public class MzTabExporter {
                     ScoreModelEnum scoreType =
                             ScoreModelEnum.getModelByDescription(scoreShort);
 
-                    uk.ac.ebi.pride.jmztab.model.Param scoreParam = null;
+                    uk.ac.ebi.pride.jmztab.model.Param scoreParam;
 
                     if (scoreType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
                         scoreParam = new uk.ac.ebi.pride.jmztab.model.UserParam(
@@ -443,15 +434,13 @@ public class MzTabExporter {
         }
 
         // associate the spectraData (msRuns) to integer IDs
-        Map<String, Integer> spectraDataID = new HashMap<String, Integer>();
-        for (InputSpectra inputSpectra : inputSpectraList) {
-            if (!spectraDataID.containsKey(inputSpectra.getSpectraDataRef())) {
-                // this inputSpectra is not yet in the list
-                Integer id = spectraDataID.size()+1;
-                spectraDataID.put(inputSpectra.getSpectraDataRef(), id);
-            }
-        }
-        inputSpectraList = null;
+        Map<String, Integer> spectraDataID = new HashMap<>();
+        // this inputSpectra is not yet in the list
+        inputSpectraList.stream().filter(inputSpectra -> !spectraDataID.containsKey(inputSpectra.getSpectraDataRef())).forEach(inputSpectra -> {
+            // this inputSpectra is not yet in the list
+            Integer id = spectraDataID.size() + 1;
+            spectraDataID.put(inputSpectra.getSpectraDataRef(), id);
+        });
 
         // add msRuns and samples
         for (Map.Entry<String, Integer> spectraIt : spectraDataID.entrySet()) {
@@ -460,7 +449,7 @@ public class MzTabExporter {
             MsRun msRun = new MsRun(spectraIt.getValue());
 
             // there are sometimes errors in the URl encoding of the files...
-            URL locationUrl = null;
+            URL locationUrl;
             try {
                 locationUrl = new URL(sd.getLocation());
             } catch (MalformedURLException ex) {
@@ -490,20 +479,16 @@ public class MzTabExporter {
         // this mapping is needed to reference reported PSMs to the MsRuns
         specIdRefToMsRuns.clear();
         for (Map.Entry<String, List<String>> iter : spectrumIdentificationToSpectraData.entrySet()) {
-            Set<MsRun> runSet = new HashSet<MsRun>();
+            Set<MsRun> runSet = iter.getValue().stream().map(spectrumDataRef -> mtd.getMsRunMap().get(spectraDataID.get(spectrumDataRef))).collect(Collectors.toSet());
 
-            for (String spectrumDataRef : iter.getValue()) {
-                runSet.add(mtd.getMsRunMap().get(spectraDataID.get(spectrumDataRef)));
-            }
-
-            specIdRefToMsRuns.put(iter.getKey(), new ArrayList<MsRun>(runSet));
+            specIdRefToMsRuns.put(iter.getKey(), new ArrayList<>(runSet));
         }
 
         // add modifications
         int nrVariableMods = 0;
         int nrFixedMods = 0;
-        Set<String> fixedMods = new HashSet<String>();
-        Set<String> variableMods = new HashSet<String>();
+        Set<String> fixedMods = new HashSet<>();
+        Set<String> variableMods = new HashSet<>();
         for (SearchModification searchMod : searchModifications) {
             String modAccession = null;
             String modName = null;
@@ -520,7 +505,7 @@ public class MzTabExporter {
                     (double)searchMod.getMassDelta(),
                     searchMod.getResidues());
 
-            List<String> positions = new ArrayList<String>();
+            List<String> positions = new ArrayList<>();
             for (SpecificityRules rule : searchMod.getSpecificityRules()) {
                 for (CvParam param : rule.getCvParam()) {
                     if (OntologyConstants.MODIFICATION_SPECIFICITY_PEP_N_TERM.getPsiAccession().equals(param.getAccession())) {
@@ -555,7 +540,7 @@ public class MzTabExporter {
                 }
 
                 for (String position : positions) {
-                    Mod mod = null;
+                    Mod mod;
 
                     if (searchMod.isFixedMod()) {
                         mod = new FixedMod(nrFixedMods+1);
@@ -618,11 +603,11 @@ public class MzTabExporter {
             mtd.addVariableMod(variableMod);
         }
 
-        Map<String, AnalysisSoftware> softwareMap = new HashMap<String, AnalysisSoftware>();
-        Map<String, Integer> softwareToID = new HashMap<String, Integer>();
-        Set<String> enzymeNames = new HashSet<String>();
+        Map<String, AnalysisSoftware> softwareMap = new HashMap<>();
+        Map<String, Integer> softwareToID = new HashMap<>();
+        Set<String> enzymeNames = new HashSet<>();
 
-        Integer softwareID = null;
+        Integer softwareID;
         for (AnalysisProtocolCollection protocol : analysisProtocols) {
             SpectrumIdentificationProtocol specIdProtocol =
                     protocol.getSpectrumIdentificationProtocol().get(0);
@@ -692,7 +677,7 @@ public class MzTabExporter {
 
             // add additional search params
             ParamList additionalSearchParams = preprocessAdditionalParams(
-                    specIdProtocol.getAdditionalSearchParams(), mtd, softwareID);
+                    specIdProtocol.getAdditionalSearchParams(), mtd);
 
             if (additionalSearchParams != null) {
                 for (CvParam param : additionalSearchParams.getCvParam()) {
@@ -714,7 +699,7 @@ public class MzTabExporter {
             // add the enzyme/s (if not already added)
             if (specIdProtocol.getEnzymes() != null) {
                 for (Enzyme enzyme : specIdProtocol.getEnzymes().getEnzyme()) {
-                    List<AbstractParam> enzymeParams = new ArrayList<AbstractParam>();
+                    List<AbstractParam> enzymeParams = new ArrayList<>();
                     if (enzyme.getEnzymeName() != null) {
                         enzymeParams.addAll(enzyme.getEnzymeName().getCvParam());
                         enzymeParams.addAll(enzyme.getEnzymeName().getUserParam());
@@ -785,13 +770,9 @@ public class MzTabExporter {
                     OntologyConstants.PSM_LEVEL_COMBINED_FDRSCORE.getPsiName()
                     + " was calculated");
 
-            for (Map.Entry<Long, FDRData> fdrIt : piaModeller.getPSMModeller().getFileFDRData().entrySet()) {
-                if (fdrIt.getKey() > 0) {
-                    mtd.addSoftwareSetting(piaSoftwareNr,
-                            "base score for FDR calculation for file "
-                            + fdrIt.getKey() + " = " + fdrIt.getValue().getScoreShortName());
-                }
-            }
+            piaModeller.getPSMModeller().getFileFDRData().entrySet().stream().filter(fdrIt -> fdrIt.getKey() > 0).forEach(fdrIt -> mtd.addSoftwareSetting(piaSoftwareNr,
+                    "base score for FDR calculation for file "
+                            + fdrIt.getKey() + " = " + fdrIt.getValue().getScoreShortName()));
         } else if (!proteinLevel && (fileID > 0) && piaModeller.getPSMModeller().isFDRCalculated(fileID)) {
             mtd.addSoftwareSetting(piaSoftwareNr,
                     OntologyConstants.PSM_LEVEL_FDRSCORE.getPsiName() +
@@ -804,7 +785,7 @@ public class MzTabExporter {
         }
 
         if (filterExport) {
-            List<AbstractFilter> filters = null;
+            List<AbstractFilter> filters;
             if (proteinLevel) {
                 filters = piaModeller.getProteinModeller().getReportFilters();
             } else {
@@ -827,11 +808,10 @@ public class MzTabExporter {
      *
      * @param paramList
      * @param mtd
-     * @param softwareID
      * @return
      */
     private ParamList preprocessAdditionalParams(ParamList paramList,
-            Metadata mtd, Integer softwareID) {
+                                                 Metadata mtd) {
         if (paramList == null) {
             return new ParamList();
         }
@@ -839,18 +819,9 @@ public class MzTabExporter {
         // all the unprocessed params
         ParamList unprocessedParams = new ParamList();
 
-        Set<String> contactNames = new HashSet<String>();
-        for (Contact contact : mtd.getContactMap().values()) {
-            contactNames.add(contact.getName());
-        }
-        Set<String> instrumentNames = new HashSet<String>();
-        for (Instrument instrument : mtd.getInstrumentMap().values()) {
-            instrumentNames.add(instrument.getName().getValue());
-        }
-        Set<String> sampleDescriptions = new HashSet<String>();
-        for (Sample sample : mtd.getSampleMap().values()) {
-            sampleDescriptions.add(sample.getDescription());
-        }
+        Set<String> contactNames = mtd.getContactMap().values().stream().map(Contact::getName).collect(Collectors.toSet());
+        Set<String> instrumentNames = mtd.getInstrumentMap().values().stream().map(instrument -> instrument.getName().getValue()).collect(Collectors.toSet());
+        Set<String> sampleDescriptions = mtd.getSampleMap().values().stream().map(Sample::getDescription).collect(Collectors.toSet());
 
         ListIterator<CvParam> cvIterator = paramList.getCvParam().listIterator();
         while (cvIterator.hasNext()) {
@@ -860,7 +831,7 @@ public class MzTabExporter {
             if (ontologyEntry != null) {
                 switch (ontologyEntry) {
                 case CONTACT_NAME:
-                    // the first entry of a contact detail has to be the name
+                    // the first entry of a contact detail has to be the NAME
                     Contact contact = processContactData(param.getValue(),
                             cvIterator, contactNames.size()+1);
                     if (!contactNames.contains(contact.getName())) {
@@ -882,7 +853,7 @@ public class MzTabExporter {
                     break;
 
                 case SAMPLE_NAME:
-                    // wenn "sample name" -> baue sample, mit enzyme und allen möglichen anderen beschreibungen (iTraq, alles was subsample im Namen hat...)
+                    // wenn "sample NAME" -> baue sample, mit enzyme und allen möglichen anderen beschreibungen (iTraq, alles was subsample im Namen hat...)
                     if (!sampleDescriptions.contains(param.getValue())) {
                         Sample sample = new Sample(sampleDescriptions.size()+1);
                         sample.setDescription(param.getValue());
@@ -911,14 +882,14 @@ public class MzTabExporter {
      * Processes the subsequent cvParams in the additional search params, which
      * belong to a contact.
      *
-     * @param name name of the contact, which is always the first of the contact
+     * @param name NAME of the contact, which is always the first of the contact
      * details in the list
      * @param cvIterator Iterator over the cvParams
      * @param id id of the created contact
      * @return
      */
     private Contact processContactData(String name, ListIterator<CvParam> cvIterator, int id) {
-        // get the name again
+        // get the NAME again
         Contact contact = new Contact(id);
         contact.setName(name);
 
@@ -1016,7 +987,7 @@ public class MzTabExporter {
             List<ReportPeptide> repPeplist = piaModeller.getPeptideModeller().getFilteredReportPeptides(
                     exportFileID, peptideFilters);
 
-            reportPeptides = new HashMap<String, ReportPeptide>(repPeplist.size());
+            reportPeptides = new HashMap<>(repPeplist.size());
             for (ReportPeptide repPep : repPeplist) {
                 reportPeptides.put(repPep.getStringID(), repPep);
             }
@@ -1025,13 +996,13 @@ public class MzTabExporter {
         outWriter.append(columnFactory.toString());
         outWriter.append(MZTabConstants.NEW_LINE);
 
-        // cache the databaseRefs to an array with name and version
+        // cache the databaseRefs to an array with NAME and version
         Map<String, String[]> dbRefToDbNameAndVersion =
-                new HashMap<String, String[]>();
+                new HashMap<>();
 
         // cache the softwareRefs to the Params
         Map<String, uk.ac.ebi.pride.jmztab.model.Param> softwareParams =
-                new HashMap<String, uk.ac.ebi.pride.jmztab.model.Param>();
+                new HashMap<>();
 
         // the ID of the currently processed PSM
         int mzTabPSMid = 0;
@@ -1039,15 +1010,12 @@ public class MzTabExporter {
         // now write the PSMs
         int nrPSMsExport = report.size();
         int count = 0;
-        ListIterator<PSMReportItem> psmIt = report.listIterator();
-        while (psmIt.hasNext()) {
-            PSMReportItem psmItem = psmIt.next();
-
+        for (PSMReportItem psmItem : report) {
             PSM mztabPsm = new PSM(columnFactory, metadata);
 
             mztabPsm.setSequence(psmItem.getSequence());
 
-            List<ReportPSM> reportPSMs = new ArrayList<ReportPSM>();
+            List<ReportPSM> reportPSMs = new ArrayList<>();
 
             if (psmItem instanceof ReportPSM) {
                 reportPSMs.add((ReportPSM) psmItem);
@@ -1064,7 +1032,7 @@ public class MzTabExporter {
             mztabPsm.setPSM_ID(mzTabPSMid);
 
             // collect the SpectrumIdRefs and softwareRefs from the ReportPSMs
-            Set<String> softwareRefs = new HashSet<String>();
+            Set<String> softwareRefs = new HashSet<>();
             for (ReportPSM reportPSM : reportPSMs) {
 
                 addSpecRefForPSM(mztabPsm, psmItem.getSourceID(),
@@ -1196,7 +1164,7 @@ public class MzTabExporter {
                 for (String dbRef : accession.getSearchDatabaseRefs()) {
                     String[] nameAndVersion =
                             dbRefToDbNameAndVersion.get(dbRef);
-                    // cache the name and version of databases
+                    // cache the NAME and version of databases
                     if (nameAndVersion == null) {
                         SearchDatabase sDB = piaModeller.getSearchDatabases().get(dbRef);
 
@@ -1347,12 +1315,8 @@ public class MzTabExporter {
     /**
      * Writes the protein section into an mzTab file
      *
-     * @param metadata
      * @param report
-     * @param specIDRefToMsRuns
      * @param reportPSMs
-     * @param writer
-     * @param unimodParser
      * @throws IOException
      */
     private void writeProteins(List<ReportProtein> report,
@@ -1366,7 +1330,7 @@ public class MzTabExporter {
         Map<String, Boolean> psmSetSettings = piaModeller.getPSMModeller().getPSMSetSettings();
 
         // cache the msRuns
-        Map<Integer, MsRun> msRunMap = new HashMap<Integer, MsRun>();
+        Map<Integer, MsRun> msRunMap = new HashMap<>();
         for (List<MsRun> msRunList : specIdRefToMsRuns.values()) {
             for (MsRun msRun : msRunList) {
                 msRunMap.put(msRun.getId(), msRun);
@@ -1422,9 +1386,9 @@ public class MzTabExporter {
         outWriter.append(columnFactory.toString());
         outWriter.append(MZTabConstants.NEW_LINE);
 
-        // cache the databaseRefs to an array with name and version
+        // cache the databaseRefs to an array with NAME and version
         Map<String, String[]> dbRefToDbNameAndVersion =
-                new HashMap<String, String[]>();
+                new HashMap<>();
 
         for (ReportProtein reportProtein : report) {
             Protein mzTabProtein = new Protein(columnFactory);
@@ -1443,7 +1407,7 @@ public class MzTabExporter {
             // set the first available dbName and dbVersion of the representative
             for (String dbRef : representative.getSearchDatabaseRefs()) {
                 String[] nameAndVersion = dbRefToDbNameAndVersion.get(dbRef);
-                // cache the name and version of databases
+                // cache the NAME and version of databases
                 if (nameAndVersion == null) {
                     SearchDatabase sDB = piaModeller.getSearchDatabases().get(dbRef);
 
@@ -1476,13 +1440,13 @@ public class MzTabExporter {
                 }
             }
 
-            Set<String> usedSoftwareRefs = new HashSet<String>();
+            Set<String> usedSoftwareRefs = new HashSet<>();
 
             Map<Integer, Integer> msRunIdToNumPSMs =
-                    new HashMap<Integer, Integer>();
+                    new HashMap<>();
 
             Map<Integer, Set<String>> msRunIdToDistinctPeptides =
-                    new HashMap<Integer, Set<String>>();
+                    new HashMap<>();
 
             // go through each peptide and PSM of the protein and collect information
             for (ReportPeptide reportPeptide : reportProtein.getPeptides()) {
@@ -1514,7 +1478,7 @@ public class MzTabExporter {
                                     Set<String> disctinctPeptides =
                                             msRunIdToDistinctPeptides.get(msRun.getId());
                                     if (disctinctPeptides == null) {
-                                        disctinctPeptides = new HashSet<String>(
+                                        disctinctPeptides = new HashSet<>(
                                                 reportProtein.getNrPeptides());
                                         msRunIdToDistinctPeptides.put(
                                                 msRun.getId(), disctinctPeptides);
@@ -1577,12 +1541,8 @@ public class MzTabExporter {
                 }
             }
 
-            for (Accession ambiguityMember : reportProtein.getAccessions()) {
-                if (!ambiguityMember.equals(representative)) {
-                    mzTabProtein.addAmbiguityMembers(
-                            ambiguityMember.getAccession());
-                }
-            }
+            reportProtein.getAccessions().stream().filter(ambiguityMember -> !ambiguityMember.equals(representative)).forEach(ambiguityMember -> mzTabProtein.addAmbiguityMembers(
+                    ambiguityMember.getAccession()));
 
             // TODO: perhaps add modifications with mzTabProtein.addModification(modification);
 
@@ -1612,7 +1572,7 @@ public class MzTabExporter {
     /**
      * Get the Unimod modification for the Modification. If this is not yet in
      * the caches, create it. If there is no UniMod modification for the
-     * residue, mass and possible name, create a simple ChemMod modification.
+     * residue, mass and possible NAME, create a simple ChemMod modification.
      *
      * @param modification
      * @return
@@ -1683,11 +1643,7 @@ public class MzTabExporter {
         Set<ModT> possibleMods = new HashSet<>();
         Map<Double, Set<ModT>> massToMods = resAndMassToModifications.get(residue);
         if (massToMods != null) {
-            for (Map.Entry<Double, Set<ModT>> massModsIt : massToMods.entrySet()) {
-                if (Math.abs(massModsIt.getKey() - modification.getMass()) <= UnimodParser.UNIMOD_MASS_TOLERANCE) {
-                    possibleMods.addAll(massModsIt.getValue());
-                }
-            }
+            massToMods.entrySet().stream().filter(massModsIt -> Math.abs(massModsIt.getKey() - modification.getMass()) <= UnimodParser.UNIMOD_MASS_TOLERANCE).forEach(massModsIt -> possibleMods.addAll(massModsIt.getValue()));
         }
 
         ModT uniMod = null;
@@ -1701,7 +1657,7 @@ public class MzTabExporter {
                     }
                 }
             } else {
-                // no name is given, return any of the possible modifications
+                // no NAME is given, return any of the possible modifications
                 uniMod = possibleMods.iterator().next();
             }
 
@@ -1752,7 +1708,6 @@ public class MzTabExporter {
      *
      * @param mztabPsm
      * @param sourceID
-     * @param specIdRefs
      */
     private void addSpecRefForPSM(PSM mztabPsm, String sourceID, String specIdRef) {
         if (sourceID == null) {
@@ -1772,9 +1727,7 @@ public class MzTabExporter {
      * Get the peptide occurrences for the given peptide and the accessions.
      * This method uses a map as cache and fills it accordingly.
      *
-     * @param sequence
      * @param accession
-     * @param pepOccurrences
      * @return
      */
     private String[] getPeptideOccurrences(Peptide peptide, String accession) {

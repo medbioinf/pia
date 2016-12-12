@@ -47,13 +47,13 @@ public class FixedModification {
      */
     public List<UserParamIdXML> getUserParam() {
         if (userParam == null) {
-            userParam = new ArrayList<UserParamIdXML>();
+            userParam = new ArrayList<>();
         }
         return this.userParam;
     }
 
     /**
-     * Gets the value of the name property.
+     * Gets the value of the NAME property.
      * 
      * @return
      *     possible object is
@@ -65,7 +65,7 @@ public class FixedModification {
     }
 
     /**
-     * Sets the value of the name property.
+     * Sets the value of the NAME property.
      * 
      * @param value
      *     allowed object is

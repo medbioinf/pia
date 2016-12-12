@@ -24,11 +24,11 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="mappingType">
+ * &lt;complexType NAME="mappingType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="referenceName" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="referenceID" type="{http://www.w3.org/2001/XMLSchema}IDREF" />
+ *       &lt;attribute NAME="referenceName" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="referenceID" type="{http://www.w3.org/2001/XMLSchema}IDREF" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -77,19 +78,18 @@ public class ReportPSM  implements PSMReportItem {
     public ReportPSM(Long id, PeptideSpectrumMatch spectrum) {
         this.id = id;
         this.spectrum = spectrum;
-        isDecoy = ((spectrum.getIsDecoy() != null) && spectrum.getIsDecoy()) ?
-                true : false;
+        isDecoy = ((spectrum.getIsDecoy() != null) && spectrum.getIsDecoy());
         isFDRGood = false;
-        accessions = new TreeMap<String, Accession>();
+        accessions = new TreeMap<>();
         qValue = null;
         fdrScore = null;
 
         fdrValue = Double.POSITIVE_INFINITY;
         rank = 0L;
-        identificationRanks = new HashMap<String, Integer>(3);
+        identificationRanks = new HashMap<>(3);
 
         // set the map to available values
-        maximalSpectraIdentificationSettings = new HashMap<String, Boolean>(5);
+        maximalSpectraIdentificationSettings = new HashMap<>(5);
         maximalSpectraIdentificationSettings.put(
                 IdentificationKeySettings.MASSTOCHARGE.name(), true);
         if (spectrum.getRetentionTime() != null) {
@@ -225,14 +225,10 @@ public class ReportPSM  implements PSMReportItem {
 
     @Override
     public List<Accession> getAccessions() {
-        List<Accession> accList = new ArrayList<Accession>(accessions.size());
+        List<Accession> accList = new ArrayList<>(accessions.size());
 
-        for (Map.Entry<String, Accession> accIt : accessions.entrySet()) {
-            // only add the accession, if it was found in the file
-            if (accIt.getValue().foundInFile(spectrum.getFile().getID())) {
-                accList.add(accIt.getValue());
-            }
-        }
+        // only add the accession, if it was found in the file
+        accList.addAll(accessions.entrySet().stream().filter(accIt -> accIt.getValue().foundInFile(spectrum.getFile().getID())).map(Map.Entry::getValue).collect(Collectors.toList()));
 
         return accList;
     }
@@ -272,7 +268,7 @@ public class ReportPSM  implements PSMReportItem {
 
 
     /**
-     * Getter for the name of the {@link PIAInputFile}
+     * Getter for the NAME of the {@link PIAInputFile}
      * @return
      */
     public String getInputFileName() {
@@ -390,11 +386,9 @@ public class ReportPSM  implements PSMReportItem {
      * @return
      */
     public List<ScoreModel> getScores() {
-        List<ScoreModel> scores = new ArrayList<ScoreModel>();
+        List<ScoreModel> scores = new ArrayList<>();
 
-        for (ScoreModel score : spectrum.getScores()) {
-            scores.add(score);
-        }
+        scores.addAll(spectrum.getScores());
 
         if (fdrScore != null) {
             scores.add(fdrScore);

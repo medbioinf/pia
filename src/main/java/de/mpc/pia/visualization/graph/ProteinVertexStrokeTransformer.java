@@ -20,10 +20,10 @@ public class ProteinVertexStrokeTransformer
         implements Transformer<VertexObject, Stroke> {
 
     /** the graph handler which holds also information about the inferred proteins */
-    private ProteinVisualizationGraphHandler graphHandler;
+    private final ProteinVisualizationGraphHandler graphHandler;
 
     /** the picking state of the graph */
-    private PickedState<VertexObject> pickedState;
+    private final PickedState<VertexObject> pickedState;
 
 
     private final BasicStroke thinStroke = new BasicStroke(1);

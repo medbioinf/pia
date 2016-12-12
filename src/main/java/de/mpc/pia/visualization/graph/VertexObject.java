@@ -10,10 +10,10 @@ package de.mpc.pia.visualization.graph;
 public class VertexObject {
 	
 	/** The label of this vertex (not necessary the shown label) */
-	private String label;
+	private final String label;
 	
 	/** the actual object represented by this vertex */
-	private Object object;
+	private final Object object;
 	
 	
 	

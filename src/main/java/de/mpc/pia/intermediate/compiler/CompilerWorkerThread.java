@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -21,13 +22,13 @@ import de.mpc.pia.intermediate.Peptide;
  * @author julian
  *
  */
-public class CompilerWorkerThread extends Thread {
+class CompilerWorkerThread extends Thread {
 
     /** the ID of this worker thread */
     private int id;
 
     /** the caller of this thread */
-    private PIACompiler parent;
+    private final PIACompiler parent;
 
     /** the groups, which are processed by this thread */
     private Map<Long, Group> threadGroups;
@@ -40,7 +41,7 @@ public class CompilerWorkerThread extends Thread {
     public CompilerWorkerThread(int id, PIACompiler parent) {
         this.id = id;
         this.parent = parent;
-        this.threadGroups = new HashMap<Long, Group>();
+        this.threadGroups = new HashMap<>();
 
         this.setName("PIA-Worker-" + id);
     }
@@ -56,7 +57,7 @@ public class CompilerWorkerThread extends Thread {
         // get the next available cluster from the parent
         cluster = parent.getNextCluster();
         while (cluster != null) {
-            Map<Long, Group> subGroups = new HashMap<Long, Group>();
+            Map<Long, Group> subGroups = new HashMap<>();
 
             for (Map.Entry<Long, Collection<Long>> pepIt : cluster.entrySet()) {
                 Peptide peptide = parent.getPeptide(pepIt.getKey());
@@ -92,14 +93,14 @@ public class CompilerWorkerThread extends Thread {
      * @param accessionIDs
      * @param subGroups
      */
-    public void insertIntoMap(Peptide peptide, Collection<Long> accessionIDs, Map<Long, Group> subGroups) {
+    private void insertIntoMap(Peptide peptide, Collection<Long> accessionIDs, Map<Long, Group> subGroups) {
         Map<Long, Map<String, Accession>> groupAccMap;  // the accessions, grouped by their groups
         Map<String, Accession> accessions = new TreeMap<>();
 
         // group the accessions by the groups they are in
-        groupAccMap = new HashMap<Long, Map<String,Accession>>();
-        for (Long accesionId : accessionIDs) {
-            Accession accession = parent.getAccession(accesionId);
+        groupAccMap = new HashMap<>();
+        for (Long accessionId : accessionIDs) {
+            Accession accession = parent.getAccession(accessionId);
             accessions.put(accession.getAccession(), accession);
             Long groupId;
 
@@ -111,7 +112,7 @@ public class CompilerWorkerThread extends Thread {
 
             Map<String, Accession> groupsAcc = groupAccMap.get(groupId);
             if (groupsAcc == null) {
-                groupsAcc = new HashMap<String, Accession>();
+                groupsAcc = new HashMap<>();
                 groupAccMap.put(groupId, groupsAcc);
             }
 
@@ -176,7 +177,7 @@ public class CompilerWorkerThread extends Thread {
                 // (accGrouped.size() != 1)
                 // the accessions are in different groups / not yet assigned
 
-                Set<Long> remainingGroups = new HashSet<Long>();
+                Set<Long> remainingGroups = new HashSet<>();
                 Set<Long> subTreeSet = getSubtreeGroups(accessions,
                         remainingGroups, subGroups);
 
@@ -381,7 +382,7 @@ public class CompilerWorkerThread extends Thread {
      */
     private static Set<Long> getSubtreeGroups(Map<String, Accession> accessions,
             Set<Long> remainingSet, Map<Long, Group> subGroups) {
-        Set<Long> subTreeSet = new HashSet<Long>();
+        Set<Long> subTreeSet = new HashSet<>();
         long mostId;
         long mostAccessions;
         Group mostGroup = null;
@@ -411,13 +412,9 @@ public class CompilerWorkerThread extends Thread {
                     }
                 }
             }
-
             // remove the accessions of the found group from the accessions set
             if ((mostId > 0) && (mostGroup != null)) {
-                for (String accStr : mostGroup.getAllAccessions().keySet()) {
-                    accessions.remove(accStr);
-                }
-
+                mostGroup.getAllAccessions().keySet().forEach(accessions::remove);
                 // and add the found ID to the subTreeSet
                 subTreeSet.add(mostId);
             }
@@ -425,15 +422,10 @@ public class CompilerWorkerThread extends Thread {
 
 
         remainingSet.clear();
-        for (Accession accession : accessions.values()) {
-            if (accession.getGroup() != null) {
-                // if there is still an accession in the map, which has an
-                // assigned group, so there were accessions in the group, which
-                // were not in the accessions map -> put it into the remainingSet
-                remainingSet.add(accession.getGroup().getID());
-            }
-        }
-
+        // if there is still an accession in the map, which has an
+        // assigned group, so there were accessions in the group, which
+        // were not in the accessions map -> put it into the remainingSet
+        remainingSet.addAll(accessions.values().stream().filter(accession -> accession.getGroup() != null).map(accession -> accession.getGroup().getID()).collect(Collectors.toList()));
         return subTreeSet;
     }
 }

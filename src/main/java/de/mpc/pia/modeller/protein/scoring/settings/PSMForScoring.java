@@ -5,8 +5,6 @@ import java.util.List;
 
 import de.mpc.pia.modeller.peptide.ReportPeptide;
 import de.mpc.pia.modeller.protein.ReportProtein;
-import de.mpc.pia.modeller.psm.PSMReportItem;
-import de.mpc.pia.modeller.psm.ReportPSM;
 import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
@@ -35,7 +33,7 @@ public enum PSMForScoring {
 		@Override
 		public List<ScoreModel> getProteinsScores(ReportProtein protein,
 				String scoreShortName) {
-			List<ScoreModel> scores = new ArrayList<ScoreModel>(protein.getNrPeptides());
+			List<ScoreModel> scores = new ArrayList<>(protein.getNrPeptides());
 			
 			// get the best score of each peptide
 			for (ReportPeptide peptide : protein.getPeptides()) {
@@ -68,34 +66,33 @@ public enum PSMForScoring {
 		public List<ScoreModel> getProteinsScores(ReportProtein protein,
 				String scoreShortName) {
 			// TODO: implement
-			List<ScoreModel> scores = new ArrayList<ScoreModel>(protein.getNrPeptides());
+			List<ScoreModel> scores = new ArrayList<>(protein.getNrPeptides());
 			
 			// go through all peptides...
 			for (ReportPeptide peptide : protein.getPeptides()) {
 				// ...go through all PSM sets...
-				for (PSMReportItem repPSM : peptide.getPSMs()) {
-					if (repPSM instanceof ReportPSMSet) {
-						// the repPSM has to be a ReportPSMSet, we have only the overview here
-						if (ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.isValidDescriptor(scoreShortName)) {
-							// ... the COMBINED_FDR_SCORE is in the PSM set 
-							ScoreModel psmScore = repPSM.getCompareScore(scoreShortName);
+				// the repPSM has to be a ReportPSMSet, we have only the overview here
+// ... the COMBINED_FDR_SCORE is in the PSM set
+// ... go through all PSMs and take all their (scoring) scores
+				peptide.getPSMs().stream().filter(repPSM -> repPSM instanceof ReportPSMSet).forEach(repPSM -> {
+					// the repPSM has to be a ReportPSMSet, we have only the overview here
+					if (ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.isValidDescriptor(scoreShortName)) {
+						// ... the COMBINED_FDR_SCORE is in the PSM set
+						ScoreModel psmScore = repPSM.getCompareScore(scoreShortName);
+						if (psmScore != null) {
+							scores.add(psmScore);
+						}
+					} else {
+						// ... go through all PSMs and take all their (scoring) scores
+						((ReportPSMSet) repPSM).getPSMs().stream().filter(psm -> !peptide.getNonScoringPSMIDs().contains(psm.getId())).forEach(psm -> {
+							ScoreModel psmScore = psm.getCompareScore(scoreShortName);
 							if (psmScore != null) {
 								scores.add(psmScore);
 							}
-						} else {
-							// ... go through all PSMs and take all their (scoring) scores
-							for (ReportPSM psm : ((ReportPSMSet) repPSM).getPSMs()) {
-								if (!peptide.getNonScoringPSMIDs().contains(psm.getId())) {
-									ScoreModel psmScore = psm.getCompareScore(scoreShortName);
-									if (psmScore != null) {
-										scores.add(psmScore);
-									}
-								}
-							}
-							
-						}
+						});
+
 					}
-				}
+				});
 			}
 			
 			return scores;
@@ -104,14 +101,14 @@ public enum PSMForScoring {
 	;
 	
 	/**
-	 * Getter for the method's name.
+	 * Getter for the method's NAME.
 	 * @return
 	 */
 	public abstract String getName();
 	
 	
 	/**
-	 * Getter for the method's shortName
+	 * Getter for the method's SHORT_NAME
 	 * @return
 	 */
 	public abstract String getShortName();
@@ -139,6 +136,6 @@ public enum PSMForScoring {
 			}
 		}
 		
-		return new ArrayList<ScoreModel>(0);
+		return new ArrayList<>(0);
 	}
 }

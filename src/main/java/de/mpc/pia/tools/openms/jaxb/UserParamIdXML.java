@@ -23,12 +23,12 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="UserParam">
+ * &lt;complexType NAME="UserParam">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="type" use="required" type="{}UserParamType" />
- *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="value" use="required" type="{http://www.w3.org/2001/XMLSchema}anySimpleType" />
+ *       &lt;attribute NAME="type" use="required" type="{}UserParamType" />
+ *       &lt;attribute NAME="NAME" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="value" use="required" type="{http://www.w3.org/2001/XMLSchema}anySimpleType" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -73,7 +73,7 @@ public class UserParamIdXML {
     }
 
     /**
-     * Gets the value of the name property.
+     * Gets the value of the NAME property.
      * 
      * @return
      *     possible object is
@@ -85,7 +85,7 @@ public class UserParamIdXML {
     }
 
     /**
-     * Sets the value of the name property.
+     * Sets the value of the NAME property.
      * 
      * @param value
      *     allowed object is

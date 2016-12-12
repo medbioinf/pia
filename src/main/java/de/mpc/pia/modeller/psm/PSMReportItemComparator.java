@@ -17,7 +17,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	RANK_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			RankComparator<PSMReportItem> comparator =
-					new RankComparator<PSMReportItem>();
+					new RankComparator<>();
 			
 			return comparator.compare(o1, o2);
 		}
@@ -135,7 +135,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	PSM_FDR_SCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -146,7 +146,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	PSM_Q_VALUE_SCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.PSM_LEVEL_Q_VALUE.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.PSM_LEVEL_Q_VALUE.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -157,7 +157,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	AVERAGE_FDR_SCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.AVERAGE_FDR_SCORE.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.AVERAGE_FDR_SCORE.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -168,7 +168,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	COMBINED_FDR_SCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -179,7 +179,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	MASCOT_SCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.MASCOT_SCORE.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.MASCOT_SCORE.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -190,7 +190,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	MASCOT_EXPECT_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.MASCOT_EXPECT.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.MASCOT_EXPECT.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -201,7 +201,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	SEQUEST_PROBABILITY_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.SEQUEST_PROBABILITY.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.SEQUEST_PROBABILITY.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -212,7 +212,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	SEQUEST_SPSCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.SEQUEST_SPSCORE.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.SEQUEST_SPSCORE.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -223,7 +223,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	SEQUEST_XCORR_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.SEQUEST_XCORR.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.SEQUEST_XCORR.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -234,7 +234,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	XTANDEM_EXPECT_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.XTANDEM_EXPECT.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.XTANDEM_EXPECT.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -245,7 +245,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	XTANDEM_HYPERSCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.XTANDEM_HYPERSCORE.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.XTANDEM_HYPERSCORE.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -256,7 +256,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	MSGF_RAWSCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.MSGF_RAWSCORE.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.MSGF_RAWSCORE.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -267,7 +267,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	MSGF_DENOVOSCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.MSGF_DENOVOSCORE.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.MSGF_DENOVOSCORE.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -278,7 +278,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	MSGF_SPECEVALUE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.MSGF_SPECEVALUE.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.MSGF_SPECEVALUE.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -289,7 +289,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	MSGF_EVALUE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.MSGF_EVALUE.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.MSGF_EVALUE.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -300,7 +300,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	MYRIMATCH_MVH_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.MYRIMATCH_MVH.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.MYRIMATCH_MVH.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -311,7 +311,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	AMANDA_SCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.AMANDA_SCORE.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.AMANDA_SCORE.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -322,7 +322,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	OPENMS_POSTERIOR_ERROR_PROBABILITY_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.OPENMS_POSTERIOR_ERROR_PROBABILITY.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.OPENMS_POSTERIOR_ERROR_PROBABILITY.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -333,7 +333,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	OPENMS_POSTERIOR_PROBABILITY_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.OPENMS_POSTERIOR_PROBABILITY.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.OPENMS_POSTERIOR_PROBABILITY.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -344,7 +344,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	OPENMS_CONSENSUS_PEPMATRIX_PEP_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.OPENMS_CONSENSUS_PEPMATRIX_POSTERIOR_ERROR_PROBABILITY.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.OPENMS_CONSENSUS_PEPMATRIX_POSTERIOR_ERROR_PROBABILITY.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -357,7 +357,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	FASTA_SEQUENCE_COUNT_SCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.FASTA_SEQUENCE_COUNT.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.FASTA_SEQUENCE_COUNT.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -368,7 +368,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	FASTA_ACCESSION_COUNT_SCORE_SORT {
 		public int compare(PSMReportItem o1, PSMReportItem o2) {
 			ScoreComparator<PSMReportItem> comp =
-					new ScoreComparator<PSMReportItem>(ScoreModelEnum.FASTA_ACCESSION_COUNT.getShortName());
+					new ScoreComparator<>(ScoreModelEnum.FASTA_ACCESSION_COUNT.getShortName());
 			return comp.compare(o1, o2);
 		}
 		
@@ -379,7 +379,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	;
 	
 	
-	/** the prefix before all score tags */
+	/** the PREFIX before all score tags */
 	public final static String score_prefix = "score_";
 	
 	
@@ -390,12 +390,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	 * @return
 	 */
 	public static Comparator<PSMReportItem> descending(final Comparator<PSMReportItem> other) {
-		return new Comparator<PSMReportItem>() {
-			@Override
-			public int compare(PSMReportItem o1, PSMReportItem o2) {
-				return -1 * other.compare(o1, o2);
-			}
-		};
+		return (o1, o2) -> -1 * other.compare(o1, o2);
     }
 	
 	
@@ -406,24 +401,22 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	 * @return
 	 */
 	public static Comparator<PSMReportItem> getComparator(final List<Comparator<PSMReportItem>> multipleOptions) {
-		return new Comparator<PSMReportItem>() {
-			public int compare(PSMReportItem o1, PSMReportItem o2) {
-				int result;
-				// check all options, the first not returning 0 (equal) gets returned
-				for (Comparator<PSMReportItem> option : multipleOptions) {
-					result = option.compare(o1, o2);
-					if (result != 0) {
-						return result;
-					}
-				}
-				return 0;
-			}
-		};
+		return (o1, o2) -> {
+            int result;
+            // check all options, the first not returning 0 (equal) gets returned
+            for (Comparator<PSMReportItem> option : multipleOptions) {
+                result = option.compare(o1, o2);
+                if (result != 0) {
+                    return result;
+                }
+            }
+            return 0;
+        };
 	}
 	
 	
 	/**
-	 * returns the comparator given by its name using the given order.
+	 * returns the comparator given by its NAME using the given order.
 	 * 
 	 * @param name
 	 * @param order
@@ -446,7 +439,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	 * @return
 	 */
 	public static Map<String, SortOrder> getInitialSortOrders() {
-		Map<String, SortOrder> orders = new HashMap<String, SortOrder>();
+		Map<String, SortOrder> orders = new HashMap<>();
 		
 		for (PSMReportItemComparator comp : values()) {
 			if (!comp.toString().startsWith(score_prefix)) {
@@ -459,8 +452,8 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	
 	
 	/**
-	 * Returns the name of the score with the given shortName.<br/>
-	 * The shortName has the score prefix, to distinguish it from a normal
+	 * Returns the NAME of the score with the given SHORT_NAME.<br/>
+	 * The SHORT_NAME has the score PREFIX, to distinguish it from a normal
 	 * sorting field.
 	 * @return
 	 */

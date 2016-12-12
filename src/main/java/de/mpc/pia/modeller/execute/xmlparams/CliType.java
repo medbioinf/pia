@@ -24,11 +24,11 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="cliType">
+ * &lt;complexType NAME="cliType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="clielement" type="{}cliElementType" maxOccurs="unbounded"/>
+ *         &lt;element NAME="clielement" type="{}cliElementType" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -70,7 +70,7 @@ public class CliType {
      */
     public List<CliElementType> getClielement() {
         if (clielement == null) {
-            clielement = new ArrayList<CliElementType>();
+            clielement = new ArrayList<>();
         }
         return this.clielement;
     }

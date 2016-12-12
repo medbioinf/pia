@@ -36,7 +36,6 @@ public class SearchDatabaseRefXML {
 	
 	/**
 	 * Sets the value of the searchDatabase_ref attribute.
-	 * @param id
 	 */
 	public void setSearchDatabase_ref(String searchDatabase_ref) {
 		this.searchDatabase_ref = searchDatabase_ref;

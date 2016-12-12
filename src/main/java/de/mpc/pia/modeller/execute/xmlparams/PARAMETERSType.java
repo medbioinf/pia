@@ -24,14 +24,14 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="PARAMETERSType">
+ * &lt;complexType NAME="PARAMETERSType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;group ref="{}ITEMS" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="NODE" type="{}NODEType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element NAME="NODE" type="{}NODEType" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
- *       &lt;attribute name="version" type="{}versionString" />
+ *       &lt;attribute NAME="version" type="{}versionString" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -81,7 +81,7 @@ public class PARAMETERSType {
      */
     public List<AbstractITEMType> getITEMS() {
         if (items == null) {
-            items = new ArrayList<AbstractITEMType>();
+            items = new ArrayList<>();
         }
         return this.items;
     }
@@ -110,7 +110,7 @@ public class PARAMETERSType {
      */
     public List<NODEType> getNODE() {
         if (node == null) {
-            node = new ArrayList<NODEType>();
+            node = new ArrayList<>();
         }
         return this.node;
     }

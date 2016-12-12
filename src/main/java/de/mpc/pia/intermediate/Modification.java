@@ -11,7 +11,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * A ModificationType describes the type of a modification via its amino acids,
- * mass shift and a modification name. These settings are usually given by a
+ * mass shift and a modification NAME. These settings are usually given by a
  * search engine.
  *
  * @author julian

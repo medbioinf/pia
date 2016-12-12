@@ -11,12 +11,12 @@ public class ProteinScoringFactory {
 		ADDITIVE_SCORING {
 			@Override
 			public String getName() {
-				return AdditiveScoring.name;
+				return AdditiveScoring.NAME;
 			}
 			
 			@Override
 			public String getShortName() {
-				return AdditiveScoring.shortName;
+				return AdditiveScoring.SHORT_NAME;
 			}
 			
 			@Override
@@ -47,12 +47,12 @@ public class ProteinScoringFactory {
 		GEOMETRIC_MEAN_SCORING {
 			@Override
 			public String getName() {
-				return GeometricMeanScoring.name;
+				return GeometricMeanScoring.NAME;
 			}
 			
 			@Override
 			public String getShortName() {
-				return GeometricMeanScoring.shortName;
+				return GeometricMeanScoring.SHORT_NAME;
 			}
 			
 			@Override
@@ -64,14 +64,14 @@ public class ProteinScoringFactory {
 		;
 		
 		/**
-		 * Returns the human readable name for this scoring.
+		 * Returns the human readable NAME for this scoring.
 		 * @return
 		 */
 		public abstract String getName();
 		
 		
 		/**
-		 * Returns the machine readable name for this scoring.
+		 * Returns the machine readable NAME for this scoring.
 		 * @return
 		 */
 		public abstract String getShortName();
@@ -97,8 +97,8 @@ public class ProteinScoringFactory {
 	
 	
 	/**
-	 * Returns the scoring type with the given shortName.<br/>
-	 * If no Scoring type with this name is found, returns <code>null</code>.
+	 * Returns the scoring type with the given SHORT_NAME.<br/>
+	 * If no Scoring type with this NAME is found, returns <code>null</code>.
 	 * 
 	 * @param shortName
 	 * @return
@@ -115,7 +115,7 @@ public class ProteinScoringFactory {
 	
 	
 	/**
-	 * Returns a new instance of the scoring given by the shortName.
+	 * Returns a new instance of the scoring given by the SHORT_NAME.
 	 * 
 	 * @param shortName
 	 * @param scoreNameMap
@@ -134,13 +134,13 @@ public class ProteinScoringFactory {
 	
 	
 	/**
-	 * Returns a map from each scoring's shortName to the human readable name of
+	 * Returns a map from each scoring's SHORT_NAME to the human readable NAME of
 	 * the scoring.
 	 * 
 	 * @return
 	 */
 	public static Map<String, String> getAllScoringNames() {
-		Map<String, String> scoringMap = new HashMap<String, String>(ScoringType.values().length);
+		Map<String, String> scoringMap = new HashMap<>(ScoringType.values().length);
 		
 		for (ScoringType scoring : ScoringType.values()) {
 			scoringMap.put(scoring.getShortName(), scoring.getName());

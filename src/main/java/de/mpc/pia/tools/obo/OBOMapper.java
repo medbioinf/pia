@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -40,7 +39,6 @@ public class OBOMapper {
      * Constructor for the OBOMapper. Uses the online OBO file (if accessible)
      * or a locally shipped file.
      *
-     * @param pathToFile
      */
     public OBOMapper() {
         this(true);
@@ -148,7 +146,7 @@ public class OBOMapper {
 
 
     /**
-     * Gets the entry in the OBO with the given name. If none is found, returns
+     * Gets the entry in the OBO with the given NAME. If none is found, returns
      * null.
      *
      * @param name
@@ -156,9 +154,7 @@ public class OBOMapper {
      */
     public Term getTermByName(String name) {
         Set<Term> keys = getTerms();
-        Iterator<Term> iter = keys.iterator();
-        while (iter.hasNext()){
-            Term term = iter.next();
+        for (Term term : keys) {
             if (name.equals(term.getDescription())) {
                 return term;
             }

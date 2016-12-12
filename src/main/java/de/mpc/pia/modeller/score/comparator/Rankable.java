@@ -12,23 +12,23 @@ package de.mpc.pia.modeller.score.comparator;
  */
 public interface Rankable extends ScoreComparable {
 	/**
-	 * Returns the score value with the given name.
+	 * Returns the score value with the given NAME.
 	 * @param scoreName
 	 * @return
 	 */
-	public abstract Double getScore(String scoreName);
+	Double getScore(String scoreName);
 	
 	
 	/**
 	 * Getter for the rank.
 	 * @return
 	 */
-	public abstract Long getRank();
+	Long getRank();
 	
 	
 	/**
 	 * Setter for the rank.
 	 * @return
 	 */
-	public abstract void setRank(Long rank);
+	void setRank(Long rank);
 }

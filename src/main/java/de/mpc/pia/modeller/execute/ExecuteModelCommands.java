@@ -21,14 +21,14 @@ public interface ExecuteModelCommands<T> {
      * @param params
      * @return
      */
-    public abstract boolean execute(T modeller, PIAModeller piaModeller, String[] params);
+    boolean execute(T modeller, PIAModeller piaModeller, String[] params);
 
 
     /**
      * Gives a short description for the command
      * @return
      */
-    public abstract String describe();
+    String describe();
 
 
     /**
@@ -37,40 +37,39 @@ public interface ExecuteModelCommands<T> {
      * parameter file.<br/>
      *
      * Otherwise, one List<String> in the returned List stands for one needed
-     * parameter. The first string is the parameter name and any following
+     * parameter. The first string is the parameter NAME and any following
      * Strings are used to restrict the valid values. If the list is empty, no
      * parameters are needed for the execution.
      *
      * @return
      */
-    public abstract List<List<String>> neededXMLParameters();
+    List<List<String>> neededXMLParameters();
 
 
     /**
      * Execute the command with the parameters given by the node on the model.
      *
      * @param node
-     * @param model
      */
-    public abstract void executeXMLParameters(NODEType node, T modeller, PIAModeller piaModeller);
+    void executeXMLParameters(NODEType node, T modeller, PIAModeller piaModeller);
 
 
     /**
      * Creates a node with the given params. The params should be in the same
      * order as specified by {@link #neededXMLParameters()}, except for the
-     * first parameter, which indicates the name of the execute command, either
-     * with or without prefix.
+     * first parameter, which indicates the NAME of the execute command, either
+     * with or without PREFIX.
      *
      * @param params
      * @return null, if the parameters were invalid, else a node which can be
      * processed in a pipeline call
      */
-    public NODEType generateNode(String[] params);
+    NODEType generateNode(String[] params);
 
 
     /**
-     * The prefix for the commands in this enumeration.
+     * The PREFIX for the commands in this enumeration.
      * @return
      */
-    public String prefix();
+    String prefix();
 }

@@ -22,12 +22,12 @@ public class PeptideModellerTest {
 
 
     @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
+    public static void setUpBeforeClass() {
         piaFile = new File(PIAModellerTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         piaModeller = new PIAModeller(piaFile.getAbsolutePath());
     }
 

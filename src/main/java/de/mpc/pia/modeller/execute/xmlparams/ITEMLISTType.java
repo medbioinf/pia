@@ -22,11 +22,11 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="ITEMLISTType">
+ * &lt;complexType NAME="ITEMLISTType">
  *   &lt;complexContent>
  *     &lt;extension base="{}AbstractITEMType">
  *       &lt;sequence>
- *         &lt;element name="LISTITEM" type="{}LISTITEMType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element NAME="LISTITEM" type="{}LISTITEMType" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/extension>
  *   &lt;/complexContent>
@@ -70,7 +70,7 @@ public class ITEMLISTType
      */
     public List<LISTITEMType> getLISTITEM() {
         if (listitem == null) {
-            listitem = new ArrayList<LISTITEMType>();
+            listitem = new ArrayList<>();
         }
         return this.listitem;
     }

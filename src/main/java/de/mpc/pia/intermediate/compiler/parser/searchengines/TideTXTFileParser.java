@@ -45,18 +45,18 @@ public class TideTXTFileParser {
     private static final Logger LOGGER = Logger.getLogger(TideTXTFileParser.class);
 
     /** the seperator in the TSV/CSV file */
-    public static final String SEPARATOR_STRING = "\t";
+    private static final String SEPARATOR_STRING = "\t";
 
 
-    public static final String HEADER_CHARGE = "charge";
-    public static final String HEADER_PRECURSOR_MZ = "spectrum precursor m/z";
-    public static final String HEADER_SPECTRUM_NEUTRAL_MASS = "peptide mass";
-    public static final String HEADER_PEPTIDE_MASS = "peptide mass";
-    public static final String HEADER_SEQUENCE = "sequence";
-    public static final String HEADER_CLEAVAGE_TYPE = "cleavage type";
-    public static final String HEADER_SCAN = "scan";
-    public static final String HEADER_XCORR = "xcorr score";
-    public static final String HEADER_PROTEINID = "protein id";
+    private static final String HEADER_CHARGE = "charge";
+    private static final String HEADER_PRECURSOR_MZ = "spectrum precursor m/z";
+    private static final String HEADER_SPECTRUM_NEUTRAL_MASS = "peptide mass";
+    private static final String HEADER_PEPTIDE_MASS = "peptide mass";
+    private static final String HEADER_SEQUENCE = "sequence";
+    private static final String HEADER_CLEAVAGE_TYPE = "cleavage type";
+    private static final String HEADER_SCAN = "scan";
+    private static final String HEADER_XCORR = "xcorr score";
+    private static final String HEADER_PROTEINID = "protein id";
 
     /** pattern to match and grep the accession */
     private static final Pattern patternAccessions = Pattern.compile("([^(]+)\\(\\d+\\)");
@@ -64,13 +64,13 @@ public class TideTXTFileParser {
 
     /** the names of the columns */
     private static final List<String> colNames = Arrays.asList(
-            new String[]{"file", HEADER_SCAN,
-                    HEADER_CHARGE, HEADER_PRECURSOR_MZ,
-                    HEADER_SPECTRUM_NEUTRAL_MASS, HEADER_PEPTIDE_MASS, "delta_cn",
-                    HEADER_XCORR, "xcorr rank",
-                    "distinct matches/spectrum", HEADER_SEQUENCE,
-                    HEADER_CLEAVAGE_TYPE,
-                    HEADER_PROTEINID, "flanking aa"});
+            "file", HEADER_SCAN,
+            HEADER_CHARGE, HEADER_PRECURSOR_MZ,
+            HEADER_SPECTRUM_NEUTRAL_MASS, HEADER_PEPTIDE_MASS, "delta_cn",
+            HEADER_XCORR, "xcorr rank",
+            "distinct matches/spectrum", HEADER_SEQUENCE,
+            HEADER_CLEAVAGE_TYPE,
+            HEADER_PROTEINID, "flanking aa");
 
     /**
      * We don't ever want to instantiate this class
@@ -81,11 +81,11 @@ public class TideTXTFileParser {
 
 
     /**
-     * Parses the data from an tide TXT result file given by its name into the
+     * Parses the data from an tide TXT result file given by its NAME into the
      * given {@link PIACompiler}.
      *
-     * @param name name if the file in the compilation
-     * @param fileName name of the Tide TXT result file
+     * @param name NAME if the file in the compilation
+     * @param fileName NAME of the Tide TXT result file
      * @param compiler the PIACompiler
      */
     public static boolean getDataFromTideTXTFile(String name, String fileName,
@@ -94,10 +94,10 @@ public class TideTXTFileParser {
         int pepNr = 0;
         int specNr = 0;
 
-        String line = null;
+        String line;
         int lineNr = 0;
 
-        Map<String, Integer> columnMap = new HashMap<String, Integer>(colNames.size());
+        Map<String, Integer> columnMap = new HashMap<>(colNames.size());
 
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             if ((line = br.readLine()) != null) {
@@ -188,7 +188,7 @@ public class TideTXTFileParser {
 
                 String sequence = columns[columnMap.get(HEADER_SEQUENCE)];
 
-                Map<Integer, Modification> modifications = new HashMap<Integer, Modification>();
+                Map<Integer, Modification> modifications = new HashMap<>();
                 if (sequence.contains("[")) {
                     sequence = extractModifications(sequence, modifications, compiler);
                 }
@@ -229,7 +229,7 @@ public class TideTXTFileParser {
                 // add the scores
                 ScoreModel score;
 
-                Double scoreValue = null;
+                Double scoreValue;
                 try {
                     scoreValue = Double.parseDouble(columns[columnMap.get(HEADER_XCORR)]);
                     score = new ScoreModel(scoreValue,
@@ -333,7 +333,6 @@ public class TideTXTFileParser {
                 unimod = compiler.getUnimodParser().getModificationByMass(
                         massShift, residue);
             } catch (NumberFormatException e) {
-                massShift = null;
                 LOGGER.error("could not parse mass of modification: " + modWeight, e);
             }
 

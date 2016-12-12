@@ -35,8 +35,8 @@ import de.mpc.pia.modeller.score.FDRData;
  */
 public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     AddPreferredFDRScore {
-        /** the identification string for the score name */
-        private static final String ID_SCORE_NAME = "score name";
+        /** the identification string for the score NAME */
+        private static final String ID_SCORE_NAME = "score NAME";
 
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
@@ -47,14 +47,14 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public String describe() {
-            return "Adds the given score name to the list of preferred scores for FDR calculation.";
+            return "Adds the given score NAME to the list of preferred scores for FDR calculation.";
         }
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_SCORE_NAME);
             params.add(param);
 
@@ -83,7 +83,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
             LOGGER.info(LOGGING_PREAMBEL + name());
-            ArrayList<String> list = new ArrayList<String>(params.length);
+            ArrayList<String> list = new ArrayList<>(params.length);
             Collections.addAll(list, params);
             psmModeller.addPreferredFDRScores(list);
             return true;
@@ -128,9 +128,9 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_NUMBER_NAME);
             params.add(param);
 
@@ -156,7 +156,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     },
 
     SetAllDecoyPattern {
-        /** the identification string for the score name */
+        /** the identification string for the score NAME */
         private static final String ID_DECOY_PATTERN = "decoy pattern";
 
         @Override
@@ -176,9 +176,9 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_DECOY_PATTERN);
             params.add(param);
 
@@ -258,7 +258,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
         /** the identification string for the file ID */
         private static final String ID_FILE_ID= "file ID";
 
-        /** the identification string for the filter name */
+        /** the identification string for the filter NAME */
         private static final String ID_FILTERNAME= "filtername";
 
         /** the identification string for negate */
@@ -316,7 +316,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
         public String describe() {
             return "Adds a PSM level filter to a specified file. The file is"
                     + " given by the first parameter, which has to be the file"
-                    + " id. Filters are added by their name, an abbreviation"
+                    + " id. Filters are added by their NAME, an abbreviation"
                     + " for the camparison, the compared value and (optional),"
                     + " whether the comparison should be negated, e.g. "
                     + "\"" + name() + "=1,charge_filter,EQ,2,no\". \n"
@@ -325,28 +325,28 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_FILE_ID);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_FILTERNAME);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_COMPARISON);
             for (FilterComparator comp : FilterComparator.values()) {
                 param.add(comp.getCliShort());
             }
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_VALUE);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_NEGATE);
             param.add("no");
             param.add("yes");
@@ -396,11 +396,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
             Boolean createSets = null;
 
             if ((params != null) && (params.length > 0) && (params[0] != null)) {
-                if ("true".equals(params[0]) || "yes".equals(params[0])) {
-                    createSets = true;
-                } else {
-                    createSets = false;
-                }
+                createSets = "true".equals(params[0]) || "yes".equals(params[0]);
             }
 
             if (createSets == null) {
@@ -420,9 +416,9 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_CREATE_PSM_SETS);
             param.add("no");
             param.add("yes");
@@ -484,19 +480,9 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                         fileName = commandParams[0];
                     }
                 } else if ("spectral_count".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            spectralCount = true;
-                        } else {
-                            spectralCount = false;
-                        }
-                    } else {
-                        // only setting the flag is equivalent to true
-                        spectralCount = true;
-                    }
+                    spectralCount = !((commandParams != null) &&
+                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
+// only setting the flag is equivalent to true
                 }
             }
 
@@ -544,7 +530,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                     "valid parameters are:" +
                     "\nformat: mzid [default], mztab, csv" +
                     "\nfileID: default 0 (overview)" +
-                    "\nfileName: the report file name [report.mzid]" +
+                    "\nfileName: the report file NAME [report.mzid]" +
                     "\nspectral_count: defaults to no";
         }
 

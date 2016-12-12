@@ -87,7 +87,7 @@ public class IdentificationRun {
      */
     public List<PeptideIdentification> getPeptideIdentification() {
         if (peptideIdentification == null) {
-            peptideIdentification = new ArrayList<PeptideIdentification>();
+            peptideIdentification = new ArrayList<>();
         }
         return this.peptideIdentification;
     }

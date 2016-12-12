@@ -27,7 +27,7 @@ public enum OntologyConstants {
     SPECTRUM_TITLE("spectrum title", "MS:1000796"),
     SCAN_START_TIME("scan start time", "MS:1000016"),
     DELTA_MZ("delta m/z", "MS:1001975"),
-    CLEAVAGE_AGENT_NAME("cleavage agent name", "MS:1001045"),
+    CLEAVAGE_AGENT_NAME("cleavage agent NAME", "MS:1001045"),
     SEARCH_TOLERANCE_PLUS_VALUE("search tolerance plus value", "MS:1001412"),
     SEARCH_TOLERANCE_MINUS_VALUE("search tolerance minus value", "MS:1001413"),
     MS_MS_SEARCH("ms-ms search", "MS:1001083"),
@@ -73,14 +73,14 @@ public enum OntologyConstants {
     MODIFICATION_SPECIFICITY_PROTEIN_C_TERM("modification specificity protein C-term", "MS:1002058"),
 
     CONTACT_ATTRIBUTE("contact attribute", "MS:1000585"),
-    CONTACT_NAME("contact name", "MS:1000586"),
+    CONTACT_NAME("contact NAME", "MS:1000586"),
     CONTACT_ADDRESS("contact address", "MS:1000587"),
     CONTACT_URL("contact URL", "MS:1000588"),
     CONTACT_EMAIL("contact email", "MS:1000589"),
     CONTACT_AFFILIATION("contact affiliation", "MS:1000590"),
 
     INSTRUMENT_MODEL("instrument model", "MS:1000031"),
-    SAMPLE_NAME("sample name", "MS:1000002"),
+    SAMPLE_NAME("sample NAME", "MS:1000002"),
 
     AMINOACID_SEQUENCE("AA sequence", "MS:1001344"),
     FASTA_FORMAT("FASTA format", "MS:1001348"),
@@ -140,13 +140,13 @@ public enum OntologyConstants {
     public static final String PRIDE_CV_URL = "https://raw.githubusercontent.com/PRIDE-Utilities/pride-ontology/master/pride_cv.obo";
 
 
-    /** name in PSI OBO*/
+    /** NAME in PSI OBO*/
     private String psiName;
 
     /** accession in PSI OBO */
     private String psiAccession;
 
-    /** the name in the PRIDE ontoogy */
+    /** the NAME in the PRIDE ontoogy */
     private String prideName;
 
     /** the accession in the PRIDE ontology */
@@ -157,9 +157,9 @@ public enum OntologyConstants {
      * Initializes the ontology entry without pride references
      *
      * @param psiName
-     * @param psiaccession
+     * @param psiAccession
      */
-    private OntologyConstants(String psiName, String psiAccession) {
+    OntologyConstants(String psiName, String psiAccession) {
         this.psiName = psiName;
         this.psiAccession = psiAccession;
         this.prideName = null;
@@ -171,11 +171,11 @@ public enum OntologyConstants {
      * Initializes the ontology entry with pride references
      *
      * @param psiName
-     * @param psiaccession
+     * @param psiAccession
      * @param prideName
      * @param prideAccession
      */
-    private OntologyConstants(String psiName, String psiAccession,
+    OntologyConstants(String psiName, String psiAccession,
             String prideName, String prideAccession) {
         this(psiName, psiAccession);
         this.prideName = prideName;

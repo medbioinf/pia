@@ -27,25 +27,25 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="description" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="manual" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="executableName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="executablePath" type="{http://www.w3.org/2001/XMLSchema}anyURI" minOccurs="0"/>
- *         &lt;element name="cli" type="{}cliType" minOccurs="0"/>
- *         &lt;element name="logs" type="{}logCollectionType" minOccurs="0"/>
- *         &lt;element name="relocators" type="{}relocatorCollectionType" minOccurs="0"/>
- *         &lt;element name="PARAMETERS" type="{}PARAMETERSType"/>
+ *         &lt;element NAME="description" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element NAME="manual" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element NAME="executableName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element NAME="executablePath" type="{http://www.w3.org/2001/XMLSchema}anyURI" minOccurs="0"/>
+ *         &lt;element NAME="cli" type="{}cliType" minOccurs="0"/>
+ *         &lt;element NAME="logs" type="{}logCollectionType" minOccurs="0"/>
+ *         &lt;element NAME="relocators" type="{}relocatorCollectionType" minOccurs="0"/>
+ *         &lt;element NAME="PARAMETERS" type="{}PARAMETERSType"/>
  *       &lt;/sequence>
- *       &lt;attribute name="version" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="name" use="required">
+ *       &lt;attribute NAME="version" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="NAME" use="required">
  *         &lt;simpleType>
  *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
  *             &lt;pattern value="[A-Z][A-Za-z0-9]*"/>
  *           &lt;/restriction>
  *         &lt;/simpleType>
  *       &lt;/attribute>
- *       &lt;attribute name="docurl" type="{http://www.w3.org/2001/XMLSchema}anyURI" />
- *       &lt;attribute name="category" type="{http://www.w3.org/2001/XMLSchema}string" default="" />
+ *       &lt;attribute NAME="docurl" type="{http://www.w3.org/2001/XMLSchema}anyURI" />
+ *       &lt;attribute NAME="category" type="{http://www.w3.org/2001/XMLSchema}string" default="" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -304,7 +304,7 @@ public class CTDTool {
     }
 
     /**
-     * Gets the value of the name property.
+     * Gets the value of the NAME property.
      * 
      * @return
      *     possible object is
@@ -316,7 +316,7 @@ public class CTDTool {
     }
 
     /**
-     * Sets the value of the name property.
+     * Sets the value of the NAME property.
      * 
      * @param value
      *     allowed object is

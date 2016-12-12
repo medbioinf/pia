@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "accessionsList")
 public class AccessionsListXML {
 	@XmlElement(name = "accession")
+	private
 	List<AccessionXML> accessions;
 	
 	
@@ -43,7 +44,7 @@ public class AccessionsListXML {
 	 */
 	public List<AccessionXML> getAccessionsList() {
 		if (accessions == null) {
-			accessions = new ArrayList<AccessionXML>();
+			accessions = new ArrayList<>();
 		}
 		return accessions;
 	}

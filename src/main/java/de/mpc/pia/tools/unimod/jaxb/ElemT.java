@@ -20,13 +20,13 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="elem_t">
+ * &lt;complexType NAME="elem_t">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="title" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="full_name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="avge_mass" use="required" type="{http://www.w3.org/2001/XMLSchema}double" />
- *       &lt;attribute name="mono_mass" use="required" type="{http://www.w3.org/2001/XMLSchema}double" />
+ *       &lt;attribute NAME="title" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="full_name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="avge_mass" use="required" type="{http://www.w3.org/2001/XMLSchema}double" />
+ *       &lt;attribute NAME="mono_mass" use="required" type="{http://www.w3.org/2001/XMLSchema}double" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>

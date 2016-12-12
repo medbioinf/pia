@@ -22,17 +22,17 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="aa_t">
+ * &lt;complexType NAME="aa_t">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="element" type="{http://www.unimod.org/xmlns/schema/unimod_2}elem_ref_t" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element NAME="element" type="{http://www.unimod.org/xmlns/schema/unimod_2}elem_ref_t" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
- *       &lt;attribute name="title" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="three_letter" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="full_name" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="mono_mass" type="{http://www.w3.org/2001/XMLSchema}double" />
- *       &lt;attribute name="avge_mass" type="{http://www.w3.org/2001/XMLSchema}double" />
+ *       &lt;attribute NAME="title" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="three_letter" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="full_name" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="mono_mass" type="{http://www.w3.org/2001/XMLSchema}double" />
+ *       &lt;attribute NAME="avge_mass" type="{http://www.w3.org/2001/XMLSchema}double" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -82,7 +82,7 @@ public class AaT {
      */
     public List<ElemRefT> getElement() {
         if (element == null) {
-            element = new ArrayList<ElemRefT>();
+            element = new ArrayList<>();
         }
         return this.element;
     }

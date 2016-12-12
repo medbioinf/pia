@@ -17,7 +17,7 @@ public enum SettingType {
 		
 		@Override
 		public Map<String, String> getTypedParams(Object params) {
-			Map<String, String> items = new HashMap<String, String>();
+			Map<String, String> items = new HashMap<>();
 			
 			if (params instanceof Map<?, ?>) {
 				for (Map.Entry<?, ?> paramIt : ((Map<?, ?>) params).entrySet()) {
@@ -67,7 +67,7 @@ public enum SettingType {
 	
 	
 	/**
-	 * Returns the short name of this SettingType.
+	 * Returns the short NAME of this SettingType.
 	 * @return
 	 */
 	public abstract String getShortName();

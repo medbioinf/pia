@@ -56,13 +56,13 @@ import de.mpc.pia.tools.unimod.jaxb.ModT;
  * @author julian
  *
  */
-public class IdXMLFileParser {
+class IdXMLFileParser {
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(IdXMLFileParser.class);
 
 
-    /** name of the UserParam indicating the delta mass (shift) */
+    /** NAME of the UserParam indicating the delta mass (shift) */
     private static final String USERPARAM_NAME_DELTA_MASS = "delta";
 
 
@@ -75,10 +75,10 @@ public class IdXMLFileParser {
 
 
     /**
-     * Parses the data from an IdXML file given by its name into the given
+     * Parses the data from an IdXML file given by its NAME into the given
      * {@link PIACompiler}.
      *
-     * @param fileName name of the parsed file
+     * @param fileName NAME of the parsed file
      */
     public static boolean getDataFromIdXMLFile(String name, String fileName,
             PIACompiler compiler) {
@@ -377,7 +377,7 @@ public class IdXMLFileParser {
                     int charge = pepHit.getCharge().intValue();
 
                     Map<Integer, Modification> modifications =
-                            new HashMap<Integer, Modification>(5);
+                            new HashMap<>(5);
 
                     if (sequence.contains("(")) {
                         sequence = extractModifications(
@@ -538,11 +538,7 @@ public class IdXMLFileParser {
                         if ((acc.getDbSequence() != null) && (acc.getDbSequence().trim().length() > 0)) {
                             List<Integer> startSites = getStartSites(sequence, acc.getDbSequence());
                             for (Integer start : startSites) {
-                                Integer corrStart = start;
-
-                                peptide.addAccessionOccurrence(acc,
-                                        corrStart,
-                                        corrStart + sequence.length() - 1);
+                                peptide.addAccessionOccurrence(acc, start, start + sequence.length() - 1);
                             }
                         }
 
@@ -750,7 +746,7 @@ public class IdXMLFileParser {
      * @return
      */
     private static List<Integer> getStartSites(String peptideSeq, String proteinSeq) {
-        List<Integer> startSites = new ArrayList<Integer>();
+        List<Integer> startSites = new ArrayList<>();
         proteinSeq = proteinSeq.toUpperCase();
 
         if (peptideSeq.contains("X")) {
