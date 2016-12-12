@@ -11,10 +11,10 @@ import de.mpc.pia.modeller.score.ScoreModel;
 public class AdditiveScoring extends AbstractScoring {
 	
 	/** the human readable score */
-	protected static String name = "Additive Scoring";
+	protected static final String NAME = "Additive Scoring";
 	
 	/** the machine readable score */
-	protected static String shortName = "scoring_additive";
+	protected static String SHORT_NAME = "scoring_additive";
 	
 	
 	public AdditiveScoring(Map<String, String> scoreNameMap) {
@@ -24,13 +24,13 @@ public class AdditiveScoring extends AbstractScoring {
 
 	@Override
 	public String getName() {
-		return name;
+		return NAME;
 	}
 	
 	
 	@Override
 	public String getShortName() {
-		return shortName;
+		return SHORT_NAME;
 	}
 	
 	

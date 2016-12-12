@@ -57,7 +57,7 @@ public class ReportPSMSet implements PSMReportItem {
     /** the maximal set of spectra, which are not redundant (i.e. spectrumTitle and m/z are redundant, if sourceID is given) */
     private Map<String, Boolean> maximalNotRedundantSpectraIdentificationSettings;
 
-    /** the nice spectrum name, set and updated, when a new PSM is added */
+    /** the nice spectrum NAME, set and updated, when a new PSM is added */
     private String niceSpectrumName;
 
     /** stores the seqeunce of the PSMs, set on first call for it */
@@ -557,7 +557,7 @@ public class ReportPSMSet implements PSMReportItem {
 
 
     /**
-     * Returns, whether the score given by the score name is a PSM set score
+     * Returns, whether the score given by the score NAME is a PSM set score
      * and can be directly processed by this class, or another score and may be
      * passed down to the PSMs.
      * @param scoreShort

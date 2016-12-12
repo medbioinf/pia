@@ -64,7 +64,7 @@ public class PIAIntermediateJAXBHandler {
     private static final Logger LOGGER = Logger.getLogger(PIAIntermediateJAXBHandler.class);
 
 
-    /** the name of the project */
+    /** the NAME of the project */
     private String projectName;
 
     /** the input files */
@@ -91,7 +91,7 @@ public class PIAIntermediateJAXBHandler {
     /** the groups */
     private Map<Long, Group> groups;
 
-    /** Maps from the name of an {@link IdentificationKeySettings} to a set, containg the file IDs, which have warnings for this setting */
+    /** Maps from the NAME of an {@link IdentificationKeySettings} to a set, containg the file IDs, which have warnings for this setting */
     private Map<String, Set<Long>> psmSetSettingsWarnings;
 
 
@@ -191,7 +191,7 @@ public class PIAIntermediateJAXBHandler {
         try (FileReader fileReader = new FileReader(fileName)) {
             XMLStreamReader xmlr = xmlif.createXMLStreamReader(fileReader);
 
-            // move to the root element and check its name.
+            // move to the root element and check its NAME.
             xmlr.nextTag();
             xmlr.require(XMLStreamConstants.START_ELEMENT, null, "jPiaXML");
 

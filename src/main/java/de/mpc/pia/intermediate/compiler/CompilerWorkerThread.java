@@ -28,7 +28,7 @@ class CompilerWorkerThread extends Thread {
     private int id;
 
     /** the caller of this thread */
-    private PIACompiler parent;
+    private final PIACompiler parent;
 
     /** the groups, which are processed by this thread */
     private Map<Long, Group> threadGroups;

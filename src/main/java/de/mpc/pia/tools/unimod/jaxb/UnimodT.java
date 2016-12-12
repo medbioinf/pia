@@ -22,17 +22,17 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="unimod_t">
+ * &lt;complexType NAME="unimod_t">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="elements" type="{http://www.unimod.org/xmlns/schema/unimod_2}elements_t" minOccurs="0"/>
- *         &lt;element name="modifications" type="{http://www.unimod.org/xmlns/schema/unimod_2}modifications_t" minOccurs="0"/>
- *         &lt;element name="amino_acids" type="{http://www.unimod.org/xmlns/schema/unimod_2}amino_acids_t" minOccurs="0"/>
- *         &lt;element name="mod_bricks" type="{http://www.unimod.org/xmlns/schema/unimod_2}mod_bricks_t" minOccurs="0"/>
+ *         &lt;element NAME="elements" type="{http://www.unimod.org/xmlns/schema/unimod_2}elements_t" minOccurs="0"/>
+ *         &lt;element NAME="modifications" type="{http://www.unimod.org/xmlns/schema/unimod_2}modifications_t" minOccurs="0"/>
+ *         &lt;element NAME="amino_acids" type="{http://www.unimod.org/xmlns/schema/unimod_2}amino_acids_t" minOccurs="0"/>
+ *         &lt;element NAME="mod_bricks" type="{http://www.unimod.org/xmlns/schema/unimod_2}mod_bricks_t" minOccurs="0"/>
  *       &lt;/sequence>
- *       &lt;attribute name="majorVersion" use="required" type="{http://www.w3.org/2001/XMLSchema}unsignedShort" fixed="2" />
- *       &lt;attribute name="minorVersion" use="required" type="{http://www.unimod.org/xmlns/schema/unimod_2}minorVersion_t" />
+ *       &lt;attribute NAME="majorVersion" use="required" type="{http://www.w3.org/2001/XMLSchema}unsignedShort" fixed="2" />
+ *       &lt;attribute NAME="minorVersion" use="required" type="{http://www.unimod.org/xmlns/schema/unimod_2}minorVersion_t" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>

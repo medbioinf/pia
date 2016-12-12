@@ -20,10 +20,10 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="ITEMType">
+ * &lt;complexType NAME="ITEMType">
  *   &lt;complexContent>
  *     &lt;extension base="{}AbstractITEMType">
- *       &lt;attribute name="value" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="value" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/extension>
  *   &lt;/complexContent>
  * &lt;/complexType>

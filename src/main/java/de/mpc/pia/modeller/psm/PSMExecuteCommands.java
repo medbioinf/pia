@@ -35,8 +35,8 @@ import de.mpc.pia.modeller.score.FDRData;
  */
 public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     AddPreferredFDRScore {
-        /** the identification string for the score name */
-        private static final String ID_SCORE_NAME = "score name";
+        /** the identification string for the score NAME */
+        private static final String ID_SCORE_NAME = "score NAME";
 
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
@@ -47,7 +47,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public String describe() {
-            return "Adds the given score name to the list of preferred scores for FDR calculation.";
+            return "Adds the given score NAME to the list of preferred scores for FDR calculation.";
         }
 
         @Override
@@ -156,7 +156,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     },
 
     SetAllDecoyPattern {
-        /** the identification string for the score name */
+        /** the identification string for the score NAME */
         private static final String ID_DECOY_PATTERN = "decoy pattern";
 
         @Override
@@ -258,7 +258,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
         /** the identification string for the file ID */
         private static final String ID_FILE_ID= "file ID";
 
-        /** the identification string for the filter name */
+        /** the identification string for the filter NAME */
         private static final String ID_FILTERNAME= "filtername";
 
         /** the identification string for negate */
@@ -316,7 +316,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
         public String describe() {
             return "Adds a PSM level filter to a specified file. The file is"
                     + " given by the first parameter, which has to be the file"
-                    + " id. Filters are added by their name, an abbreviation"
+                    + " id. Filters are added by their NAME, an abbreviation"
                     + " for the camparison, the compared value and (optional),"
                     + " whether the comparison should be negated, e.g. "
                     + "\"" + name() + "=1,charge_filter,EQ,2,no\". \n"
@@ -536,7 +536,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                     "valid parameters are:" +
                     "\nformat: mzid [default], mztab, csv" +
                     "\nfileID: default 0 (overview)" +
-                    "\nfileName: the report file name [report.mzid]" +
+                    "\nfileName: the report file NAME [report.mzid]" +
                     "\nspectral_count: defaults to no";
         }
 

@@ -1415,15 +1415,15 @@ public enum ScoreModelEnum {
 
 
     /**
-     * Returns the human readable name of the score model.
+     * Returns the human readable NAME of the score model.
      * @return
      */
     public abstract String getName();
 
 
     /**
-     * Returns the human readable name of the score model given by the
-     * description (i.e. name, shortName or cvAccession). If the model is
+     * Returns the human readable NAME of the score model given by the
+     * description (i.e. NAME, SHORT_NAME or cvAccession). If the model is
      * {@link ScoreModelEnum#UNKNOWN_SCORE}, return the description.
      *
      * @return
@@ -1440,7 +1440,7 @@ public enum ScoreModelEnum {
 
 
     /**
-     * Returns the machine readable name of the score model
+     * Returns the machine readable NAME of the score model
      * @return
      */
     public abstract String getShortName();
@@ -1463,7 +1463,7 @@ public enum ScoreModelEnum {
 
 
     /**
-     * Returns the CV name of the score model
+     * Returns the CV NAME of the score model
      * @return
      */
     public abstract String getCvName();
@@ -1496,7 +1496,7 @@ public enum ScoreModelEnum {
 
 
     /**
-     * Gets all the valid descriptors for the ScoreModel (i.e. name, shortName
+     * Gets all the valid descriptors for the ScoreModel (i.e. NAME, SHORT_NAME
      * or cvAccession, some additional names)
      * @return
      */
@@ -1504,8 +1504,8 @@ public enum ScoreModelEnum {
 
 
     /**
-     * Returns true, if the given description is a valid descriptor (i.e. name,
-     * shortName or cvAccession) of the score model.
+     * Returns true, if the given description is a valid descriptor (i.e. NAME,
+     * SHORT_NAME or cvAccession) of the score model.
      * @return
      */
     public final boolean isValidDescriptor(String desc) {
@@ -1514,7 +1514,7 @@ public enum ScoreModelEnum {
 
 
     /**
-     * Returns the model for the given description (i.e. name, shortName or
+     * Returns the model for the given description (i.e. NAME, SHORT_NAME or
      * cvAccession)or UNKNOWN_SCORE, if there is none for the description.
      *
      * @param desc

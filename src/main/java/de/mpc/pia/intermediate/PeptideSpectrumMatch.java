@@ -614,7 +614,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
 
 
     /**
-     * Returns a nice name / header for this PSM's spectrum
+     * Returns a nice NAME / header for this PSM's spectrum
      * @return
      */
     public String getNiceSpectrumName() {

@@ -19,13 +19,13 @@ import de.mpc.pia.tools.unimod.UnimodParser;
 public abstract class AbstractFilter {
 
     /** the used comparator */
-    private FilterComparator comparator;
+    private final FilterComparator comparator;
 
     /** whether this filter is negated */
     private boolean negate;
 
     /** the represented filter */
-    private RegisteredFilters filter;
+    private final RegisteredFilters filter;
 
 
     public AbstractFilter(FilterComparator arg, RegisteredFilters filter, boolean negate) {
@@ -46,7 +46,7 @@ public abstract class AbstractFilter {
 
 
     /**
-     * returns the machine readable name of the filter
+     * returns the machine readable NAME of the filter
      * @return
      */
     public final String getShortName() {
@@ -55,7 +55,7 @@ public abstract class AbstractFilter {
 
 
     /**
-     * returns the human readable long name of the filter
+     * returns the human readable long NAME of the filter
      * @return
      */
     public final String getName() {
@@ -64,7 +64,7 @@ public abstract class AbstractFilter {
 
 
     /**
-     * returns the name, which should be displayed at a filter list
+     * returns the NAME, which should be displayed at a filter list
      * @return
      */
     public final String getFilteringListName() {

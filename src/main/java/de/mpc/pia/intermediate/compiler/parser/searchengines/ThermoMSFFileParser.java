@@ -93,7 +93,7 @@ public class ThermoMSFFileParser {
 
 
     /**
-     * Parses the data from an ProteomeDiscoverer's MSF file given by its name
+     * Parses the data from an ProteomeDiscoverer's MSF file given by its NAME
      * into the given {@link PIACompiler}.
      */
     public static boolean getDataFromThermoMSFFile(String name, String fileName,
@@ -165,7 +165,7 @@ public class ThermoMSFFileParser {
                             // databaseName
                             Param dbParam = new Param();
                             dbParam.setParam(MzIdentMLTools.createUserParam(
-                                    "FASTA file name",
+                                    "FASTA file NAME",
                                     fastaFiles.getFileName(),
                                     "string"));
                             searchDatabase.setDatabaseName(dbParam);

@@ -78,10 +78,10 @@ public class MascotDatFileParser {
 
 
     /**
-     * Parses the data from an mzIdentML file given by its name into the given
+     * Parses the data from an mzIdentML file given by its NAME into the given
      * {@link PIACompiler}.
      *
-     * @param fileName name of the mzTab file
+     * @param fileName NAME of the mzTab file
      */
     public static boolean getDataFromMascotDatFile(String name, String fileName,
             PIACompiler compiler) {
@@ -105,7 +105,7 @@ public class MascotDatFileParser {
 
             while ((line = rd.readLine()) != null) {
                 if (!inQuery) {
-                    if (line.startsWith("Content-Type: application/x-Mascot; name=\"query")) {
+                    if (line.startsWith("Content-Type: application/x-Mascot; NAME=\"query")) {
                         queryName = line.substring(42, line.length()-1);
                         inQuery = true;
                     } else if ((fastaFile == null) &&
@@ -120,7 +120,7 @@ public class MascotDatFileParser {
 
                 if (!inEnzyme) {
                     if (((enzymeCleavage == null) || (enzymeRestrict == null)) &&
-                            line.startsWith("Content-Type: application/x-Mascot; name=\"enzyme\"")) {
+                            line.startsWith("Content-Type: application/x-Mascot; NAME=\"enzyme\"")) {
                         inEnzyme = true;
                     }
                 } else {

@@ -28,7 +28,7 @@ public class FilterFactory {
 
 
     /**
-     * gets the available comparators for the filter given by the short name
+     * gets the available comparators for the filter given by the short NAME
      *
      * @param filterShort
      * @return
@@ -46,8 +46,8 @@ public class FilterFactory {
 
 
     /**
-     * Builds a new instance of the filter type, given by the short name.
-     * The comparatorName must be a {@link FilterComparator}'s name valid for
+     * Builds a new instance of the filter type, given by the short NAME.
+     * The comparatorName must be a {@link FilterComparator}'s NAME valid for
      * this filter type and the input of a valid type.
      *
      * @param filterShort
@@ -75,7 +75,7 @@ public class FilterFactory {
 
     /**
      * Builds a new instance of the filter type, given the comparator.
-     * The comparatorName must be a {@link FilterComparator}'s name valid for
+     * The comparatorName must be a {@link FilterComparator}'s NAME valid for
      * this filter type and the input of a valid type.
      *
      * @param filterShort
@@ -182,9 +182,9 @@ public class FilterFactory {
         if (filterShort.startsWith(PSMScoreFilter.prefix)) {
             filter = new PSMScoreFilter(comparator, negate, value.doubleValue(),
                     filterShort.substring(PSMScoreFilter.prefix.length()));
-        } else if (filterShort.startsWith(PeptideScoreFilter.prefix)) {
+        } else if (filterShort.startsWith(PeptideScoreFilter.PREFIX)) {
             filter = new PeptideScoreFilter(comparator, negate, value.doubleValue(),
-                    filterShort.substring(PeptideScoreFilter.prefix.length()));
+                    filterShort.substring(PeptideScoreFilter.PREFIX.length()));
         } else if (filterShort.startsWith(PSMTopIdentificationFilter.prefix)) {
             filter = new PSMTopIdentificationFilter(comparator, value.intValue(), negate,
                     filterShort.substring(PSMTopIdentificationFilter.prefix.length()));
@@ -209,7 +209,7 @@ public class FilterFactory {
 
         if (filterShort.startsWith(PSMScoreFilter.prefix)) {
             type = PSMScoreFilter.filterType;
-        } else if (filterShort.startsWith(PeptideScoreFilter.prefix)) {
+        } else if (filterShort.startsWith(PeptideScoreFilter.PREFIX)) {
             type = PeptideScoreFilter.filterType;
         } else if (filterShort.startsWith(PSMTopIdentificationFilter.prefix)) {
             type = PSMTopIdentificationFilter.filterType;

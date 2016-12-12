@@ -106,10 +106,10 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
  */
 public class SpectrumExtractorInference extends AbstractProteinInference {
 
-    /** the human readable name of this filter */
+    /** the human readable NAME of this filter */
     protected static final String NAME = "Spectrum Extractor";
 
-    /** the machine readable name of the filter */
+    /** the machine readable NAME of the filter */
     protected static final String SHORT_NAME = "inference_spectrum_extractor";
 
     /** the list iterator used to give the reportProteins to the working threads */

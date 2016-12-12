@@ -81,11 +81,11 @@ public class TideTXTFileParser {
 
 
     /**
-     * Parses the data from an tide TXT result file given by its name into the
+     * Parses the data from an tide TXT result file given by its NAME into the
      * given {@link PIACompiler}.
      *
-     * @param name name if the file in the compilation
-     * @param fileName name of the Tide TXT result file
+     * @param name NAME if the file in the compilation
+     * @param fileName NAME of the Tide TXT result file
      * @param compiler the PIACompiler
      */
     public static boolean getDataFromTideTXTFile(String name, String fileName,

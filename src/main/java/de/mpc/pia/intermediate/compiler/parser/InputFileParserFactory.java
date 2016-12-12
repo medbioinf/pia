@@ -274,7 +274,7 @@ public class InputFileParserFactory {
 
 
         /**
-         * Get the name of the file type.
+         * Get the NAME of the file type.
          *
          * @return
          */
@@ -282,7 +282,7 @@ public class InputFileParserFactory {
 
 
         /**
-         * Get the short name of the file type.
+         * Get the short NAME of the file type.
          *
          * @return
          */
@@ -326,7 +326,7 @@ public class InputFileParserFactory {
 
 
     /**
-     * Returns the {@link InputFileTypes} specified by the given shortName or
+     * Returns the {@link InputFileTypes} specified by the given SHORT_NAME or
      * null.
      */
     private static InputFileTypes getFileTypeByShortName(String shortName) {
@@ -355,7 +355,7 @@ public class InputFileParserFactory {
 
 
     /**
-     * Parses the file given by its name and puts the date into the given
+     * Parses the file given by its NAME and puts the date into the given
      * {@link PIACompiler}. The file type is guessed by the file ending.
      *
      * @param fileName

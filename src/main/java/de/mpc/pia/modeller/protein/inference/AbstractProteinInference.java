@@ -35,7 +35,7 @@ public abstract class AbstractProteinInference {
     /** list of the settings. */
     protected List<AbstractFilter> filters;
 
-    /** the available scores for the inference, maps from the scoreShort to the shown name */
+    /** the available scores for the inference, maps from the scoreShort to the shown NAME */
     private Map<String, String> availableScoreShorts;
 
     /** the currently set scoring */
@@ -56,14 +56,14 @@ public abstract class AbstractProteinInference {
 
 
     /**
-     * Get the human readable name of the filter.
+     * Get the human readable NAME of the filter.
      * @return
      */
     public abstract String getName();
 
 
     /**
-     * Get the unique machine readable short name of the filter.
+     * Get the unique machine readable short NAME of the filter.
      * @return
      */
     public abstract String getShortName();

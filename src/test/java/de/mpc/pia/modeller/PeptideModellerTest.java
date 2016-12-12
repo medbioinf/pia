@@ -27,7 +27,7 @@ public class PeptideModellerTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         piaModeller = new PIAModeller(piaFile.getAbsolutePath());
     }
 

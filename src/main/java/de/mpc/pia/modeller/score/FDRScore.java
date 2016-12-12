@@ -14,7 +14,7 @@ public class FDRScore {
 	 * 
 	 * @param reportItems the list of items, for which the FDR should be
 	 * calculated
-	 * @param scoreShortName the shortName of the Score used for FDR calculation
+	 * @param scoreShortName the SHORT_NAME of the Score used for FDR calculation
 	 * @param artificialDecoyFDR the FDR value of an artificial decoy at the
 	 * end of the list
 	 */

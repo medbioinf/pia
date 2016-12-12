@@ -87,7 +87,7 @@ public class MzIdentMLExporter {
     private static final Logger LOGGER = Logger.getLogger(MzIdentMLExporter.class);
 
     /** the modeller, that should be exported */
-    private PIAModeller piaModeller;
+    private final PIAModeller piaModeller;
 
     /** the writer used to export the mzTab file */
     private BufferedWriter outWriter;
@@ -132,19 +132,19 @@ public class MzIdentMLExporter {
     private Map<String, SpectrumIdentificationResult> sirMap;
 
 
-    /** prefix for a protein group in the mzIdentML */
+    /** PREFIX for a protein group in the mzIdentML */
     private static final String PROTEIN_AMBIGUITY_GROUP_PREFIX = "PAG_";
 
-    /** prefix for a protein detection hypothesis in the mzIdentML */
+    /** PREFIX for a protein detection hypothesis in the mzIdentML */
     private static final String PROTEIN_DETECTION_HYPOTHESIS_PREFIX = "PDH_";
 
-    /** prefix for a peptide in the mzIdentML */
+    /** PREFIX for a peptide in the mzIdentML */
     private static final String PEPTIDE_PREFIX = "PEP_";
 
-    /** prefix for a peptide evidence in the mzIdentML */
+    /** PREFIX for a peptide evidence in the mzIdentML */
     private static final String PEPTIDE_EVIDENCE_PREFIX = "PE_";
 
-    /** prefix for a DBSequence in the mzIdentML */
+    /** PREFIX for a DBSequence in the mzIdentML */
     private static final String DBSEQUENCE_PREFIX = "DBSeq_";
 
     /** the PSMSetSettings for the {@link SpectrumIdentificationResult}s in mzIdentML export */
@@ -1886,7 +1886,7 @@ public class MzIdentMLExporter {
             String location = encodeLocation(spectraData.getLocation());
             spectraData.setLocation(location);
 
-            // the name of the "MGF format" entry changed in the OBO -> set to current value
+            // the NAME of the "MGF format" entry changed in the OBO -> set to current value
             FileFormat fileFormat = spectraData.getFileFormat();
             if (fileFormat != null) {
                 CvParam formatCvParam = fileFormat.getCvParam();

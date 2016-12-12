@@ -50,7 +50,7 @@ public class PeptideModeller {
 
 
     /** the used {@link PSMModeller} */
-    private PSMModeller psmModeller;
+    private final PSMModeller psmModeller;
 
     /** maps from the file ID to the List of {@link ReportPeptide}s */
     private Map<Long, List<ReportPeptide>> fileReportPeptides;
@@ -132,7 +132,7 @@ public class PeptideModeller {
 
 
     /**
-     * Returns the Score name, given the scoreShortName.
+     * Returns the Score NAME, given the scoreShortName.
      * @param fileID
      * @param shortName
      * @return
@@ -364,7 +364,7 @@ public class PeptideModeller {
     public void calculateRanking(Long fileID, String rankableShortName,
             List<AbstractFilter> filters) {
         if ((rankableShortName == null) || rankableShortName.trim().isEmpty()) {
-            LOGGER.error("No score shortName given for ranking calculation.");
+            LOGGER.error("No score SHORT_NAME given for ranking calculation.");
             return;
         }
 
@@ -574,7 +574,7 @@ public class PeptideModeller {
 
 
                     if (psm instanceof ReportPSM) {
-                        // write the input file name before the remaining row
+                        // write the input file NAME before the remaining row
                         if (includePSMs) {
                             writer.append("\"PSM\"" + separator + "\"" +
                                     ((ReportPSM) psm).getInputFileName() + "\"" + separator);

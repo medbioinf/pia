@@ -12,7 +12,7 @@ package de.mpc.pia.modeller.score.comparator;
  */
 public interface Rankable extends ScoreComparable {
 	/**
-	 * Returns the score value with the given name.
+	 * Returns the score value with the given NAME.
 	 * @param scoreName
 	 * @return
 	 */

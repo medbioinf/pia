@@ -24,19 +24,19 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="specificity_t">
+ * &lt;complexType NAME="specificity_t">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="NeutralLoss" type="{http://www.unimod.org/xmlns/schema/unimod_2}NeutralLoss_t" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="PepNeutralLoss" type="{http://www.unimod.org/xmlns/schema/unimod_2}PepNeutralLoss_t" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="misc_notes" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element NAME="NeutralLoss" type="{http://www.unimod.org/xmlns/schema/unimod_2}NeutralLoss_t" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element NAME="PepNeutralLoss" type="{http://www.unimod.org/xmlns/schema/unimod_2}PepNeutralLoss_t" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element NAME="misc_notes" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *       &lt;/sequence>
- *       &lt;attribute name="hidden" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
- *       &lt;attribute name="site" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="position" use="required" type="{http://www.unimod.org/xmlns/schema/unimod_2}position_t" />
- *       &lt;attribute name="classification" use="required" type="{http://www.unimod.org/xmlns/schema/unimod_2}classification_t" />
- *       &lt;attribute name="spec_group" type="{http://www.w3.org/2001/XMLSchema}integer" default="1" />
+ *       &lt;attribute NAME="hidden" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
+ *       &lt;attribute NAME="site" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="position" use="required" type="{http://www.unimod.org/xmlns/schema/unimod_2}position_t" />
+ *       &lt;attribute NAME="classification" use="required" type="{http://www.unimod.org/xmlns/schema/unimod_2}classification_t" />
+ *       &lt;attribute NAME="spec_group" type="{http://www.w3.org/2001/XMLSchema}integer" default="1" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>

@@ -44,7 +44,7 @@ import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModeller> {
 
     AddFilter {
-        /** the identification string for the filter name */
+        /** the identification string for the filter NAME */
         private static final String ID_FILTERNAME= "filtername";
 
         /** the identification string for the equation */
@@ -103,7 +103,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
         @Override
         public String describe() {
             return "Adds a protein level filter to a specified file. A " +
-                    "filter is added by its name, an abbreviation for the " +
+                    "filter is added by its NAME, an abbreviation for the " +
                     "comparison, the compared value and (optional), whether " +
                     "the comparison should be negated " +
                     "e.g. \"" + name() + "=charge_filter,EQ,2,no\". \n" +
@@ -167,7 +167,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
 
     AddInferenceFilter {
-        /** the identification string for the filter name */
+        /** the identification string for the filter NAME */
         private static final String ID_FILTERNAME = "filtername";
 
         /** the identification string for the equation */
@@ -226,7 +226,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
         @Override
         public String describe() {
             return "Adds a filter used by the protein inference. A filter is"
-                    + " added by its name, an abbreviation for the comparison,"
+                    + " added by its NAME, an abbreviation for the comparison,"
                     + " the compared value and (optional), whether the"
                     + " comparison should be negated e.g."
                     + " \"" + name() + "=charge_filter,EQ,2,no\"";
@@ -332,7 +332,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
                     proteinModeller.infereProteins(inference);
                 } else {
-                    LOGGER.error("Could not create inference method with name: " + inferenceName);
+                    LOGGER.error("Could not create inference method with NAME: " + inferenceName);
                     return false;
                 }
             }
@@ -528,7 +528,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                     "valid parameters are:" +
                     "\nformat: csv [default], mzIdentML" +
                     "\nfileID: default 0 (overview)" +
-                    "\nfileName: the report file name [report.peptide.csv]" +
+                    "\nfileName: the report file NAME [report.peptide.csv]" +
                     "\noneAccessionPerLine: write one accession per line " +
                     "(useful for spectral counting), defaults to false" +
                     "\nexportPeptides: defaults to false" +

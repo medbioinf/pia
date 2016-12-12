@@ -23,7 +23,7 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
 public abstract class AbstractScoring {
 	
 	/** the score used for this scoring method */
-	private Setting scoreSetting;
+	private final Setting scoreSetting;
 	
 	/** which PSMs of the peptide should be used for scoring */
 	private Setting psmForScoringSetting;
@@ -36,7 +36,7 @@ public abstract class AbstractScoring {
 	
 	/**
 	 * Basic constructor, requires a mapping of the available
-	 * {@link ScoreModel}s.
+	 * {@link de.mpc.pia.modeller.score.ScoreModel}s.
 	 * 
 	 * @param scoreNameMap
 	 */
@@ -99,14 +99,14 @@ public abstract class AbstractScoring {
 	
 	
 	/**
-	 * Getter for the name of the Scoring
+	 * Getter for the NAME of the Scoring
 	 * @return
 	 */
 	public abstract String getName();
 	
 	
 	/**
-	 * Getter for the shortName of the Scoring
+	 * Getter for the SHORT_NAME of the Scoring
 	 * @return
 	 */
 	public abstract String getShortName();
@@ -158,7 +158,7 @@ public abstract class AbstractScoring {
 	 * This should be called every time a new {@link ScoreModel} (like e.g. the
 	 * combined FDR Score) is added / calculated.
 	 * 
-	 * @param scoreNameMap map of the {@link ScoreModel}s shortNames to its corresponding name
+	 * @param scoreNameMap map of the {@link ScoreModel}s shortNames to its corresponding NAME
 	 */
 	public void updateAvailableScores(Map<String, String> scoreNameMap) {
 		scoreSetting.updateParams(scoreNameMap);

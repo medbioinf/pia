@@ -76,7 +76,7 @@ public class PIACachedCompiler extends PIACompiler {
 
 
 
-    private static long diskSpaceGB = 4;
+    private static final long DISK_SPACE_GB = 4;
 
 
     /**
@@ -104,7 +104,7 @@ public class PIACachedCompiler extends PIACompiler {
                 .withCache(SPECTRUM_MATCH_CACHE_ALIAS, CacheConfigurationBuilder.newCacheConfigurationBuilder(Long.class, PeptideSpectrumMatch.class,
                         ResourcePoolsBuilder.newResourcePoolsBuilder()
                                 .heap(100000, EntryUnit.ENTRIES)
-                                .disk(diskSpaceGB, MemoryUnit.GB, false)
+                                .disk(DISK_SPACE_GB, MemoryUnit.GB, false)
                                 )
                     )
                 .build(true);

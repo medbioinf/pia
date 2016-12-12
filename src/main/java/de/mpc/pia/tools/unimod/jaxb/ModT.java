@@ -23,26 +23,26 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="mod_t">
+ * &lt;complexType NAME="mod_t">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="specificity" type="{http://www.unimod.org/xmlns/schema/unimod_2}specificity_t" maxOccurs="unbounded"/>
- *         &lt;element name="delta" type="{http://www.unimod.org/xmlns/schema/unimod_2}composition_t"/>
- *         &lt;element name="Ignore" type="{http://www.unimod.org/xmlns/schema/unimod_2}composition_t" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="alt_name" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="xref" type="{http://www.unimod.org/xmlns/schema/unimod_2}xref_t" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="misc_notes" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element NAME="specificity" type="{http://www.unimod.org/xmlns/schema/unimod_2}specificity_t" maxOccurs="unbounded"/>
+ *         &lt;element NAME="delta" type="{http://www.unimod.org/xmlns/schema/unimod_2}composition_t"/>
+ *         &lt;element NAME="Ignore" type="{http://www.unimod.org/xmlns/schema/unimod_2}composition_t" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element NAME="alt_name" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element NAME="xref" type="{http://www.unimod.org/xmlns/schema/unimod_2}xref_t" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element NAME="misc_notes" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *       &lt;/sequence>
- *       &lt;attribute name="title" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="full_name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="username_of_poster" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="group_of_poster" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="date_time_posted" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="date_time_modified" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="approved" type="{http://www.w3.org/2001/XMLSchema}boolean" />
- *       &lt;attribute name="ex_code_name" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="record_id" type="{http://www.w3.org/2001/XMLSchema}long" />
+ *       &lt;attribute NAME="title" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="full_name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="username_of_poster" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="group_of_poster" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="date_time_posted" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="date_time_modified" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="approved" type="{http://www.w3.org/2001/XMLSchema}boolean" />
+ *       &lt;attribute NAME="ex_code_name" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute NAME="record_id" type="{http://www.w3.org/2001/XMLSchema}long" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>

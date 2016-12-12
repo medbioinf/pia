@@ -43,7 +43,7 @@ public class PIACachedCompilerTest {
     private File idXMLexpectedFile;
     private final double scoreDelta = 0.000001;
 
-    private String piaIntermediateFileName = "PIACompilerTest.pia.xml";
+    private final String PIA_INTERMEDIATE_FILE_NAME = "PIACompilerTest.pia.xml";
 
 
     @Before
@@ -71,7 +71,7 @@ public class PIACachedCompilerTest {
 
 
         // write out the file
-        File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
+        File piaIntermediateFile = File.createTempFile(PIA_INTERMEDIATE_FILE_NAME, null);
         piaCompiler.writeOutXML(piaIntermediateFile);
         piaCompiler.finish();
 
@@ -177,9 +177,9 @@ public class PIACachedCompilerTest {
 
         piaCompiler.setName("testFile");
 
-        File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
+        File piaIntermediateFile = File.createTempFile(PIA_INTERMEDIATE_FILE_NAME, null);
 
-        // test writing using the file's name
+        // test writing using the file's NAME
         piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
         piaIntermediateFile.delete();
 

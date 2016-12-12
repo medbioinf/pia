@@ -60,7 +60,7 @@ public class PSMModeller {
     /** maps from the fileID to the {@link PIAInputFile}s, they are straight from the intermediateHandler */
     private Map<Long, PIAInputFile> inputFiles;
 
-    /** the name of the PIA XML file */
+    /** the NAME of the PIA XML file */
     private String fileName;
 
     /** maps from the spectrum ID in the PIA intermediate file to the report PSM */
@@ -772,7 +772,7 @@ public class PSMModeller {
 
 
     /**
-     * Returns the Score name, given the scoreShortName.
+     * Returns the Score NAME, given the scoreShortName.
      * @param fileID
      * @param shortName
      * @return
@@ -1312,12 +1312,12 @@ public class PSMModeller {
             return;
         }
 
-        // get the unique score shortName, if the score is known
+        // get the unique score SHORT_NAME, if the score is known
         ScoreModelEnum model =
                 ScoreModelEnum.getModelByDescription(scoreShortName);
         String shortName = model.getShortName();
         if (shortName == null) {
-            // for an unknown score, take the given shortName
+            // for an unknown score, take the given SHORT_NAME
             shortName = scoreShortName;
         }
 
@@ -1548,7 +1548,7 @@ public class PSMModeller {
     public void calculateRanking(Long fileID, String rankableShortName,
             List<AbstractFilter> filters) {
         if ((rankableShortName == null) || rankableShortName.trim().isEmpty()) {
-            LOGGER.error("No score shortName given for ranking calculation.");
+            LOGGER.error("No score SHORT_NAME given for ranking calculation.");
             return;
         }
 

@@ -47,7 +47,7 @@ public class FDRData {
 	/** the score at the FDR threshold */
 	private Double scoreAtThreshold;
 	
-	/** the short name of the used score */
+	/** the short NAME of the used score */
 	private String scoreShortName;
 	
 	/** the FDR of an artificially added decoy at the last position in the list */

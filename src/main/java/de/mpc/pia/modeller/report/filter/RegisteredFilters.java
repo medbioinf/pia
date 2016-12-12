@@ -1262,10 +1262,10 @@ public enum RegisteredFilters {
     /** the values which are compared by his filter */
     private Class<?> valueInstance;
 
-    /** a longer, more descriptive name */
+    /** a longer, more descriptive NAME */
     private String longName;
 
-    /** getter for the name, which should be displayed at a filter list */
+    /** getter for the NAME, which should be displayed at a filter list */
     private String filteringListName;
 
     /** list of filters for PSMs */
@@ -1337,7 +1337,7 @@ public enum RegisteredFilters {
 
 
     /**
-     * Returns the short name of this filter.
+     * Returns the short NAME of this filter.
      * @return
      */
     public final String getShortName() {
@@ -1346,7 +1346,7 @@ public enum RegisteredFilters {
 
 
     /**
-     * getter for a longer, more descriptive name
+     * getter for a longer, more descriptive NAME
      * @return
      */
     public final String getLongName() {
@@ -1355,7 +1355,7 @@ public enum RegisteredFilters {
 
 
     /**
-     * getter for the name, which should be displayed at a filter list
+     * getter for the NAME, which should be displayed at a filter list
      * @return
      */
     public final String getFilteringListName() {
@@ -1482,7 +1482,7 @@ public enum RegisteredFilters {
 
         filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
         filterShorts.add(PSMTopIdentificationFilter.prefix + "[scoreShort]");
-        filterShorts.add(PeptideScoreFilter.prefix + "[scoreShort]");
+        filterShorts.add(PeptideScoreFilter.PREFIX + "[scoreShort]");
 
         filterShorts.addAll(getPeptideFilters().stream().map(RegisteredFilters::getShortName).collect(Collectors.toList()));
 
@@ -1515,7 +1515,7 @@ public enum RegisteredFilters {
 
 
     /**
-     * Returns the filter specified by the given shortName or null, if no such
+     * Returns the filter specified by the given SHORT_NAME or null, if no such
      * filter was found.
      *
      * @param filterShort

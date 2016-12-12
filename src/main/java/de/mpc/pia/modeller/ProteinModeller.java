@@ -153,7 +153,7 @@ public class ProteinModeller {
 
 
     /**
-     * Returns the Score name, given the scoreShortName.
+     * Returns the Score NAME, given the scoreShortName.
      * @param fileID
      * @param shortName
      * @return

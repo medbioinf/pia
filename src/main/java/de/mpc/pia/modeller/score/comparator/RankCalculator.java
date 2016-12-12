@@ -38,7 +38,7 @@ public class RankCalculator {
 			Comparator<T> comparator) {
 		if ((items == null) ||
 				ScoreModelEnum.getModelByDescription(scoreShortName).equals(ScoreModelEnum.UNKNOWN_SCORE)) {
-			// we have a null list or invalid shortName
+			// we have a null list or invalid SHORT_NAME
 			return;
 		}
 		

@@ -405,7 +405,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
 
 
     /**
-     * Returns the best score value with the given name or the respective
+     * Returns the best score value with the given NAME or the respective
      * peptide level score (FDR, q-value).
      *
      */
@@ -700,7 +700,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
 
 
     /**
-     * Returns a nice name / header for the spectrum in the PSM or PSM set
+     * Returns a nice NAME / header for the spectrum in the PSM or PSM set
      * specified by the spectrumKey.
      *
      * @param spectrumKey

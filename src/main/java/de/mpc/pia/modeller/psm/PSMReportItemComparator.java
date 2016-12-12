@@ -379,7 +379,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	;
 	
 	
-	/** the prefix before all score tags */
+	/** the PREFIX before all score tags */
 	public final static String score_prefix = "score_";
 	
 	
@@ -416,7 +416,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	
 	
 	/**
-	 * returns the comparator given by its name using the given order.
+	 * returns the comparator given by its NAME using the given order.
 	 * 
 	 * @param name
 	 * @param order
@@ -452,8 +452,8 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	
 	
 	/**
-	 * Returns the name of the score with the given shortName.<br/>
-	 * The shortName has the score prefix, to distinguish it from a normal
+	 * Returns the NAME of the score with the given SHORT_NAME.<br/>
+	 * The SHORT_NAME has the score PREFIX, to distinguish it from a normal
 	 * sorting field.
 	 * @return
 	 */

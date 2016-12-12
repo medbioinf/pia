@@ -26,17 +26,17 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="logType">
+ * &lt;complexType NAME="logType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="executionWarnings" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="executionErrors" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="executionMessage" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element NAME="executionWarnings" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element NAME="executionErrors" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element NAME="executionMessage" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
- *       &lt;attribute name="executionTimeStart" use="required" type="{http://www.w3.org/2001/XMLSchema}dateTime" />
- *       &lt;attribute name="executionTimeStop" use="required" type="{http://www.w3.org/2001/XMLSchema}dateTime" />
- *       &lt;attribute name="executionStatus" use="required" type="{http://www.w3.org/2001/XMLSchema}int" />
+ *       &lt;attribute NAME="executionTimeStart" use="required" type="{http://www.w3.org/2001/XMLSchema}dateTime" />
+ *       &lt;attribute NAME="executionTimeStop" use="required" type="{http://www.w3.org/2001/XMLSchema}dateTime" />
+ *       &lt;attribute NAME="executionStatus" use="required" type="{http://www.w3.org/2001/XMLSchema}int" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>

@@ -13,7 +13,7 @@ import de.mpc.pia.modeller.score.comparator.ScoreComparable;
  */
 public interface FDRComputable extends ScoreComparable {
 	/**
-	 * Returns the score value of the model with the given name.
+	 * Returns the score value of the model with the given NAME.
 	 * 
 	 * @param scoreName
 	 * @return
