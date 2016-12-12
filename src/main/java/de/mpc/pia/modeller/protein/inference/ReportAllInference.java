@@ -1,6 +1,7 @@
 package de.mpc.pia.modeller.protein.inference;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,17 +29,17 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
 public class ReportAllInference extends AbstractProteinInference {
 
     /** the human readable name of this filter */
-    protected static final String name = "Report All";
+    protected static final String NAME = "Report All";
 
     /** the machine readable name of the filter */
-    protected static final String shortName = "inference_report_all";
+    protected static final String SHORT_NAME = "inference_report_all";
 
     /** the progress of the inference */
     private Double progress;
 
 
     /** the logger for this class */
-    private static final Logger logger= Logger.getLogger(ReportAllInference.class);
+    private static final Logger LOGGER = Logger.getLogger(ReportAllInference.class);
 
 
 
@@ -71,17 +72,21 @@ public class ReportAllInference extends AbstractProteinInference {
     public List<ReportProtein> calculateInference(Map<Long, Group> groupMap,
             Map<String, ReportPSMSet> reportPSMSetMap,
             boolean considerModifications,
-            Map<String, Boolean> psmSetSettings) {
+            Map<String, Boolean> psmSetSettings,
+            Collection<ReportPeptide> reportPeptides) {
         progress = 0.0;
-        logger.info("calculateInference started...");
-        logger.info("scoring: " + getScoring().getName() + " with " +
+        LOGGER.info("calculateInference started...");
+        LOGGER.info("scoring: " + getScoring().getName() + " with " +
                 getScoring().getScoreSetting().getValue() + ", " +
                 getScoring().getPSMForScoringSetting().getValue());
+
+        // sort the peptides
+        Map<String, ReportPeptide> peptidesMap = sortPeptidesInMap(reportPeptides);
 
         // maps from the groups' IDs to the reportPeptides
         Map<Long, List<ReportPeptide>> reportPeptidesMap =
                 createFilteredReportPeptides(groupMap, reportPSMSetMap,
-                        considerModifications, psmSetSettings);
+                        considerModifications, psmSetSettings, peptidesMap);
 
         // groups with the IDs in this set should be reported
         Set<Long> reportGroupsIDs = new HashSet<Long>();
@@ -137,7 +142,7 @@ public class ReportAllInference extends AbstractProteinInference {
         }
 
         // check for sameSets (if there were active filters)
-        if (filters.size() > 0) {
+        if (!filters.isEmpty()) {
             sameSets = new HashMap<Long, Set<Long>>(groupsAllPeptides.size());
             Set<Long> newReportGroups = new HashSet<Long>(reportGroupsIDs.size());
 
@@ -216,7 +221,7 @@ public class ReportAllInference extends AbstractProteinInference {
             progress += progressStep;
         }
 
-        logger.info("calculateInference done.");
+        LOGGER.info("calculateInference done.");
         progress = 100.0;
         return reportProteinList;
     }
@@ -224,13 +229,13 @@ public class ReportAllInference extends AbstractProteinInference {
 
     @Override
     public String getName() {
-        return name;
+        return NAME;
     }
 
 
     @Override
     public String getShortName() {
-        return shortName;
+        return SHORT_NAME;
     }
 
     @Override

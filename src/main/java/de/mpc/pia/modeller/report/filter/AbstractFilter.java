@@ -6,8 +6,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.mpc.pia.intermediate.Modification;
-import de.mpc.pia.tools.PIAConstants;
+import de.mpc.pia.tools.unimod.UnimodParser;
 
+/**
+ * The abstract class of the filters, which are widely used in PIA. Most filters
+ * should be instantiated by the {@link RegisteredFilters}, only scores and
+ * TopIdentificationFilters have their own classes.
+ *
+ * @author julian
+ *
+ */
 public abstract class AbstractFilter {
 
     /** the used comparator */
@@ -24,6 +32,16 @@ public abstract class AbstractFilter {
         this.comparator = arg;
         this.filter = filter;
         this.negate = negate;
+    }
+
+
+    /**
+     * Return the {@link RegisteredFilters} this filter is based on
+     *
+     * @return
+     */
+    public final RegisteredFilters getRegisteredFilter() {
+        return filter;
     }
 
 
@@ -121,6 +139,7 @@ public abstract class AbstractFilter {
      * @param o
      * @return
      */
+    @SuppressWarnings("unchecked")
     public boolean satisfiesFilter(Object o, Long fileID) {
         Object objValue = getObjectsValue(o);
 
@@ -208,8 +227,9 @@ public abstract class AbstractFilter {
                     // TODO: throw exception or something
                     return false;
                 }
+            default:
+                return false;
             }
-
         }
 
         return false;
@@ -228,11 +248,8 @@ public abstract class AbstractFilter {
             return getFilterNegate() ^ getFilterValue().equals(o);
 
         default:
-            // TODO: throw exception or something
-            break;
+            return false;
         }
-
-        return false;
     }
 
 
@@ -243,28 +260,34 @@ public abstract class AbstractFilter {
      * @return
      */
     private boolean satisfiesNumericalFilter(Number o) {
+        boolean retVal;
+
         switch (getFilterComparator()) {
         case less:
-            return getFilterNegate() ^ (o.doubleValue() < ((Number)getFilterValue()).doubleValue());
+            retVal = getFilterNegate() ^ (o.doubleValue() < ((Number)getFilterValue()).doubleValue());
+            break;
 
         case less_equal:
-            return getFilterNegate() ^ (o.doubleValue() <= ((Number)getFilterValue()).doubleValue());
+            retVal = getFilterNegate() ^ (o.doubleValue() <= ((Number)getFilterValue()).doubleValue());
+            break;
 
         case equal:
-            return getFilterNegate() ^ getFilterValue().equals(o);
+            retVal = getFilterNegate() ^ getFilterValue().equals(o);
+            break;
 
         case greater_equal:
-            return getFilterNegate() ^ (o.doubleValue() >= ((Number)getFilterValue()).doubleValue());
+            retVal = getFilterNegate() ^ (o.doubleValue() >= ((Number)getFilterValue()).doubleValue());
+            break;
 
         case greater:
-            return getFilterNegate() ^ (o.doubleValue() > ((Number)getFilterValue()).doubleValue());
+            retVal = getFilterNegate() ^ (o.doubleValue() > ((Number)getFilterValue()).doubleValue());
+            break;
 
         default:
-            // TODO: throw exception or something
-            break;
+            retVal =  false;
         }
 
-        return false;
+        return retVal;
     }
 
 
@@ -285,9 +308,10 @@ public abstract class AbstractFilter {
         case regex:
             Matcher m = Pattern.compile((String)getFilterValue()).matcher(o);
             return getFilterNegate() ^ m.matches();
-        }
 
-        return false;
+        default:
+            return false;
+        }
     }
 
 
@@ -299,7 +323,7 @@ public abstract class AbstractFilter {
      */
     private boolean satisfiesLiteralListFilter(List<String> o) {
         switch (getFilterComparator()) {
-        case contains: {
+        case contains:
             // check, if the list contains the given string
             boolean contains = false;
             if (o != null) {
@@ -311,74 +335,62 @@ public abstract class AbstractFilter {
                 }
             }
             return getFilterNegate() ^ contains;
-        }
 
-        case contains_only: {
+        case contains_only:
             // check, if the list contains only the given string (maybe multiple times)
-            boolean contains_only = false;
+            boolean containsOnly = false;
 
-            if (o != null) {
-
-                if (o.size() > 0) {
-                    if (o.get(0).equals((String)getFilterValue())) {
-                        // ok, the first one is our string
-                        contains_only = true;
-                        // but are all the others?
-                        for (String objStr : o) {
-                            if (!objStr.equals((String)getFilterValue())) {
-                                contains_only = false;
-                                break;
-                            }
-                        }
+            if ((o != null) && !o.isEmpty()
+                    && o.get(0).equals((String)getFilterValue())) {
+                // ok, the first one is our string
+                containsOnly = true;
+                // but are all the others?
+                for (String objStr : o) {
+                    if (!objStr.equals((String)getFilterValue())) {
+                        containsOnly = false;
+                        break;
                     }
                 }
-
             }
-            return getFilterNegate() ^ contains_only;
-        }
+            return getFilterNegate() ^ containsOnly;
 
-        case regex: {
+        case regex:
             // check, if the list contains the given regex
             boolean contains_regex = false;
-            Pattern p = Pattern.compile((String)getFilterValue());
+            Pattern regexP = Pattern.compile((String)getFilterValue());
 
             if (o != null) {
                 for (String objStr : o) {
-                    if (p.matcher(objStr).matches()) {
+                    if (regexP.matcher(objStr).matches()) {
                         contains_regex = true;
                         break;
                     }
                 }
             }
             return getFilterNegate() ^ contains_regex;
-        }
 
-        case regex_only: {
+        case regex_only:
             // check, if the list contains only the given regex (maybe multiple times)
             boolean contains_only_regex = false;
-            Pattern p = Pattern.compile((String)getFilterValue());
+            Pattern regexOnlyP = Pattern.compile((String)getFilterValue());
 
-            if (o != null) {
-                if (o.size() > 0) {
-                    if (p.matcher(o.get(0)).matches()) {
-                        // ok, the first one is our string
-                        contains_only_regex = true;
-                        // but are all the others?
-                        for (String objStr : o) {
-                            if (!p.matcher(objStr).matches()) {
-                                contains_only_regex = false;
-                                break;
-                            }
-                        }
+            if ((o != null) && (!o.isEmpty())
+                    && regexOnlyP.matcher(o.get(0)).matches()) {
+                // ok, the first one is our string
+                contains_only_regex = true;
+                // but are all the others?
+                for (String objStr : o) {
+                    if (!regexOnlyP.matcher(objStr).matches()) {
+                        contains_only_regex = false;
+                        break;
                     }
                 }
             }
             return getFilterNegate() ^ contains_only_regex;
 
+        default:
+            return false;
         }
-        }
-
-        return false;
     }
 
 
@@ -392,7 +404,7 @@ public abstract class AbstractFilter {
         switch (getFilterComparator()) {
         case has_any_modification:
             boolean has_any_modification = false;
-            if ((o != null) && (o.size() > 0)) {
+            if ((o != null) && (!o.isEmpty())) {
                 has_any_modification = true;
             }
             return getFilterNegate() ^ has_any_modification;
@@ -421,7 +433,7 @@ public abstract class AbstractFilter {
                     try {
                         Double mass = Double.parseDouble((String)getFilterValue());
 
-                        if (Math.abs(mod.getMass() - mass) <= PIAConstants.unimod_mass_tolerance) {
+                        if (Math.abs(mod.getMass() - mass) <= UnimodParser.UNIMOD_MASS_TOLERANCE) {
                             has_mass = true;
                             break;
                         }
@@ -447,9 +459,10 @@ public abstract class AbstractFilter {
                 }
             }
             return getFilterNegate() ^ has_residue;
-        }
 
-        return false;
+        default:
+            return false;
+        }
     }
 
 

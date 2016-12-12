@@ -23,7 +23,7 @@ public class PeptideScoreFilter extends AbstractFilter {
 
     private String scoreShortName;
 
-    public static String prefix = "peptide_score_filter_";
+    public static final String prefix = "peptide_score_filter_";
 
 
     public PeptideScoreFilter(FilterComparator arg, boolean negate, Double value,
@@ -45,7 +45,7 @@ public class PeptideScoreFilter extends AbstractFilter {
      * programmed in the {@link ScoreModelEnum}
      * @return an array of two Strings, containing the short and filtering name, or null, if scoreShort is invalid
      */
-    static public String[] getShortAndFilteringName(String scoreShort,
+    public static String[] getShortAndFilteringName(String scoreShort,
             String defaultName) {
         String modelName = ScoreModelEnum.getName(scoreShort);
 
@@ -54,16 +54,17 @@ public class PeptideScoreFilter extends AbstractFilter {
             modelName = defaultName;
         }
 
+        String[] shortAndName = null;
+
         if (modelName != null) {
-            String[] shortAndName = new String[2];
+            shortAndName = new String[2];
 
             shortAndName[0] = prefix + scoreShort;
             shortAndName[1] = modelName + " (Peptide)";
 
-            return shortAndName;
-        } else {
-            return null;
         }
+
+        return shortAndName;
     }
 
 
@@ -91,6 +92,24 @@ public class PeptideScoreFilter extends AbstractFilter {
 
     @Override
     public boolean supportsClass(Object c) {
-        return (c instanceof ReportPeptide);
+        return c instanceof ReportPeptide;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder(getShortName());
+
+        str.append(" (" + getScoreShortName() + ")");
+        if (getFilterNegate()) {
+            str.append(" not");
+        }
+
+        str.append(" ");
+        str.append(getFilterComparator().toString());
+
+        str.append(" ");
+        str.append(getFilterValue());
+
+        return str.toString();
     }
 }

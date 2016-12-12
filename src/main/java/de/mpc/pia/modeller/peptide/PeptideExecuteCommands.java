@@ -4,12 +4,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import de.mpc.pia.modeller.PIAModeller;
 import de.mpc.pia.modeller.PeptideModeller;
 import de.mpc.pia.modeller.execute.ExecuteModelCommands;
 import de.mpc.pia.modeller.execute.xmlparams.ITEMType;
@@ -32,21 +34,21 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
 
     ConsiderModifications {
         /** the identification string for considering modifications */
-        private static final String idConsiderMods = "consider modifications";
+        private static final String ID_CONSIDER_MODS = "consider modifications";
 
         @Override
-        public boolean execute(PeptideModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
+        public boolean execute(PeptideModeller peptideModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
 
             Boolean considerModifications = null;
 
-            if ((params != null) && (params.length > 0)) {
-                if (params[0] != null) {
-                    if (params[0].equals("true") || params[0].equals("yes")) {
-                        considerModifications = true;
-                    } else {
-                        considerModifications = false;
-                    }
+            if ((params != null)
+                    && (params.length > 0)
+                    && (params[0] != null)) {
+                if ("true".equals(params[0]) || "yes".equals(params[0])) {
+                    considerModifications = true;
+                } else {
+                    considerModifications = false;
                 }
             }
 
@@ -55,15 +57,15 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                 considerModifications = true;
             }
 
-            modeller.setConsiderModifications(considerModifications);
+            peptideModeller.setConsiderModifications(considerModifications);
             return true;
         }
 
         @Override
         public String describe() {
-            return "Sets whether modifications should be considered while " +
-                    "inferring the peptides from the PSMs. Defaults to " +
-                    PeptideModeller.considerModificationsDefault;
+            return "Sets whether modifications should be considered while"
+                    + " inferring the peptides from the PSMs. Defaults to " +
+                    PeptideModeller.CONSIDER_MODIFICATIONS_DEFAULT;
         }
 
         @Override
@@ -71,7 +73,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
             List<List<String>> params = new ArrayList<List<String>>();
 
             List<String> param = new ArrayList<String>();
-            param.add(idConsiderMods);
+            param.add(ID_CONSIDER_MODS);
             param.add("no");
             param.add("yes");
             params.add(param);
@@ -80,49 +82,47 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, PeptideModeller model) {
+        public void executeXMLParameters(NODEType node, PeptideModeller peptideModeller, PIAModeller piaModeller) {
             String considerMods = null;
 
             for (Object item : node.getITEMOrITEMLISTOrNODE()) {
-                if (item instanceof ITEMType) {
-                    if (idConsiderMods.equals(((ITEMType) item).getName())) {
-                        considerMods = ((ITEMType) item).getValue();
-                    }
+                if ((item instanceof ITEMType)
+                        && ID_CONSIDER_MODS.equals(((ITEMType) item).getName())) {
+                    considerMods = ((ITEMType) item).getValue();
                 }
             }
 
-            execute(model, new String[] {considerMods});
+            execute(peptideModeller, piaModeller, new String[] {considerMods});
         }
     },
 
 
     AddFilter {
         /** the identification string for the file ID */
-        private static final String idFileID= "file ID";
+        private static final String ID_FILE_ID= "file ID";
 
         /** the identification string for the filter name */
-        private static final String idFiltername= "filtername";
+        private static final String ID_FILTERNAME= "filtername";
 
         /** the identification string for negate */
-        private static final String idNegate= "negate";
+        private static final String ID_NEGATE= "negate";
 
         /** the identification string for the equation */
-        private static final String idComparison= "comparison";
+        private static final String ID_COMPARISON= "comparison";
 
         /** the identification string for the value */
-        private static final String idValue= "value";
+        private static final String ID_VALUE= "value";
 
         @Override
-        public boolean execute(PeptideModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
+        public boolean execute(PeptideModeller peptideModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
 
             boolean negate = false;
 
-            if (params.length >= 5) {
-                if (params[4] != null &&
-                        (params[4].equals("true") || params[4].equals("yes"))) {
-                    negate = true;
-                }
+            if ((params.length >= 5)
+                    && (params[4] != null)
+                    && ("true".equals(params[4]) || "yes".equals(params[4]))) {
+                negate = true;
             }
 
             if (params.length >= 4) {
@@ -131,7 +131,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                 String comparison = params[2];
                 String value = params[3];
 
-                StringBuffer messageBuffer = new StringBuffer();
+                StringBuilder messageBuffer = new StringBuilder();
 
                 AbstractFilter newFilter =
                         FilterFactory.newInstanceOf(
@@ -143,14 +143,14 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                                 messageBuffer);
 
                 if (newFilter != null) {
-                    modeller.addFilter(Long.parseLong(fileID), newFilter);
+                    peptideModeller.addFilter(Long.parseLong(fileID), newFilter);
                 } else {
-                    logger.error("Filter " + filtername +
-                            " could not be added: " + messageBuffer.toString());
+                    LOGGER.error("Filter " + filtername
+                            + " could not be added: " + messageBuffer.toString());
                 }
             } else {
-                logger.info("Too few parameters to execute " + name() +
-                        ", ignoring the call");
+                LOGGER.info("Too few parameters to execute " + name()
+                        + ", ignoring the call");
             }
 
             return true;
@@ -158,14 +158,13 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
 
         @Override
         public String describe() {
-            return "Adds a peptide level filter to a specified file. The file " +
-                    "is given by the first parameter, which has to be the file " +
-                    "ID. Filters are added by their name, an abbreviation " +
-                    "for the camparison, the compared value and (optional), " +
-                    "whether the comparison should be negated " +
-                    "e.g. \"" + name() + "=1,charge_filter,EQ,2,no\". \n" +
-                    "Registered peptide filters are: " +
-                    RegisteredFilters.getPeptideFilterShortsForHelp();
+            return "Adds a peptide level filter to a specified file. The file"
+                    + " is given by the first parameter, which has to be the"
+                    + " file ID. Filters are added by their name, an"
+                    + " abbreviation for the camparison, the compared value and"
+                    + " (optional), whether the comparison should be negated,"
+                    + " e.g. \"" + name() + "=1,charge_filter,EQ,2,no\". \n"
+                    + "Registered peptide filters are: " + RegisteredFilters.getPeptideFilterShortsForHelp();
         }
 
         @Override
@@ -173,26 +172,26 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
             List<List<String>> params = new ArrayList<List<String>>();
 
             List<String> param = new ArrayList<String>();
-            param.add(idFileID);
+            param.add(ID_FILE_ID);
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idFiltername);
+            param.add(ID_FILTERNAME);
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idComparison);
+            param.add(ID_COMPARISON);
             for (FilterComparator comp : FilterComparator.values()) {
                 param.add(comp.getCliShort());
             }
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idValue);
+            param.add(ID_VALUE);
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idNegate);
+            param.add(ID_NEGATE);
             param.add("no");
             param.add("yes");
             params.add(param);
@@ -201,7 +200,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, PeptideModeller model) {
+        public void executeXMLParameters(NODEType node, PeptideModeller peptideModeller, PIAModeller piaModeller) {
             String fileID = null;
             String filtername = null;
             String comparison = null;
@@ -210,30 +209,30 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
 
             for (Object item : node.getITEMOrITEMLISTOrNODE()) {
                 if (item instanceof ITEMType) {
-                    if (idFileID.equals(((ITEMType) item).getName())) {
+                    if (ID_FILE_ID.equals(((ITEMType) item).getName())) {
                         fileID = ((ITEMType) item).getValue();
-                    } else if (idFiltername.equals(((ITEMType) item).getName())) {
+                    } else if (ID_FILTERNAME.equals(((ITEMType) item).getName())) {
                         filtername = ((ITEMType) item).getValue();
-                    } else if (idComparison.equals(((ITEMType) item).getName())) {
+                    } else if (ID_COMPARISON.equals(((ITEMType) item).getName())) {
                         comparison = ((ITEMType) item).getValue();
-                    } else if (idValue.equals(((ITEMType) item).getName())) {
+                    } else if (ID_VALUE.equals(((ITEMType) item).getName())) {
                         value = ((ITEMType) item).getValue();
-                    } else if (idNegate.equals(((ITEMType) item).getName())) {
+                    } else if (ID_NEGATE.equals(((ITEMType) item).getName())) {
                         negate = ((ITEMType) item).getValue();
                     }
                 }
             }
 
-            execute(model, new String[] {fileID, filtername, comparison, value,
-                    negate});
+            execute(peptideModeller, piaModeller,
+                    new String[] {fileID, filtername, comparison, value, negate});
         }
     },
 
 
     Export {
         @Override
-        public boolean execute(PeptideModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
+        public boolean execute(PeptideModeller peptideModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
 
             String format = "csv";
             Long fileID = 0L;
@@ -272,8 +271,8 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                 } else if ("oneAccessionPerLine".equals(command)) {
                     if ((commandParams != null) &&
                             (commandParams.length > 0)) {
-                        if (commandParams[0].equals("yes") ||
-                                commandParams[0].equals("true")) {
+                        if ("yes".equals(commandParams[0])
+                                || "true".equals(commandParams[0])) {
                             oneAccessionPerLine = true;
                         } else {
                             oneAccessionPerLine = false;
@@ -285,8 +284,8 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                 } else if ("exportPSMSets".equals(command)) {
                     if ((commandParams != null) &&
                             (commandParams.length > 0)) {
-                        if (commandParams[0].equals("yes") ||
-                                commandParams[0].equals("true")) {
+                        if ("yes".equals(commandParams[0])
+                                || "true".equals(commandParams[0])) {
                             exportPSMSets = true;
                         } else {
                             exportPSMSets = false;
@@ -296,10 +295,9 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                         exportPSMSets = true;
                     }
                 } else if ("exportPSMs".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        if (commandParams[0].equals("yes") ||
-                                commandParams[0].equals("true")) {
+                    if ((commandParams != null) && (commandParams.length > 0)) {
+                        if ("yes".equals(commandParams[0])
+                                || "true".equals(commandParams[0])) {
                             exportPSMs = true;
                         } else {
                             exportPSMs = false;
@@ -311,7 +309,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                 }
             }
 
-            logger.info("export parameters: " +
+            LOGGER.info("export parameters: " +
                     "filename: " + fileName +
                     ", fileID: " + fileID +
                     ", format: " + format +
@@ -323,20 +321,20 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
             try {
                 writer = new FileWriter(fileName, false);
 
-                if ((format == null) ||
-                        (format.trim().length() == 0) ||
-                        (format.equalsIgnoreCase("csv"))) {
-                    modeller.exportCSV(writer, fileID, true,
+                if ((format == null)
+                        || (format.trim().length() == 0)
+                        || "csv".equalsIgnoreCase(format)) {
+                    peptideModeller.exportCSV(writer, fileID, true,
                             oneAccessionPerLine, exportPSMSets, exportPSMs);
                 }
             } catch (IOException e) {
-                logger.error("Cannot write to file " + fileName, e);
+                LOGGER.error("Cannot write to file " + fileName, e);
             } finally {
                 if (writer != null) {
                     try {
                         writer.close();
                     } catch (IOException e) {
-                        logger.error("Cannot close file " + fileName, e);
+                        LOGGER.error("Cannot close file " + fileName, e);
                     }
                 }
             }
@@ -362,11 +360,11 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
         @Override
         public List<List<String>> neededXMLParameters() {
             // this is not executable via XML file
-            return null;
+            return Collections.emptyList();
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, PeptideModeller model) {
+        public void executeXMLParameters(NODEType node, PeptideModeller peptideModeller, PIAModeller piaModeller) {
             // this is not executable via XML file
         }
     }
@@ -374,30 +372,33 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
 
 
     /** logger for this enum */
-    private static final Logger logger = Logger.getLogger(PeptideExecuteCommands.class);
+    private static final Logger LOGGER = Logger.getLogger(PeptideExecuteCommands.class);
+
+    /** informative preambel of logging */
+    private static final String LOGGING_PREAMBEL = "execute CLI command ";
 
     /** the prefix for this level's execute commands */
-    public final static String prefix = "Peptide";
+    private static final String PREFIX = "Peptide";
 
 
     @Override
-    public NODEType generateNode(String params[]) {
+    public NODEType generateNode(String[] params) {
         if (params.length < 1) {
             return null;
         }
 
         String execution = params[0];
-        if (execution.startsWith(prefix)) {
-            execution = execution.substring(prefix.length());
+        if (execution.startsWith(PREFIX)) {
+            execution = execution.substring(PREFIX.length());
         }
         if (!name().equals(execution)) {
-            logger.error(name() + " is the wrong execute command for " +
+            LOGGER.error(name() + " is the wrong execute command for " +
                     execution);
             return null;
         }
 
         NODEType node = new NODEType();
-        node.setName(prefix + execution);
+        node.setName(PREFIX + execution);
         node.setDescription(describe());
 
         int pos = 0;
@@ -420,7 +421,17 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
 
     @Override
     public String prefix() {
-        return prefix;
+        return getPrefix();
+    }
+
+
+    /**
+     * Static getter for the Prefix
+     *
+     * @return
+     */
+    public static String getPrefix() {
+        return PREFIX;
     }
 
 
@@ -429,7 +440,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
      * @return
      */
     public static String getValidCommandsString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (PeptideExecuteCommands command : values()) {
             if (sb.length() > 0) {

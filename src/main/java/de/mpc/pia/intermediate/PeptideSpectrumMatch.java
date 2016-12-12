@@ -8,10 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 
 import de.mpc.pia.modeller.IdentificationKeySettings;
+import de.mpc.pia.modeller.psm.PSMItem;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.PIATools;
@@ -23,14 +27,13 @@ import de.mpc.pia.tools.PIATools;
  * @author julian
  *
  */
-public class PeptideSpectrumMatch implements Serializable {
-    /**
-     *
-     */
+public class PeptideSpectrumMatch implements PSMItem, Serializable {
+
     private static final long serialVersionUID = 1L;
 
+
     /** internal ID of the PSM */
-    private long ID;
+    private long id;
 
     /** charge of the spectrum */
     private int charge;
@@ -100,7 +103,7 @@ public class PeptideSpectrumMatch implements Serializable {
             double deltaMass, Double rt, String sequence, int missed,
             String sourceID, String title, PIAInputFile file,
             SpectrumIdentification spectrumID) {
-        this.ID = id;
+        this.id = id;
         this.charge = charge;
         this.massToCharge = massToCharge;
         this.deltaMass = deltaMass;
@@ -126,61 +129,53 @@ public class PeptideSpectrumMatch implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if ( !(obj instanceof PeptideSpectrumMatch) ) {
+        if (!(obj instanceof PeptideSpectrumMatch)) {
             return false;
+        }
+        if (this == obj) {
+            return true;
         }
 
         PeptideSpectrumMatch objSpectrum = (PeptideSpectrumMatch)obj;
-        if ((objSpectrum.ID == this.ID) &&
-                (objSpectrum.scores == this.scores) &&
-                (objSpectrum.charge == this.charge) &&
-                (objSpectrum.massToCharge == this.massToCharge) &&
-                (objSpectrum.deltaMass == this.deltaMass) &&
-                (((retentionTime == null) && (objSpectrum.retentionTime == null)) ||
-                        retentionTime.equals(objSpectrum.retentionTime)) &&
-                (objSpectrum.missed == this.missed) &&
-                objSpectrum.sequence.equals(sequence) &&
-                objSpectrum.modifications.equals(modifications) &&
-                objSpectrum.sourceID.equals(sourceID) &&
-                (((spectrumTitle != null) && spectrumTitle.equals(objSpectrum.spectrumTitle)) ||
-                        ((spectrumTitle == null) && (objSpectrum.spectrumTitle == null))) &&
-                (((pFile != null) && pFile.equals(objSpectrum.pFile)) ||
-                        ((pFile == null) && (objSpectrum.pFile == null))) &&
-                (((spectrumID != null) && spectrumID.equals(objSpectrum.spectrumID)) ||
-                        ((spectrumID == null) && (objSpectrum.spectrumID == null))) &&
-                (((isUnique == null) && (objSpectrum.isUnique == null)) ||
-                        isUnique.equals(objSpectrum.isUnique)) &&
-                (((isDecoy == null) && (objSpectrum.isDecoy == null)) ||
-                        isDecoy.equals(objSpectrum.isDecoy))
-                ) {
-            return true;
-        } else {
-            return false;
-        }
+
+        return new EqualsBuilder().
+                append(id, objSpectrum.id).
+                append(scores, objSpectrum.scores).
+                append(charge, objSpectrum.charge).
+                append(massToCharge, objSpectrum.massToCharge).
+                append(deltaMass, objSpectrum.deltaMass).
+                append(retentionTime, objSpectrum.retentionTime).
+                append(missed, objSpectrum.missed).
+                append(sequence, objSpectrum.sequence).
+                append(modifications, objSpectrum.modifications).
+                append(sourceID, objSpectrum.sourceID).
+                append(spectrumTitle, objSpectrum.spectrumTitle).
+                append(pFile, objSpectrum.pFile).
+                append(spectrumID, objSpectrum.spectrumID).
+                append(isUnique, objSpectrum.isUnique).
+                append(isDecoy, objSpectrum.isDecoy).
+                isEquals();
     }
 
 
     @Override
     public int hashCode() {
-        int hash = 0;
-
-        hash += (new Long(ID)).hashCode();
-        hash += (scores != null) ? scores.hashCode() : 0;
-        hash += (new Integer(charge)).hashCode();
-        hash += (new Double(massToCharge)).hashCode();
-        hash += (new Double(deltaMass)).hashCode();
-        hash += (retentionTime != null) ? retentionTime.hashCode() : 0;
-        hash += (new Integer(missed)).hashCode();
-        hash += (sequence != null) ? sequence.hashCode() : 0;
-        hash += (modifications != null) ? modifications.hashCode() : 0;
-        hash += (sourceID != null) ? sourceID.hashCode() : 0;
-        hash += (spectrumTitle != null) ? spectrumTitle.hashCode() : 0;
-        hash += (pFile != null) ? pFile.hashCode() : 0;
-        hash += (isUnique != null) ? isUnique.hashCode() : 0;
-        hash += (spectrumID != null) ? spectrumID.hashCode() : 0;
-
-        return hash;
+        return new HashCodeBuilder(23, 31).
+                append(id).
+                append(scores).
+                append(charge).
+                append(massToCharge).
+                append(deltaMass).
+                append(retentionTime).
+                append(missed).
+                append(sequence).
+                append(modifications).
+                append(sourceID).
+                append(spectrumTitle).
+                append(pFile).
+                append(isUnique).
+                append(spectrumID).
+                toHashCode();
     }
 
 
@@ -200,7 +195,7 @@ public class PeptideSpectrumMatch implements Serializable {
      * @return
      */
     public Long getID() {
-        return ID;
+        return id;
     }
 
 
@@ -245,61 +240,37 @@ public class PeptideSpectrumMatch implements Serializable {
     }
 
 
-    /**
-     * Getter for the peptide mass.
-     *
-     * @return
-     */
+    @Override
     public double getMassToCharge() {
         return massToCharge;
     }
 
 
-    /**
-     * Getter for the delta mass.
-     *
-     * @return
-     */
+    @Override
     public double getDeltaMass() {
         return deltaMass;
     }
 
 
-    /**
-     * Getter for the retention time. null, if none is given.
-     *
-     * @return
-     */
+    @Override
     public Double getRetentionTime() {
         return retentionTime;
     }
 
 
-    /**
-     * Getter for the charge.
-     *
-     * @return
-     */
+    @Override
     public int getCharge() {
         return charge;
     }
 
 
-    /**
-     * Getter for the missed cleavages.
-     *
-     * @return
-     */
+    @Override
     public int getMissedCleavages() {
         return missed;
     }
 
 
-    /**
-     * Getter for the sequence.
-     *
-     * @return
-     */
+    @Override
     public String getSequence() {
         return sequence;
     }
@@ -314,7 +285,7 @@ public class PeptideSpectrumMatch implements Serializable {
         modificationString = getModificationString(modifications);
 
         // rebuild the peptideStringID
-        StringBuffer modificationSB = new StringBuffer(sequence);
+        StringBuilder modificationSB = new StringBuilder(sequence);
         for (Map.Entry<Integer, Modification> modIt : modifications.entrySet()) {
             modificationSB.append("(");
             modificationSB.append(modIt.getKey() + ";" +
@@ -352,9 +323,8 @@ public class PeptideSpectrumMatch implements Serializable {
      * @param modifications
      * @return
      */
-    public static String getModificationString(
-            Map<Integer, Modification> modifications) {
-        StringBuffer modSb = new StringBuffer();
+    public static String getModificationString(Map<Integer, Modification> modifications) {
+        StringBuilder modSb = new StringBuilder();
         boolean first = true;
         TreeMap<Integer, Modification> treeModMap =
                 new TreeMap<Integer, Modification>(modifications);
@@ -406,30 +376,19 @@ public class PeptideSpectrumMatch implements Serializable {
     }
 
 
-    /**
-     * Getter for the modifications map.
-     * @return
-     */
+    @Override
     public Map<Integer, Modification> getModifications() {
         return modifications;
     }
 
 
-    /**
-     * Getter for the sourceID.
-     *
-     * @return
-     */
+    @Override
     public String getSourceID() {
         return sourceID;
     }
 
 
-    /**
-     * Getter for the spectrumTitle.
-     *
-     * @return
-     */
+    @Override
     public String getSpectrumTitle() {
         return spectrumTitle;
     }
@@ -543,7 +502,7 @@ public class PeptideSpectrumMatch implements Serializable {
 
     /**
      * Returns a string for identifying a PSM.<br/>
-     *This should be unique for each PSM and is used to pre-sort PSMs found by
+     * This should be unique for each PSM and is used to pre-sort PSMs found by
      * different searches. These have to be refined later, because valzues with
      * m/z-values can not be used, for identification, due to search engine
      * roundings.
@@ -563,7 +522,7 @@ public class PeptideSpectrumMatch implements Serializable {
         }
         Collections.sort(usedSettings);
 
-        StringBuffer key = new StringBuffer();
+        StringBuilder key = new StringBuilder();
         for (String settingName : usedSettings) {
             String value = null;
             switch(IdentificationKeySettings.getByName(settingName)) {
@@ -602,6 +561,10 @@ public class PeptideSpectrumMatch implements Serializable {
             case SPECTRUM_TITLE:
                 value = spectrumTitle;
                 break;
+
+            default:
+                value = null;
+                break;
             }
 
             if (value != null) {
@@ -620,7 +583,7 @@ public class PeptideSpectrumMatch implements Serializable {
     /**
      * Returns a string for identifying a PSM.<br/>
      * This should be unique for each PSM and is used to pre-sort PSMs found by
-     * different searches. These have to be refined later, because valzues with
+     * different searches. These have to be refined later, because values with
      * m/z-values can not be used, for identification, due to search engine
      * roundings.
      *
@@ -636,7 +599,7 @@ public class PeptideSpectrumMatch implements Serializable {
         }
         Collections.sort(usedSettings);
 
-        StringBuffer keyKey = new StringBuffer();
+        StringBuilder keyKey = new StringBuilder();
 
         for (String key : usedSettings) {
             keyKey.append(key);
@@ -667,7 +630,7 @@ public class PeptideSpectrumMatch implements Serializable {
      * @return
      */
     public String getNiceSpectrumName() {
-        StringBuffer spectrumName = new StringBuffer();
+        StringBuilder spectrumName = new StringBuilder();
 
         if (sourceID != null) {
             spectrumName.append(sourceID);

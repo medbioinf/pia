@@ -39,9 +39,11 @@ public class OccamsRazorWorkerThread extends Thread {
     /** settings for PSMSet creation */
     private Map<String, Boolean> psmSetSettings;
 
+    /** the inferred peptides, may contain peptide level scores and FDR values */
+    private Map<String, ReportPeptide> inferredReportPeptides;
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(OccamsRazorWorkerThread.class);
+    private static final Logger LOGGER = Logger.getLogger(OccamsRazorWorkerThread.class);
 
 
     public OccamsRazorWorkerThread(int ID,
@@ -49,13 +51,15 @@ public class OccamsRazorWorkerThread extends Thread {
             List<AbstractFilter> filters,
             Map<String, ReportPSMSet> reportPSMSetMap,
             boolean considerModifications,
-            Map<String, Boolean> psmSetSettings) {
+            Map<String, Boolean> psmSetSettings,
+            Map<String, ReportPeptide> reportPeptidesMap) {
         this.ID = ID;
         this.parent = parent;
         this.filters = filters;
         this.reportPSMSetMap = reportPSMSetMap;
         this.considerModifications = considerModifications;
         this.psmSetSettings = psmSetSettings;
+        this.inferredReportPeptides = reportPeptidesMap;
 
         this.setName("OccamsRazorWorkerThread-" + this.ID);
     }
@@ -71,7 +75,7 @@ public class OccamsRazorWorkerThread extends Thread {
             treeCount++;
         }
 
-        logger.debug("worker " + ID + " finished after " + treeCount);
+        LOGGER.debug("worker " + ID + " finished after " + treeCount);
     }
 
 
@@ -80,7 +84,7 @@ public class OccamsRazorWorkerThread extends Thread {
         // get the filtered report peptides mapping from the groups' IDs
         Map<Long, List<ReportPeptide>> reportPeptidesMap =
                 parent.createFilteredReportPeptides(groupMap, reportPSMSetMap,
-                        considerModifications, psmSetSettings);
+                        considerModifications, psmSetSettings, inferredReportPeptides);
 
         // the map of actually reported proteins
         Map<Long, ReportProtein> proteins =
@@ -114,16 +118,12 @@ public class OccamsRazorWorkerThread extends Thread {
             Set<Long> pepGroupIDs = new HashSet<Long>();
             Set<String> peptideKeys = new HashSet<String>();
             pepGroupIDs.add(groupIt.getKey());
-            pepGroupIDs.addAll(
-                    groupIt.getValue().getAllPeptideChildren().keySet());
+            pepGroupIDs.addAll(groupIt.getValue().getAllPeptideChildren().keySet());
             for (Long pepGroupID : pepGroupIDs) {
                 if (reportPeptidesMap.containsKey(pepGroupID)) {
-                    for (ReportPeptide peptide
-                            : reportPeptidesMap.get(pepGroupID)) {
+                    for (ReportPeptide peptide : reportPeptidesMap.get(pepGroupID)) {
                         if (!peptideKeys.add(peptide.getStringID())) {
-                            logger.warn(
-                                    "Peptide already in list of peptides '" +
-                                            peptide.getStringID() + "'");
+                            LOGGER.warn("Peptide already in list of peptides '" + peptide.getStringID() + "'");
                         } else {
                             protein.addPeptide(peptide);
                         }

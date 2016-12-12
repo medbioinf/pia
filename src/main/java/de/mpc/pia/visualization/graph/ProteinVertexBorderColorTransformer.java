@@ -28,25 +28,19 @@ public class ProteinVertexBorderColorTransformer
     /** the currently selected vertex */
     private PickedState<VertexObject> pickedState;
 
-    /** the currently picked protein */
-    private PickedState<VertexObject> pickedProtein;
-
 
     // some border colors
     private static final Color DEFAULT_BORDER_COLOR = Color.BLACK;
 
     private static final Color SELECTED_BORDER_COLOR = new Color(0x00FFFF);
 
-    private static final Color SELECTED_PROTEIN_BORDER_COLOR = Color.RED;
-
 
     /**
      * Constructor
      */
-    public ProteinVertexBorderColorTransformer(ProteinVisualizationGraphHandler graphHandler, PickedState<VertexObject> pickedState, PickedState<VertexObject> pickedProtein) {
+    public ProteinVertexBorderColorTransformer(ProteinVisualizationGraphHandler graphHandler, PickedState<VertexObject> pickedState) {
         this.graphHandler = graphHandler;
         this.pickedState = pickedState;
-        this.pickedProtein = pickedProtein;
     }
 
 
@@ -54,14 +48,7 @@ public class ProteinVertexBorderColorTransformer
     public Paint transform(VertexObject vertex) {
         Object vObject = vertex.getObject();
 
-        VertexObject proteinVertex = null;
-        if (pickedProtein.getPicked().size() > 0) {
-            proteinVertex = pickedProtein.getPicked().iterator().next();
-        }
-
-        if (pickedProtein.isPicked(vertex)) {
-            return SELECTED_PROTEIN_BORDER_COLOR;
-        } else if (pickedState.isPicked(vertex)) {
+        if (pickedState.isPicked(vertex)) {
             return SELECTED_BORDER_COLOR;
         }
 
@@ -73,7 +60,7 @@ public class ProteinVertexBorderColorTransformer
             vObject = ((Collection<?>)vertex.getObject()).iterator().next();
         }
 
-        VertexRelation relation = graphHandler.getProteinsRelation(proteinVertex, vertex);
+        VertexRelation relation = graphHandler.getVertexRelation(vertex);
 
         switch (relation) {
         case IN_SAME_PAG:

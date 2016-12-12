@@ -2,9 +2,14 @@ package de.mpc.pia.intermediate.compiler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,15 +19,25 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
+
+import com.compomics.util.experiment.identification.matches.SpectrumMatch;
+import com.sun.xml.txw2.output.IndentingXMLStreamWriter;
 
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftwareList;
@@ -31,29 +46,25 @@ import uk.ac.ebi.jmzidml.model.mzidml.Inputs;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
+import uk.ac.ebi.jmzidml.model.utils.ModelConstants;
+import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Group;
 import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.parser.InputFileParserFactory;
-import de.mpc.pia.intermediate.piaxml.AccessionsListXML;
 import de.mpc.pia.intermediate.piaxml.AccessionXML;
 import de.mpc.pia.intermediate.piaxml.PIAInputFileXML;
 import de.mpc.pia.intermediate.piaxml.FilesListXML;
 import de.mpc.pia.intermediate.piaxml.GroupXML;
-import de.mpc.pia.intermediate.piaxml.GroupsListXML;
-import de.mpc.pia.intermediate.piaxml.JPiaXML;
 import de.mpc.pia.intermediate.piaxml.PeptideXML;
-import de.mpc.pia.intermediate.piaxml.PeptidesListXML;
-import de.mpc.pia.intermediate.piaxml.SpectraListXML;
 import de.mpc.pia.intermediate.piaxml.SpectrumMatchXML;
 import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
 import de.mpc.pia.tools.obo.OBOMapper;
 import de.mpc.pia.tools.unimod.UnimodParser;
-import uk.ac.ebi.pridemod.ModReader;
 
 /**
  * This class is used to read in one or several input files and compile them
@@ -62,7 +73,11 @@ import uk.ac.ebi.pridemod.ModReader;
  * @author julian
  *
  */
-public class PIACompiler {
+public abstract class PIACompiler {
+
+    /** logger for this class */
+    private static final Logger LOGGER = Logger.getLogger(PIACompiler.class);
+
 
     /** just a name for the compilation */
     private String compilationName;
@@ -73,33 +88,15 @@ public class PIACompiler {
     /** map of the used files, maps from file ID to PIAFile */
     private Map<Long, PIAInputFile> files;
 
-    /** map of the accessions, maps from the accession String to the Accession */
-    private Map<String, Accession> accessions;
-
-    /** map of peptides, maps from the sequence to the peptides */
-    private Map<String, Peptide> peptides;
-
-    /** map of spectra, maps from the */
-    private Set<PeptideSpectrumMatch> spectra;
-
-    /** map of the groups */
-    private Map<Long, Group> groups;
-
-    /** maps from the accessions to the peptides, used to calculate the clusters */
-    private Map<String, Set<Peptide>> accPepMap;
-
-    /** maps from the peptide to the accessions, used to calculate the clusters */
-    private Map<String, Set<Accession>> pepAccMap;
-
     /**
-     * list of  maps from the peptide string to the accessions, used for
-     * building up the intermediate structure. each map represents one cluster
-     * and can be processed as thread.
+     * list of  maps from the peptide ID to the accession IDs, used for building
+     * up the intermediate structure. each map represents one cluster and can be
+     * processed as thread.
      */
-    private List<Map<String, Map<String, Accession>>> clusteredPepAccMap;
+    private List<Map<Long, Collection<Long>>> clusteredPepAccMap;
 
-    /** the iterator over the cluster */
-    private ListIterator<Map<String, Map<String, Accession>>> clusterIterator;
+    /** the iterator over the clusters (maps from peptide IDs to the accession IDs */
+    private ListIterator<Map<Long, Collection<Long>>> clusterIterator;
 
     /** how many clusters are processed until now */
     private Long buildProgress;
@@ -129,11 +126,31 @@ public class PIACompiler {
     private int numThreads;
 
 
-    /** logger for this class */
-    private static final Logger logger = Logger.getLogger(PIACompiler.class);
+    /** map of the groups */
+    private Map<Long, Group> groups;
+
+
+    /** the default name for a compilation */
+    public static final String DEFAULT_PIA_COMPILATION_NAME = "PIA compilation";
+
+    /** namespace declaration for jPiaXML */
+    private static String nsjPiaXML = "http://www.medizinisches-proteom-center.de/PIA/piaintermediate";
+
+    /** prefixdeclaration for jPiaXML */
+    private static String prefixjPiaXML = "ns3";
+
+    /** namespace declaration for mzIdentML */
+    private static String nsMzIdentML = "http://psidev.info/psi/pi/mzIdentML/1.1";
+
+    /** prefix declaration for mzIdentML */
+    private static String prefixMzIdentML = "ns2";
+
+    /** encoding specification */
+    private static String encoding = "UTF-8";
+
 
     /** helper description */
-    private static final String helpDescription =
+    private static final String HELP_DESCRIPTION =
             "PIACompiler is used to compile (multiple) search engine results "
             + "into one PIA XML file. Use a high enough amount of memory (e.g. "
             + "use the Java setting -Xmx8G).";
@@ -143,22 +160,14 @@ public class PIACompiler {
      * Basic constructor
      */
     public PIACompiler() {
-        compilationName = null;
+        compilationName = DEFAULT_PIA_COMPILATION_NAME;
         startDate = new Date();
 
-        files = new HashMap<Long, PIAInputFile>();
-        accessions = new HashMap<String, Accession>();
-        peptides = new HashMap<String, Peptide>();
-        spectra = new HashSet<PeptideSpectrumMatch>();
+        files = new HashMap<>();
 
         spectraDataMap = new HashMap<String, SpectraData>();
         searchDatabasesMap = new HashMap<String, SearchDatabase>();
         softwareMap = new HashMap<String, AnalysisSoftware>();
-
-        accPepMap = new HashMap<String, Set<Peptide>>();
-        pepAccMap = new HashMap<String, Set<Accession>>();
-
-        clusterIterator = null;
 
         unimodParser = null;
 
@@ -174,7 +183,7 @@ public class PIACompiler {
      * Getter for the oboMapper. Initializes the OBOMapper on the first call.
      * @return
      */
-    public OBOMapper getOBOMapper() {
+    public final OBOMapper getOBOMapper() {
         if (oboMapper == null) {
             oboMapper = new OBOMapper();
         }
@@ -188,25 +197,26 @@ public class PIACompiler {
      *
      * @return
      */
-    public UnimodParser getUnimodParser() {
+    public final UnimodParser getUnimodParser() {
         if (unimodParser == null) {
-            logger.info("Initializing unimod parser...");
+            LOGGER.info("Initializing unimod parser...");
             unimodParser = new UnimodParser();
+            LOGGER.info("unimod parser initialized...");
         }
         return unimodParser;
     }
 
     /**
-     * Getter for the Pride Mod Reader allowing to retrieve information from UNIMOD and PSI-MOD
-     * at the same time.
+     * Getter for the Pride Mod Reader allowing to retrieve information from
+     * UNIMOD and PSI-MOD at the same time.
      *
      * Unimod and PSI-MOD
      *
      * @return
      */
-    public ModReader getModReader() {
+    public final ModReader getModReader() {
         if (modReader == null) {
-            logger.info("Initializing unimod parser...");
+            LOGGER.info("Initializing PRIDE ModReader parser...");
             modReader = ModReader.getInstance();
         }
         return modReader;
@@ -223,7 +233,7 @@ public class PIACompiler {
      * @param inputFileType the type of the search engine result fil
      * @return
      */
-    public boolean getDataFromFile(String name, String fileName,
+    public final boolean getDataFromFile(String name, String fileName,
             String additionalInfoFileName, String inputFileType) {
         boolean fileParsed;
 
@@ -231,13 +241,12 @@ public class PIACompiler {
                 this, additionalInfoFileName, inputFileType);
 
         if (!fileParsed) {
-            // TODO: better error / exception
-            logger.error("Error parsing the file "+fileName);
+            LOGGER.error("Error parsing the file "+fileName);
         } else {
-            logger.info("have now: \n\t" +
-                    peptides.size() + " peptides\n\t" +
-                    spectra.size() + " peptide spectrum matches\n\t" +
-                    accessions.size() + " accessions");
+            LOGGER.info("have now: \n\t"
+                    + getNrPeptides() + " peptides\n\t"
+                    + getNrPeptideSpectrumMatches() + " peptide spectrum matches\n\t"
+                    + getNrAccessions() + " accessions");
         }
 
         return fileParsed;
@@ -251,7 +260,7 @@ public class PIACompiler {
      * @param fileName
      * @return
      */
-    public PIAInputFile insertNewFile(String name, String fileName,
+    public final PIAInputFile insertNewFile(String name, String fileName,
             String format) {
         PIAInputFile file;
         Long id = (long)files.size()+1;
@@ -264,15 +273,43 @@ public class PIACompiler {
 
 
     /**
-     * Returns the {@link Accession} mapped by the given acc in the accessions
-     * map.
+     * Returns the {@link PIAInputFile} given by the id
      *
      * @param acc
      * @return
      */
-    public Accession getAccession(String acc) {
-        return accessions.get(acc);
+    public final PIAInputFile getFile(Long fileId) {
+        return files.get(fileId);
     }
+
+
+    /**
+     * Returns all {@link PIAInputFile} IDs in the compilation
+     *
+     * @param acc
+     * @return
+     */
+    public final Set<Long> getAllFileIDs() {
+        return files.keySet();
+    }
+
+
+    /**
+     * Returns the {@link Accession} given by the string of the accession
+     *
+     * @param acc
+     * @return
+     */
+    public abstract Accession getAccession(String acc);
+
+
+    /**
+     * Returns the {@link Accession} given by the accession ID
+     *
+     * @param accID
+     * @return
+     */
+    public abstract Accession getAccession(Long accID);
 
 
     /**
@@ -281,26 +318,41 @@ public class PIACompiler {
      * @param dbSequence sequence
      * @return
      */
-    public Accession insertNewAccession(String accession, String dbSequence) {
-        Accession acc;
-        Long id = (long)accessions.size()+1;
-
-        acc = new Accession(id, accession, dbSequence);
-        accessions.put(accession, acc);
-
-        return acc;
-    }
+    public abstract Accession insertNewAccession(String accession, String dbSequence);
 
 
     /**
-     * Returns the peptide from the peptides map with the given sequence.
+     * Returns the number of accessions
+     *
+     * @return
+     */
+    public abstract int getNrAccessions();
+
+
+    /**
+     * Returns all accession IDs
+     *
+     * @return
+     */
+    public abstract Collection<Long> getAllAccessionIDs();
+
+
+    /**
+     * Returns the peptide given by its sequence
      *
      * @param sequence
      * @return
      */
-    public Peptide getPeptide(String sequence) {
-        return peptides.get(sequence);
-    }
+    public abstract Peptide getPeptide(String sequence);
+
+
+    /**
+     * Returns the peptide given by the peptide ID
+     *
+     * @param sequence
+     * @return
+     */
+    public abstract Peptide getPeptide(Long peptideID);
 
 
     /**
@@ -309,111 +361,128 @@ public class PIACompiler {
      * @param sequence
      * @return
      */
-    public Peptide insertNewPeptide(String sequence) {
-        Peptide peptide;
-        Long id = (long)peptides.size()+1;
-
-        peptide = new Peptide(id, sequence);
-        peptides.put(sequence, peptide);
-
-        return peptide;
-    }
+    public abstract Peptide insertNewPeptide(String sequence);
 
 
     /**
-     * Inserts a new PSM with the given data into the spectra set.
+     * Returns the number of peptides
+     *
+     * @return
+     */
+    public abstract int getNrPeptides();
+
+
+    /**
+     * Returns all peptide IDs
+     *
+     * @return
+     */
+    public abstract Collection<Long> getAllPeptideIDs();
+
+
+    /**
+     * Returns the {@link SpectrumMatch} given by the ID
+     *
+     * @param sequence
+     * @return
+     */
+    public abstract PeptideSpectrumMatch getPeptideSpectrumMatch(Long psmId);
+
+
+    /**
+     * Creates a new PSM with the given data, but don't add it into the into the
+     * spectra set.
      *
      * @return the newly created PSM
      */
-    public PeptideSpectrumMatch insertNewSpectrum(int charge,
+    public abstract PeptideSpectrumMatch createNewPeptideSpectrumMatch(int charge,
             double massToCharge, double deltaMass, Double rt, String sequence,
             int missed, String sourceID, String spectrumTitle,
-            PIAInputFile file, SpectrumIdentification spectrumID) {
-        PeptideSpectrumMatch psm;
-        Long id = spectra.size() + 1L;
+            PIAInputFile file, SpectrumIdentification spectrumID);
 
-        psm = new PeptideSpectrumMatch(id, charge, massToCharge, deltaMass, rt,
-                sequence, missed, sourceID, spectrumTitle,
-                file, spectrumID);
-
-        if (!spectra.add(psm)) {
-            // TODO: better warning / error
-            logger.error("ERROR: spectrum was already in list, this should not have happened! " +
-                    psm.getSequence());
-        }
-
-        return psm;
-    }
 
     /**
-     * Inserts a new PSM with the given data into the spectra set.
+     * Inserts the now completed PSM into the compiler. All further changes in
+     * the PSM might not be valid anymore!
      *
-     * @return the newly created PSM
+     * @param psm
      */
-    public PeptideSpectrumMatch insertNewSpectrum(int charge,
-                                                  double massToCharge, double theoreticalMass, double deltaMass, Double rt, String sequence,
-                                                  int missed, String sourceID, String spectrumTitle,
-                                                  PIAInputFile file, SpectrumIdentification spectrumID) {
-        PeptideSpectrumMatch psm;
-        Long id = spectra.size() + 1L;
-
-        psm = new PeptideSpectrumMatch(id, charge, massToCharge, deltaMass, rt,
-                sequence, missed, sourceID, spectrumTitle,
-                file, spectrumID);
-
-
-        if (!spectra.add(psm)) {
-            // TODO: better warning / error
-            logger.error("ERROR: spectrum was already in list, this should not have happened! " +
-                    psm.getSequence());
-        }
-
-        return psm;
-    }
+    public abstract void insertCompletePeptideSpectrumMatch(PeptideSpectrumMatch psm);
 
 
     /**
-     * Returns the Set of {@link Peptide}s from the accPepMap for the given key.
+     * Returns the number of PSMs
+     *
+     * @return
+     */
+    public abstract int getNrPeptideSpectrumMatches();
+
+
+    /**
+     * Returns all psm IDs
+     *
+     * @return
+     */
+    public abstract Collection<Long> getAllPeptideSpectrumMatcheIDs();
+
+
+    /**
+     * Returns the Set of {@link Peptide}s from the connection map for the given
+     * accession.
+     *
      * @param acc
      * @return
      */
-    public Set<Peptide> getFromAccPepMap(String acc) {
-        return accPepMap.get(acc);
-    }
+    public abstract Set<Peptide> getPeptidesFromConnectionMap(String acc);
 
 
     /**
-     * Puts the given Set into the accPepMap with the given key.
+     * Returns the Set of {@link Accession}s from the connection map for the
+     * given peptide sequence.
      *
-     * @param key
-     * @param peps
-     * @return
-     */
-    public Set<Peptide> putIntoAccPepMap(String key, Set<Peptide> peps) {
-        return accPepMap.put(key, peps);
-    }
-
-
-    /**
-     * Returns the Set of {@link Accession}s from the pepAccMap for the given key.
      * @param pep
      * @return
      */
-    public Set<Accession> getFromPepAccMap(String pep) {
-        return pepAccMap.get(pep);
-    }
+    public abstract Set<Accession> getAccessionsFromConnectionMap(String pep);
 
 
     /**
-     * Puts the given Set into the pepAccMap with the given key.
+     * Returns the List of {@link Peptide} IDs from the connection map for the
+     * given accession ID.
      *
-     * @param key
-     * @param accs
+     * @param accId
      * @return
      */
-    public Set<Accession> putIntoPepAccMap(String key, Set<Accession> accs) {
-        return pepAccMap.put(key, accs);
-    }
+    public abstract Collection<Long> getPepIDsFromConnectionMap(Long accId);
+
+
+    /**
+     * Returns the List of {@link Accession} IDs from the connection map for the
+     * given peptide ID.
+     *
+     * @param pep
+     * @return
+     */
+    public abstract Collection<Long> getAccIDsFromConnectionMap(Long pepId);
+
+
+    /**
+     * Puts the given connection from an accession to a peptide into the map.
+     *
+     * @param acc
+     * @param peps
+     * @return
+     */
+    public abstract void addAccessionPeptideConnection(Accession accession, Peptide peptide);
+
+
+    /**
+     * Erases the accessions to peptide map, can safely be called after
+     * {@link #buildClusterList()} was called.
+     *
+     * @return
+     */
+    public abstract void clearConnectionMap();
 
 
     /**
@@ -423,10 +492,9 @@ public class PIACompiler {
      *
      * @return the ID of the software in the softwareMap
      */
-    public AnalysisSoftware putIntoSoftwareMap(AnalysisSoftware software) {
+    public final AnalysisSoftware putIntoSoftwareMap(AnalysisSoftware software) {
         // go through the list of software and look for an equal software
         for (Map.Entry<String, AnalysisSoftware> swIt : softwareMap.entrySet()) {
-
             if (MzIdentMLTools.paramsEqual(software.getSoftwareName(),
                     swIt.getValue().getSoftwareName())) {
                 boolean equal = true;
@@ -440,7 +508,7 @@ public class PIACompiler {
                 equal &= PIATools.bothNullOrEqual(swIt.getValue().getVersion(),
                         software.getVersion());
 
-                // TODO: maybe check for the contact as well... for now, assume if everythin is equal, the contact does not matter
+                // TODO: maybe check for the contact as well... for now, assume if everything is equal, the contact does not matter
 
                 equal &= PIATools.bothNullOrEqual(swIt.getValue().getCustomizations(),
                         software.getCustomizations());
@@ -467,7 +535,7 @@ public class PIACompiler {
      *
      * @return the ID of the spectrumIdentification in the spectrumIdentificationsMap
      */
-    public SearchDatabase putIntoSearchDatabasesMap(SearchDatabase database) {
+    public final SearchDatabase putIntoSearchDatabasesMap(SearchDatabase database) {
         // go through the databases and check, if any equals the given database
         for (Map.Entry<String, SearchDatabase> dbIt : searchDatabasesMap.entrySet()) {
             if (dbIt.getValue().getLocation().equals(database.getLocation())) {
@@ -553,7 +621,7 @@ public class PIACompiler {
      *
      * @return the ID of the spectrumIdentification in the spectrumIdentificationsMap
      */
-    public SpectraData putIntoSpectraDataMap(SpectraData spectra) {
+    public final SpectraData putIntoSpectraDataMap(SpectraData spectra) {
         // go through the databases and check, if any equals the given database
         for (Map.Entry<String, SpectraData> spectraIt : spectraDataMap.entrySet()) {
             if (spectraIt.getValue().getLocation().equals(spectra.getLocation())) {
@@ -595,36 +663,32 @@ public class PIACompiler {
      * Before calling this method, some data should be read in by
      * {@link PIACompiler#getDataFromFile(String, String, String, String)}.
      */
-    public void buildClusterList() {
-        logger.info("start sorting clusters");
+    public final void buildClusterList() {
+        LOGGER.info("start sorting clusters");
 
-        Set<String> peptidesDone = new HashSet<String>(peptides.size());
-        Set<String> accessionsDone = new HashSet<String>(accessions.size());
-        clusteredPepAccMap = new ArrayList<Map<String,Map<String,Accession>>>();
+        Set<Long> peptidesDone = new HashSet<>(getNrPeptides());
+        Set<Long> accessionsDone = new HashSet<>(getNrAccessions());
+        clusteredPepAccMap = new ArrayList<>();
 
-        for (Map.Entry<String, Set<Peptide>> accsPeps : accPepMap.entrySet()) {
-
-            if (!accessionsDone.contains(accsPeps.getKey())) {
+        for (Long accID : getAllAccessionIDs()) {
+            if (!accessionsDone.contains(accID)) {
                 // this accession is not yet clustered, so start a new cluster
                 // and insert all the "connected" peptides and accessions
-                Map<String,Map<String,Accession>> pepAccMapCluster =
-                    createCluster(accsPeps.getKey(), peptidesDone, accessionsDone);
+                Map<Long, Collection<Long>> pepAccMapCluster =
+                    createCluster(accID, peptidesDone, accessionsDone);
 
                 if (pepAccMapCluster != null) {
                     clusteredPepAccMap.add(pepAccMapCluster);
                 } else {
-                    // TODO: error / exception
-                    logger.error("cluster could not be created!");
+                    LOGGER.error("cluster could not be created!");
                 }
             }
-
         }
 
         // the maps are no longer needed
-        accPepMap.clear();
-        pepAccMap.clear();
+        clearConnectionMap();
 
-        logger.info("clusters sorted: "+clusteredPepAccMap.size());
+        LOGGER.info("clusters sorted: " + clusteredPepAccMap.size());
     }
 
 
@@ -638,18 +702,16 @@ public class PIACompiler {
      * @param accessionsDone
      * @return
      */
-    private Map<String,Map<String,Accession>> createCluster(String accession,
-            Set<String> peptidesDone, Set<String> accessionsDone) {
-        Map<String, Accession> clusterAccessions = new HashMap<String, Accession>();
-        Map<String, Peptide> clusterPeptides = new HashMap<String, Peptide>();
-
-        int newAccessions = 0;
-        int newPeptides = 0;
+    private final Map<Long, Collection<Long>> createCluster(Long accessionID,
+            Set<Long> peptidesDone, Set<Long> accessionsDone) {
+        Set<Long> clusterAccessions = new HashSet<>();
+        Set<Long> clusterPeptides = new HashSet<>();
 
         // initialize the cluster's peptides with the peptides of the given accession
-        newAccessions = 1;    // for the given accession
-        for (Peptide pep : accPepMap.get(accession)) {
-            clusterPeptides.put(pep.getSequence(), pep);
+        int newPeptides = 0;
+        int newAccessions = 1;  // for the given accession
+        for (Long pepId : getPepIDsFromConnectionMap(accessionID)) {
+            clusterPeptides.add(pepId);
             newPeptides++;
         }
 
@@ -659,46 +721,36 @@ public class PIACompiler {
             newPeptides = 0;
 
             // get accessions for peptides, which are new since the last loop
-            for (String seq : clusterPeptides.keySet()) {
-                if (!peptidesDone.contains(seq)) {
-                    for (Accession acc : pepAccMap.get(seq)) {
-                        if (!clusterAccessions.containsKey(acc.getAccession())) {
-                            clusterAccessions.put(acc.getAccession(), acc);
+            for (Long pepId : clusterPeptides) {
+                if (!peptidesDone.contains(pepId)) {
+                    for (Long accId : getAccIDsFromConnectionMap(pepId)) {
+                        if (clusterAccessions.add(accId)) {
                             newAccessions++;
                         }
                     }
 
-                    peptidesDone.add(seq);
+                    peptidesDone.add(pepId);
                 }
             }
 
             // get peptides for accessions, which are new since the last loop
-            for (String acc : clusterAccessions.keySet()) {
-                if (!accessionsDone.contains(acc)) {
-                    for (Peptide pep : accPepMap.get(acc)) {
-                        if (!clusterPeptides.containsKey(pep.getSequence())) {
-                            clusterPeptides.put(pep.getSequence(), pep);
+            for (Long accId : clusterAccessions) {
+                if (!accessionsDone.contains(accId)) {
+                    for (Long pepId : getPepIDsFromConnectionMap(accId)) {
+                        if (clusterPeptides.add(pepId)) {
                             newPeptides++;
                         }
                     }
 
-                    accessionsDone.add(acc);
+                    accessionsDone.add(accId);
                 }
             }
         }
 
         // now we have the whole cluster, so put it into the pepAccMapCluster
-        Map<String,Map<String,Accession>> pepAccMapCluster =
-            new HashMap<String, Map<String,Accession>>();
-
-        for (Map.Entry<String, Peptide> pepIt : clusterPeptides.entrySet()) {
-
-            Map<String,Accession> pepAccessions = new HashMap<String, Accession>();
-            for (Accession acc : pepAccMap.get(pepIt.getKey())) {
-                pepAccessions.put(acc.getAccession(), acc);
-            }
-
-            pepAccMapCluster.put(pepIt.getKey(), pepAccessions);
+        Map<Long, Collection<Long>> pepAccMapCluster = new HashMap<>();
+        for (Long pepId : clusterPeptides) {
+            pepAccMapCluster.put(pepId, getAccIDsFromConnectionMap(pepId));
         }
 
         return pepAccMapCluster;
@@ -710,23 +762,22 @@ public class PIACompiler {
      * Before this method is called, {@link PIACompiler#buildClusterList()}
      * must be called.
      */
-    public void buildIntermediateStructure() {
-        int NUM_THREADS;
+    public final void buildIntermediateStructure() {
+        int nrThreads;
 
         if (numThreads > 0) {
-            NUM_THREADS = numThreads;
+            nrThreads = numThreads;
         } else {
-            NUM_THREADS = Runtime.getRuntime().availableProcessors();
+            nrThreads = Runtime.getRuntime().availableProcessors();
         }
 
-        logger.info("Using " + NUM_THREADS + " threads.");
+        LOGGER.info("Using " + nrThreads + " threads.");
 
         List<CompilerWorkerThread> threads;
 
 
         if (clusteredPepAccMap == null) {
-            // TODO: make exception or something
-            logger.error("the cluster map is not yet build!");
+            LOGGER.error("the cluster map is not yet build!");
             return;
         }
 
@@ -739,8 +790,8 @@ public class PIACompiler {
         clusterOffset = 0L;
 
         // start the threads
-        threads = new ArrayList<CompilerWorkerThread>(NUM_THREADS);
-        for (int i = 0; i < NUM_THREADS; i++) {
+        threads = new ArrayList<CompilerWorkerThread>(nrThreads);
+        for (int i = 0; i < nrThreads; i++) {
             CompilerWorkerThread thread = new CompilerWorkerThread(i+1, this);
             threads.add(thread);
 
@@ -752,19 +803,19 @@ public class PIACompiler {
             try {
                 thread.join();
             } catch (InterruptedException e) {
-                logger.error("thread got interrupted!");
-                e.printStackTrace();
+                LOGGER.error("thread got interrupted!", e);
             }
         }
     }
 
 
     /**
-     * Returns the next cluster in the cluster map.
+     * Returns the next cluster in the cluster map (mapping from the peptide IDs
+     * to the accession IDs)
      *
      * @return
      */
-    public synchronized Map<String, Map<String,Accession>> getNextCluster() {
+    public final synchronized Map<Long, Collection<Long>> getNextCluster() {
         synchronized (clusterIterator) {
             if (clusterIterator != null) {
                 if (clusterIterator.hasNext()) {
@@ -773,8 +824,7 @@ public class PIACompiler {
                     return null;
                 }
             } else {
-                // TODO: throw exception or something
-                logger.error("The cluster iterator is not yet initialized!");
+                LOGGER.error("The cluster iterator is not yet initialized!");
                 return null;
             }
         }
@@ -784,7 +834,7 @@ public class PIACompiler {
     /**
      * Increase the number of build clusters.
      */
-    public synchronized void increaseBuildProgress() {
+    public final synchronized void increaseBuildProgress() {
         buildProgress++;
     }
 
@@ -794,7 +844,7 @@ public class PIACompiler {
      *
      * @param subGroups
      */
-    public synchronized void mergeClustersIntoMap(Map<Long, Group> subGroups,
+    public final synchronized void mergeClustersIntoMap(Map<Long, Group> subGroups,
             long nrClusters) {
         synchronized (groups) {
             long groupOffset = groups.size();
@@ -814,7 +864,7 @@ public class PIACompiler {
      * Setter for the name
      * @param name
      */
-    public void setName(String name) {
+    public final void  setName(String name) {
         this.compilationName = name;
     }
 
@@ -823,7 +873,7 @@ public class PIACompiler {
      * Getter for the name.
      * @return
      */
-    public String getName() {
+    public final String getName() {
         return compilationName;
     }
 
@@ -834,7 +884,7 @@ public class PIACompiler {
      *
      * @param threads
      */
-    public void setNrThreads(int threads) {
+    public final void setNrThreads(int threads) {
         numThreads = threads;
     }
 
@@ -842,7 +892,7 @@ public class PIACompiler {
     /**
      * Gets the number of used threads
      */
-    public int getNrThreads() {
+    public final int getNrThreads() {
         return numThreads;
     }
 
@@ -851,315 +901,430 @@ public class PIACompiler {
      * Write out the intermediate structure into an XML file.
      *
      * @param piaFile
-     * @throws FileNotFoundException
+     * @throws IOException
      */
-    public void writeOutXML(File piaFile) {
-
-        logger.info("start writing the XML file "+ piaFile.getName());
-
-        JPiaXML piaXML = new JPiaXML();
-        piaXML.setName(compilationName);
-        piaXML.setDate(startDate);
-
-        // filesList
-        FilesListXML fileslistXML = new FilesListXML();
-        if (files.size() > 0) {
-            for (PIAInputFile file : files.values()) {
-                PIAInputFileXML fileXML = new PIAInputFileXML();
-
-                fileXML.setId(file.getID());
-                fileXML.setName(file.getName());
-                fileXML.setFileName(file.getFileName());
-                fileXML.setFormat(file.getFormat());
-
-                fileXML.setAnalysisCollection(file.getAnalysisCollection());
-                fileXML.setAnalysisProtocolCollection(file.getAnalysisProtocolCollection());
-
-                fileslistXML.getFiles().add(fileXML);
-            }
+    public final void writeOutXML(File piaFile) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(piaFile)) {
+            LOGGER.info("Writing PIA XML file to " + piaFile.getAbsolutePath());
+            writeOutXML(fos);
         }
-        piaXML.setFilesList(fileslistXML);
-
-        // inputs
-        Inputs inputs = new Inputs();
-        inputs.getSearchDatabase().addAll(searchDatabasesMap.values());
-        inputs.getSpectraData().addAll(spectraDataMap.values());
-        piaXML.setInputs(inputs);
-
-        // analysisSoftwareList
-        AnalysisSoftwareList softwareList = new AnalysisSoftwareList();
-        softwareList.getAnalysisSoftware().addAll(softwareMap.values());
-        piaXML.setAnalysisSoftwareList(softwareList);
-
-        // spectraList
-        SpectraListXML spectraList = new SpectraListXML();
-        for (PeptideSpectrumMatch psm : spectra) {
-            spectraList.getSpectraList().add(new SpectrumMatchXML(psm));
-        }
-        piaXML.setSpectraList(spectraList);
-
-        // accessionsList
-        AccessionsListXML accessionsList = new AccessionsListXML();
-        for (Accession acc : accessions.values()) {
-            accessionsList.getAccessionsList().add(new AccessionXML(acc));
-        }
-        piaXML.setAccessionsList(accessionsList);
-
-        // peptidesList
-        PeptidesListXML peptidesList = new PeptidesListXML();
-        for (Peptide pep : peptides.values()) {
-            peptidesList.getPeptidesList().add(new PeptideXML(pep));
-        }
-        piaXML.setPeptidesList(peptidesList);
-
-        // groupsList
-        GroupsListXML groupsList = new GroupsListXML();
-        for (Group group : groups.values()) {
-            groupsList.getGroups().add(new GroupXML(group));
-        }
-        piaXML.setGroupsList(groupsList);
-
-        // write the model with JaxB
-        Writer w = null;
-        try {
-            JAXBContext context = JAXBContext.newInstance(JPiaXML.class);
-            Marshaller m = context.createMarshaller();
-            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            w = new FileWriter(piaFile);
-            m.marshal(piaXML, w);
-        } catch (Exception e) {
-            // TODO: better error / exception
-            logger.error("Error writing the file '"+piaFile.getName()+"'!", e);
-        } finally {
-            try {
-                if (w != null) {
-                    w.close();
-                }
-            } catch (Exception e) {
-                // TODO: better error / exception
-                logger.error("Error closing the file '"+piaFile.getName()+"'!", e);
-            }
-        }
-
-        logger.info("writing done");
     }
+
 
     /**
      * Write out the intermediate structure into an XML file.
      *
      * @param fileName
-     * @throws FileNotFoundException
+     * @throws IOException
      */
-    public void writeOutXML(String fileName) {
+    public final void writeOutXML(String fileName) throws IOException {
+        File piaFile = new File(fileName);
+        writeOutXML(piaFile);
+    }
 
-        logger.info("start writing the XML file "+fileName);
 
-        JPiaXML piaXML = new JPiaXML();
-        piaXML.setName(compilationName);
-        piaXML.setDate(startDate);
+    /**
+     * Write out the intermediate structure into an XML file.
+     *
+     * @param fileName
+     */
+    public final void writeOutXML(OutputStream outputStream) {
+        try (Writer out = new OutputStreamWriter(outputStream, encoding)) {
+            LOGGER.info("Stream open, writing PIA XML");
 
-        // filesList
-        FilesListXML fileslistXML = new FilesListXML();
-        if (files.size() > 0) {
-            for (PIAInputFile file : files.values()) {
-                PIAInputFileXML fileXML = new PIAInputFileXML();
+            XMLOutputFactory xmlof = XMLOutputFactory.newInstance();
+            XMLStreamWriter xmlOut = new IndentingXMLStreamWriter(xmlof.createXMLStreamWriter(out));
 
-                fileXML.setId(file.getID());
-                fileXML.setName(file.getName());
-                fileXML.setFileName(file.getFileName());
-                fileXML.setFormat(file.getFormat());
+            // xml header
+            xmlOut.writeStartDocument(encoding, "1.0");
 
-                fileXML.setAnalysisCollection(file.getAnalysisCollection());
-                fileXML.setAnalysisProtocolCollection(file.getAnalysisProtocolCollection());
+            // the piaXML root element
+            xmlOut.writeStartElement(prefixjPiaXML, "jPiaXML", nsjPiaXML);
+            xmlOut.setPrefix(prefixjPiaXML, nsjPiaXML);
 
-                fileslistXML.getFiles().add(fileXML);
-            }
+            xmlOut.writeAttribute("name", compilationName);
+            xmlOut.writeAttribute("date", startDate.toString());
+
+            xmlOut.writeNamespace(prefixMzIdentML, nsMzIdentML);
+            xmlOut.writeNamespace(prefixjPiaXML, nsjPiaXML);
+
+            // filesList
+            writeOutJaxbFilesList(xmlOut);
+
+            // inputs
+            writeOutJaxbInputs(xmlOut);
+
+            // analysisSoftwareList
+            writeOutJaxbAnalysisSoftwareList(xmlOut);
+
+            // spectraList
+            writeOutJaxbSpectra(xmlOut);
+
+            // accessionsList
+            writeOutJaxbAccessions(xmlOut);
+
+            // peptidesList
+            writeOutJaxbPeptides(xmlOut);
+
+            // groupsList
+            writeOutJaxbGroups(xmlOut);
+
+            xmlOut.writeEndElement(); // jPiaXML
+
+            xmlOut.close();
+        } catch (XMLStreamException e) {
+            LOGGER.error("XMLStreamException while writing XML file", e);
+        } catch (FactoryConfigurationError e) {
+            LOGGER.error("FactoryConfigurationError while writing XML file", e);
+        } catch (JAXBException e) {
+            LOGGER.error("JAXBException while writing XML file", e);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("UnsupportedEncodingException while writing XML file", e);
+        } catch (IOException e) {
+            LOGGER.error("error writing the PIA XML file", e);
         }
-        piaXML.setFilesList(fileslistXML);
 
-        // inputs
+        LOGGER.info("Writing of PIA XML file finished.");
+    }
+
+
+    /**
+     * Creates a marshaller for PIA XML for the given class.
+     *
+     * @param context
+     * @return
+     * @throws JAXBException
+     */
+    private static Marshaller createMarshallerForPiaXML(Class<?> marshalClass) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(marshalClass);
+
+        Marshaller m = context.createMarshaller();
+        m.setProperty(Marshaller.JAXB_ENCODING, encoding);
+        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        m.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+
+        return m;
+    }
+
+
+    /**
+     * Creates an formatted (indenting) jaxb fragment marshaller for the given
+     * context, using the given jaxbElement and the given class for marshalling.
+     *
+     * @param xmlOut the writer
+     * @param jaxbElement an jaxbElement
+     * @param marshalClass the class for marshalling
+     *
+     * @throws JAXBException
+     */
+    private static void marshalToFormattedFragmentMarshaller(XMLStreamWriter xmlOut,
+            Object jaxbElement, Class<?> marshalClass) throws JAXBException {
+        Marshaller m = createMarshallerForPiaXML(marshalClass);
+        m.marshal(jaxbElement, xmlOut);
+    }
+
+
+    /**
+     * Creates an formatted (indenting) jaxb fragment marshaller for the given
+     * context, using the given jaxbElement and the given class for marshalling.
+     *
+     * @param xmlOut the writer
+     * @param object the object to be marshalled, will be casted to a
+     * jaxbElement
+     *
+     * @throws JAXBException
+     */
+    private static <T extends Object> void marshalToFormattedFragmentMarshaller(
+            XMLStreamWriter xmlOut, T object) throws JAXBException {
+        QName aQName = ModelConstants.getQNameForClass(object.getClass());
+
+        @SuppressWarnings("unchecked")
+        Class<T> classCast = (Class<T>)object.getClass();
+        JAXBElement<T> jaxbElement = new JAXBElement<T>(aQName, classCast, object);
+
+        marshalToFormattedFragmentMarshaller(xmlOut, jaxbElement, classCast);
+    }
+
+
+    /**
+     * Writes out the filesList object to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbFilesList(XMLStreamWriter xmlOut) throws JAXBException {
+        FilesListXML fileslistXML = new FilesListXML();
+        for (Long fileID : getAllFileIDs()) {
+            PIAInputFile file = getFile(fileID);
+            PIAInputFileXML fileXML = new PIAInputFileXML();
+
+            fileXML.setId(file.getID());
+            fileXML.setName(file.getName());
+            fileXML.setFileName(file.getFileName());
+            fileXML.setFormat(file.getFormat());
+
+            fileXML.setAnalysisCollection(file.getAnalysisCollection());
+            fileXML.setAnalysisProtocolCollection(file.getAnalysisProtocolCollection());
+
+            fileslistXML.getFiles().add(fileXML);
+        }
+
+        marshalToFormattedFragmentMarshaller(xmlOut, fileslistXML, FilesListXML.class);
+    }
+
+
+    /**
+     * Writes out the Inputs object to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbInputs(XMLStreamWriter xmlOut) throws JAXBException {
         Inputs inputs = new Inputs();
         inputs.getSearchDatabase().addAll(searchDatabasesMap.values());
         inputs.getSpectraData().addAll(spectraDataMap.values());
-        piaXML.setInputs(inputs);
 
-        // analysisSoftwareList
-        AnalysisSoftwareList softwareList = new AnalysisSoftwareList();
-        softwareList.getAnalysisSoftware().addAll(softwareMap.values());
-        piaXML.setAnalysisSoftwareList(softwareList);
-
-        // spectraList
-        SpectraListXML spectraList = new SpectraListXML();
-        for (PeptideSpectrumMatch psm : spectra) {
-            spectraList.getSpectraList().add(new SpectrumMatchXML(psm));
-        }
-        piaXML.setSpectraList(spectraList);
-
-        // accessionsList
-        AccessionsListXML accessionsList = new AccessionsListXML();
-        for (Accession acc : accessions.values()) {
-            accessionsList.getAccessionsList().add(new AccessionXML(acc));
-        }
-        piaXML.setAccessionsList(accessionsList);
-
-        // peptidesList
-        PeptidesListXML peptidesList = new PeptidesListXML();
-        for (Peptide pep : peptides.values()) {
-            peptidesList.getPeptidesList().add(new PeptideXML(pep));
-        }
-        piaXML.setPeptidesList(peptidesList);
-
-        // groupsList
-        GroupsListXML groupsList = new GroupsListXML();
-        for (Group group : groups.values()) {
-            groupsList.getGroups().add(new GroupXML(group));
-        }
-        piaXML.setGroupsList(groupsList);
-
-        // write the model with JaxB
-        Writer w = null;
-        try {
-            JAXBContext context = JAXBContext.newInstance(JPiaXML.class);
-            Marshaller m = context.createMarshaller();
-            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            w = new FileWriter(fileName);
-            m.marshal(piaXML, w);
-        } catch (Exception e) {
-            // TODO: better error / exception
-            logger.error("Error writing the file '"+fileName+"'!", e);
-        } finally {
-            try {
-                if (w != null) {
-                    w.close();
-                }
-            } catch (Exception e) {
-                // TODO: better error / exception
-                logger.error("Error closing the file '"+fileName+"'!", e);
-            }
-        }
-
-        logger.info("writing done");
+        marshalToFormattedFragmentMarshaller(xmlOut, inputs);
     }
 
 
+    /**
+     * Writes out the AnalysisSoftwareList object to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbAnalysisSoftwareList(XMLStreamWriter xmlOut) throws JAXBException {
+        AnalysisSoftwareList softwareList = new AnalysisSoftwareList();
+        softwareList.getAnalysisSoftware().addAll(softwareMap.values());
+
+        marshalToFormattedFragmentMarshaller(xmlOut, softwareList);
+    }
 
 
-    @SuppressWarnings("static-access")
-    public static void main(String[] args) {
-        CommandLineParser parser = new GnuParser();
+    /**
+     * Writes out the PSMs to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbSpectra(XMLStreamWriter xmlOut) throws XMLStreamException, JAXBException {
+        xmlOut.writeStartElement("spectraList");
+
+        Marshaller m = createMarshallerForPiaXML(SpectrumMatchXML.class);
+
+        for (Long psmId : getAllPeptideSpectrumMatcheIDs()) {
+            // marshall all spectra
+            m.marshal(new SpectrumMatchXML(getPeptideSpectrumMatch(psmId)), xmlOut);
+        }
+
+        xmlOut.writeEndElement(); // spectraList
+    }
+
+
+    /**
+     * Writes out the accessions to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbAccessions(XMLStreamWriter xmlOut) throws XMLStreamException, JAXBException {
+        xmlOut.writeStartElement("accessionsList");
+
+        Marshaller m = createMarshallerForPiaXML(AccessionXML.class);
+
+        for (Long accId : getAllAccessionIDs()) {
+            m.marshal(new AccessionXML(getAccession(accId)), xmlOut);
+        }
+
+        xmlOut.writeEndElement(); // accessionsList
+    }
+
+
+    /**
+     * Writes out the peptides to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbPeptides(XMLStreamWriter xmlOut) throws XMLStreamException, JAXBException {
+        xmlOut.writeStartElement("peptidesList");
+
+        Marshaller m = createMarshallerForPiaXML(PeptideXML.class);
+
+        for (Long pepId : getAllPeptideIDs()) {
+            m.marshal(new PeptideXML(getPeptide(pepId)), xmlOut);
+        }
+
+        xmlOut.writeEndElement(); // peptidesList
+    }
+
+
+    /**
+     * Writes out the groups to XML, using the given writer.
+     *
+     * @param xmlOut
+     * @throws JAXBException
+     */
+    private void writeOutJaxbGroups(XMLStreamWriter xmlOut) throws XMLStreamException, JAXBException {
+        xmlOut.writeStartElement("groupsList");
+
+        Marshaller m = createMarshallerForPiaXML(GroupXML.class);
+
+        for (Group group : groups.values()) {
+            m.marshal(new GroupXML(group), xmlOut);
+        }
+
+        xmlOut.writeEndElement(); // groupsList
+    }
+
+
+    /**
+     * Assures that all streams are closed and all temporary files are removed
+     */
+    public abstract void finish();
+
+
+    public static void main(String[] args) throws FileNotFoundException {
+        CommandLineParser parser = new DefaultParser();
         Options options = new Options();
 
-        options.addOption(OptionBuilder
-                .isRequired(true)
-                .withArgName("outputFile")
+        Option outfileOpt = Option.builder("outfile")
+                .required(true)
+                .argName("outputFile")
                 .hasArg()
-                .withDescription( "path to the created PIA XML file" )
-                .create("outfile"));
+                .desc("path to the created PIA XML file")
+                .build();
+        options.addOption(outfileOpt);
 
-        options.addOption(OptionBuilder
-                .withArgName("name")
+        Option nameOpt = Option.builder("name")
+                .argName("name")
                 .hasArg()
-                .withDescription( "name of the PIA compilation" )
-                .create("name"));
+                .desc("name of the PIA compilation")
+                .build();
+        options.addOption(nameOpt);
 
-        options.addOption(OptionBuilder
-                .withArgName("inputFile")
+        Option inputFileOpt = Option.builder("infile")
+                .argName("inputFile")
                 .hasArg()
-                .withDescription( "input file with possible further information " +
-                        "separated by semicolon. This option may be called " +
-                        "multiple times. Any further information not given " +
-                        "will be treated as null, the information is in this " +
-                        "order:\n" +
-                        "name of the input file (as shown in the PIA viewers, " +
-                        "if not given will be set to the path of the input file), " +
-                        "type of the file (usually guessed, but may also be " +
-                        "explicitly given, possible values are " +
-                        InputFileParserFactory.getAvailableTypeShorts() +
-                        "), " +
-                        "additional information file (very seldom used)")
-                .create("infile"));
+                .desc( "input file with possible further information "
+                        + "separated by semicolon. This option may be called "
+                        + "multiple times. Any further information not given "
+                        + "will be treated as null, the information is in this "
+                        + "order:\n"
+                        + "name of the input file (as shown in the PIA viewers, "
+                        + "if not given will be set to the path of the input file), "
+                        + "type of the file (usually guessed, but may also be "
+                        + "explicitly given, possible values are "
+                        + InputFileParserFactory.getAvailableTypeShorts()
+                        + "), "
+                        + "additional information file (very seldom used)")
+                .build();
+        options.addOption(inputFileOpt);
+
+        if (args.length < 1) {
+            PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
+                    options, HELP_DESCRIPTION);
+            return;
+        }
 
         String outFileName = null;
         String piaName = null;
+        PIACompiler piaCompiler = new PIASimpleCompiler();
 
-        if (args.length > 0) {
-            PIACompiler piaCompiler = new PIACompiler();
+        // parse the command line arguments
+        try {
+            CommandLine line = parser.parse( options, args );
 
-
-            // parse the command line arguments
-            try {
-                CommandLine line = parser.parse( options, args );
-
-                if (line.hasOption("outfile")) {
-                    outFileName = line.getOptionValue("outfile");
-                }
-
-                if (line.hasOption("infile")) {
-
-                    for (String arg : line.getOptionValues("infile")) {
-                        String[] values = arg.split(";");
-                        String file = values[0];
-                        String name = values[0];
-                        String additionalInfoFile = null;
-                        String type = null;
-
-                        if (values.length > 1) {
-                            name = (values[1].length() > 0) ? values[1] : null;
-
-                            if (values.length > 2) {
-                                type = (values[2].length() > 0) ? values[2] : null;
-
-                                if (values.length > 3) {
-                                    additionalInfoFile = (values[3].length() > 0) ? values[3] : null;
-                                }
-                            }
-                        } else {
-                            if (file.contains(File.separator)) {
-                                // take the filename-only as name, if none is given
-                                name = new File(file).getName();
-                            }
-                        }
-
-                        System.out.println("file: " + file +
-                                "\n\tname: " + name +
-                                "\n\ttype: " + type +
-                                "\n\tadditional info file: " + additionalInfoFile);
-
-                        if (!piaCompiler.getDataFromFile(name, file,
-                                additionalInfoFile, type)) {
-                            System.exit(-1);
-                        }
-                    }
-                }
-
-                if (line.hasOption("name")) {
-                    piaName = line.getOptionValue("name");
-                }
-            } catch (ParseException e) {
-                System.err.println(e.getMessage());
-                PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
-                        options, helpDescription);
-                System.exit(-1);
+            boolean filesOk = false;
+            if (line.hasOption(inputFileOpt.getOpt())) {
+                filesOk = parseCommandLineInfiles(line.getOptionValues(inputFileOpt.getOpt()), piaCompiler);
+            }
+            if (!filesOk) {
+                return;
             }
 
-            if (outFileName != null) {
-                piaCompiler.buildClusterList();
+            piaCompiler.buildClusterList();
+            piaCompiler.buildIntermediateStructure();
 
-                piaCompiler.buildIntermediateStructure();
+            piaName = line.getOptionValue(nameOpt.getOpt());
+            if (piaName == null) {
+                piaName = outFileName;
+            }
+            piaCompiler.setName(piaName);
 
-                if (piaName == null) {
-                    piaName = outFileName;
-                }
-                piaCompiler.setName(piaName);
-                piaCompiler.writeOutXML(outFileName);
-            } else {
-                PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
-                        options, helpDescription);
-                System.exit(-1);
+            // now write out the file
+            outFileName = line.getOptionValue(outfileOpt.getOpt());
+            piaCompiler.writeOutXML(outFileName);
+        } catch (ParseException e) {
+            LOGGER.error("error parsing the command line: " + e.getMessage());
+            PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
+                    options, HELP_DESCRIPTION);
+            System.exit(-1);
+        } catch (IOException e) {
+            LOGGER.error("Error while writing PIA XML file.", e);
+        }
+
+    }
+
+
+    /**
+     * Parses the files given from the command line in the String array into the
+     * given {@link PIACompiler}. The files may also contain the name and
+     * additionalFile separated by a semicolon.
+     *
+     * @param inputFiles
+     * @param piaCompiler
+     * @return true, if all files were parsed correctly, otherwise false
+     */
+    private static boolean parseCommandLineInfiles(String[] inputFiles, PIACompiler piaCompiler) {
+        for (String inputFile : inputFiles) {
+            if (!parseCommandLineInfile(inputFile, piaCompiler)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Parses one file from the command line into the given {@link PIACompiler}.
+     * The file string may also contain the name and additionalFile separated by
+     * a semicolon.
+     *
+     * @param inputFile
+     * @param piaCompiler
+     * @return true, if the file was parsed correctly, otherwise false
+     */
+    private static boolean parseCommandLineInfile(String inputFile, PIACompiler piaCompiler) {
+        String[] values = inputFile.split(";");
+        String file = values[0];
+        String name = values[0];
+        String additionalInfoFile = null;
+        String type = null;
+
+        if (values.length > 1) {
+            name = (values[1].trim().length() > 0) ? values[1].trim() : null;
+
+            if (values.length > 2) {
+                type = (values[2].length() > 0) ? values[2] : null;
+            }
+            if (values.length > 3) {
+                additionalInfoFile = (values[3].length() > 0) ? values[3] : null;
             }
         } else {
-            PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
-                    options, helpDescription);
+            if (file.contains(File.separator)) {
+                // take the filename-only as name, if none is given
+                name = new File(file).getName();
+            }
         }
+
+        LOGGER.info("file: " + file +
+                "\n\tname: " + name +
+                "\n\ttype: " + type +
+                "\n\tadditional info file: " + additionalInfoFile);
+
+        return piaCompiler.getDataFromFile(name, file, additionalInfoFile, type);
     }
+
 }

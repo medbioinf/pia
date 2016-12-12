@@ -19,7 +19,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Modification;
 
-import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.unimod.jaxb.ModT;
 import de.mpc.pia.tools.unimod.jaxb.SpecificityT;
 import de.mpc.pia.tools.unimod.jaxb.UnimodT;
@@ -27,8 +26,11 @@ import de.mpc.pia.tools.unimod.jaxb.UnimodT;
 
 public class UnimodParser {
 
+    /** the mass tolerance for finding a modification by mass in Unimod */
+    public static final Double UNIMOD_MASS_TOLERANCE = 0.001;
+
     /** the path to the packaged unimod */
-    private static String packagedUnimod =  "/de/mpc/pia/unimod.xml";
+    private static final String PATH_TO_SHIPPED_UNIMOD =  "/de/mpc/pia/unimod.xml";
 
     /** the CV for unimod */
     private static Cv cvUnimod;
@@ -46,7 +48,7 @@ public class UnimodParser {
 
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(UnimodParser.class);
+    private static final Logger LOGGER = Logger.getLogger(UnimodParser.class);
 
 
     public UnimodParser() {
@@ -61,22 +63,15 @@ public class UnimodParser {
             try {
                 inStream = new URL("http://www.unimod.org/xml/unimod.xml").openStream();
             } catch (IOException e) {
-                logger.warn("could not use remote unimod.xml file, check internet connection");
+                LOGGER.warn("could not use remote unimod.xml file, check internet connection", e);
             }
         }
 
         if (inStream == null) {
             try {
-                inStream = this.getClass().getResourceAsStream(packagedUnimod);
+                inStream = this.getClass().getResourceAsStream(PATH_TO_SHIPPED_UNIMOD);
             } catch (Exception e) {
-                if (inStream != null) {
-                    try {
-                        inStream.close();
-                    } catch (IOException ioex) {
-                        logger.error(ioex);
-                    }
-                }
-                logger.error("could not get unimod.xml file", e);
+                LOGGER.error("could not get unimod.xml file", e);
                 throw new AssertionError(e);
             }
         }
@@ -89,7 +84,7 @@ public class UnimodParser {
 
             modifications = doc.getValue().getModifications().getMod();
         } catch (JAXBException e) {
-            logger.error("could not parse unimod.xml file", e);
+            LOGGER.error("could not parse unimod.xml file", e);
             throw new AssertionError(e);
         }
     }
@@ -149,7 +144,7 @@ public class UnimodParser {
             List<String> residues) {
         ModT mod = null;
 
-        if ((accession != null)) {
+        if (accession != null) {
             mod = getModificationByAccession(accession);
         }
 
@@ -174,19 +169,20 @@ public class UnimodParser {
      * @return
      */
     public ModT getModificationByAccession(String accession) {
-        if (accession.startsWith("UNIMOD:")) {
-            accession = accession.substring(7);
+        String idStr = accession;
+        if (idStr.startsWith("UNIMOD:")) {
+            idStr = idStr.substring(7);
         }
 
         try {
-            Long id = Long.parseLong(accession);
+            Long id = Long.parseLong(idStr);
             for (ModT mod : modifications) {
                 if (mod.getRecordId().equals(id)) {
                     return mod;
                 }
             }
         } catch (NumberFormatException e) {
-            logger.error("Could not parse accession: " + accession, e);
+            LOGGER.error("Could not parse accession: " + idStr, e);
         }
         return null;
     }
@@ -202,19 +198,7 @@ public class UnimodParser {
     public ModT getModificationByName(String query, List<String> residues) {
 
         for (ModT mod : modifications) {
-            boolean nameFound = false;
-
-            if (mod.getTitle().equalsIgnoreCase(query) ||
-                    mod.getFullName().equalsIgnoreCase(query)) {
-                nameFound = true;
-            } else {
-                for (String altName : mod.getAltName()) {
-                    if (altName.equalsIgnoreCase(query)) {
-                        nameFound = true;
-                        break;
-                    }
-                }
-            }
+            boolean nameFound = isAnyName(query, mod);
 
             if (nameFound && checkResidues(mod, residues)) {
                 return mod;
@@ -252,28 +236,58 @@ public class UnimodParser {
             List<String> residues) {
 
         for (ModT mod : modifications) {
-            boolean nameFound = false;
-
-            if (mod.getTitle().equalsIgnoreCase(query) ||
-                    mod.getFullName().equalsIgnoreCase(query)) {
-                nameFound = true;
-            } else {
-                for (String altName : mod.getAltName()) {
-                    if (altName.equalsIgnoreCase(query)) {
-                        nameFound = true;
-                        break;
-                    }
-                }
-            }
+            boolean nameFound = isAnyName(query, mod);
 
             if (nameFound &&
-                    (Math.abs(mod.getDelta().getMonoMass() - massdelta) <= PIAConstants.unimod_mass_tolerance) &&
+                    (Math.abs(mod.getDelta().getMonoMass() - massdelta) <= UNIMOD_MASS_TOLERANCE) &&
                     checkResidues(mod, residues)) {
                 return mod;
             }
         }
 
         return null;
+    }
+
+
+    /**
+     * Checks whether the query is either title, full name or alternative name
+     * of the mod.
+     *
+     * @param query
+     * @param mod
+     * @return
+     */
+    public static boolean isAnyName(String query, ModT mod) {
+        boolean nameFound;
+
+        if (mod.getTitle().equalsIgnoreCase(query) ||
+                mod.getFullName().equalsIgnoreCase(query)) {
+            nameFound = true;
+        } else {
+            nameFound = isAlternativeName(query, mod);
+        }
+
+        return nameFound;
+    }
+
+
+    /**
+     * Checks whether the query is an alternative name of the modification.
+     * @param query
+     * @param mod
+     * @return
+     */
+    private static boolean isAlternativeName(String query, ModT mod) {
+        boolean nameFound = false;
+
+        for (String altName : mod.getAltName()) {
+            if (altName.equalsIgnoreCase(query)) {
+                nameFound = true;
+                break;
+            }
+        }
+
+        return nameFound;
     }
 
 
@@ -301,11 +315,9 @@ public class UnimodParser {
      */
     public ModT getModificationByMass(Double massdelta, List<String> residues) {
         for (ModT mod : modifications) {
-            if (Math.abs(mod.getDelta().getMonoMass() - massdelta) <=
-                    PIAConstants.unimod_mass_tolerance) {
-                if (checkResidues(mod, residues)) {
-                    return mod;
-                }
+            if ((Math.abs(mod.getDelta().getMonoMass() - massdelta) <= UNIMOD_MASS_TOLERANCE)
+                    && checkResidues(mod, residues)) {
+                return mod;
             }
         }
 
@@ -321,22 +333,22 @@ public class UnimodParser {
      * @param residues
      * @return
      */
-    private boolean checkResidues(ModT modification, List<String> residues) {
+    private static boolean checkResidues(ModT modification, List<String> residues) {
         Set<String> specificities =
                 new HashSet<String>(modification.getSpecificity().size());
         for (SpecificityT spec : modification.getSpecificity()) {
             specificities.add(spec.getSite());
 
             // TODO: make this more sophisticated
-            if (spec.getSite().equalsIgnoreCase("N-term") ||
-                    spec.getSite().equalsIgnoreCase("C-term")) {
+            if (  "N-term".equalsIgnoreCase(spec.getSite())
+                    || "C-Term".equalsIgnoreCase(spec.getSite())) {
                 return true;
             }
         }
 
         boolean residuesOK = true;
         for (String residue : residues) {
-            if (!residue.equals(".")) {
+            if (!".".equals(residue)) {
                 residuesOK &= specificities.contains(residue);
             }
         }

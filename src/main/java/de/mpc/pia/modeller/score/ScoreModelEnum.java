@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 import de.mpc.pia.modeller.psm.PSMReportItemComparator;
-import de.mpc.pia.modeller.psm.ReportPSMSet;
-import de.mpc.pia.tools.PIAConstants;
+import de.mpc.pia.tools.OntologyConstants;
+
 
 /**
  * This enumeration registers all {@link ScoreModel}s.
@@ -111,9 +111,7 @@ public enum ScoreModelEnum {
         }
     },
     /**
-     * This Score implements the Combined FDR Score.<br/>
-     * It does not have an own class, but is actually only for the naming. The
-     * FDR Score of a {@link ReportPSMSet} is a COMBINED_FDR_SCORE
+     * This Score implements the Combined FDR Score on PSM level.
      */
     PSM_LEVEL_COMBINED_FDR_SCORE {
         @Override
@@ -128,12 +126,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_PSM_LEVEL_COMBINED_FDRSCORE_ACCESSION;
+            return OntologyConstants.PSM_LEVEL_COMBINED_FDRSCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_PSM_LEVEL_COMBINED_FDRSCORE_NAME;
+            return OntologyConstants.PSM_LEVEL_COMBINED_FDRSCORE.getPsiName();
         }
 
         @Override
@@ -152,8 +150,7 @@ public enum ScoreModelEnum {
 
             descs.add(getName());
             descs.add(getName().toLowerCase());
-            descs.add("Combined FDR");
-            descs.add("combined fdr");
+            descs.add("PSM-level Combined FDR Score");
             descs.add(getShortName());
 
             return descs;
@@ -165,7 +162,7 @@ public enum ScoreModelEnum {
         }
     },
     /**
-     * This Score implements the FDR-Score.
+     * This Score implements the FDR Score on PSM level.
      */
     PSM_LEVEL_FDR_SCORE {
         @Override
@@ -180,12 +177,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_PSM_LEVEL_FDRSCORE_ACCESSION;
+            return OntologyConstants.PSM_LEVEL_FDRSCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_PSM_LEVEL_FDRSCORE_NAME;
+            return OntologyConstants.PSM_LEVEL_FDRSCORE.getPsiName();
         }
 
         @Override
@@ -227,12 +224,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_PSM_LEVEL_QVALUE_ACCESSION;
+            return OntologyConstants.PSM_LEVEL_QVALUE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_PSM_LEVEL_QVALUE_NAME;
+            return OntologyConstants.PSM_LEVEL_QVALUE.getPsiName();
         }
 
         @Override
@@ -261,6 +258,152 @@ public enum ScoreModelEnum {
         }
     },
 
+    /**
+     * This Score implements the Combined FDR Score on peptide level.
+     */
+    PEPTIDE_LEVEL_COMBINED_FDR_SCORE {
+        @Override
+        public String getName() {
+            return "Peptide Combined FDR Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "peptide_combined_fdr_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PEPTIDE_LEVEL_COMBINED_FDRSCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PEPTIDE_LEVEL_COMBINED_FDRSCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<String>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add("Peptide-level Combined FDR Score");
+            descs.add(getShortName());
+
+            return descs;
+        }
+
+        @Override
+        public Boolean isPSMSetScore() {
+            return true;
+        }
+    },
+    /**
+     * This Score implements the FDR Score on peptide level.
+     */
+    PEPTIDE_LEVEL_FDR_SCORE {
+        @Override
+        public String getName() {
+            return "Peptide FDRScore";
+        }
+
+        @Override
+        public String getShortName() {
+            return "peptide_fdr_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PEPTIDE_LEVEL_FDRSCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PEPTIDE_LEVEL_FDRSCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<String>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+
+            return descs;
+        }
+    },
+    /**
+     * This Score implements the PSM level q-value.
+     */
+    PEPTIDE_LEVEL_Q_VALUE {
+        @Override
+        public String getName() {
+            return "PEPTIDE q-value";
+        }
+
+        @Override
+        public String getShortName() {
+            return "peptide_q_value";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PEPTIDE_LEVEL_QVALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PEPTIDE_LEVEL_QVALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<String>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+
+            return descs;
+        }
+    },
+
     /** Beginning of Mascot Scores  **/
 
     /**
@@ -279,12 +422,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MASCOT_EXPECTATION_VALUE_ACCESSION;
+            return OntologyConstants.MASCOT_EXPECTATION_VALUE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MASCOT_EXPECTATION_VALUE_NAME;
+            return OntologyConstants.MASCOT_EXPECTATION_VALUE.getPsiName();
         }
 
         @Override
@@ -295,7 +438,7 @@ public enum ScoreModelEnum {
         @Override
         public List<String> getAdditionalAccessions(){
             List<String> accessions = new ArrayList<String>();
-            accessions.add(PIAConstants.CV_PRIDE_MASCOT_EXPECTATION_VALUE_ACCESSION);
+            accessions.add(OntologyConstants.MASCOT_EXPECTATION_VALUE.getPrideAccession());
             return accessions;
         }
 
@@ -331,12 +474,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MASCOT_SCORE_ACCESSION;
+            return OntologyConstants.MASCOT_SCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MASCOT_SCORE_NAME;
+            return OntologyConstants.MASCOT_SCORE.getPsiName();
         }
 
         @Override
@@ -347,7 +490,7 @@ public enum ScoreModelEnum {
         @Override
         public List<String> getAdditionalAccessions(){
             List<String> accessions = new ArrayList<String>();
-            accessions.add(PIAConstants.CV_PRIDE_MASCOT_SCORE_ACCESSION);
+            accessions.add(OntologyConstants.MASCOT_SCORE.getPrideAccession());
             return accessions;
         }
 
@@ -395,12 +538,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_SEQUEST_PROBABILITY_ACCESSION;
+            return OntologyConstants.SEQUEST_PROBABILITY.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_SEQUEST_PROBABILITY_NAME;
+            return OntologyConstants.SEQUEST_PROBABILITY.getPsiName();
         }
 
         @Override
@@ -445,12 +588,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_SEQUEST_SP_ACCESSION;
+            return OntologyConstants.SEQUEST_SP.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_SEQUEST_SP_NAME;
+            return OntologyConstants.SEQUEST_SP.getPsiName();
         }
 
         @Override
@@ -461,7 +604,7 @@ public enum ScoreModelEnum {
         @Override
         public List<String> getAdditionalAccessions(){
             List<String> accessions = new ArrayList<String>();
-            accessions.add(PIAConstants.CV_PRIDE_SEQUEST_SP_ACCESSION);
+            accessions.add(OntologyConstants.SEQUEST_SP.getPrideAccession());
             return accessions;
         }
 
@@ -497,12 +640,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_SEQUEST_XCORR_ACCESSION;
+            return OntologyConstants.SEQUEST_XCORR.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_SEQUEST_XCORR_NAME;
+            return OntologyConstants.SEQUEST_XCORR.getPsiName();
         }
 
         @Override
@@ -513,7 +656,7 @@ public enum ScoreModelEnum {
         @Override
         public List<String> getAdditionalAccessions(){
             List<String> accessions = new ArrayList<String>();
-            accessions.add(PIAConstants.CV_PRIDE_SEQUEST_XCORR_ACCESSION);
+            accessions.add(OntologyConstants.SEQUEST_XCORR.getPrideAccession());
             return accessions;
         }
 
@@ -554,12 +697,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_XTANDEM_EXPECT_ACCESSION;
+            return OntologyConstants.XTANDEM_EXPECT.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_XTANDEM_EXPECT_NAME;
+            return OntologyConstants.XTANDEM_EXPECT.getPsiName();
         }
 
         @Override
@@ -570,7 +713,7 @@ public enum ScoreModelEnum {
         @Override
         public List<String> getAdditionalAccessions(){
             List<String> accessions = new ArrayList<String>();
-            accessions.add(PIAConstants.CV_PRIDE_XTANDEM_EXPECT_ACCESSION);
+            accessions.add(OntologyConstants.XTANDEM_EXPECT.getPrideAccession());
             return accessions;
         }
 
@@ -613,12 +756,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_XTANDEM_HYPERSCORE_ACCESSION;
+            return OntologyConstants.XTANDEM_HYPERSCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_XTANDEM_HYPERSCORE_NAME;
+            return OntologyConstants.XTANDEM_HYPERSCORE.getPsiName();
         }
 
         @Override
@@ -629,7 +772,7 @@ public enum ScoreModelEnum {
         @Override
         public List<String> getAdditionalAccessions(){
             List<String> accessions = new ArrayList<String>();
-            accessions.add(PIAConstants.CV_PRIDE_XTANDEM_HYPERSCORE_ACCESSION);
+            accessions.add(OntologyConstants.XTANDEM_HYPERSCORE.getPrideAccession());
             return accessions;
         }
 
@@ -673,12 +816,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MSGF_RAWSCORE_ACCESSION;
+            return OntologyConstants.MSGF_RAWSCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MSGF_RAWSCORE_NAME;
+            return OntologyConstants.MSGF_RAWSCORE.getPsiName();
         }
 
         @Override
@@ -720,12 +863,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MSGF_DENOVOSCORE_ACCESSION;
+            return OntologyConstants.MSGF_DENOVOSCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MSGF_DENOVOSCORE_NAME;
+            return OntologyConstants.MSGF_DENOVOSCORE.getPsiName();
         }
 
         @Override
@@ -767,12 +910,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MSGF_SPECEVALUE_ACCESSION;
+            return OntologyConstants.MSGF_SPECEVALUE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MSGF_SPECEVALUE_NAME;
+            return OntologyConstants.MSGF_SPECEVALUE.getPsiName();
         }
 
         @Override
@@ -821,12 +964,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MSGF_EVALUE_ACCESSION;
+            return OntologyConstants.MSGF_EVALUE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MSGF_EVALUE_NAME;
+            return OntologyConstants.MSGF_EVALUE.getPsiName();
         }
 
         @Override
@@ -873,12 +1016,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_AMANDA_SCORE_ACCESSION;
+            return OntologyConstants.AMANDA_SCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_AMANDA_SCORE_NAME;
+            return OntologyConstants.AMANDA_SCORE.getPsiName();
         }
 
         @Override
@@ -929,12 +1072,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_MYRIMATCH_MVH_ACCESSION;
+            return OntologyConstants.MYRIMATCH_MVH.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_MYRIMATCH_MVH_NAME;
+            return OntologyConstants.MYRIMATCH_MVH.getPsiName();
         }
 
         @Override
@@ -1208,9 +1351,6 @@ public enum ScoreModelEnum {
 
     /**
      * The score of the protein.
-     *
-     * TODO: this must be handled differently... there are scores with higherScoreBetter = true and false!
-     *
      */
     PROTEIN_SCORE {
         @Override
@@ -1225,20 +1365,17 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return PIAConstants.CV_PIA_PROTEIN_SCORE_ACCESSION;
+            return OntologyConstants.PIA_PROTEIN_SCORE.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return PIAConstants.CV_PIA_PROTEIN_SCORE_NAME;
+            return OntologyConstants.PIA_PROTEIN_SCORE.getPsiName();
         }
 
         @Override
         public Boolean higherScoreBetter() {
-            System.err.println("higherScoreBetter() is not implemented for '"
-                    + getName() +
-                    "' as it depends on the scores and scoring method used in the protein inference");
-            return null;
+            return true;
         }
 
         @Override
@@ -1263,6 +1400,21 @@ public enum ScoreModelEnum {
 
 
     /**
+     * The scores in this list should not be used for FDR estimation on PSM level
+     */
+    protected static final List<ScoreModelEnum> notForPSMFdrScore = new ArrayList<ScoreModelEnum>(
+            Arrays.asList(new ScoreModelEnum[]{
+                    AVERAGE_FDR_SCORE,
+                    FASTA_ACCESSION_COUNT,
+                    FASTA_SEQUENCE_COUNT,
+                    PROTEIN_SCORE,
+                    PSM_LEVEL_COMBINED_FDR_SCORE,
+                    PSM_LEVEL_FDR_SCORE,
+                    PSM_LEVEL_Q_VALUE
+            }));
+
+
+    /**
      * Returns the human readable name of the score model.
      * @return
      */
@@ -1276,7 +1428,7 @@ public enum ScoreModelEnum {
      *
      * @return
      */
-    public final static String getName(String scoreModelDescriptor) {
+    public static final String getName(String scoreModelDescriptor) {
         ScoreModelEnum model = getModelByDescription(scoreModelDescriptor);
 
         if (model.equals(UNKNOWN_SCORE)) {
@@ -1368,7 +1520,7 @@ public enum ScoreModelEnum {
      * @param desc
      * @return
      */
-    public final static ScoreModelEnum getModelByDescription(String desc) {
+    public static final ScoreModelEnum getModelByDescription(String desc) {
         for (ScoreModelEnum model : values()) {
             if (!model.equals(UNKNOWN_SCORE) &&
                     model.isValidDescriptor(desc)) {
@@ -1381,16 +1533,10 @@ public enum ScoreModelEnum {
 
 
     /**
-     * The scores in this list should not be used for FDR estimation on PSM level
+     * Returns the scores which should not be used for FDR estimation on PSM level.
+     * @return
      */
-    public final static List<ScoreModelEnum> notForPSMFdrScore = new ArrayList<ScoreModelEnum>(
-            Arrays.asList(new ScoreModelEnum[]{
-                    AVERAGE_FDR_SCORE,
-                    FASTA_ACCESSION_COUNT,
-                    FASTA_SEQUENCE_COUNT,
-                    PROTEIN_SCORE,
-                    PSM_LEVEL_COMBINED_FDR_SCORE,
-                    PSM_LEVEL_FDR_SCORE,
-                    PSM_LEVEL_Q_VALUE
-            }));
+    public static final List<ScoreModelEnum> getNotForPSMFdrScore() {
+        return notForPSMFdrScore;
+    }
 }

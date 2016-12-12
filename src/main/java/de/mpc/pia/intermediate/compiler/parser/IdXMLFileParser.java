@@ -2,10 +2,8 @@ package de.mpc.pia.intermediate.compiler.parser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,7 +59,11 @@ import de.mpc.pia.tools.unimod.jaxb.ModT;
 public class IdXMLFileParser {
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(IdXMLFileParser.class);
+    private static final Logger LOGGER = Logger.getLogger(IdXMLFileParser.class);
+
+
+    /** name of the UserParam indicating the delta mass (shift) */
+    private static final String USERPARAM_NAME_DELTA_MASS = "delta";
 
 
     /**
@@ -86,7 +88,7 @@ public class IdXMLFileParser {
         try {
             idXMLFile = new IdXMLParser(fileName);
         } catch (Exception e) {
-            logger.error("could not read '" + fileName + "'.", e);
+            LOGGER.error("could not read '" + fileName + "'.", e);
             return false;
         }
 
@@ -117,7 +119,7 @@ public class IdXMLFileParser {
             }
 
             if (idRun.getProteinIdentification() == null) {
-                logger.error("This identification has no protein information, " +
+                LOGGER.error("This identification has no protein information, " +
                         "so PIA cannot use it.");
                 break;
             }
@@ -199,7 +201,7 @@ public class IdXMLFileParser {
                 if (variableSearchMod != null) {
                     modParams.getSearchModification().add(variableSearchMod);
                 } else {
-                    logger.error("Could not parse variable modification: " +
+                    LOGGER.error("Could not parse variable modification: " +
                             variableMod.getName());
                 }
             }
@@ -212,7 +214,7 @@ public class IdXMLFileParser {
                 if (fixedSearchMod != null) {
                     modParams.getSearchModification().add(fixedSearchMod);
                 } else {
-                    logger.error("Could not parse fixed modification: " +
+                    LOGGER.error("Could not parse fixed modification: " +
                             fixedMod.getName());
                 }
             }
@@ -261,15 +263,14 @@ public class IdXMLFileParser {
                     break;
 
                 case PROTEINASE_K:
-                    logger.warn("Unknown enzyme specification: " +
-                            searchParameters.getEnzyme());
-
                 case UNKNOWN_ENZYME:
                 default:
+                    LOGGER.warn("Unknown enzyme specification: " +
+                            searchParameters.getEnzyme());
                     break;
                 }
 
-                if (paramList.getCvParam().size() > 0) {
+                if (!paramList.getCvParam().isEmpty()) {
                     enzyme.setEnzymeName(paramList);
                 }
             }
@@ -357,16 +358,16 @@ public class IdXMLFileParser {
                         try {
                             sourceID = "index=" + (Integer.parseInt(userParam.getValue())-1);
                         } catch (NumberFormatException e) {
-                            logger.warn("could not parse sourceID: " + userParam.getValue());
+                            LOGGER.warn("could not parse sourceID: " + userParam.getValue());
                             sourceID = null;
                         }
                     }
                 }
 
                 for (PeptideHit pepHit : pepID.getPeptideHit()) {
-                    if (pepHit.getProteinRefs().size() < 1) {
+                    if (pepHit.getProteinRefs().isEmpty()) {
                         // identifications without proteins have no value (for now)
-                        logger.error("No protein linked to the peptide " +
+                        LOGGER.error("No protein linked to the peptide " +
                                 "identification, dropped PeptideHit for " +
                                 pepHit.getSequence());
                         continue;
@@ -383,19 +384,16 @@ public class IdXMLFileParser {
                                 sequence, modifications, compiler);
                     }
 
-                    // TODO: implement the delta mass, but not set in idXML
-                    double deltaMass = Double.NaN;
+                    double deltaMass = getDeltaMass(pepHit.getUserParam());
 
                     int missedCleavages;
-                    if ((enzyme.getSiteRegexp() != null)) {
-                        missedCleavages =
-                                sequence.split(enzyme.getSiteRegexp()).length - 1;
+                    if (enzyme.getSiteRegexp() != null) {
+                        missedCleavages = sequence.split(enzyme.getSiteRegexp()).length - 1;
                     } else {
                         missedCleavages = -1;
                     }
 
-                    PeptideSpectrumMatch psm;
-                    psm = compiler.insertNewSpectrum(
+                    PeptideSpectrumMatch psm = compiler.createNewPeptideSpectrumMatch(
                             charge,
                             massToCharge,
                             deltaMass,
@@ -497,28 +495,26 @@ public class IdXMLFileParser {
                         psm.addModification(modIt.getKey(), modIt.getValue());
                     }
 
-                    for (Object protRef : pepHit.getProteinRefs()) {
+                    compiler.insertCompletePeptideSpectrumMatch(psm);
 
+                    for (Object protRef : pepHit.getProteinRefs()) {
                         if (!(protRef instanceof ProteinHit)) {
-                            logger.warn("ProteinRef is not a " +
+                            LOGGER.warn("ProteinRef is not a " +
                                     ProteinHit.class.getCanonicalName());
                             continue;
                         }
 
                         ProteinHit protHit = (ProteinHit)protRef;
 
-                        FastaHeaderInfos fastaInfo =
-                                FastaHeaderInfos.parseHeaderInfos(
-                                        protHit.getAccession());
+                        FastaHeaderInfos fastaInfo = FastaHeaderInfos.parseHeaderInfos(protHit.getAccession());
                         if (fastaInfo == null) {
-                            logger.error("Could not parse '" +
+                            LOGGER.error("Could not parse '" +
                                     protHit.getAccession() + "'");
                             continue;
                         }
 
                         // add the Accession to the compiler (if not already added)
-                        Accession acc = compiler.getAccession(
-                                fastaInfo.getAccession());
+                        Accession acc = compiler.getAccession(fastaInfo.getAccession());
 
                         if (acc == null) {
                             acc = compiler.insertNewAccession(
@@ -550,34 +546,14 @@ public class IdXMLFileParser {
                             }
                         }
 
-                        // now insert the peptide and the accession into the accession peptide map
-                        Set<Peptide> accsPeptides =
-                                compiler.getFromAccPepMap(acc.getAccession());
-
-                        if (accsPeptides == null) {
-                            accsPeptides = new HashSet<Peptide>();
-                            compiler.putIntoAccPepMap(acc.getAccession(), accsPeptides);
-                        }
-
-                        accsPeptides.add(peptide);
-
-                        // and also insert them into the peptide accession map
-                        Set<Accession> pepsAccessions =
-                                compiler.getFromPepAccMap(peptide.getSequence());
-
-                        if (pepsAccessions == null) {
-                            pepsAccessions = new HashSet<Accession>();
-                            compiler.putIntoPepAccMap(peptide.getSequence(),
-                                    pepsAccessions);
-                        }
-
-                        pepsAccessions.add(acc);
+                        // now insert the connection between peptide and accession into the compiler
+                        compiler.addAccessionPeptideConnection(acc, peptide);
                     }
                 }
             }
         }
 
-        logger.info("inserted new: \n\t" +
+        LOGGER.info("inserted new: \n\t" +
                 pepNr + " peptides\n\t" +
                 specNr + " peptide spectrum matches\n\t" +
                 accNr + " accessions");
@@ -660,6 +636,38 @@ public class IdXMLFileParser {
 
 
     /**
+     * Parses the UserParams for the deltaMass and returns it, if it was found,
+     * otherwise, Double.NaN is returned.
+     *
+     * @param userParams
+     * @return
+     */
+    private static Double getDeltaMass(List<UserParamIdXML> userParams) {
+        Double deltaMass = Double.NaN;
+
+        for (de.mpc.pia.tools.openms.jaxb.UserParamIdXML userParam : userParams) {
+
+            if (USERPARAM_NAME_DELTA_MASS.equals(userParam.getName())) {
+                try {
+                    deltaMass = Double.parseDouble(userParam.getValue());
+                } catch (NumberFormatException e) {
+                    LOGGER.warn("Could not parse '" + userParam.getValue()
+                            + "' as deltaMass", e);
+                    deltaMass = Double.NaN;
+                }
+
+                if (!deltaMass.equals(Double.NaN)) {
+                    break;
+                }
+            }
+
+        }
+
+        return deltaMass;
+    }
+
+
+    /**
      * Given a sequence with encoded modifications in the style
      * "LDC(Carbamidomethyl)SHA", the modifications will be extracted and put
      * into the given map and the raw sequence is returned.
@@ -673,19 +681,19 @@ public class IdXMLFileParser {
             Map<Integer, Modification> modifications,
             PIACompiler compiler) {
         if (modifications == null) {
-            logger.error("Modifications map not initialized!");
+            LOGGER.error("Modifications map not initialized!");
             return null;
         }
 
         StringBuilder sequence =
                 new StringBuilder(modificationsSequence.length());
 
-        int pos = 0;
+        int pos;
         while ( -1 < (pos = modificationsSequence.indexOf('('))) {
             sequence.append(modificationsSequence.substring(0, pos));
             modificationsSequence = modificationsSequence.substring(pos);
 
-            String residue = null;
+            String residue;
             if (sequence.length() == 0) {
                 // TODO: how are C-terminal modifications encoded in idXML!
                 // N-terminal modification
@@ -721,7 +729,7 @@ public class IdXMLFileParser {
 
                 modifications.put(sequence.length(), mod);
             } else {
-                logger.error("Could not get information for " +
+                LOGGER.error("Could not get information for " +
                         "modification " + modName + " in " +
                         sequence);
             }
@@ -775,8 +783,8 @@ public class IdXMLFileParser {
             }
         }
 
-        if (startSites.size() < 1) {
-            logger.warn("no occurrences for " + peptideSeq + "    dbSeq: " + proteinSeq);
+        if (startSites.isEmpty()) {
+            LOGGER.warn("no occurrences for " + peptideSeq + "    dbSeq: " + proteinSeq);
         }
 
         return startSites;

@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +27,11 @@ import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.modeller.report.SortOrder;
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterFactory;
+import de.mpc.pia.modeller.report.filter.RegisteredFilters;
+import de.mpc.pia.modeller.score.FDRData;
+import de.mpc.pia.modeller.score.FDRScore;
+import de.mpc.pia.modeller.score.ScoreModelEnum;
+import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 import de.mpc.pia.modeller.score.comparator.RankCalculator;
 import de.mpc.pia.modeller.score.comparator.ScoreComparator;
 
@@ -38,7 +45,7 @@ import de.mpc.pia.modeller.score.comparator.ScoreComparator;
 public class PeptideModeller {
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(PeptideModeller.class);
+    private static final Logger LOGGER = Logger.getLogger(PeptideModeller.class);
 
 
     /** the used {@link PSMModeller} */
@@ -53,13 +60,20 @@ public class PeptideModeller {
     /** maps from the fileID to whether the peptides need to be inferred on next call (not set means, they have to be inferred) */
     private Map<Long, Boolean> inferePeptides;
 
+    /** maps from the fileID to the corresponding FDR data */
+    private Map<Long, FDRData> fileFDRData;
+
+    /** maps from the fileID to whether an FDR is calculated or not */
+    private Map<Long, Boolean> fileFDRCalculated;
 
     /** whether to consider the modifications for building peptides or not */
     private boolean considerModifications;
 
 
-    /** the default value for considering the modifications */
-    public static final boolean considerModificationsDefault = false;
+    /** the default value for considering the modifications
+     *  TODO: default value for considerModifications should be loaded from ini-file
+     */
+    public static final boolean CONSIDER_MODIFICATIONS_DEFAULT = false;
 
 
 
@@ -75,8 +89,11 @@ public class PeptideModeller {
         fileFiltersMap = new HashMap<Long, List<AbstractFilter>>();
         inferePeptides = new HashMap<Long, Boolean>();
 
-        // TODO: default value for considerModifications should be loaded from ini-file
-        this.considerModifications = considerModificationsDefault;
+        // initialize the FDR data maps
+        fileFDRData = new HashMap<Long, FDRData>();
+        fileFDRCalculated = new HashMap<Long, Boolean>();
+
+        this.considerModifications = CONSIDER_MODIFICATIONS_DEFAULT;
     }
 
 
@@ -99,25 +116,17 @@ public class PeptideModeller {
      * @return
      */
     public List<String> getScoreShortNames(Long fileID) {
-        List<String> scoreShortNames = new ArrayList<String>();
+        LinkedHashSet<String> scoreShortNames = new LinkedHashSet<String>();
 
         if (fileID > 0) {
-            for (String scoreShort : psmModeller.getScoreShortNames(fileID)) {
-                if (!scoreShortNames.contains(scoreShort)) {
-                    scoreShortNames.add(scoreShort);
-                }
-            }
+            scoreShortNames.addAll(psmModeller.getScoreShortNames(fileID));
         } else {
             for (Long file : psmModeller.getFiles().keySet()) {
-                for (String scoreShort : psmModeller.getScoreShortNames(file)) {
-                    if (!scoreShortNames.contains(scoreShort)) {
-                        scoreShortNames.add(scoreShort);
-                    }
-                }
+                scoreShortNames.addAll(psmModeller.getScoreShortNames(file));
             }
         }
 
-        return scoreShortNames;
+        return new ArrayList<String>(scoreShortNames);
     }
 
 
@@ -140,7 +149,7 @@ public class PeptideModeller {
      * @param fileID
      */
     private void inferePeptides(Long fileID) {
-        logger.info("Inferring peptides for " + fileID  +
+        LOGGER.info("Inferring peptides for " + fileID  +
                 " considerModifications=" + considerModifications);
         // first put the PSMs sorted by their stringID (this defines a peptide) into a Map
         Map<String, ReportPeptide> peptides = new HashMap<String, ReportPeptide>();
@@ -177,7 +186,15 @@ public class PeptideModeller {
         fileReportPeptides.put(fileID, repList);
         // this file is set
         inferePeptides.put(fileID, false);
-        logger.info("Inferred " + repList.size() + " peptides for " + fileID);
+        LOGGER.info("Inferred " + repList.size() + " peptides for " + fileID);
+
+
+        // peptides are changed -> reset the FDR data
+        Boolean fileHasFDR = fileFDRCalculated.get(fileID);
+        if ((fileHasFDR != null) && fileHasFDR) {
+            fileFDRCalculated.put(fileID, false);
+            calculateFDR(fileID);
+        }
     }
 
 
@@ -300,7 +317,7 @@ public class PeptideModeller {
             return FilterFactory.applyFilters(fileReportPeptides.get(fileID),
                     filters, fileID);
         } else {
-            logger.error("There are no ReportPeptides for the fileID " + fileID);
+            LOGGER.error("There are no ReportPeptides for the fileID " + fileID);
             return new ArrayList<ReportPeptide>(0);
         }
     }
@@ -338,8 +355,8 @@ public class PeptideModeller {
     public List<String> getFilesAvailableScoreShortsForRanking(Long fileID) {
         List<String> rankingScoreNames = getScoreShortNames(fileID);
 
-        if (rankingScoreNames.size() < 1) {
-            logger.error("No scores available for ranking for the file with ID "+fileID);
+        if (rankingScoreNames.isEmpty()) {
+            LOGGER.error("No scores available for ranking for the file with ID "+fileID);
         }
 
         return rankingScoreNames;
@@ -352,8 +369,8 @@ public class PeptideModeller {
      */
     public void calculateRanking(Long fileID, String rankableShortName,
             List<AbstractFilter> filters) {
-        if ((rankableShortName == null) || rankableShortName.trim().equals("")) {
-            logger.error("No score shortName given for ranking calculation.");
+        if ((rankableShortName == null) || rankableShortName.trim().isEmpty()) {
+            LOGGER.error("No score shortName given for ranking calculation.");
             return;
         }
 
@@ -476,8 +493,8 @@ public class PeptideModeller {
 
         // write out peptide information
         for (ReportPeptide peptide : report) {
-            StringBuilder lineFirst = new StringBuilder(64);	// first part of the line, up to the accession(s)
-            StringBuilder lineLast = new StringBuilder(64);		// last part of the line, from the accession(s) to end
+            StringBuilder lineFirst = new StringBuilder(64);    // first part of the line, up to the accession(s)
+            StringBuilder lineLast = new StringBuilder(64);     // last part of the line, from the accession(s) to end
             if (includes) {
                 lineFirst.append("\"PEPTIDE\"" + separator);
             }
@@ -580,30 +597,28 @@ public class PeptideModeller {
                         // include the PSMs, if set
                         if (includePSMs) {
                             for (ReportPSM p : ((ReportPSMSet) psm).getPSMs()) {
-                                writer.append("\"PSM\"" + separator + "\"" +
-                                        ((ReportPSM) p).getInputFileName() + "\"" + separator +
-                                        "\"" + p.getSequence() + "\"" + separator);
+                                writer.append("\"PSM\"" + separator + "\""
+                                        + p.getInputFileName() + "\"" + separator
+                                        + "\"" + p.getSequence() + "\"" + separator);
 
                                 if (considerModifications) {
                                     writer.append("\""  + p.getModificationsString() + "\"" + separator);
                                 }
 
-                                writer.append("\"" + p.getCharge() + "\"" + separator +
-                                        "\"" + p.getMassToCharge() + "\"" + separator +
-                                        "\"" + p.getDeltaMass() + "\"" + separator +
-                                        "\"" + p.getDeltaPPM() + "\"" + separator +
-                                        "\"" + p.getRetentionTime() + "\"" + separator +
-                                        "\"" + p.getMissedCleavages() + "\"" + separator +
-                                        "\"" + p.getSourceID() + "\"" + separator +
-                                        "\"" + p.getSpectrumTitle() + "\"" + separator +
-                                        "\"" + p.getScoresString() + "\"");
+                                writer.append("\"" + p.getCharge() + "\"" + separator
+                                        + "\"" + p.getMassToCharge() + "\"" + separator
+                                        + "\"" + p.getDeltaMass() + "\"" + separator
+                                        + "\"" + p.getDeltaPPM() + "\"" + separator
+                                        + "\"" + p.getRetentionTime() + "\"" + separator
+                                        + "\"" + p.getMissedCleavages() + "\"" + separator
+                                        + "\"" + p.getSourceID() + "\"" + separator
+                                        + "\"" + p.getSpectrumTitle() + "\"" + separator
+                                        + "\"" + p.getScoresString() + "\"");
                                 writer.append("\n");
                             }
                         }
                     }
-
                 }
-
             }
         }
 
@@ -618,10 +633,14 @@ public class PeptideModeller {
      * @param commands
      * @return
      */
-    public static boolean processCLI(PeptideModeller model, String[] commands) {
-        if (model == null) {
-            logger.error("No peptide modeller given while processing CLI " +
-                    "commands");
+    public static boolean processCLI(PeptideModeller peptideModeller, PIAModeller piaModeller, String[] commands) {
+        if (peptideModeller == null) {
+            LOGGER.error("No peptide modeller given while processing CLI commands");
+            return false;
+        }
+
+        if (piaModeller == null) {
+            LOGGER.error("No PIA modeller given while processing CLI commands");
             return false;
         }
 
@@ -638,13 +657,180 @@ public class PeptideModeller {
             }
 
             try {
-                PeptideExecuteCommands.valueOf(command).execute(model, params);
+                PeptideExecuteCommands.valueOf(command).execute(peptideModeller, piaModeller, params);
             } catch (IllegalArgumentException e) {
-                logger.error("Could not process unknown call to " +
-                        command);
+                LOGGER.error("Could not process unknown call to " + command, e);
             }
         }
 
         return true;
+    }
+
+
+    /**
+     * Calculate the peptide FDR for the file given by fileID. The settings for
+     * the calculation of the FDR are taken from the PSM level. If the FDR on
+     * the PSM level was calculated, the FDRScore respectively CombinedFDRScore
+     * is used as base score for peptide level FDR. Otherwise the currently set
+     * score or preferred score is used.
+     *
+     * @param fileID
+     */
+    public void calculateFDR(Long fileID) {
+        FDRData fdrData = getFDRDataFromPSMLevel(fileID);
+        fileFDRData.put(fileID, fdrData);
+
+        fileFDRCalculated.put(fileID, false);
+
+
+        String baseScoreShort = getBaseFDRScorePSMLevel(fileID);
+        if (baseScoreShort == null) {
+            LOGGER.error("Could not get a valid score from PSM level!");
+            return;
+        }
+
+        fdrData.setScoreShortName(baseScoreShort);
+        LOGGER.info("set the score for peptide FDR calculation for fileID=" +
+                fileID + ": " + fdrData.getScoreShortName());
+
+        // recalculate the decoy status (especially important, if decoy pattern was changed)
+        updateDecoyStates(fileID);
+
+        if (fileReportPeptides.get(fileID) == null) {
+            LOGGER.error("No peptides found for the file with ID=" + fileID);
+            return;
+        }
+
+        // create new list of the filters and leave only the PSM level filters
+        List<AbstractFilter> filters = new ArrayList<AbstractFilter>(getFilters(fileID));
+        ListIterator<AbstractFilter> filterIt = filters.listIterator();
+
+        while (filterIt.hasNext()) {
+            AbstractFilter filter = filterIt.next();
+            RegisteredFilters regFilter = filter.getRegisteredFilter();
+            if (!RegisteredFilters.getPSMFilters().contains(regFilter)) {
+                filterIt.remove();
+            }
+        }
+
+        // get a List of the ReportPeptides for FDR calculation
+        List<ReportPeptide> listForFDR = new ArrayList<ReportPeptide>(
+                getFilteredReportPeptides(fileID, filters));
+
+        // get the comparator for the score
+        boolean higherScoreBetter = psmModeller.getHigherScoreBetter(fdrData.getScoreShortName());
+        Comparator<ReportPeptide> peptideComparator =
+                new ScoreComparator<ReportPeptide>(fdrData.getScoreShortName(), higherScoreBetter);
+
+        // calculate the FDR values
+        fdrData.calculateFDR(listForFDR, peptideComparator);
+
+        // and also calculate the FDR score
+        FDRScore.calculateFDRScore(listForFDR, fdrData, higherScoreBetter);
+
+        // the FDR for this file is calculated now
+        fileFDRCalculated.put(fileID, true);
+    }
+
+
+    /**
+     * Creates a new instance of {@link FDRData} with the same settings, that
+     * were either set on the PSM level or already used for FDR calculation on
+     * PSM level. If the {@link FDRData} for the given file is not set on PSM
+     * level, default settings (defined on PSM level) are used.
+     *
+     * @param fileID
+     * @return
+     */
+    private FDRData getFDRDataFromPSMLevel(Long fileID) {
+        FDRData psmFdrData = psmModeller.getFileFDRData().get(fileID);
+
+        FDRData fdrData;
+        if (psmFdrData != null) {
+            // take strategy from PSM level
+            fdrData = new FDRData(
+                    psmFdrData.getDecoyStrategy(),
+                    psmFdrData.getDecoyPattern(),
+                    psmFdrData.getFDRThreshold());
+        } else {
+            // create strategy with default settings
+            fdrData = new FDRData(
+                    DecoyStrategy.getStrategyByString(psmModeller.getDefaultDecoyPattern()),
+                    psmModeller.getDefaultDecoyPattern(),
+                    psmModeller.getDefaultFDRThreshold());
+        }
+
+        return fdrData;
+    }
+
+
+    /**
+     * Returns the base score for the FDR score calculation based on the PSM
+     * level settings.
+     *
+     * @param fileID
+     * @return
+     */
+    private String getBaseFDRScorePSMLevel(Long fileID) {
+        if ((fileID == 0L) && psmModeller.isCombinedFDRScoreCalculated()) {
+            return ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName();
+        } else if (psmModeller.isFDRCalculated(fileID)) {
+            return ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName();
+        }
+
+        return psmModeller.getFilesPreferredFDRScore(fileID);
+    }
+
+
+    /**
+     * Returns, whether the peptide FDR is calculated for the given file.
+     *
+     * @param fileID
+     * @return
+     */
+    public Boolean isFDRCalculated(Long fileID) {
+        if (!fileFDRCalculated.containsKey(fileID)) {
+            return false;
+        }
+        return fileFDRCalculated.get(fileID);
+    }
+
+
+    /**
+     * Returns the {@link FDRData} for the file with the given ID.
+     *
+     * @param fileID
+     * @return
+     */
+    public FDRData getFilesFDRData(Long fileID) {
+        return fileFDRData.get(fileID);
+    }
+
+
+    /**
+     * Updates the decoy states of the peptides with the current settings from
+     * the file's FDRData.
+     *
+     */
+    private void updateDecoyStates(Long fileID) {
+        FDRData fdrData = fileFDRData.get(fileID);
+        LOGGER.debug("updateDecoyStates for peptides on file " + fileID);
+
+        // select either the PSMs from the given file or all and calculate the fdr
+        if (fdrData == null) {
+            LOGGER.error("No FDR settings given for file with ID=" + fileID
+                    + " this function must be called after getFDRDataFromPSMLevel");
+            return;
+        } else {
+            Pattern p = Pattern.compile(fdrData.getDecoyPattern());
+
+            List<ReportPeptide> peptidesList = getFilteredReportPeptides(fileID, null);
+
+            // dump all FDR data, as the decoy information was changed
+            for (ReportPeptide peptide : peptidesList) {
+                peptide.dumpFDRCalculation();
+                peptide.updateDecoyStatus(fdrData.getDecoyStrategy(), p);
+            }
+        }
     }
 }

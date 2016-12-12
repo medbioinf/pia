@@ -3,7 +3,9 @@ package de.mpc.pia.modeller;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,12 +15,11 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
@@ -36,7 +37,9 @@ import de.mpc.pia.modeller.protein.ProteinExecuteCommands;
 import de.mpc.pia.modeller.psm.PSMExecuteCommands;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
+import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 
 
 /**
@@ -65,12 +68,45 @@ public class PIAModeller {
 
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(PIAModeller.class);
+    private static final Logger LOGGER = Logger.getLogger(PIAModeller.class);
 
     /** helper description */
-    private static final String helpDescription =
-            "PIAModeller... Use a high enough amount of memory (e.g. " +
-                    "use the Java setting -Xmx8G).";
+    private static final String HELP_DESCRIPTION =
+            "PIAModeller... Use a high enough amount of memory (e.g. use the Java setting -Xmx8G).";
+
+    /** argName of for several colon separated parameters*/
+    private static final String COLON_COMMAND_PARAMETERS = "command1[:command2...]";
+
+    /** explanation for CLI option with several colon separated parameters*/
+    private static final String COLON_COMMAND_PARAMETERS_EXPLANATION =
+            ", separated by colons. If params are given to the command, they "
+            + "follow an = and are separated by commata (e.g. command=param1,param2...)"
+            + "\nvalid commands are: ";
+
+    /** constant for fileName= */
+    private static final String FILE_NAME_PARAM = "fileName=";
+    /** constant for format= */
+    private static final String FORMAT_PARAM = "format=";
+    /** constant for fileID= */
+    private static final String FILE_ID_PARAM = "fileID=";
+
+
+    /*
+     * options for the command line parsing
+     */
+    private static final String INPUT_FILE_OPTION = "infile";
+    private static final String PARAM_FILE_OPTION = "paramFile";
+    private static final String PARAM_OUT_FILE_OPTION = "paramOutFile";
+    private static final String INIT_OPTION = "init";
+    private static final String APPEND_OPTION = "append";
+    private static final String WRITE_INFORMATION_OPTION = "writeInformation";
+    private static final String CALCULATE_INFORMATION_OPTION = "calculateInformation";
+    private static final String PSM_OPTION = "S";
+    private static final String PEPTIDE_OPTION = "E";
+    private static final String PROTEIN_OPTION = "R";
+    private static final String PSM_EXPORT_OPTION = "psmExport";
+    private static final String PEPTIDE_EXPORT_OPTION = "peptideExport";
+    private static final String PROTEIN_EXPORT_OPTION = "proteinExport";
 
 
     /**
@@ -81,7 +117,6 @@ public class PIAModeller {
         peptideModeller = null;
         proteinModeller = null;
 
-        // TODO: make the default settings through a ini-file or something like that
         fileName = null;
         intermediateHandler = null;
     }
@@ -91,18 +126,17 @@ public class PIAModeller {
      * Basic constructor, creates a model for the given file.
      *
      * @param fileName
-     * @throws JAXBException
-     * @throws FileNotFoundException
      */
-    public PIAModeller(String fileName)
-            throws FileNotFoundException, JAXBException, XMLStreamException {
+    public PIAModeller(String fileName) {
         this();
 
         if (fileName == null) {
             throw new IllegalArgumentException("No file name given.");
         }
 
-        loadFileName(fileName, null);
+        if (!loadFileName(fileName, null)) {
+            throw new IllegalArgumentException("Error loading PIA XML file.");
+        }
     }
 
 
@@ -141,16 +175,14 @@ public class PIAModeller {
      * @param progress the first item in the array holds the current progress
      * @param notifier progress will be notified on this object
      *
-     * @throws JAXBException
-     * @throws FileNotFoundException
-     *
      * @return true, if a new file was loaded
      */
-    public boolean loadFileName(String filename, Long[] progress, Object notifier)
-            throws FileNotFoundException, JAXBException, XMLStreamException {
-        logger.info("start loading file " + filename);
+    public boolean loadFileName(String filename, Long[] progress, Object notifier) {
+        LOGGER.info("start loading file " + filename);
 
-        if (filename != null) {
+        boolean loadOk = false;
+
+        if ((filename != null) && !filename.trim().isEmpty()) {
             this.psmModeller = null;
             this.peptideModeller = null;
             this.proteinModeller = null;
@@ -158,14 +190,12 @@ public class PIAModeller {
             this.fileName = filename;
             this.intermediateHandler = null;
 
-            if ((this.fileName != null) && !this.fileName.equals("")) {
+            try {
                 parseIntermediate(progress);
-                if (notifier != null) {
-                    synchronized (notifier) {
-                        notifier.notifyAll();
-                    }
-                }
-                return true;
+                loadOk = true;
+            } catch (Exception e) {
+                LOGGER.error("Error while loading PIA XML file", e);
+                loadOk = false;
             }
         }
 
@@ -174,7 +204,8 @@ public class PIAModeller {
                 notifier.notifyAll();
             }
         }
-        return false;
+
+        return loadOk;
     }
 
 
@@ -183,13 +214,10 @@ public class PIAModeller {
      * Also initialises the model, if the fileName changed.
      *
      * @param filename
-     * @throws JAXBException
-     * @throws FileNotFoundException
      *
      * @return true, if a new file was loaded
      */
-    public boolean loadFileName(String filename, Long[] progress)
-            throws FileNotFoundException, JAXBException, XMLStreamException {
+    public boolean loadFileName(String filename, Long[] progress) {
         return loadFileName(filename, progress, null);
     }
 
@@ -229,7 +257,7 @@ public class PIAModeller {
      * @param createPSMSets
      */
     public void setCreatePSMSets(Boolean createPSMSets) {
-        psmModeller.setCreatePSMSets(createPSMSets);
+        psmModeller.applyGeneralSettings(createPSMSets);
     }
 
 
@@ -279,15 +307,20 @@ public class PIAModeller {
      *
      * @param progress the first entry in this array holds the progress
      * @param notifier progress is notified on this object
+     *
+     * @throws IOException
      */
-    private void parseIntermediate(Long[] progress, Object notifier)
-            throws FileNotFoundException, JAXBException, XMLStreamException {
-        logger.info("loadIntermediate started...");
+    private void parseIntermediate(Long[] progressMonitor, Object notifier)
+            throws IOException {
+        LOGGER.info("loadIntermediate started...");
 
-        if (progress == null) {
-            logger.warn("no progress array given, creating one. But no external" +
+        Long[] progress;
+        if ((progressMonitor == null) || (progressMonitor.length < 1) || (progressMonitor[0] == null)) {
+            LOGGER.warn("no progress array given, creating one. But no external" +
                     "supervision possible");
             progress = new Long[1];
+        } else {
+            progress = progressMonitor;
         }
 
         progress[0] = 0L;
@@ -298,76 +331,82 @@ public class PIAModeller {
         }
 
         if (fileName == null) {
-            logger.error("no file given!");
+            LOGGER.error("no file given!");
             return;
         }
 
-        try {
-            logger.info("Starting parse...");
+        LOGGER.info("Starting parse...");
 
-            intermediateHandler = new PIAIntermediateJAXBHandler();
-            intermediateHandler.parse(fileName, progress, notifier);
+        intermediateHandler = new PIAIntermediateJAXBHandler();
+        intermediateHandler.parse(fileName, progress, notifier);
 
-            logger.info(fileName + " successfully parsed.\n" +
-                    "\t" + intermediateHandler.getFiles().size() + " files\n" +
-                    "\t" + intermediateHandler.getGroups().size() + " groups\n" +
-                    "\t" + intermediateHandler.getAccessions().size() + " accessions\n" +
-                    "\t" + intermediateHandler.getPeptides().size() + " peptides\n" +
-                    "\t" + intermediateHandler.getPSMs().size() + " peptide spectrum matches\n" +
-                    "\t" + intermediateHandler.getNrTrees() + " trees");
-        } catch (FileNotFoundException e) {
-            throw e;
-        } catch (JAXBException e) {
-            throw e;
-        } catch (XMLStreamException e) {
-            throw e;
-        } finally {
-            logger.info("loadIntermediate done.");
+        LOGGER.info(fileName + " successfully parsed.\n" +
+                "\t" + intermediateHandler.getFiles().size() + " files\n" +
+                "\t" + intermediateHandler.getGroups().size() + " groups\n" +
+                "\t" + intermediateHandler.getAccessions().size() + " accessions\n" +
+                "\t" + intermediateHandler.getPeptides().size() + " peptides\n" +
+                "\t" + intermediateHandler.getPSMs().size() + " peptide spectrum matches\n" +
+                "\t" + intermediateHandler.getNrTrees() + " trees");
+
+        LOGGER.info("loadIntermediate done.");
+
+        // set spectra uniquenesses
+        setGroupsSpectraUniquenesses(intermediateHandler.getGroups().values());
+
+        // the PSMModeller needs no global settings
+        psmModeller = new PSMModeller(intermediateHandler.getGroups(),
+                intermediateHandler.getFiles(),
+                fileName,
+                intermediateHandler.getPSMSetSettingsWarnings(),
+                intermediateHandler.getPSMs().size());
+
+        // the PeptideModeller takes the PSMModeller and considerModifications
+        peptideModeller = new PeptideModeller(psmModeller);
+
+        // initialise the ProteinModeller
+        proteinModeller = new ProteinModeller(psmModeller,
+                peptideModeller,
+                getGroups());
+
+        progress[0] += 60;
+        if (notifier != null) {
+            synchronized (notifier) {
+                notifier.notifyAll();
+            }
+        }
+    }
+
+
+    /**
+     * Set the uniqueness flags of the spectra in all these groups.
+     *
+     * @param groups
+     */
+    private static void setGroupsSpectraUniquenesses(Collection<Group> groups) {
+        LOGGER.info("setting spectra uniquenesses");
+        for (Group group : groups) {
+            // set the uniquenesses o spectra to true, if there is only one accession for this group
+            setGroupsSpectraUniquenesses(group,
+                    group.getAllAccessions().size() == 1);
+        }
+        LOGGER.info("spectra uniquenesses set.");
+    }
+
+
+    /**
+     * set the uniqueness flag to the given boolean in the spectra of this group
+     *
+     * @param group
+     * @param unique
+     */
+    private static void setGroupsSpectraUniquenesses(Group group, boolean unique) {
+        if (group.getPeptides() == null) {
+            return;
         }
 
-        if (intermediateHandler != null) {
-            // TODO: maybe move this uniqueness setting the PIACompiler...
-            logger.info("setting spectra uniquenesses");
-
-            for (Map.Entry<Long, Group> grIt : intermediateHandler.getGroups().entrySet()) {
-                if (grIt.getValue().getAllAccessions().size() == 1) {
-
-                    if (grIt.getValue().getPeptides() != null) {
-                        for (Map.Entry<String, Peptide> pepIt : grIt.getValue().getPeptides().entrySet()) {
-                            for (PeptideSpectrumMatch spec : pepIt.getValue().getSpectra()) {
-                                spec.setIsUnique(true);
-                            }
-                        }
-                    }
-
-                }
-            }
-            logger.info("spectra uniquenesses set.");
-
-            // the PSMModeller needs no global settings
-            psmModeller = new PSMModeller(intermediateHandler.getGroups(),
-                    intermediateHandler.getFiles(),
-                    intermediateHandler.getSearchDatabase(),
-                    intermediateHandler.getSpectraData(),
-                    intermediateHandler.getAnalysisSoftware(),
-                    fileName,
-                    intermediateHandler.getPSMSetSettingsWarnings(),
-                    intermediateHandler.getPSMs().size());
-
-            // the PeptideModeller takes the PSMModeller and considerModifications
-            peptideModeller = new PeptideModeller(psmModeller);
-
-            // initialise the ProteinModeller
-            proteinModeller = new ProteinModeller(psmModeller,
-                    peptideModeller,
-                    getGroups(),
-                    intermediateHandler.getSearchDatabase());
-
-            progress[0] += 60;
-            if (notifier != null) {
-                synchronized (notifier) {
-                    notifier.notifyAll();
-                }
+        for (Map.Entry<String, Peptide> pepIt : group.getPeptides().entrySet()) {
+            for (PeptideSpectrumMatch spec : pepIt.getValue().getSpectra()) {
+                spec.setIsUnique(unique);
             }
         }
     }
@@ -376,9 +415,10 @@ public class PIAModeller {
     /**
      * Parses in the intermediate structure from the given file.<br/>
      * The progress gets increased by 100.
+     * @throws IOException
      */
     private void parseIntermediate(Long[] progress)
-            throws FileNotFoundException, JAXBException, XMLStreamException {
+            throws IOException {
         parseIntermediate(progress, null);
     }
 
@@ -398,7 +438,7 @@ public class PIAModeller {
 
 
     /**
-     * Getter for the Searchdatabases of the intermediate file.<br/>
+     * Getter for the {@link SearchDatabase}s of the intermediate file.<br/>
      * If no intermediate file is given, returns an empty map.
      *
      * @return
@@ -408,6 +448,36 @@ public class PIAModeller {
             return intermediateHandler.getSearchDatabase();
         } else {
             return new HashMap<String, SearchDatabase>(0);
+        }
+    }
+
+
+    /**
+     * Getter for the {@link AnalysisSoftware}s of the intermediate file.<br/>
+     * If no intermediate file is given, returns an empty map.
+     *
+     * @return
+     */
+    public Map<String, AnalysisSoftware> getAnalysisSoftwares() {
+        if (intermediateHandler != null) {
+            return intermediateHandler.getAnalysisSoftware();
+        } else {
+            return new HashMap<String, AnalysisSoftware>(0);
+        }
+    }
+
+
+    /**
+     * Getter for the {@link SpectraData} of the intermediate file.<br/>
+     * If no intermediate file is given, returns an empty map.
+     *
+     * @return
+     */
+    public Map<String, SpectraData> getSpectraData() {
+        if (intermediateHandler != null) {
+            return intermediateHandler.getSpectraData();
+        } else {
+            return new HashMap<String, SpectraData>(0);
         }
     }
 
@@ -433,9 +503,8 @@ public class PIAModeller {
      *
      * @param paramFileName
      */
-    public static void processPipelineFile(String paramFileName,
-            PIAModeller model) {
-        logger.info("starting parse parameter file " + paramFileName);
+    public static void processPipelineFile(String paramFileName, PIAModeller model) {
+        LOGGER.info("starting parse parameter file " + paramFileName);
 
         try {
             JAXBContext context = JAXBContext.newInstance(CTDTool.class);
@@ -444,46 +513,51 @@ public class PIAModeller {
                     (CTDTool)um.unmarshal(new FileReader(paramFileName));
 
             for (NODEType node : parametersXML.getPARAMETERS().getNODE()) {
-                String nodeName = node.getName();
-
-                logger.debug("parsing node " + nodeName);
-
-                if (nodeName.startsWith(PSMExecuteCommands.prefix)) {
-                    PSMExecuteCommands execute = PSMExecuteCommands.valueOf(
-                            nodeName.substring(
-                                    PSMExecuteCommands.prefix.length()));
-                    if (execute != null) {
-                        execute.executeXMLParameters(
-                                node, model.getPSMModeller());
-                    }
-                } else if (nodeName.startsWith(PeptideExecuteCommands.prefix)) {
-                    PeptideExecuteCommands execute = PeptideExecuteCommands.valueOf(
-                            nodeName.substring(
-                                    PeptideExecuteCommands.prefix.length()));
-                    if (execute != null) {
-                        execute.executeXMLParameters(
-                                node, model.getPeptideModeller());
-                    }
-                } else if (nodeName.startsWith(ProteinExecuteCommands.prefix)) {
-                    ProteinExecuteCommands execute = ProteinExecuteCommands.valueOf(
-                            nodeName.substring(
-                                    ProteinExecuteCommands.prefix.length()));
-                    if (execute != null) {
-                        execute.executeXMLParameters(
-                                node, model.getProteinModeller());
-                    }
-                } else {
-                    logger.error("Could not execute " + nodeName);
-                }
+                processNodeInPipelineFile(model, node);
             }
-
         } catch (JAXBException e) {
-            logger.error("Error parsing the file " + paramFileName, e);
+            LOGGER.error("Error parsing the file " + paramFileName, e);
         } catch (FileNotFoundException e) {
-            logger.error("Could not find the file " + paramFileName);
+            LOGGER.error("Could not find the file " + paramFileName, e);
         }
 
-        logger.info("finished parsing of parameter file " + paramFileName);
+        LOGGER.info("finished parsing of parameter file " + paramFileName);
+    }
+
+
+    /**
+     * Processed a single node in a parameter pipeline file and executes the
+     * command.
+     *
+     * @param model
+     * @param node
+     */
+    private static void processNodeInPipelineFile(PIAModeller model, NODEType node) {
+        String nodeName = node.getName();
+
+        LOGGER.debug("parsing node " + nodeName);
+
+        if (nodeName.startsWith(PSMExecuteCommands.getPrefix())) {
+            PSMExecuteCommands execute = PSMExecuteCommands.valueOf(
+                    nodeName.substring(PSMExecuteCommands.getPrefix().length()));
+            if (execute != null) {
+                execute.executeXMLParameters(node, model.getPSMModeller(), model);
+            }
+        } else if (nodeName.startsWith(PeptideExecuteCommands.getPrefix())) {
+            PeptideExecuteCommands execute = PeptideExecuteCommands.valueOf(
+                    nodeName.substring(PeptideExecuteCommands.getPrefix().length()));
+            if (execute != null) {
+                execute.executeXMLParameters(node, model.getPeptideModeller(), model);
+            }
+        } else if (nodeName.startsWith(ProteinExecuteCommands.getPrefix())) {
+            ProteinExecuteCommands execute = ProteinExecuteCommands.valueOf(
+                    nodeName.substring(ProteinExecuteCommands.getPrefix().length()));
+            if (execute != null) {
+                execute.executeXMLParameters(node, model.getProteinModeller(), model);
+            }
+        } else {
+            LOGGER.error("Could not execute " + nodeName);
+        }
     }
 
 
@@ -495,7 +569,7 @@ public class PIAModeller {
      * @param fileName
      */
     public static void initialisePipelineXML(String fileName, String name) {
-        logger.info("initialising parameter file for " + name);
+        LOGGER.info("initialising parameter file for " + name);
 
         CTDTool pipelineXML = new CTDTool();
 
@@ -514,10 +588,10 @@ public class PIAModeller {
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             m.marshal(pipelineXML, new File(fileName));
         } catch (JAXBException e) {
-            logger.error("Error while creating file:", e);
+            LOGGER.error("Error while creating file:", e);
         }
 
-        logger.info("initial parameter file written to " + fileName);
+        LOGGER.info("initial parameter file written to " + fileName);
     }
 
 
@@ -540,21 +614,21 @@ public class PIAModeller {
             // add the new node
             NODEType node = null;
             // the first param's prefix always specifies the level for execution
-            if (params[0].startsWith(PSMExecuteCommands.prefix)) {
+            if (params[0].startsWith(PSMExecuteCommands.getPrefix())) {
                 PSMExecuteCommands execute = PSMExecuteCommands.valueOf(
-                        params[0].substring(PSMExecuteCommands.prefix.length()));
+                        params[0].substring(PSMExecuteCommands.getPrefix().length()));
                 if (execute != null) {
                     node = execute.generateNode(params);
                 }
-            } else if (params[0].startsWith(PeptideExecuteCommands.prefix)) {
+            } else if (params[0].startsWith(PeptideExecuteCommands.getPrefix())) {
                 PeptideExecuteCommands execute = PeptideExecuteCommands.valueOf(
-                        params[0].substring(PeptideExecuteCommands.prefix.length()));
+                        params[0].substring(PeptideExecuteCommands.getPrefix().length()));
                 if (execute != null) {
                     node = execute.generateNode(params);
                 }
-            } else if (params[0].startsWith(ProteinExecuteCommands.prefix)) {
+            } else if (params[0].startsWith(ProteinExecuteCommands.getPrefix())) {
                 ProteinExecuteCommands execute = ProteinExecuteCommands.valueOf(
-                        params[0].substring(ProteinExecuteCommands.prefix.length()));
+                        params[0].substring(ProteinExecuteCommands.getPrefix().length()));
                 if (execute != null) {
                     node = execute.generateNode(params);
                 }
@@ -569,340 +643,424 @@ public class PIAModeller {
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             m.marshal(execution, new File(newFileName));
         } catch (JAXBException e) {
-            logger.error("Error parsing the file " + fileName, e);
+            LOGGER.error("Error parsing the file " + fileName, e);
         } catch (FileNotFoundException e) {
-            logger.error("Could not find the file " + fileName);
+            LOGGER.error("Could not find the file " + fileName, e);
         }
     }
 
 
+
     /**
-     * For testing purposes only.
+     * The main method, which can be called from the command line.
+     *
      * @param args
      */
-    @SuppressWarnings("static-access")
     public static void main(String[] args) {
-        CommandLineParser parser = new GnuParser();
+        CommandLineParser parser = new DefaultParser();
         Options options = new Options();
 
-        options.addOption(OptionBuilder
-                .withArgName("inputFile")
+        Option inputFileOpt = Option.builder(INPUT_FILE_OPTION)
+                .argName("inputFile")
                 .hasArg()
-                .withDescription( "path to the used PIA XML file" )
-                .create("infile"));
+                .desc("path to the used PIA XML file")
+                .build();
+        options.addOption(inputFileOpt);
 
-        options.addOption(OptionBuilder
-                .withArgName("command1[:command2...]")
+        Option psmOpt = Option.builder(PSM_OPTION)
+                .argName(COLON_COMMAND_PARAMETERS)
                 .hasArg()
-                .withDescription( "commands to be executed on the PSM level, " +
-                        "separated by colons. If params are given to the " +
-                        "command, they follow an = and are separated by " +
-                        "commata (e.g. command=param1,param2...)" +
-                        "\nvalid commands are: " +
-                        PSMExecuteCommands.getValidCommandsString() )
-                .withLongOpt("psm")
-                .create("S"));
+                .desc("commands to be executed on the PSM level, "
+                        + COLON_COMMAND_PARAMETERS_EXPLANATION
+                        + PSMExecuteCommands.getValidCommandsString())
+                .longOpt("psm")
+                .build();
+        options.addOption(psmOpt);
 
-        options.addOption(OptionBuilder
-                .withArgName("command1[:command2...]")
+        Option peptideOpt = Option.builder(PEPTIDE_OPTION)
+                .argName(COLON_COMMAND_PARAMETERS)
                 .hasArg()
-                .withDescription( "commands to be executed on the peptide " +
-                        "level, separated by colons. If params are given to " +
-                        "the command, they follow an = and are separated by " +
-                        "commata (e.g. command=param1,param2...)" +
-                        "\nvalid commands are: " +
-                        PeptideExecuteCommands.getValidCommandsString() )
-                .withLongOpt("peptide")
-                .create("E"));
+                .desc("commands to be executed on the peptide level, "
+                        + COLON_COMMAND_PARAMETERS_EXPLANATION
+                        + PeptideExecuteCommands.getValidCommandsString())
+                .longOpt("peptide")
+                .build();
+        options.addOption(peptideOpt);
 
-        options.addOption(OptionBuilder
-                .withArgName("command1[:command2...]")
+        Option proteinOpt = Option.builder(PROTEIN_OPTION)
+                .argName(COLON_COMMAND_PARAMETERS)
                 .hasArg()
-                .withDescription( "commands to be executed on the protein " +
-                        "level, separated by colons. If params are given to " +
-                        "the command, they follow an = and are separated by " +
-                        "commata (e.g. command=param1,param2...)" +
-                        "\nvalid commands are: " +
-                        ProteinExecuteCommands.getValidCommandsString() )
-                .withLongOpt("protein")
-                .create("R"));
+                .desc("commands to be executed on the protein level, "
+                        + COLON_COMMAND_PARAMETERS_EXPLANATION
+                        + ProteinExecuteCommands.getValidCommandsString())
+                .longOpt("protein")
+                .build();
+        options.addOption(proteinOpt);
 
-        options.addOption(OptionBuilder
-                .withArgName("filename")
+        Option paramFileOpt = Option.builder(PARAM_FILE_OPTION)
+                .argName("filename")
                 .hasArg()
-                .withDescription( "path to the parameter file, which should " +
-                        "be executed, created or extended")
-                .create("paramFile"));
+                .desc("path to the parameter file, which should be executed, created or extended")
+                .build();
+        options.addOption(paramFileOpt);
 
-        options.addOption(OptionBuilder
-                .withArgName("filename")
+        Option paramOutFileOpt = Option.builder(PARAM_OUT_FILE_OPTION)
+                .argName("filename")
                 .hasArg()
-                .withDescription( "Path to the parameter file, which will " +
-                        "contain the newly added execution. Only used in " +
-                        "combination with append. If not given, the " +
-                        "paramFile will be used." )
-                .create("paramOutFile"));
+                .desc("Path to the parameter file, which will contain the newly "
+                        + "added execution. Only used in combination with "
+                        + "append. If not given, the paramFile will be used.")
+                .build();
+        options.addOption(paramOutFileOpt);
 
-        options.addOption(OptionBuilder
-                .withDescription( "execute the parameter file given by " +
-                        "paramFile (default)" )
-                .create("execute"));
+        Option executeOpt = Option.builder("execute")
+                .desc("execute the parameter file given by paramFile (default)")
+                .build();
+        options.addOption(executeOpt);
 
-        options.addOption(OptionBuilder
-                .withArgName("name")
+        Option initOpt = Option.builder(INIT_OPTION)
+                .argName("name")
                 .hasArg()
-                .withDescription( "Initialize the parameter file given by " +
-                        "paramFile, giving the pipeline the specified name. " +
-                        "This is mainly used to build a pipeline via KNIME " +
-                        "and not intended to be called on the command line." )
-                .create("init"));
+                .desc("Initialize the parameter file given by paramFile, giving "
+                        + "the pipeline the specified name. This is mainly used "
+                        + "to build a pipeline via KNIME and not intended to be "
+                        + "called on the command line." )
+                .build();
+        options.addOption(initOpt);
 
-        options.addOption(OptionBuilder
-                .withDescription( "All free arguments together are appended " +
-                        "as one command to the param file. The first " +
-                        "argument specifies the command with prefix (e.g. " +
-                        "psm_add_filter), all following arguments are passed " +
-                        "to the execution of the command. This is mainly " +
-                        "used to build a pipeline via KNIME and not intended " +
-                        "to be called on the command line." )
-                .create("append"));
+        Option appendOpt = Option.builder(APPEND_OPTION)
+                .desc("All free arguments together are appended as one command "
+                        + "to the param file. The first argument specifies the "
+                        + "command with prefix (e.g. psm_add_filter), all "
+                        + "following arguments are passed to the execution of "
+                        + "the command. This is mainly used to build a pipeline "
+                        + "via KNIME and not intended to be called on the command line." )
+                .build();
+        options.addOption(appendOpt);
 
-        options.addOption(OptionBuilder
-                .withArgName("outfile format [fileID spectralCount]")
-                .withValueSeparator(' ')
-                .hasArgs(4)
-                .withDescription( "Exports on the psm level. Only used in " +
-                        "combination with infile and paramFile, which should " +
-                        "be executed before exporting." )
-                .create("psmExport"));
+        Option psmExportOpt = Option.builder(PSM_EXPORT_OPTION)
+                .argName("outfile format [fileID spectralCount]")
+                .valueSeparator(' ')
+                .hasArg()
+                .optionalArg(true)
+                .numberOfArgs(4)
+                .desc("Exports on the psm level. Only used in combination with "
+                        + "infile and paramFile, which should be executed before exporting.")
+                .build();
+        options.addOption(psmExportOpt);
 
-        options.addOption(OptionBuilder
-                .withArgName("outfile format [fileID exportPSMs exportPSMSets oneAccessionPerLine]")
-                .withValueSeparator(' ')
-                .hasArgs(6)
-                .withDescription( "Exports on the peptide level. Only used " +
-                        "in combination with infile and paramFile, which " +
-                        "should be executed before exporting." )
-                .create("peptideExport"));
+        Option peptideExportOpt = Option.builder(PEPTIDE_EXPORT_OPTION)
+                .argName("outfile format [fileID exportPSMs exportPSMSets oneAccessionPerLine]")
+                .valueSeparator(' ')
+                .hasArg()
+                .optionalArg(true)
+                .numberOfArgs(6)
+                .desc("Exports on the peptide level. Only used in combination "
+                        + "with infile and paramFile, which should be executed before exporting." )
+                .build();
+        options.addOption(peptideExportOpt);
 
-        options.addOption(OptionBuilder
-                .withArgName("outfile format [exportPSMs exportPSMSets exportPeptides oneAccessionPerLine]")
-                .withValueSeparator(' ')
-                .hasArgs(6)
-                .withDescription( "Exports on the protein level. Only used " +
-                        "in combination with infile and paramFile, which " +
-                        "should be executed before exporting." )
-                .create("proteinExport"));
+        Option proteinExportOpt = Option.builder(PROTEIN_EXPORT_OPTION)
+                .argName("outfile format [exportPSMs exportPSMSets exportPeptides oneAccessionPerLine]")
+                .valueSeparator(' ')
+                .hasArg()
+                .optionalArg(true)
+                .numberOfArgs(6)
+                .desc( "Exports on the protein level. Only used in combination "
+                        + "with infile and paramFile, which should be executed before exporting." )
+                .build();
+        options.addOption(proteinExportOpt);
 
-        options.addOption(OptionBuilder
-                .withArgName("outfile")
-                .hasArgs(1)
-                .withDescription( "Write out basic information and some QC of the file." )
-                .create("writeInformation"));
+        Option writeInfoOpt = Option.builder(WRITE_INFORMATION_OPTION)
+                .argName("outfile")
+                .numberOfArgs(1)
+                .desc("Write out basic information and some QC of the file.")
+                .build();
+        options.addOption(writeInfoOpt);
 
-        options.addOption(OptionBuilder
-                .withArgName("outfile")
-                .hasArgs(1)
-                .withDescription("Calculate some more information for the writeInformation argument (yes/no)")
-                .create("calculateInformation"));
+        Option calculateInfoOpt = Option.builder(CALCULATE_INFORMATION_OPTION)
+                .argName("outfile")
+                .numberOfArgs(1)
+                .desc("Calculate some more information for the writeInformation argument (yes/no)")
+                .build();
+        options.addOption(calculateInfoOpt);
 
 
         if (args.length > 0) {
             try {
                 CommandLine line = parser.parse( options, args );
 
-                if (line.hasOption("paramFile")) {
-                    String paramFile = line.getOptionValue("paramFile");
-                    String paramOutFile = paramFile;
-
-                    if (line.hasOption("init")) {
-                        initialisePipelineXML(line.getOptionValue("paramFile"),
-                                line.getOptionValue("init"));
-                    } else if (line.hasOption("append")) {
-                        if (line.hasOption("paramOutFile")) {
-                            paramOutFile = line.getOptionValue("paramOutFile");
-                        }
-
-                        appendToPipelineXML(paramFile, paramOutFile,
-                                line.getArgs());
-                    } else {
-                        if (!line.hasOption("infile")) {
-                            throw new ParseException("execution of paramFile " +
-                                    "requires an infile");
-                        }
-
-                        PIAModeller model =
-                                new PIAModeller(line.getOptionValue("infile"));
-
-                        processPipelineFile(line.getOptionValue("paramFile"),
-                                model);
-
-                        if (line.hasOption("writeInformation")) {
-                            boolean calculateInfo = false;
-                            if (line.hasOption("calculateInformation") &&
-                                    (line.getOptionValue("calculateInformation").equals("yes") ||
-                                            line.getOptionValue("calculateInformation").equals("true"))) {
-                                calculateInfo = true;
-                            }
-
-                            String fileName = line.getOptionValue("writeInformation");
-                            if ((fileName != null) && (fileName.trim().length() > 0)) {
-                                model.getPSMModeller().writePSMInformation(fileName, calculateInfo);
-                                // TODO: write information from other layers...
-                            }
-                        }
-
-                        if (line.hasOption("psmExport")) {
-                            String[] params = line.getOptionValues("psmExport");
-                            List<String> paramList = new ArrayList<String>();
-
-                            if ((params.length > 0) &&
-                                    (params[0].trim().length() > 0)) {
-                                paramList.add("fileName=" + params[0]);
-
-                                if (params.length > 1) {
-                                    paramList.add("format=" + params[1]);
-
-                                    if (params.length > 2) {
-                                        paramList.add("fileID=" + params[2]);
-
-                                        if (params.length > 3) {
-                                            paramList.add("spectral_count=" +
-                                                    params[3]);
-                                        }
-                                    }
-
-                                    PSMExecuteCommands.Export.execute(
-                                            model.getPSMModeller(),
-                                            paramList.toArray(params));
-                                }
-                            }
-                        }
-
-                        if (line.hasOption("peptideExport")) {
-                            String[] params = line.getOptionValues("peptideExport");
-                            List<String> paramList = new ArrayList<String>();
-
-                            if ((params.length > 0) &&
-                                    (params[0].trim().length() > 0)) {
-                                paramList.add("fileName=" + params[0]);
-
-                                if (params.length > 1) {
-                                    paramList.add("format=" + params[1]);
-
-                                    if (params.length > 2) {
-                                        paramList.add("fileID=" + params[2]);
-
-                                        if (params.length > 3) {
-                                            paramList.add("exportPSMs=" +
-                                                    params[3]);
-
-                                            if (params.length > 4) {
-                                                paramList.add("exportPSMSets=" +
-                                                        params[4]);
-
-                                                if (params.length > 5) {
-                                                    paramList.add("oneAccessionPerLine=" +
-                                                            params[5]);
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    PeptideExecuteCommands.Export.execute(
-                                            model.getPeptideModeller(),
-                                            paramList.toArray(params));
-                                }
-                            }
-                        }
-
-                        if (line.hasOption("proteinExport")) {
-                            String[] params = line.getOptionValues("proteinExport");
-                            List<String> paramList = new ArrayList<String>();
-
-                            if ((params.length > 0) &&
-                                    (params[0].trim().length() > 0)) {
-                                paramList.add("fileName=" + params[0]);
-
-                                if (params.length > 1) {
-                                    paramList.add("format=" + params[1]);
-
-                                    if (params.length > 2) {
-                                        paramList.add("exportPSMs=" +
-                                                params[2]);
-
-                                        if (params.length > 3) {
-                                            paramList.add("exportPSMSets=" +
-                                                    params[3]);
-
-                                            if (params.length > 4) {
-                                                paramList.add("exportPeptides=" +
-                                                        params[4]);
-
-                                                if (params.length > 5) {
-                                                    paramList.add("oneAccessionPerLine=" +
-                                                            params[5]);
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    ProteinExecuteCommands.Export.execute(
-                                            model.getProteinModeller(),
-                                            paramList.toArray(params));
-                                }
-                            }
-                        }
-                    }
+                if (line.hasOption(paramFileOpt.getOpt())) {
+                    // commands processed from an XML file
+                    parseParameterXMLFile(line);
                 } else {
                     // commands are directly processed on the command line
-                    if(line.hasOption("infile")) {
-                        PIAModeller model =
-                                new PIAModeller(line.getOptionValue("infile"));
-
-                        if (line.hasOption("psm")) {
-                            // perform the PSM commands
-                            for (String command : line.getOptionValues("psm")) {
-                                PSMModeller.processCLI(model.getPSMModeller(),
-                                        command.split(":"));
-                            }
-                        }
-
-                        if (line.hasOption("peptide")) {
-                            // perform the PSM commands
-                            for (String command : line.getOptionValues("peptide")) {
-                                PeptideModeller.processCLI(
-                                        model.getPeptideModeller(),
-                                        command.split(":"));
-                            }
-                        }
-
-                        if (line.hasOption("protein")) {
-                            // perform the PSM commands
-                            for (String command : line.getOptionValues("protein")) {
-                                ProteinModeller.processCLI(
-                                        model.getProteinModeller(),
-                                        command.split(":"));
-                            }
-                        }
-                    } else {
-                        System.out.println("Nothing to be done, neither" +
-                                "paramFile nor infile given.");
-                    }
+                    parseCommandsFromCommandLine(line);
                 }
             } catch (ParseException e) {
-                System.err.println(e.getMessage());
+                LOGGER.error("Error parsing command line", e);
                 PIATools.printCommandLineHelp(PIAModeller.class.getSimpleName(),
-                        options, helpDescription);
+                        options, HELP_DESCRIPTION);
                 System.exit(-1);
             } catch (Exception e) {
-                System.err.println("Unexpected exception: " + e.getMessage());
-                e.printStackTrace();
+                LOGGER.error("Error while executing " + PIAModeller.class.getSimpleName(), e);
                 System.exit(-1);
             }
         } else {
             PIATools.printCommandLineHelp(PIAModeller.class.getSimpleName(),
-                    options, helpDescription);
+                    options, HELP_DESCRIPTION);
+        }
+    }
+
+
+    /**
+     * Processed the commands from an XML parameters file
+     *
+     * @param line
+     */
+    private static void parseParameterXMLFile(CommandLine line) {
+        String paramFile = line.getOptionValue(PARAM_FILE_OPTION);
+
+        if (line.hasOption(INIT_OPTION)) {
+            initialisePipelineXML(line.getOptionValue(PARAM_FILE_OPTION),
+                    line.getOptionValue(INIT_OPTION));
+        } else if (line.hasOption(APPEND_OPTION)) {
+            String paramOutFile = paramFile;
+            if (line.hasOption(PARAM_OUT_FILE_OPTION)) {
+                paramOutFile = line.getOptionValue(PARAM_OUT_FILE_OPTION);
+            }
+
+            appendToPipelineXML(paramFile, paramOutFile, line.getArgs());
+        } else {
+            // so the default EXECUTE_OPTION will be performed
+            if (!line.hasOption(INPUT_FILE_OPTION)) {
+                LOGGER.error("execution of paramFile requires an infile");
+            } else {
+                processExecuteXMLFile(line.getOptionValue(PARAM_FILE_OPTION), line);
+            }
+        }
+    }
+
+
+    /**
+     * execute an parameter XML file from the command line
+     *
+     * @param line
+     */
+    private static void processExecuteXMLFile(String paramFileName, CommandLine line) {
+        try {
+            PIAModeller model = new PIAModeller(line.getOptionValue(INPUT_FILE_OPTION));
+            processPipelineFile(paramFileName, model);
+
+            if (line.hasOption(WRITE_INFORMATION_OPTION)) {
+                processWriteInformation(line.hasOption(CALCULATE_INFORMATION_OPTION) ? line.getOptionValue(CALCULATE_INFORMATION_OPTION) : null,
+                        line.getOptionValue(WRITE_INFORMATION_OPTION), model);
+            }
+
+            if (line.hasOption(PSM_EXPORT_OPTION)) {
+                String[] params = line.getOptionValues(PSM_EXPORT_OPTION);
+                processPSMExport(params, model);
+            }
+
+            if (line.hasOption(PEPTIDE_EXPORT_OPTION)) {
+                String[] params = line.getOptionValues(PEPTIDE_EXPORT_OPTION);
+                processPeptideExport(params, model);
+            }
+
+            if (line.hasOption(PROTEIN_EXPORT_OPTION)) {
+                String[] params = line.getOptionValues(PROTEIN_EXPORT_OPTION);
+                processProteinExport(params, model);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error while processing XML parameter file", e);
+        }
+    }
+
+
+    /**
+     * Write the PSM information to the given file
+     *
+     * @param calculateInformationOption if null, no information will be calculated, otherwise it may be "yes" or "no"
+     * @param informationFileName filename, where the information will be saved
+     * @param model
+     */
+    private static void processWriteInformation(String calculateInformationOption, String informationFileName,
+            PIAModeller model) {
+        boolean calculateInfo = false;
+        if ((calculateInformationOption != null)
+                && ("yes".equalsIgnoreCase(calculateInformationOption)
+                        || "true".equalsIgnoreCase(calculateInformationOption))) {
+            calculateInfo = true;
+        }
+
+        if ((informationFileName != null) && !informationFileName.trim().isEmpty()) {
+            try {
+                model.getPSMModeller().writePSMInformation(informationFileName, calculateInfo);
+                // TODO: write information from other layers...
+            } catch (IOException e) {
+                LOGGER.error("Error writing PSM information", e);
+            }
+        }
+    }
+
+
+    /**
+     * Process PSM export from command line params.
+     *
+     * @param params the maximal four splitted params (fileName, format, fileID and spectralCount)
+     * @param model
+     */
+    private static void processPSMExport(String[] params, PIAModeller model) {
+        List<String> paramList = new ArrayList<String>();
+
+        if ((params.length > 0)
+                && !params[0].trim().isEmpty()) {
+            paramList.add(FILE_NAME_PARAM + params[0]);
+
+            if (params.length > 1) {
+                paramList.add(FORMAT_PARAM + params[1]);
+
+                if (params.length > 2) {
+                    paramList.add(FILE_ID_PARAM + params[2]);
+                }
+
+                if (params.length > 3) {
+                    paramList.add("spectral_count=" +params[3]);
+                }
+
+                PSMExecuteCommands.Export.execute(
+                        model.getPSMModeller(),
+                        model,
+                        paramList.toArray(params));
+            }
+        }
+    }
+
+    /**
+     * Process peptide level export from the separated command line params.
+     *
+     * @param params
+     * @param model
+     */
+    private static void processPeptideExport(String[] params, PIAModeller model) {
+        List<String> paramList = new ArrayList<String>();
+
+        if ((params.length > 0)
+                && !params[0].trim().isEmpty()) {
+            paramList.add(FILE_NAME_PARAM + params[0]);
+
+            if (params.length > 1) {
+                paramList.add(FORMAT_PARAM + params[1]);
+
+                if (params.length > 2) {
+                    paramList.add(FILE_ID_PARAM + params[2]);
+                }
+                if (params.length > 3) {
+                    paramList.add("exportPSMs=" + params[3]);
+                }
+                if (params.length > 4) {
+                    paramList.add("exportPSMSets=" + params[4]);
+                }
+                if (params.length > 5) {
+                    paramList.add("oneAccessionPerLine=" + params[5]);
+                }
+
+                PeptideExecuteCommands.Export.execute(
+                        model.getPeptideModeller(),
+                        model,
+                        paramList.toArray(params));
+            }
+        }
+    }
+
+
+    /**
+     * Process protein level export from the separated command line params.
+     *
+     * @param params
+     * @param model
+     */
+    private static void processProteinExport(String[] params, PIAModeller model) {
+        List<String> paramList = new ArrayList<String>();
+
+        if ((params.length > 0) &&
+                (params[0].trim().length() > 0)) {
+            paramList.add(FILE_NAME_PARAM + params[0]);
+
+            if (params.length > 1) {
+                paramList.add(FORMAT_PARAM + params[1]);
+
+                if (params.length > 2) {
+                    paramList.add("exportPSMs=" + params[2]);
+                }
+
+                if (params.length > 3) {
+                    paramList.add("exportPSMSets=" + params[3]);
+                }
+
+                if (params.length > 4) {
+                    paramList.add("exportPeptides=" + params[4]);
+                }
+
+                if (params.length > 5) {
+                    paramList.add("oneAccessionPerLine=" + params[5]);
+                }
+
+                ProteinExecuteCommands.Export.execute(
+                        model.getProteinModeller(),
+                        model,
+                        paramList.toArray(params));
+            }
+        }
+    }
+
+
+    /**
+     * Parses the parameters directly from the command line, i.e. no paremeters
+     * XMl file was given.
+     *
+     * @param line
+     */
+    private static void parseCommandsFromCommandLine(CommandLine line) {
+        if (!line.hasOption(INPUT_FILE_OPTION)) {
+            LOGGER.warn("Nothing to be done, neither paramFile nor infile given.");
+            return;
+        }
+
+        try {
+            PIAModeller model = new PIAModeller(line.getOptionValue(INPUT_FILE_OPTION));
+
+            if (line.hasOption(PSM_OPTION)) {
+                // perform the PSM commands
+                for (String command : line.getOptionValues(PSM_OPTION)) {
+                    PSMModeller.processCLI(
+                            model.getPSMModeller(),
+                            model,
+                            command.split(":"));
+                }
+            }
+
+            if (line.hasOption(PEPTIDE_OPTION)) {
+                // perform the PSM commands
+                for (String command : line.getOptionValues(PEPTIDE_OPTION)) {
+                    PeptideModeller.processCLI(
+                            model.getPeptideModeller(),
+                            model,
+                            command.split(":"));
+                }
+            }
+
+            if (line.hasOption(PROTEIN_OPTION)) {
+                // perform the PSM commands
+                for (String command : line.getOptionValues(PROTEIN_OPTION)) {
+                    ProteinModeller.processCLI(
+                            model.getProteinModeller(),
+                            model,
+                            command.split(":"));
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error while processing parameters directly from command line", e);
         }
     }
 }

@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -11,11 +12,14 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import de.mpc.pia.modeller.PIAModeller;
 import de.mpc.pia.modeller.ProteinModeller;
 import de.mpc.pia.modeller.execute.ExecuteModelCommands;
 import de.mpc.pia.modeller.execute.xmlparams.ITEMType;
 import de.mpc.pia.modeller.execute.xmlparams.NODEType;
 import de.mpc.pia.modeller.execute.xmlparams.PossibleITEMType;
+import de.mpc.pia.modeller.exporter.MzIdentMLExporter;
+import de.mpc.pia.modeller.exporter.MzTabExporter;
 import de.mpc.pia.modeller.protein.inference.AbstractProteinInference;
 import de.mpc.pia.modeller.protein.inference.ProteinInferenceFactory;
 import de.mpc.pia.modeller.protein.scoring.AbstractScoring;
@@ -41,28 +45,27 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
     AddFilter {
         /** the identification string for the filter name */
-        private static final String idFiltername= "filtername";
+        private static final String ID_FILTERNAME= "filtername";
 
         /** the identification string for the equation */
-        private static final String idComparison= "comparison";
+        private static final String ID_COMPARISON= "comparison";
 
         /** the identification string for the value */
-        private static final String idValue= "value";
+        private static final String ID_VALUE= "value";
 
         /** the identification string for negate */
-        private static final String idNegate= "negate";
+        private static final String ID_NEGATE= "negate";
 
         @Override
-        public boolean execute(ProteinModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
+        public boolean execute(ProteinModeller proteinModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
 
             boolean negate = false;
 
-            if (params.length >= 4) {
-                if (params[3] != null &&
-                        (params[3].equals("true") || params[3].equals("yes"))) {
-                    negate = true;
-                }
+            if ((params.length >= 4)
+                    && (params[3] != null)
+                    && ("true".equals(params[3]) || "yes".equals(params[3]))) {
+                negate = true;
             }
 
             if (params.length >= 3) {
@@ -70,7 +73,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                 String comparison = params[1];
                 String value = params[2];
 
-                StringBuffer messageBuffer = new StringBuffer();
+                StringBuilder messageBuffer = new StringBuilder();
 
                 AbstractFilter newFilter =
                         FilterFactory.newInstanceOf(
@@ -82,16 +85,16 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                                 messageBuffer);
 
                 if (newFilter != null) {
-                    modeller.addReportFilter(newFilter);
-                    logger.info("Filter '" + newFilter.toString() +
-                            "' added to report filters");
+                    proteinModeller.addReportFilter(newFilter);
+                    LOGGER.info("Filter '" + newFilter.toString()
+                            + "' added to report filters");
                 } else {
-                    logger.error("Filter " + filtername +
-                            " could not be added: " + messageBuffer.toString());
+                    LOGGER.error("Filter " + filtername
+                            + " could not be added: " + messageBuffer.toString());
                 }
             } else {
-                logger.info("Too few parameters to execute " + name() +
-                        ", ignoring the call");
+                LOGGER.info("Too few parameters to execute " + name()
+                        + ", ignoring the call");
             }
 
             return true;
@@ -113,22 +116,22 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
             List<List<String>> params = new ArrayList<List<String>>();
 
             List<String> param = new ArrayList<String>();
-            param.add(idFiltername);
+            param.add(ID_FILTERNAME);
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idComparison);
+            param.add(ID_COMPARISON);
             for (FilterComparator comp : FilterComparator.values()) {
                 param.add(comp.getCliShort());
             }
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idValue);
+            param.add(ID_VALUE);
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idNegate);
+            param.add(ID_NEGATE);
             param.add("no");
             param.add("yes");
             params.add(param);
@@ -137,7 +140,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, ProteinModeller model) {
+        public void executeXMLParameters(NODEType node, ProteinModeller proteinModeller, PIAModeller piaModeller) {
             String filtername = null;
             String comparison = null;
             String value = null;
@@ -145,19 +148,19 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
             for (Object item : node.getITEMOrITEMLISTOrNODE()) {
                 if (item instanceof ITEMType) {
-                    if (idFiltername.equals(((ITEMType) item).getName())) {
+                    if (ID_FILTERNAME.equals(((ITEMType) item).getName())) {
                         filtername = ((ITEMType) item).getValue();
-                    } else if (idComparison.equals(((ITEMType) item).getName())) {
+                    } else if (ID_COMPARISON.equals(((ITEMType) item).getName())) {
                         comparison = ((ITEMType) item).getValue();
-                    } else if (idValue.equals(((ITEMType) item).getName())) {
+                    } else if (ID_VALUE.equals(((ITEMType) item).getName())) {
                         value = ((ITEMType) item).getValue();
-                    } else if (idNegate.equals(((ITEMType) item).getName())) {
+                    } else if (ID_NEGATE.equals(((ITEMType) item).getName())) {
                         negate = ((ITEMType) item).getValue();
                     }
                 }
             }
 
-            execute(model,
+            execute(proteinModeller, piaModeller,
                     new String[] {filtername, comparison, value, negate});
         }
     },
@@ -165,28 +168,27 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
     AddInferenceFilter {
         /** the identification string for the filter name */
-        private static final String idFiltername= "filtername";
+        private static final String ID_FILTERNAME = "filtername";
 
         /** the identification string for the equation */
-        private static final String idComparison= "comparison";
+        private static final String ID_COMPARISON = "comparison";
 
         /** the identification string for the value */
-        private static final String idValue= "value";
+        private static final String ID_VALUE = "value";
 
         /** the identification string for negate */
-        private static final String idNegate= "negate";
+        private static final String ID_NEGATE = "negate";
 
         @Override
-        public boolean execute(ProteinModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
+        public boolean execute(ProteinModeller proteinModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
 
             boolean negate = false;
 
-            if (params.length >= 4) {
-                if (params[3] != null &&
-                        (params[3].equals("true") || params[3].equals("yes"))) {
-                    negate = true;
-                }
+            if ((params.length >= 4)
+                    && (params[3] != null)
+                    && ("true".equals(params[3]) || "yes".equals(params[3]))) {
+                negate = true;
             }
 
             if (params.length >= 3) {
@@ -194,7 +196,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                 String comparison = params[1];
                 String value = params[2];
 
-                StringBuffer messageBuffer = new StringBuffer();
+                StringBuilder messageBuffer = new StringBuilder();
 
                 AbstractFilter newFilter =
                         FilterFactory.newInstanceOf(
@@ -206,16 +208,16 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                                 messageBuffer);
 
                 if (newFilter != null) {
-                    modeller.addInferenceFilter(newFilter);
-                    logger.info("Filter '" + newFilter.toString() +
-                            "' added to inference filters");
+                    proteinModeller.addInferenceFilter(newFilter);
+                    LOGGER.info("Filter '" + newFilter.toString()
+                            + "' added to inference filters");
                 } else {
-                    logger.error("Filter " + filtername +
-                            " could not be added: " + messageBuffer.toString());
+                    LOGGER.error("Filter " + filtername
+                            + " could not be added: " + messageBuffer.toString());
                 }
             } else {
-                logger.info("Too few parameters to execute " + name() +
-                        ", ignoring the call");
+                LOGGER.info("Too few parameters to execute " + name()
+                        + ", ignoring the call");
             }
 
             return true;
@@ -223,11 +225,11 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public String describe() {
-            return "Adds a filter used by the protein inference. A filter " +
-                    "is added by its name, an abbreviation for the " +
-                    "comparison, the compared value and (optional), whether " +
-                    "the comparison should be negated" +
-                    "e.g. \"" + name() + "=charge_filter,EQ,2,no\"";
+            return "Adds a filter used by the protein inference. A filter is"
+                    + " added by its name, an abbreviation for the comparison,"
+                    + " the compared value and (optional), whether the"
+                    + " comparison should be negated e.g."
+                    + " \"" + name() + "=charge_filter,EQ,2,no\"";
         }
 
         @Override
@@ -235,22 +237,22 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
             List<List<String>> params = new ArrayList<List<String>>();
 
             List<String> param = new ArrayList<String>();
-            param.add(idFiltername);
+            param.add(ID_FILTERNAME);
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idComparison);
+            param.add(ID_COMPARISON);
             for (FilterComparator comp : FilterComparator.values()) {
                 param.add(comp.getCliShort());
             }
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idValue);
+            param.add(ID_VALUE);
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idNegate);
+            param.add(ID_NEGATE);
             param.add("no");
             param.add("yes");
             params.add(param);
@@ -259,7 +261,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, ProteinModeller model) {
+        public void executeXMLParameters(NODEType node, ProteinModeller proteinModeller, PIAModeller piaModeller) {
             String filtername = null;
             String comparison = null;
             String value = null;
@@ -267,39 +269,39 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
             for (Object item : node.getITEMOrITEMLISTOrNODE()) {
                 if (item instanceof ITEMType) {
-                    if (idFiltername.equals(((ITEMType) item).getName())) {
+                    if (ID_FILTERNAME.equals(((ITEMType) item).getName())) {
                         filtername = ((ITEMType) item).getValue();
-                    } else if (idComparison.equals(((ITEMType) item).getName())) {
+                    } else if (ID_COMPARISON.equals(((ITEMType) item).getName())) {
                         comparison = ((ITEMType) item).getValue();
-                    } else if (idValue.equals(((ITEMType) item).getName())) {
+                    } else if (ID_VALUE.equals(((ITEMType) item).getName())) {
                         value = ((ITEMType) item).getValue();
-                    } else if (idNegate.equals(((ITEMType) item).getName())) {
+                    } else if (ID_NEGATE.equals(((ITEMType) item).getName())) {
                         negate = ((ITEMType) item).getValue();
                     }
                 }
             }
 
-            execute(model,
+            execute(proteinModeller, piaModeller,
                     new String[] {filtername, comparison, value, negate});
         }
     },
 
     InfereProteins {
         /** the identification string for the inference method */
-        private static final String idInferenceMethod = "inference";
+        private static final String ID_INFERENCE_METHOD = "inference";
 
         /** the identification string for the scoring method */
-        private static final String idScoringMethod = "scoring";
+        private static final String ID_SCORING_METHOD = "scoring";
 
         /** the identification string for the score used for the inference */
-        private static final String idUsedScore = "used score";
+        private static final String ID_USED_SCORE = "used score";
 
         /** the identification string for the soectra used for the inference */
-        private static final String idUsedSpectra = "used spectra";
+        private static final String ID_USED_SPECTRA = "used spectra";
 
         @Override
-        public boolean execute(ProteinModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
+        public boolean execute(ProteinModeller proteinModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
 
             if (params.length >= 2) {
                 String inferenceName = params[0];
@@ -310,7 +312,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
                 if (inference != null) {
                     // add any filters
-                    for (AbstractFilter filter : modeller.getInferenceFilters()) {
+                    for (AbstractFilter filter : proteinModeller.getInferenceFilters()) {
                         inference.addFilter(filter);
                     }
 
@@ -330,10 +332,9 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                     }
                     inference.setScoring(scoring);
 
-                    modeller.infereProteins(inference);
+                    proteinModeller.infereProteins(inference);
                 } else {
-                    logger.error("Could not create inference method with " +
-                            "name: " + inferenceName);
+                    LOGGER.error("Could not create inference method with name: " + inferenceName);
                     return false;
                 }
             }
@@ -343,13 +344,13 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public String describe() {
-            return "Inferes the proteins with the given inference method. " +
-                    "Any inference filters should be set before this call " +
-                    "with calls of " + AddInferenceFilter + ". " +
-                    "The scoring method is set with the second argument. " +
-                    "The scoring settings can be given by athird argument " +
-                    "containing setting=value[;setting=value]* (usual " +
-                    "settings are used_score and used_spectra).";
+            return "Inferes the proteins with the given inference method. Any"
+                    + " inference filters should be set before this call with"
+                    + " calls of " + AddInferenceFilter + ". The scoring method"
+                    + " is set with the second argument. The scoring settings"
+                    + " can be given by athird argument containing"
+                    + " setting=value[;setting=value]* (common settings are"
+                    + " used_score and used_spectra).";
         }
 
         @Override
@@ -357,28 +358,25 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
             List<List<String>> params = new ArrayList<List<String>>();
 
             List<String> param = new ArrayList<String>();
-            param.add(idInferenceMethod);
-            param.add(ProteinInferenceFactory.ProteinInferenceMethod.
-                    REPORT_SPECTRUM_EXTRACTOR.getShortName());
-            param.add(ProteinInferenceFactory.ProteinInferenceMethod.
-                    REPORT_ALL.getShortName());
-            param.add(ProteinInferenceFactory.ProteinInferenceMethod.
-                    REPORT_OCCAMS_RAZOR.getShortName());
+            param.add(ID_INFERENCE_METHOD);
+            param.add(ProteinInferenceFactory.ProteinInferenceMethod.REPORT_SPECTRUM_EXTRACTOR.getShortName());
+            param.add(ProteinInferenceFactory.ProteinInferenceMethod.REPORT_ALL.getShortName());
+            param.add(ProteinInferenceFactory.ProteinInferenceMethod.REPORT_OCCAMS_RAZOR.getShortName());
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idScoringMethod);
+            param.add(ID_SCORING_METHOD);
             for (ScoringType type : ProteinScoringFactory.ScoringType.values()) {
                 param.add(type.getShortName());
             }
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idUsedScore);
+            param.add(ID_USED_SCORE);
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idUsedSpectra);
+            param.add(ID_USED_SPECTRA);
             for (PSMForScoring psmScoring : PSMForScoring.values()) {
                 param.add(psmScoring.getShortName());
             }
@@ -388,7 +386,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, ProteinModeller model) {
+        public void executeXMLParameters(NODEType node, ProteinModeller proteinModeller, PIAModeller piaModeller) {
             String inferenceName = null;
             String scoringName = null;
             String usedScoreName = null;
@@ -396,29 +394,28 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
             for (Object item : node.getITEMOrITEMLISTOrNODE()) {
                 if (item instanceof ITEMType) {
-                    if (idInferenceMethod.equals(((ITEMType) item).getName())) {
+                    if (ID_INFERENCE_METHOD.equals(((ITEMType) item).getName())) {
                         inferenceName = ((ITEMType) item).getValue();
-                    } else if (idScoringMethod.equals(((ITEMType) item).getName())) {
+                    } else if (ID_SCORING_METHOD.equals(((ITEMType) item).getName())) {
                         scoringName = ((ITEMType) item).getValue();
-                    } else if (idUsedScore.equals(((ITEMType) item).getName())) {
+                    } else if (ID_USED_SCORE.equals(((ITEMType) item).getName())) {
                         usedScoreName = ((ITEMType) item).getValue();
-                    } else if (idUsedSpectra.equals(((ITEMType) item).getName())) {
+                    } else if (ID_USED_SPECTRA.equals(((ITEMType) item).getName())) {
                         usedSpectraName = ((ITEMType) item).getValue();
                     }
                 }
             }
 
-            execute(model,
+            execute(proteinModeller, piaModeller,
                     new String[] {inferenceName, scoringName,
-                            "used_score=" + usedScoreName +
-                            ";used_spectra=" + usedSpectraName});
+                            "used_score=" + usedScoreName + ";used_spectra=" + usedSpectraName});
         }
     },
 
     Export {
         @Override
-        public boolean execute(ProteinModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
+        public boolean execute(ProteinModeller proteinModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
 
             String format = null;
             String fileName = null;
@@ -452,8 +449,8 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                 } else if ("oneAccessionPerLine".equals(command)) {
                     if ((commandParams != null) &&
                             (commandParams.length > 0)) {
-                        if (commandParams[0].equals("yes") ||
-                                commandParams[0].equals("true")) {
+                        if ("yes".equals(commandParams[0]) ||
+                                "true".equals(commandParams[0])) {
                             oneAccessionPerLine = true;
                         } else {
                             oneAccessionPerLine = false;
@@ -465,8 +462,8 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                 } else if ("exportPeptides".equals(command)) {
                     if ((commandParams != null) &&
                             (commandParams.length > 0)) {
-                        if (commandParams[0].equals("yes") ||
-                                commandParams[0].equals("true")) {
+                        if ("yes".equals(commandParams[0]) ||
+                                "true".equals(commandParams[0])) {
                             exportPeptides = true;
                         } else {
                             exportPeptides = false;
@@ -478,8 +475,8 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                 } else if ("exportPSMSets".equals(command)) {
                     if ((commandParams != null) &&
                             (commandParams.length > 0)) {
-                        if (commandParams[0].equals("yes") ||
-                                commandParams[0].equals("true")) {
+                        if ("yes".equals(commandParams[0]) ||
+                                "true".equals(commandParams[0])) {
                             exportPSMSets = true;
                         } else {
                             exportPSMSets = false;
@@ -489,10 +486,9 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                         exportPSMSets = true;
                     }
                 } else if ("exportPSMs".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        if (commandParams[0].equals("yes") ||
-                                commandParams[0].equals("true")) {
+                    if ((commandParams != null) && (commandParams.length > 0)) {
+                        if ("yes".equals(commandParams[0]) ||
+                                "true".equals(commandParams[0])) {
                             exportPSMs = true;
                         } else {
                             exportPSMs = false;
@@ -511,7 +507,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                 fileName = "report-proteins." + format;
             }
 
-            logger.info("export parameters: " +
+            LOGGER.info("export parameters: " +
                     "filename: " + fileName +
                     ", format: " + format +
                     ", exportPSMs:" + exportPSMs +
@@ -519,26 +515,27 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                     ", exportPeptides: " + exportPeptides +
                     ", oneAccessionPerLine: " + oneAccessionPerLine);
 
-            Writer writer = null;
+            boolean exportOK = true;
             try {
-                writer = new FileWriter(fileName, false);
-
-                if (format.equalsIgnoreCase("mzTab")) {
-                    modeller.exportMzTab(writer, true,
-                            exportPSMs || exportPSMSets);
-                } else if (format.equalsIgnoreCase("mzIdentML") ||
-                        format.equalsIgnoreCase("mzid")) {
-                    modeller.exportMzIdentML(writer, true);
-                } else if (format.equalsIgnoreCase("csv")) {
-                    modeller.exportCSV(writer, true, exportPeptides,
+                if ("mzTab".equalsIgnoreCase(format)) {
+                    MzTabExporter exporter = new MzTabExporter(piaModeller);
+                    exportOK = exporter.exportToMzTab(0L, fileName, true, exportPeptides, true);
+                } else if ("mzIdenML".equalsIgnoreCase(format)
+                        || "mzid".equalsIgnoreCase(format)) {
+                    MzIdentMLExporter exporter = new MzIdentMLExporter(piaModeller);
+                    exportOK = exporter.exportToMzIdentML(0L, fileName, true, true);
+                } else if ("csv".equalsIgnoreCase(format)) {
+                    Writer writer = new FileWriter(fileName, false);
+                    proteinModeller.exportCSV(writer, true, exportPeptides,
                             exportPSMSets, exportPSMs, oneAccessionPerLine);
+                    writer.close();
                 }
-                writer.close();
             } catch (IOException e) {
-                logger.error("Cannot write to file " + fileName, e);
+                LOGGER.error("Cannot write to file " + fileName, e);
+                exportOK = false;
             }
 
-            return true;
+            return exportOK;
         }
 
         @Override
@@ -560,25 +557,25 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
         @Override
         public List<List<String>> neededXMLParameters() {
             // this is not executable via XML file
-            return null;
+            return Collections.emptyList();
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, ProteinModeller model) {
+        public void executeXMLParameters(NODEType node, ProteinModeller proteinModeller, PIAModeller piaModeller) {
             // this is not executable via XML file
         }
     },
 
     CalculateFDR {
         /** the identification string for the decoy strategy */
-        private static final String idDecoyStrategy = "decoy strategy";
+        private static final String ID_DECOY_STRATEGY = "decoy strategy";
 
         /** the identification string for the decoy pattern (if strategy == accessionpattern) */
-        private static final String idDecoyPattern = "decoy pattern";
+        private static final String ID_DECOY_PATTERN = "decoy pattern";
 
         @Override
-        public boolean execute(ProteinModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
+        public boolean execute(ProteinModeller proteinModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
 
             if (params.length >= 1) {
                 DecoyStrategy decoyStrategy = DecoyStrategy.getStrategyByString(params[0]);
@@ -589,7 +586,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                     if (params.length >= 2) {
                         decoyPattern = params[1];
                     } else {
-                        logger.error("no decoy pattern given!");
+                        LOGGER.error("no decoy pattern given!");
                         return false;
                     }
                     break;
@@ -598,18 +595,18 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                     break;
 
                 default:
-                    logger.error("invalid decoy strategy given: " + params[0]);
+                    LOGGER.error("invalid decoy strategy given: " + params[0]);
                     return false;
                 }
 
-                modeller.updateFDRData(decoyStrategy, decoyPattern, 0.01);
-                modeller.updateDecoyStates();
-                modeller.calculateFDR();
+                proteinModeller.updateFDRData(decoyStrategy, decoyPattern, 0.01);
+                proteinModeller.updateDecoyStates();
+                proteinModeller.calculateFDR();
 
                 return true;
             }
 
-            logger.error("no parameters for FDR calculation given, needs 'decoy strategy [decoy pattern]'");
+            LOGGER.error("no parameters for FDR calculation given, needs 'decoy strategy [decoy pattern]'");
             return false;
         }
 
@@ -626,34 +623,34 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
             List<List<String>> params = new ArrayList<List<String>>();
 
             List<String> param = new ArrayList<String>();
-            param.add(idDecoyStrategy);
+            param.add(ID_DECOY_STRATEGY);
             param.add(FDRData.DecoyStrategy.ACCESSIONPATTERN.toString());
             param.add(FDRData.DecoyStrategy.INHERIT.toString());
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idDecoyPattern);
+            param.add(ID_DECOY_PATTERN);
             params.add(param);
 
             return params;
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, ProteinModeller model) {
+        public void executeXMLParameters(NODEType node, ProteinModeller proteinModeller, PIAModeller piaModeller) {
             String decoyStrategy = null;
             String decoyPattern = null;
 
             for (Object item : node.getITEMOrITEMLISTOrNODE()) {
                 if (item instanceof ITEMType) {
-                    if (idDecoyStrategy.equals(((ITEMType) item).getName())) {
+                    if (ID_DECOY_STRATEGY.equals(((ITEMType) item).getName())) {
                         decoyStrategy = ((ITEMType) item).getValue();
-                    } else if (idDecoyPattern.equals(((ITEMType) item).getName())) {
+                    } else if (ID_DECOY_PATTERN.equals(((ITEMType) item).getName())) {
                         decoyPattern = ((ITEMType) item).getValue();
                     }
                 }
             }
 
-            execute(model,
+            execute(proteinModeller, piaModeller,
                     new String[] {decoyStrategy, decoyPattern});
         }
     },
@@ -661,30 +658,33 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
 
     /** logger for this enum */
-    private static final Logger logger = Logger.getLogger(ProteinExecuteCommands.class);
+    private static final Logger LOGGER = Logger.getLogger(ProteinExecuteCommands.class);
+
+    /** informative preambel of logging */
+    private static final String LOGGING_PREAMBEL = "execute CLI command ";
 
     /** the prfix for this level's execute commands */
-    public final static String prefix = "Protein";
+    private static final String PREFIX = "Protein";
 
 
     @Override
-    public NODEType generateNode(String params[]) {
+    public NODEType generateNode(String[] params) {
         if (params.length < 1) {
             return null;
         }
 
         String execution = params[0];
-        if (execution.startsWith(prefix)) {
-            execution = execution.substring(prefix.length());
+        if (execution.startsWith(PREFIX)) {
+            execution = execution.substring(PREFIX.length());
         }
         if (!name().equals(execution)) {
-            logger.error(name() + " is the wrong execute command for " +
+            LOGGER.error(name() + " is the wrong execute command for " +
                     execution);
             return null;
         }
 
         NODEType node = new NODEType();
-        node.setName(prefix + execution);
+        node.setName(PREFIX + execution);
         node.setDescription(describe());
 
         int pos = 0;
@@ -706,7 +706,17 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
     @Override
     public String prefix() {
-        return prefix;
+        return getPrefix();
+    }
+
+
+    /**
+     * Static getter for the Prefix
+     *
+     * @return
+     */
+    public static String getPrefix() {
+        return PREFIX;
     }
 
 
@@ -715,7 +725,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
      * @return
      */
     public static String getValidCommandsString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (ProteinExecuteCommands command : values()) {
             if (sb.length() > 0) {

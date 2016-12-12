@@ -6,11 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
-
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.mpc.pia.modeller.PIAModeller;
@@ -23,21 +19,18 @@ import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 
+
 public class IdXMLExporterTest {
 
-    public static File piaFile;
+    private File piaFile;
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
+    @Before
+    public void setUp() {
         piaFile = new File(PIAModellerTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
     }
 
-    @Before
-    public void setUp() throws Exception {
-    }
-
     @Test
-    public void testIdXMLExporter() throws JAXBException, XMLStreamException, IOException {
+    public void testIdXMLExporter() throws IOException {
         PIAModeller piaModeller = new PIAModeller(piaFile.getAbsolutePath());
 
         piaModeller.setCreatePSMSets(true);
@@ -63,6 +56,9 @@ public class IdXMLExporterTest {
         // simple exporting
         IdXMLExporter exporter = new IdXMLExporter(piaModeller);
         File exportFile = File.createTempFile("pia_idXmlExportTest", ".idXML");
-        exporter.exportToIdXML(0L, exportFile, true);
+
+        assertTrue(exporter.exportToIdXML(0L, exportFile, true));
+
+        exportFile.delete();
     }
 }

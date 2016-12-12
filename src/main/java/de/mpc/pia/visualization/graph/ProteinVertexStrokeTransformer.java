@@ -25,9 +25,6 @@ public class ProteinVertexStrokeTransformer
     /** the picking state of the graph */
     private PickedState<VertexObject> pickedState;
 
-    /** the picked protein of the graph */
-    private PickedState<VertexObject> pickedProtein;
-
 
     private final BasicStroke thinStroke = new BasicStroke(1);
     private final BasicStroke thickStroke = new BasicStroke(2);
@@ -36,10 +33,9 @@ public class ProteinVertexStrokeTransformer
     /**
      * Constructor
      */
-    public ProteinVertexStrokeTransformer(ProteinVisualizationGraphHandler graphHandler, PickedState<VertexObject> pickedState, PickedState<VertexObject> pickedProtein) {
+    public ProteinVertexStrokeTransformer(ProteinVisualizationGraphHandler graphHandler, PickedState<VertexObject> pickedState) {
         this.graphHandler = graphHandler;
         this.pickedState = pickedState;
-        this.pickedProtein = pickedProtein;
     }
 
 
@@ -47,15 +43,11 @@ public class ProteinVertexStrokeTransformer
     @Override
     public Stroke transform(VertexObject vertex) {
         // the picked object has always a thick border
-        if (pickedState.isPicked(vertex) || pickedProtein.isPicked(vertex)) {
+        if (pickedState.isPicked(vertex)) {
             return thickStroke;
         }
 
         Object vObject = vertex.getObject();
-        VertexObject proteinVertex = null;
-        if (pickedProtein.getPicked().size() > 0) {
-            proteinVertex = pickedProtein.getPicked().iterator().next();
-        }
 
         if (vObject instanceof Group) {
             return thinStroke;
@@ -65,7 +57,7 @@ public class ProteinVertexStrokeTransformer
             vObject = ((Collection<?>)vObject).iterator().next();
         }
 
-        VertexRelation relation = graphHandler.getProteinsRelation(proteinVertex, vertex);
+        VertexRelation relation = graphHandler.getVertexRelation(vertex);
 
         switch (relation) {
         case IN_PARALLEL_PAG:

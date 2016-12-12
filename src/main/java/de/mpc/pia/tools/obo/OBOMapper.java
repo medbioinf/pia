@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -14,11 +15,13 @@ import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
 import org.biojava.nbio.ontology.io.OboParser;
 
+import de.mpc.pia.tools.OntologyConstants;
+
 
 public class OBOMapper {
 
     /** the logger for this class */
-    private static final Logger logger = Logger.getLogger(OBOMapper.class);
+    private static final Logger LOGGER = Logger.getLogger(OBOMapper.class);
 
     /** the actual ontology in the OBO file */
     private Ontology onlineOntology;
@@ -26,17 +29,12 @@ public class OBOMapper {
     /** the actual ontology in the OBO file */
     private Ontology shippedOntology;
 
-    /** the URL to the current OBO file */
-    public final String urlToOBO = "https://raw.githubusercontent.com/HUPO-PSI/mzML/master/cv/psi-ms.obo";
-
-    public static final String obo_cleavageAgentNameID = "MS:1001045";
+    // some statics
     public static final String obo_relationship = "relationship";
     public static final String obo_is_a = "is_a";
     public static final String obo_has_regexp = "has_regexp";
     public static final String obo_has_order_higherscorebetter = "has_order MS:1002108";
     public static final String obo_has_order_lowerscorebetter = "has_order MS:1002109";
-    public static final String obo_spectrumTitleID = "MS:1000796";
-    public static final String obo_psmScoreID = "MS:1001143";
 
     /**
      * Constructor for the OBOMapper. Uses the online OBO file (if accessible)
@@ -69,7 +67,7 @@ public class OBOMapper {
 
             // get the internet ontology
             if (useOnline) {
-                inStream = new URL(urlToOBO).openStream();
+                inStream = new URL(OntologyConstants.PSI_MS_OBO_URL).openStream();
 
                 parser = new OboParser();
                 oboFile = new BufferedReader(new InputStreamReader(inStream));
@@ -82,30 +80,30 @@ public class OBOMapper {
         } catch (IOException e) {
             onlineOntology = null;
             if (useOnline) {
-                logger.warn("could not use remote obo file, check internet connection");
+                LOGGER.warn("could not use remote obo file, check internet connection", e);
             }
         } catch (Exception e) {
-            logger.error(e);
+            LOGGER.error(e);
             throw new AssertionError(e);
         }
     }
 
 
     /**
-     * Fetch {@link Term} with specified name
+     * Fetch {@link Term} with specified accession
      *
-     * @param name
+     * @param accession
      * @return
      */
-    public Term getTerm(String name) {
+    public Term getTerm(String accession) {
         try {
             if (onlineOntology != null) {
-                return onlineOntology.getTerm(name);
+                return onlineOntology.getTerm(accession);
             } else {
-                return shippedOntology.getTerm(name);
+                return shippedOntology.getTerm(accession);
             }
         } catch (NoSuchElementException e) {
-            logger.warn(e);
+            LOGGER.warn(e);
             return null;
         }
     }
@@ -124,7 +122,7 @@ public class OBOMapper {
                 return shippedOntology.getTerms();
             }
         } catch (NoSuchElementException e) {
-            logger.warn(e);
+            LOGGER.warn(e);
             return null;
         }
     }
@@ -146,5 +144,26 @@ public class OBOMapper {
         } else {
             return shippedOntology.getTriples(subject, object, predicate);
         }
+    }
+
+
+    /**
+     * Gets the entry in the OBO with the given name. If none is found, returns
+     * null.
+     *
+     * @param name
+     * @return
+     */
+    public Term getTermByName(String name) {
+        Set<Term> keys = getTerms();
+        Iterator<Term> iter = keys.iterator();
+        while (iter.hasNext()){
+            Term term = iter.next();
+            if (name.equals(term.getDescription())) {
+                return term;
+            }
+        }
+
+        return null;
     }
 }

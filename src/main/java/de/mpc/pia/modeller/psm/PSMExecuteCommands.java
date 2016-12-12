@@ -11,11 +11,14 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import de.mpc.pia.modeller.PIAModeller;
 import de.mpc.pia.modeller.PSMModeller;
 import de.mpc.pia.modeller.execute.ExecuteModelCommands;
 import de.mpc.pia.modeller.execute.xmlparams.ITEMType;
 import de.mpc.pia.modeller.execute.xmlparams.NODEType;
 import de.mpc.pia.modeller.execute.xmlparams.PossibleITEMType;
+import de.mpc.pia.modeller.exporter.MzIdentMLExporter;
+import de.mpc.pia.modeller.exporter.MzTabExporter;
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.FilterFactory;
@@ -33,18 +36,18 @@ import de.mpc.pia.modeller.score.FDRData;
 public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     AddPreferredFDRScore {
         /** the identification string for the score name */
-        private static final String idScoreName = "score name";
+        private static final String ID_SCORE_NAME = "score name";
 
-        public boolean execute(PSMModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
-            modeller.addPreferredFDRScore(params[0]);
+        @Override
+        public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
+            psmModeller.addPreferredFDRScore(params[0]);
             return true;
         }
 
         @Override
         public String describe() {
-            return "Adds the given score name to the list of preferred " +
-                    "scores for FDR calculation.";
+            return "Adds the given score name to the list of preferred scores for FDR calculation.";
         }
 
         @Override
@@ -52,38 +55,37 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
             List<List<String>> params = new ArrayList<List<String>>();
 
             List<String> param = new ArrayList<String>();
-            param.add(idScoreName);
+            param.add(ID_SCORE_NAME);
             params.add(param);
 
             return params;
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, PSMModeller model) {
+        public void executeXMLParameters(NODEType node, PSMModeller psmModeller, PIAModeller piaModeller) {
             String scoreName = null;
 
             for (Object item : node.getITEMOrITEMLISTOrNODE()) {
-                if (item instanceof ITEMType) {
-                    if (idScoreName.equals(((ITEMType) item).getName())) {
-                        scoreName = ((ITEMType) item).getValue();
-                        break;
-                    }
+                if ((item instanceof ITEMType)
+                        && ID_SCORE_NAME.equals(((ITEMType) item).getName())) {
+                    scoreName = ((ITEMType) item).getValue();
+                    break;
                 }
             }
 
             if (scoreName != null) {
-                execute(model, new String[] {scoreName});
+                execute(psmModeller, piaModeller, new String[] {scoreName});
             }
         }
     },
 
     AddPreferredFDRScores {
         @Override
-        public boolean execute(PSMModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
+        public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
             ArrayList<String> list = new ArrayList<String>(params.length);
             Collections.addAll(list, params);
-            modeller.addPreferredFDRScores(list);
+            psmModeller.addPreferredFDRScores(list);
             return true;
         }
 
@@ -96,33 +98,32 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
         @Override
         public List<List<String>> neededXMLParameters() {
             // this is not executable via XML file
-            return null;
+            return Collections.emptyList();
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, PSMModeller model) {
+        public void executeXMLParameters(NODEType node, PSMModeller psmModeller, PIAModeller piaModeller) {
             // this is not executable via XML file
         }
     },
 
     SetAllTopidentificationsForFDR {
         /** the identification string for the number of top identifications */
-        private static final String idNumberName = "number of top identifications";
+        private static final String ID_NUMBER_NAME = "number of top identifications";
 
         @Override
-        public boolean execute(PSMModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
+        public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
             Integer topIDs = Integer.parseInt(params[0]);
-
-            modeller.setAllTopIdentifications(topIDs);
+            psmModeller.setAllTopIdentifications(topIDs);
             return false;
         }
 
         @Override
         public String describe() {
-            return "Sets the number of top identifications per spectrum " +
-                    "used for all further FDR calculations, 0 meaning " +
-                    "all identifications are used.";
+            return "Sets the number of top identifications per spectrum used"
+                    + " for all further FDR calculations, 0 meaning all"
+                    + " identifications are used.";
         }
 
         @Override
@@ -130,47 +131,47 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
             List<List<String>> params = new ArrayList<List<String>>();
 
             List<String> param = new ArrayList<String>();
-            param.add(idNumberName);
+            param.add(ID_NUMBER_NAME);
             params.add(param);
 
             return params;
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, PSMModeller model) {
+        public void executeXMLParameters(NODEType node, PSMModeller psmModeller, PIAModeller piaModeller) {
             String numberIdentifications = null;
 
             for (Object item : node.getITEMOrITEMLISTOrNODE()) {
-                if (item instanceof ITEMType) {
-                    if (idNumberName.equals(((ITEMType) item).getName())) {
-                        numberIdentifications = ((ITEMType) item).getValue();
-                        break;
-                    }
+                if ((item instanceof ITEMType)
+                        && ID_NUMBER_NAME.equals(((ITEMType) item).getName())) {
+                    numberIdentifications = ((ITEMType) item).getValue();
+                    break;
                 }
             }
 
             if (numberIdentifications != null) {
-                execute(model, new String[] {numberIdentifications});
+                execute(psmModeller, piaModeller, new String[] {numberIdentifications});
             }
         }
     },
 
     SetAllDecoyPattern {
         /** the identification string for the score name */
-        private static final String idDecoyPattern = "decoy pattern";
+        private static final String ID_DECOY_PATTERN = "decoy pattern";
 
-        public boolean execute(PSMModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
-            modeller.setAllDecoyPattern(params[0]);
+        @Override
+        public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
+            psmModeller.setAllDecoyPattern(params[0]);
             return true;
         }
 
         @Override
         public String describe() {
-            return "Sets the regular expression used for decoy detection or " +
-                    "if '" + FDRData.DecoyStrategy.SEARCHENGINE +
-                    "' is given as pattern, assumes a decoy search directly " +
-                    "performed by the search engine.";
+            return "Sets the regular expression used for decoy detection or if"
+                    + " '" + FDRData.DecoyStrategy.SEARCHENGINE + "' is given"
+                    + " as pattern, assumes a decoy search directly performed"
+                    + " by the search engine.";
         }
 
         @Override
@@ -178,36 +179,35 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
             List<List<String>> params = new ArrayList<List<String>>();
 
             List<String> param = new ArrayList<String>();
-            param.add(idDecoyPattern);
+            param.add(ID_DECOY_PATTERN);
             params.add(param);
 
             return params;
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, PSMModeller model) {
+        public void executeXMLParameters(NODEType node, PSMModeller psmModeller, PIAModeller piaModeller) {
             String pattern = null;
 
             for (Object item : node.getITEMOrITEMLISTOrNODE()) {
-                if (item instanceof ITEMType) {
-                    if (idDecoyPattern.equals(((ITEMType) item).getName())) {
-                        pattern = ((ITEMType) item).getValue();
-                        break;
-                    }
+                if ((item instanceof ITEMType)
+                        && ID_DECOY_PATTERN.equals(((ITEMType) item).getName())) {
+                    pattern = ((ITEMType) item).getValue();
+                    break;
                 }
             }
 
-            if (idDecoyPattern != null) {
-                execute(model, new String[] {pattern});
+            if (ID_DECOY_PATTERN != null) {
+                execute(psmModeller, piaModeller, new String[] {pattern});
             }
         }
     },
 
     CalculateAllFDR {
         @Override
-        public boolean execute(PSMModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
-            modeller.calculateAllFDR();
+        public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
+            psmModeller.calculateAllFDR();
             return true;
         }
 
@@ -219,67 +219,66 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
         @Override
         public List<List<String>> neededXMLParameters() {
             // no parameters are needed
-            return new ArrayList<List<String>>();
+            return Collections.emptyList();
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, PSMModeller model) {
-            execute(model, null);
+        public void executeXMLParameters(NODEType node, PSMModeller psmModeller, PIAModeller piaModeller) {
+            execute(psmModeller, piaModeller, null);
         }
     },
 
     CalculateCombinedFDRScore {
-        public boolean execute(PSMModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
-            modeller.calculateCombinedFDRScore();
+        @Override
+        public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
+            psmModeller.calculateCombinedFDRScore();
             return true;
         }
 
         @Override
         public String describe() {
-            return "Calculates the combined FDR score. The FDR scores for " +
-                    "the single files should be calculated before.";
+            return "Calculates the combined FDR score. The FDR scores for the"
+                    + " single files should be calculated before.";
         }
 
         @Override
         public List<List<String>> neededXMLParameters() {
             // no parameters are needed
-            return new ArrayList<List<String>>();
+            return Collections.emptyList();
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, PSMModeller model) {
-            execute(model, null);
+        public void executeXMLParameters(NODEType node, PSMModeller psmModeller, PIAModeller piaModeller) {
+            execute(psmModeller, piaModeller, null);
         }
     },
 
     AddFilter {
         /** the identification string for the file ID */
-        private static final String idFileID= "file ID";
+        private static final String ID_FILE_ID= "file ID";
 
         /** the identification string for the filter name */
-        private static final String idFiltername= "filtername";
+        private static final String ID_FILTERNAME= "filtername";
 
         /** the identification string for negate */
-        private static final String idNegate= "negate";
+        private static final String ID_NEGATE= "negate";
 
         /** the identification string for the equation */
-        private static final String idComparison= "comparison";
+        private static final String ID_COMPARISON= "comparison";
 
         /** the identification string for the value */
-        private static final String idValue= "value";
+        private static final String ID_VALUE= "value";
 
         @Override
-        public boolean execute(PSMModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
+        public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
 
             boolean negate = false;
 
-            if (params.length >= 5) {
-                if (params[4] != null &&
-                        (params[4].equals("true") || params[4].equals("yes"))) {
-                    negate = true;
-                }
+            if ((params.length >= 5) && (params[4] != null)
+                    && ("true".equals(params[4]) || "yes".equals(params[4]))) {
+                negate = true;
             }
 
             if (params.length >= 4) {
@@ -288,7 +287,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                 String comparison = params[2];
                 String value = params[3];
 
-                StringBuffer messageBuffer = new StringBuffer();
+                StringBuilder messageBuffer = new StringBuilder();
 
                 AbstractFilter newFilter =
                         FilterFactory.newInstanceOf(
@@ -300,14 +299,14 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                                 messageBuffer);
 
                 if (newFilter != null) {
-                    modeller.addFilter(Long.parseLong(fileID), newFilter);
+                    psmModeller.addFilter(Long.parseLong(fileID), newFilter);
                 } else {
-                    logger.error("Filter " + filtername +
-                            " could not be added: " + messageBuffer.toString());
+                    LOGGER.error("Filter " + filtername
+                            + " could not be added: " + messageBuffer.toString());
                 }
             } else {
-                logger.info("Too few parameters to execute " + name() +
-                        ", ignoring the call");
+                LOGGER.info("Too few parameters to execute " + name()
+                        + ", ignoring the call");
             }
 
             return true;
@@ -315,13 +314,13 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public String describe() {
-            return "Adds a PSM level filter to a specified file. The file is " +
-                    "given by the first parameter, which has to be the file " +
-                    "id. Filters are added by their name, an abbreviation " +
-                    "for the camparison, the compared value and (optional), " +
-                    "whether the comparison should be negated " +
-                    "e.g. \"" + name() + "=1,charge_filter,EQ,2,no\". \n" +
-                    "Registered PSM filters are: " + RegisteredFilters.getPSMFilterShortsForHelp();
+            return "Adds a PSM level filter to a specified file. The file is"
+                    + " given by the first parameter, which has to be the file"
+                    + " id. Filters are added by their name, an abbreviation"
+                    + " for the camparison, the compared value and (optional),"
+                    + " whether the comparison should be negated, e.g. "
+                    + "\"" + name() + "=1,charge_filter,EQ,2,no\". \n"
+                    + "Registered PSM filters are: " + RegisteredFilters.getPSMFilterShortsForHelp();
         }
 
         @Override
@@ -329,26 +328,26 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
             List<List<String>> params = new ArrayList<List<String>>();
 
             List<String> param = new ArrayList<String>();
-            param.add(idFileID);
+            param.add(ID_FILE_ID);
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idFiltername);
+            param.add(ID_FILTERNAME);
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idComparison);
+            param.add(ID_COMPARISON);
             for (FilterComparator comp : FilterComparator.values()) {
                 param.add(comp.getCliShort());
             }
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idValue);
+            param.add(ID_VALUE);
             params.add(param);
 
             param = new ArrayList<String>();
-            param.add(idNegate);
+            param.add(ID_NEGATE);
             param.add("no");
             param.add("yes");
             params.add(param);
@@ -358,7 +357,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
 
         @Override
-        public void executeXMLParameters(NODEType node, PSMModeller model) {
+        public void executeXMLParameters(NODEType node, PSMModeller psmModeller, PIAModeller piaModeller) {
             String fileID = null;
             String filtername = null;
             String comparison = null;
@@ -367,42 +366,40 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
             for (Object item : node.getITEMOrITEMLISTOrNODE()) {
                 if (item instanceof ITEMType) {
-                    if (idFileID.equals(((ITEMType) item).getName())) {
+                    if (ID_FILE_ID.equals(((ITEMType) item).getName())) {
                         fileID = ((ITEMType) item).getValue();
-                    } else if (idFiltername.equals(((ITEMType) item).getName())) {
+                    } else if (ID_FILTERNAME.equals(((ITEMType) item).getName())) {
                         filtername = ((ITEMType) item).getValue();
-                    } else if (idComparison.equals(((ITEMType) item).getName())) {
+                    } else if (ID_COMPARISON.equals(((ITEMType) item).getName())) {
                         comparison = ((ITEMType) item).getValue();
-                    } else if (idValue.equals(((ITEMType) item).getName())) {
+                    } else if (ID_VALUE.equals(((ITEMType) item).getName())) {
                         value = ((ITEMType) item).getValue();
-                    } else if (idNegate.equals(((ITEMType) item).getName())) {
+                    } else if (ID_NEGATE.equals(((ITEMType) item).getName())) {
                         negate = ((ITEMType) item).getValue();
                     }
                 }
             }
 
-            execute(model, new String[] {fileID, filtername, comparison, value,
-                    negate});
+            execute(psmModeller, piaModeller,
+                    new String[] {fileID, filtername, comparison, value, negate});
         }
     },
 
     CreatePSMSets {
         /** the identification string for create PSM sets */
-        private static final String idCreatePSMSets = "create sets";
+        private static final String ID_CREATE_PSM_SETS = "create sets";
 
         @Override
-        public boolean execute(PSMModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
+        public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
 
             Boolean createSets = null;
 
-            if ((params != null) && (params.length > 0)) {
-                if (params[0] != null) {
-                    if (params[0].equals("true") || params[0].equals("yes")) {
-                        createSets = true;
-                    } else {
-                        createSets = false;
-                    }
+            if ((params != null) && (params.length > 0) && (params[0] != null)) {
+                if ("true".equals(params[0]) || "yes".equals(params[0])) {
+                    createSets = true;
+                } else {
+                    createSets = false;
                 }
             }
 
@@ -411,8 +408,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                 createSets = true;
             }
 
-            modeller.applyGeneralSettings(createSets,
-                    modeller.getPSMSetSettings());
+            psmModeller.applyGeneralSettings(createSets);
             return true;
         }
 
@@ -427,7 +423,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
             List<List<String>> params = new ArrayList<List<String>>();
 
             List<String> param = new ArrayList<String>();
-            param.add(idCreatePSMSets);
+            param.add(ID_CREATE_PSM_SETS);
             param.add("no");
             param.add("yes");
             params.add(param);
@@ -436,24 +432,24 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, PSMModeller model) {
+        public void executeXMLParameters(NODEType node, PSMModeller psmModeller, PIAModeller piaModeller) {
             String createSets = null;
 
             for (Object item : node.getITEMOrITEMLISTOrNODE()) {
-                if (item instanceof ITEMType) {
-                    if (idCreatePSMSets.equals(((ITEMType) item).getName())) {
-                        createSets = ((ITEMType) item).getValue();
-                    }
+                if ((item instanceof ITEMType)
+                        && ID_CREATE_PSM_SETS.equals(((ITEMType) item).getName())) {
+                    createSets = ((ITEMType) item).getValue();
                 }
             }
 
-            execute(model, new String[] {createSets});
+            execute(psmModeller, piaModeller, new String[] {createSets});
         }
     },
 
     Export {
-        public boolean execute(PSMModeller modeller, String[] params) {
-            logger.info("execute CLI command " + name());
+        @Override
+        public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
+            LOGGER.info(LOGGING_PREAMBEL + name());
 
             String format = null;
             Long fileID = 0L;
@@ -491,8 +487,8 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                     if ((commandParams != null) &&
                             (commandParams.length > 0)) {
 
-                        if (commandParams[0].equals("yes") ||
-                                commandParams[0].equals("true")) {
+                        if ("yes".equals(commandParams[0]) ||
+                                "true".equals(commandParams[0])) {
                             spectralCount = true;
                         } else {
                             spectralCount = false;
@@ -511,38 +507,33 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                 fileName = "report-psms." + format;
             }
 
-            logger.info("export parameters: " +
+            LOGGER.info("export parameters: " +
                     "filename: " + fileName +
                     ", fileID: " + fileID +
                     ", format: " + format +
                     ", spectral_count: " + spectralCount);
 
-            Writer writer = null;
-            try {
-                writer = new FileWriter(fileName, false);
+            boolean exportOK = true;
 
-                if (format.equalsIgnoreCase("mzIdentML") ||
-                        format.equalsIgnoreCase("mzid")) {
-                    modeller.exportMzIdentML(writer, fileID, true);
-                } else if (format.equalsIgnoreCase("mztab")) {
-                    modeller.exportMzTab(writer, fileID, true);
-                } else if (format.equalsIgnoreCase("csv")) {
-                    modeller.exportCSV(writer, fileID,
-                            spectralCount, true);
+            try {
+                if ("mzIdentML".equalsIgnoreCase(format) ||
+                        "mzid".equalsIgnoreCase(format)) {
+                    MzIdentMLExporter exporter = new MzIdentMLExporter(piaModeller);
+                    exportOK = exporter.exportToMzIdentML(fileID, fileName, false, true);
+                } else if ("mztab".equalsIgnoreCase(format)) {
+                    MzTabExporter exporter = new MzTabExporter(piaModeller);
+                    exportOK = exporter.exportToMzTab(fileID, fileName, false, false, true);
+                } else if ("csv".equalsIgnoreCase(format)) {
+                    Writer writer = new FileWriter(fileName, false);
+                    psmModeller.exportCSV(writer, fileID, spectralCount, true);
+                    writer.close();
                 }
             } catch (IOException e) {
-                logger.error("Cannot write to file " + fileName, e);
-            } finally {
-                if (writer != null) {
-                    try {
-                        writer.close();
-                    } catch (IOException e) {
-                        logger.error("Cannot close file " + fileName, e);
-                    }
-                }
+                LOGGER.error("Error writing to file " + fileName, e);
+                exportOK = false;
             }
 
-            return true;
+            return exportOK;
         }
 
         @Override
@@ -560,11 +551,11 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
         @Override
         public List<List<String>> neededXMLParameters() {
             // this is not executable via XML file
-            return null;
+            return Collections.emptyList();
         }
 
         @Override
-        public void executeXMLParameters(NODEType node, PSMModeller model) {
+        public void executeXMLParameters(NODEType node, PSMModeller psmModeller, PIAModeller piaModeller) {
             // this is not executable via XML file
         }
     },
@@ -573,30 +564,33 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
 
     /** logger for this enum */
-    private static final Logger logger = Logger.getLogger(PSMExecuteCommands.class);
+    private static final Logger LOGGER = Logger.getLogger(PSMExecuteCommands.class);
+
+    /** informative preambel of logging */
+    private static final String LOGGING_PREAMBEL = "execute CLI command ";
 
     /** the prfix for this level's execute commands */
-    public final static String prefix = "PSM";
+    private static final String PREFIX = "PSM";
 
 
     @Override
-    public NODEType generateNode(String params[]) {
+    public NODEType generateNode(String[] params) {
         if (params.length < 1) {
             return null;
         }
 
         String execution = params[0];
-        if (execution.startsWith(prefix)) {
-            execution = execution.substring(prefix.length());
+        if (execution.startsWith(PREFIX)) {
+            execution = execution.substring(PREFIX.length());
         }
         if (!name().equals(execution)) {
-            logger.error(name() + " is the wrong execute command for " +
+            LOGGER.error(name() + " is the wrong execute command for " +
                     execution);
             return null;
         }
 
         NODEType node = new NODEType();
-        node.setName(prefix + execution);
+        node.setName(PREFIX + execution);
         node.setDescription(describe());
 
         int pos = 0;
@@ -618,7 +612,17 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
     @Override
     public String prefix() {
-        return prefix;
+        return getPrefix();
+    }
+
+
+    /**
+     * Static getter for the Prefix
+     *
+     * @return
+     */
+    public static String getPrefix() {
+        return PREFIX;
     }
 
 
@@ -627,7 +631,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
      * @return
      */
     public static String getValidCommandsString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (PSMExecuteCommands command : values()) {
             if (sb.length() > 0) {

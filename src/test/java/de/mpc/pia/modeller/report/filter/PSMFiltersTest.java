@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import de.mpc.pia.intermediate.Accession;
@@ -24,8 +24,8 @@ public class PSMFiltersTest {
 
     private static PIAModeller piaModeller = null;
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         File piaFile = new File(PSMFiltersTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
 
         // load the PIA XML file

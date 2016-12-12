@@ -32,7 +32,7 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
 public class SpectrumExtractorWorkerThread extends Thread {
 
     /** the ID of this worker thread */
-    private int ID;
+    private int id;
 
     /** the caller of this thread */
     private SpectrumExtractorInference parent;
@@ -69,7 +69,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
 
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(SpectrumExtractorWorkerThread.class);
+    private static final Logger LOGGER = Logger.getLogger(SpectrumExtractorWorkerThread.class);
 
 
     /**
@@ -102,7 +102,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
             String scoreShort,
             boolean considerModifications,
             Map<String, Boolean> psmSetSettings) {
-        this.ID = ID;
+        this.id = ID;
         this.parent = parent;
         this.scoring = scoring;
         this.filters = filters;
@@ -115,7 +115,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
         this.considerModifications = considerModifications;
         this.psmSetSettings = psmSetSettings;
 
-        this.setName("ProteinExtractorWorker-" + this.ID);
+        this.setName("ProteinExtractorWorker-" + this.id);
     }
 
 
@@ -152,7 +152,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
                 ScoreModelEnum.getModelByDescription(
                         scoring.getScoreSetting().getValue());
         if (scoreModel == null) {
-            logger.error("no scoring given");
+            LOGGER.error("no scoring given");
             return;
         }
 
@@ -182,7 +182,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
                                                 peptideKey, peptide);
 
                                 if (peptideMap.put(peptideKey, reportPeptide) != null) {
-                                    logger.error(
+                                    LOGGER.error(
                                             "There was already another peptide for " +
                                                     peptideKey + " in the peptideMap!");
                                 }
@@ -343,7 +343,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
                             // remove from the peptides, where it has not the best score
 
                             // the best scoreModel
-                            ScoreModel score = ((ScoreModel)spEntry.getValue()[1]);
+                            ScoreModel score = (ScoreModel)spEntry.getValue()[1];
 
                             // the peptides in this set can be removed from the peptideIDs,
                             // as the spectrum does no longer score in them
@@ -369,7 +369,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
                                                 peptidesToRemove.add(peptideKey);
                                             }
                                         } else {
-                                            logger.error("Not a PSM set in peptide! " +
+                                            LOGGER.error("Not a PSM set in peptide! " +
                                                     repPSM.getSourceID());
                                         }
                                     }
@@ -438,7 +438,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
                             }
                         }
 
-                        if (peptidesWithAllSpectra.size() > 0) {
+                        if (!peptidesWithAllSpectra.isEmpty()) {
                             // 1) there are peptides, which have all the spectra
                             //    -> one of them gets scored
                             scoreOnePeptide(peptidesWithAllSpectra.iterator().next(),
@@ -480,7 +480,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
                                     new HashSet<ReportPeptide>();
                             Double sameScore = reportProteins.iterator().next().getScore();
 
-                            while (reportProteins.size() > 0) {
+                            while (!reportProteins.isEmpty()) {
                                 // stores all the combinations of spectra for this score's
                                 // peptides
                                 Map<String, List<String>> peptidesScoringSpectraKeys =
@@ -586,7 +586,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
                                 alreadyScoringSpectra.addAll(newScoringSpectra);
 
                                 // re-score and order the fake proteins
-                                if (reportProteins.size() > 0) {
+                                if (!reportProteins.isEmpty()) {
                                     scoring.calculateProteinScores(reportProteins);
                                     Collections.sort(reportProteins, comparator);
                                     sameScore =
@@ -667,17 +667,17 @@ public class SpectrumExtractorWorkerThread extends Thread {
                         reportPeptide.getPSMsByIdentificationKey(psmKey,
                                 psmSetSettings);
 
-                if (reportPSMSets.size() > 0) {
+                if (!reportPSMSets.isEmpty()) {
                     PSMReportItem psmItem = reportPSMSets.get(0);
                     if (psmItem instanceof ReportPSMSet) {
                         psmSet = (ReportPSMSet)psmItem;
                     } else {
-                        logger.error("Not a ReportPSMSet-instance in peptide for " +
-                                psmKey + "!");
+                        LOGGER.error("Not a ReportPSMSet-instance in peptide for "
+                                + psmKey + "!");
                     }
                     if (reportPSMSets.size() > 1) {
-                        logger.error("More than one PSMReportItem in peptide for " +
-                                psmKey + "!");
+                        LOGGER.error("More than one PSMReportItem in peptide for "
+                                + psmKey + "!");
                     }
                 } else {
                     // no set yet, create this
@@ -688,7 +688,11 @@ public class SpectrumExtractorWorkerThread extends Thread {
                 }
 
                 // add this reportPSM to the set
-                psmSet.addReportPSM(reportPSM);
+                if (psmSet != null) {
+                    psmSet.addReportPSM(reportPSM);
+                } else {
+                    LOGGER.error("Error while sorting in PSM, psm is NULL!");
+                }
             }
         }
     }

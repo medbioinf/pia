@@ -6,19 +6,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
-import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
@@ -36,7 +32,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.model.mzidml.Tolerance;
-import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.PIAInputFile;
@@ -49,8 +44,10 @@ import de.mpc.pia.modeller.IdentificationKeySettings;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.MzIdentMLTools;
+import de.mpc.pia.tools.OntologyConstants;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
+import de.mpc.pia.tools.unimod.UnimodParser;
 import de.proteinms.xtandemparser.parser.XTandemParser;
 import de.proteinms.xtandemparser.xtandem.Domain;
 import de.proteinms.xtandemparser.xtandem.InputParams;
@@ -64,14 +61,14 @@ import de.proteinms.xtandemparser.xtandem.XTandemFile;
 /**
  * This class parses the data from a mzIdentML file for a given
  * {@link PIACompiler}.<br/>
- * 
+ *
  * @author julian
  *
  */
 public class TandemFileParser {
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(TandemFileParser.class);
+    private static final Logger LOGGER = Logger.getLogger(TandemFileParser.class);
 
 
     /** this pattern matches a special case of RT, which occurs from mzML files */
@@ -89,7 +86,7 @@ public class TandemFileParser {
     /**
      * Parses the data from an mzIdentML file given by its name into the given
      * {@link PIACompiler}.
-     * 
+     *
      * @param fileName name of the XTandem XML result file
      * @param compiler the PIACompiler
      * @param rtMapFileName maps from the spectrum ID to the retentionTime
@@ -104,42 +101,31 @@ public class TandemFileParser {
 
         if ((rtMapFileName != null) && (rtMapFileName.length() > 0)) {
             // additional RT info is given, parse the file
-            try {
-                logger.info("Parsing the file '" + rtMapFileName + "'" +
-                        " for RT information.");
-
-                FileInputStream rtStream = new FileInputStream(rtMapFileName);
+            try (FileInputStream rtStream = new FileInputStream(rtMapFileName)) {
+                LOGGER.info("Parsing the file '" + rtMapFileName + "'"
+                        + " for RT information.");
 
                 DataInputStream in = new DataInputStream(rtStream);
                 BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
                 String strLine;
                 while ((strLine = br.readLine()) != null) {
-                    String v[] = strLine.split("\t");
+                    String[] v = strLine.split("\t");
                     rtMap.put(Integer.parseInt(v[0]), Double.parseDouble(v[1]));
                 }
 
                 in.close();
             } catch (Exception e) {
-                logger.error("Error while parsing the RT info file " +
+                LOGGER.error("Error while parsing the RT info file " +
                         rtMapFileName + ", program will continue, " +
                         "but you won't have RT information", e);
                 rtMap.clear();
             }
         }
 
-
-        Cv psiMS = new Cv();
-        psiMS.setId("PSI-MS");
-        psiMS.setFullName("PSI-MS");
-        psiMS.setUri("http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
-
-
         // TODO: test for multiple databases!
         Map<String, SearchDatabase> searchDatabaseMap = // maps from the "sequence source" to the SearchDatabse object
                 new HashMap<String, SearchDatabase>();
-        Param param;
-        AbstractParam abstractParam; 
         FileFormat fileFormat;
 
         /* tandemParser.getPerformParamMap()
@@ -170,7 +156,7 @@ public class TandemFileParser {
         File tandemFile = new File(fileName);
         if (!tandemFile.canRead()) {
             // TODO: better error / exception
-            logger.error("could not read '" + fileName + "'.");
+            LOGGER.error("could not read '" + fileName + "'.");
             return false;
         }
         XTandemParser tandemParser;
@@ -178,11 +164,10 @@ public class TandemFileParser {
             tandemParser = new XTandemParser(tandemFile);
         } catch (Exception e) {
             // TODO: better error / exception
-            logger.error("could not parse '" + fileName + "'.");
+            LOGGER.error("could not parse '" + fileName + "'.", e);
             return false;
         }
         for (Map.Entry<String, String> performParam : tandemParser.getPerformParamMap().entrySet()) {
-
             if (performParam.getKey().startsWith("SEQSRC") &&
                     !performParam.getKey().startsWith("SEQSRCDESC")) {
                 // create the searchDatabase and add it to the compiler
@@ -199,25 +184,22 @@ public class TandemFileParser {
 
                 // optional
                 /*
-				TODO: are these accessible with multiple databases
-				searchDatabase.setNumDatabaseSequences();
-				searchDatabase.setNumResidues();
+                TODO: are these accessible with multiple databases
+                searchDatabase.setNumDatabaseSequences();
+                searchDatabase.setNumResidues();
                  */
 
                 // fileformat
                 fileFormat = new FileFormat();
-                abstractParam = new CvParam();
-                ((CvParam)abstractParam).setAccession("MS:1001348");
-                ((CvParam)abstractParam).setCv(psiMS);
-                abstractParam.setName("FASTA format");
-                fileFormat.setCvParam((CvParam)abstractParam);
+                fileFormat.setCvParam(MzIdentMLTools.createPSICvParam(OntologyConstants.FASTA_FORMAT, null));
                 searchDatabase.setFileFormat(fileFormat);
 
                 // databaseName
-                param = new Param();
-                abstractParam = new UserParam();
-                abstractParam.setName(tandemParser.getPerformParamMap().get("SEQSRCDESC" + dbNr));
-                param.setParam(abstractParam);
+                Param param = new Param();
+                param.setParam(MzIdentMLTools.createUserParam(
+                        "databaseName",
+                        tandemParser.getPerformParamMap().get("SEQSRCDESC" + dbNr),
+                        "string"));
                 searchDatabase.setDatabaseName(param);
 
                 searchDatabase = compiler.putIntoSearchDatabasesMap(searchDatabase);
@@ -234,7 +216,7 @@ public class TandemFileParser {
             xtandemFile = new XTandemFile(fileName);
         } catch (Exception e) {
             // TODO: better error / exception
-            logger.error("could not parse '" + fileName + "'.", e);
+            LOGGER.error("could not parse '" + fileName + "'.", e);
             return false;
         }
 
@@ -252,13 +234,9 @@ public class TandemFileParser {
             tandem.setVersion(strParam);
         }
 
-        param = new Param();
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001476");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("X\\!Tandem");
-        param.setParam(abstractParam);
-        tandem.setSoftwareName(param);
+        Param tandemParam = new Param();
+        tandemParam.setParam(MzIdentMLTools.createPSICvParam(OntologyConstants.XTANDEM, null));
+        tandem.setSoftwareName(tandemParam);
 
         tandem = compiler.putIntoSoftwareMap(tandem);
 
@@ -327,18 +305,12 @@ public class TandemFileParser {
         spectraData.setLocation(inputParams.getSpectrumPath());
         // TODO: for now write MGF, though it could be mzML as well
         fileFormat = new FileFormat();
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001062");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("Mascot MGF file");
-        fileFormat.setCvParam((CvParam)abstractParam);
+        fileFormat.setCvParam(MzIdentMLTools.createPSICvParam(
+                OntologyConstants.MASCOT_MGF_FORMAT, null));
         spectraData.setFileFormat(fileFormat);
         SpectrumIDFormat idFormat = new SpectrumIDFormat();
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1000774");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("multiple peak list nativeID format");
-        idFormat.setCvParam((CvParam)abstractParam);
+        idFormat.setCvParam(MzIdentMLTools.createPSICvParam(
+                OntologyConstants.MULTIPLE_PEAK_LIST_NATIVEID_FORMAT, null));
         spectraData.setSpectrumIDFormat(idFormat);
 
         spectraData = compiler.putIntoSpectraDataMap(spectraData);
@@ -351,39 +323,28 @@ public class TandemFileParser {
         spectrumIDProtocol.setId("tandemAnalysis");
         spectrumIDProtocol.setAnalysisSoftware(tandem);
 
-        param = new Param();
-        // TODO: check, whether tandem can anything else than ms/ms (guess not... hence the name)
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001083");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("ms-ms search");
-        param.setParam(abstractParam);
-        spectrumIDProtocol.setSearchType(param);
+        Param searchTypeParam = new Param();
+        searchTypeParam.setParam(MzIdentMLTools.createPSICvParam(OntologyConstants.MS_MS_SEARCH, null));
+        spectrumIDProtocol.setSearchType(searchTypeParam);
 
         ParamList paramList = new ParamList();
-        abstractParam = new CvParam();
-        // does not appear to be a way in Tandem of specifying parent mass is average
-        ((CvParam)abstractParam).setAccession("MS:1001211");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("parent mass type mono");
-        paramList.getCvParam().add((CvParam)abstractParam);
+        // there does not appear to be a way in Tandem of specifying parent mass is average
+        paramList.getCvParam().add(
+                MzIdentMLTools.createPSICvParam(OntologyConstants.PARENT_MASS_TYPE_MONO, null));
 
-        abstractParam = new CvParam();
         boolean fragmentMonoisotopic = false;
         if (inputParams.getSpectrumFragMassType() != null) {
-            if (inputParams.getSpectrumFragMassType().
-                    equals("monoisotopic")) {
-                ((CvParam)abstractParam).setAccession("MS:1001256");
-                ((CvParam)abstractParam).setCv(psiMS);
-                abstractParam.setName("fragment mass type mono");
+            CvParam fragMassType;
+            if ("monoisotopic".equalsIgnoreCase(inputParams.getSpectrumFragMassType())) {
+                fragMassType = MzIdentMLTools.createPSICvParam(
+                        OntologyConstants.FRAGMENT_MASS_TYPE_MONO, null);
                 fragmentMonoisotopic = true;
             } else {
-                ((CvParam)abstractParam).setAccession("MS:1001255");
-                ((CvParam)abstractParam).setCv(psiMS);
-                abstractParam.setName("fragment mass type average");
+                fragMassType = MzIdentMLTools.createPSICvParam(
+                        OntologyConstants.FRAGMENT_MASS_TYPE_AVERAGE, null);
                 fragmentMonoisotopic = false;
             }
-            paramList.getCvParam().add((CvParam)abstractParam);
+            paramList.getCvParam().add(fragMassType);
 
         }
 
@@ -391,10 +352,8 @@ public class TandemFileParser {
 
 
         ModificationParams modParams = new ModificationParams();
-        addSearchModifications(inputParams.getResidueModMass(), true, modParams,
-                psiMS);
-        addSearchModifications(inputParams.getResiduePotModMass(), false,
-                modParams, psiMS);
+        addSearchModifications(inputParams.getResidueModMass(), true, modParams);
+        addSearchModifications(inputParams.getResiduePotModMass(), false, modParams);
         spectrumIDProtocol.setModificationParams(modParams);
 
         // TODO: add the modifications given by tandem's "quick acetyl" and "quick pyrolidone"
@@ -414,17 +373,17 @@ public class TandemFileParser {
         if (strParam != null) {
             enzyme.setSiteRegexp(strParam);
 
-            String cleavages[] = strParam.split(",");
+            String[] cleavages = strParam.split(",");
 
             if (cleavages.length > 1) {
-                logger.warn("Only one enzyme (cleavage site) implemented yet.");
+                LOGGER.warn("Only one enzyme (cleavage site) implemented yet.");
             }
 
             if (cleavages.length > 0) {
                 strParam = cleavages[0];
 
 
-                String values[] = strParam.split("\\|");
+                String[] values = strParam.split("\\|");
                 String pre = values[0].substring(1, values[0].length() - 1);
                 if (pre.equalsIgnoreCase("X")) {
                     // X stands for any, make it \S in PCRE for "not whitespace"
@@ -453,7 +412,7 @@ public class TandemFileParser {
 
                 enzyme.setSiteRegexp(pre + post);
             } else {
-                logger.error("No cleavage site found!");
+                LOGGER.error("No cleavage site found!");
             }
         }
 
@@ -463,69 +422,58 @@ public class TandemFileParser {
 
         Tolerance tolerance = new Tolerance();
 
-        Double error;
-        String units;
         if (fragmentMonoisotopic) {
-            error = inputParams.getSpectrumMonoIsoMassError();
+            Double fragmentError;
+            String units;
+
+            fragmentError = inputParams.getSpectrumMonoIsoMassError();
             units = inputParams.getSpectrumMonoIsoMassErrorUnits();
 
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001412");
-            ((CvParam)abstractParam).setCv(psiMS);
-            abstractParam.setName("search tolerance plus value");
-            abstractParam.setValue(error.toString());
-            MzIdentMLTools.setUnitParameterFromString(units, abstractParam);
-            tolerance.getCvParam().add((CvParam)abstractParam);
+            CvParam tolParam = MzIdentMLTools.createPSICvParam(
+                    OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE,
+                    String.valueOf(fragmentError.toString()));
+            MzIdentMLTools.setUnitParameterFromString(units, tolParam);
+            tolerance.getCvParam().add(tolParam);
 
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001413");
-            ((CvParam)abstractParam).setCv(psiMS);
-            abstractParam.setName("search tolerance minus value");
-            abstractParam.setValue(error.toString());
-            MzIdentMLTools.setUnitParameterFromString(units, abstractParam);
-            tolerance.getCvParam().add((CvParam)abstractParam);
+            tolParam = MzIdentMLTools.createPSICvParam(
+                    OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE,
+                    String.valueOf(fragmentError.toString()));
+            MzIdentMLTools.setUnitParameterFromString(units, tolParam);
+            tolerance.getCvParam().add(tolParam);
 
             spectrumIDProtocol.setFragmentTolerance(tolerance);
         } else {
             // TODO: implement average fragment mass
-            error = null;
-            units = null;
         }
 
         tolerance = new Tolerance();
 
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001412");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("search tolerance plus value");
-        abstractParam.setValue(
+        CvParam tolParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE,
                 String.valueOf(inputParams.getSpectrumParentMonoIsoMassErrorPlus()));
         MzIdentMLTools.setUnitParameterFromString(
-                inputParams.getSpectrumParentMonoIsoMassErrorUnits(), abstractParam);
-        tolerance.getCvParam().add((CvParam)abstractParam);
+                inputParams.getSpectrumParentMonoIsoMassErrorUnits(), tolParam);
+        tolerance.getCvParam().add(tolParam);
 
-        abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession("MS:1001413");
-        ((CvParam)abstractParam).setCv(psiMS);
-        abstractParam.setName("search tolerance minus value");
-        abstractParam.setValue(
+        tolParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE,
                 String.valueOf(inputParams.getSpectrumParentMonoIsoMassErrorMinus()));
         MzIdentMLTools.setUnitParameterFromString(
-                inputParams.getSpectrumParentMonoIsoMassErrorUnits(), abstractParam);
-        tolerance.getCvParam().add((CvParam)abstractParam);
+                inputParams.getSpectrumParentMonoIsoMassErrorUnits(), tolParam);
+        tolerance.getCvParam().add(tolParam);
 
         spectrumIDProtocol.setParentTolerance(tolerance);
 
-        /* TODO: tandem has the "output, maximum valid expectation value" and 
+        /* TODO: tandem has the "output, maximum valid expectation value" and
          * "output, maximum valid protein expectation" set, this is a threshold...
-		// no threshold set, take all PSMs from the file
-		paramList = new ParamList();
-		abstractParam = new CvParam();
-		((CvParam)abstractParam).setAccession("MS:1001494");
-		((CvParam)abstractParam).setCv(psiMS);
-		abstractParam.setName("no threshold");
-		paramList.getCvParam().add((CvParam)abstractParam);
-		spectrumIDProtocol.setThreshold(paramList);
+        // no threshold set, take all PSMs from the file
+        paramList = new ParamList();
+        abstractParam = new CvParam();
+        ((CvParam)abstractParam).setAccession("MS:1001494");
+        ((CvParam)abstractParam).setCv(psiMS);
+        abstractParam.setName("no threshold");
+        paramList.getCvParam().add((CvParam)abstractParam);
+        spectrumIDProtocol.setThreshold(paramList);
          */
         file.addSpectrumIdentificationProtocol(spectrumIDProtocol);
 
@@ -566,7 +514,7 @@ public class TandemFileParser {
 
         while (iter.hasNext()) {
             Object nxt = iter.next();
-            Spectrum spectrum = null;
+            Spectrum spectrum;
             if (nxt instanceof Spectrum){
                 spectrum = (Spectrum)nxt;
             } else {
@@ -611,7 +559,7 @@ public class TandemFileParser {
                         rt = Double.parseDouble(rtStr);
                     }
                 } catch (NumberFormatException e) {
-                    logger.error("Could not parse RT: ", e);
+                    LOGGER.error("Could not parse RT: ", e);
                     rt = null;
                 }
             }
@@ -629,7 +577,7 @@ public class TandemFileParser {
             for (de.proteinms.xtandemparser.xtandem.Peptide pep : pepList) {
 
                 for (Domain domain : pep.getDomains()) {
-                    // a domain is a PSM in a protein, therefore this may be already in the compiler 
+                    // a domain is a PSM in a protein, therefore this may be already in the compiler
                     String sequence = domain.getDomainSequence();
 
                     // to check, whether the PSM is already there, the modifications
@@ -653,7 +601,7 @@ public class TandemFileParser {
                     String psmKey = PeptideSpectrumMatch.getIdentificationKey(
                             psmSetSettings,
                             sequence,
-                            PeptideSpectrumMatch.getModificationString(modifications),	// no different rounding in the same file, so this should be safe
+                            PeptideSpectrumMatch.getModificationString(modifications),  // no different rounding in the same file, so this should be safe
                             charge,
                             null,
                             null,
@@ -661,14 +609,11 @@ public class TandemFileParser {
                             null,
                             null);
 
-                    PeptideSpectrumMatch psm;
                     Peptide peptide;
-
-                    psm = keysToPSMs.get(psmKey);
+                    PeptideSpectrumMatch psm = keysToPSMs.get(psmKey);
 
                     if (psm == null) {
-
-                        psm = compiler.insertNewSpectrum(
+                        psm = compiler.createNewPeptideSpectrumMatch(
                                 charge,
                                 precursorMZ,
                                 PIATools.round(spectrum.getPrecursorMh()-domain.getDomainMh(), 6),
@@ -708,11 +653,14 @@ public class TandemFileParser {
                         score = new ScoreModel(domain.getDomainHyperScore(),
                                 ScoreModelEnum.XTANDEM_HYPERSCORE);
                         psm.addScore(score);
+
+                        // the PSm is finished now
+                        compiler.insertCompletePeptideSpectrumMatch(psm);
                     } else {
                         // if the PSM is already in the compiler, the peptide must be there as well
                         peptide = compiler.getPeptide(sequence);
                         if (peptide == null) {
-                            logger.error("The peptide " + sequence + 
+                            LOGGER.error("The peptide " + sequence +
                                     " was not found in the compiler!");
                             continue;
                         }
@@ -725,7 +673,7 @@ public class TandemFileParser {
                             FastaHeaderInfos.parseHeaderInfos(protein.getLabel());
 
                     if (fastaInfo == null) {
-                        logger.error("Could not parse '" +
+                        LOGGER.error("Could not parse '" +
                                 protein.getLabel() + "'");
                         continue;
                     }
@@ -754,8 +702,8 @@ public class TandemFileParser {
 
                         if (acc.getDbSequence() != null)  {
                             if (!proteinSequence.equals(acc.getDbSequence())) {
-                                logger.warn("Different DBSequences found for same Accession, this is not suported!\n" +
-                                        "\t Accession: " + acc.getAccession() + 
+                                LOGGER.warn("Different DBSequences found for same Accession, this is not suported!\n" +
+                                        "\t Accession: " + acc.getAccession() +
                                         "\t'" + proteinSequence + "'\n" +
                                         "\t'" + acc.getDbSequence() + "'");
                             }
@@ -776,34 +724,14 @@ public class TandemFileParser {
                             domain.getDomainStart(), domain.getDomainEnd());
 
 
-                    // now insert the peptide and the accession into the accession peptide map
-                    Set<Peptide> accsPeptides =
-                            compiler.getFromAccPepMap(acc.getAccession());
-
-                    if (accsPeptides == null) {
-                        accsPeptides = new HashSet<Peptide>();
-                        compiler.putIntoAccPepMap(acc.getAccession(), accsPeptides);
-                    }
-
-                    accsPeptides.add(peptide);
-
-                    // and also insert them into the peptide accession map
-                    Set<Accession> pepsAccessions =
-                            compiler.getFromPepAccMap(peptide.getSequence());
-
-                    if (pepsAccessions == null) {
-                        pepsAccessions = new HashSet<Accession>();
-                        compiler.putIntoPepAccMap(peptide.getSequence(),
-                                pepsAccessions);
-                    }
-
-                    pepsAccessions.add(acc);
+                    // now insert the connection between peptide and accession into the compiler
+                    compiler.addAccessionPeptideConnection(acc, peptide);
                 }
 
             }
         }
 
-        logger.info("inserted new: \n\t" +
+        LOGGER.info("inserted new: \n\t" +
                 pepNr + " peptides\n\t" +
                 specNr + " peptide spectrum matches\n\t" +
                 accNr + " accessions");
@@ -814,25 +742,25 @@ public class TandemFileParser {
     /**
      * Adds the modifications in the tandem encoded strParam to the
      * {@link ModificationParams}.
-     * 
+     *
      * @param strParam modifications encoded as specified by the X!Tandem API
      * @param isFixed whether these are fixed or potential modifications
      * @param modParams the list of {@link SearchModification}s
      * @param psiMS reference to the PSI-MS CV
      */
     private static void addSearchModifications(String strParam, boolean isFixed,
-            ModificationParams modParams, Cv psiMS) {
+            ModificationParams modParams) {
         if (modParams == null) {
-            logger.error("modParams is nt initialised, cannot add any modifications!");
+            LOGGER.error("modParams is nt initialised, cannot add any modifications!");
             return;
         }
 
         if (strParam != null) {
             // these are modifications (w/o refinement)
-            String varMods[] = strParam.split(",");
+            String[] varMods = strParam.split(",");
 
             for(String varMod : varMods) {
-                if (!varMod.equalsIgnoreCase("None")) {
+                if (!"None".equalsIgnoreCase(varMod)) {
 
                     String[] values = varMod.split("@");
 
@@ -843,15 +771,15 @@ public class TandemFileParser {
                     if (values[1].equals("[") || values[1].equals("]")) {
                         searchMod.getResidues().add(".");
 
-                        CvParam  specificity = new CvParam();
-                        specificity.setCv(psiMS);
+                        OntologyConstants modConstant;
                         if (values[1].equals("[")) {
-                            specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION);
-                            specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_NAME);
+                            modConstant = OntologyConstants.MODIFICATION_SPECIFICITY_PEP_N_TERM;
                         } else {
-                            specificity.setAccession(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION);
-                            specificity.setName(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_NAME);
+                            modConstant = OntologyConstants.MODIFICATION_SPECIFICITY_PEP_C_TERM;
                         }
+
+                        CvParam specificity = MzIdentMLTools.createPSICvParam(modConstant, null);
+
                         SpecificityRules specRules = new SpecificityRules();
                         specRules.getCvParam().add(specificity);
                         searchMod.getSpecificityRules().add(specRules);
@@ -869,7 +797,7 @@ public class TandemFileParser {
     /**
      * Create a List of {@link Modification}s with the given data from the
      * tandem file
-     * 
+     *
      * @param mods
      * @param peptideSequence
      * @param domainStart
@@ -892,7 +820,7 @@ public class TandemFileParser {
                     domainStart + 1;
 
             if ((loc < 0) || (loc > peptideSequence.length() + 1)) {
-                logger.error("weird location for modification: '" + mod.getLocation() + "' in " + peptideSequence + ", domainStart: " + domainStart);
+                LOGGER.error("weird location for modification: '" + mod.getLocation() + "' in " + peptideSequence + ", domainStart: " + domainStart);
             }
 
             if (loc == 1) {
@@ -900,13 +828,12 @@ public class TandemFileParser {
                 //  => check against suitable settings
                 for (SearchModification searchMod
                         : modParams.getSearchModification()) {
-                    if ((searchMod.getSpecificityRules() != null) &&
-                            (searchMod.getSpecificityRules().size() > 0)) {
+                    if ((searchMod.getSpecificityRules() != null)
+                            && !searchMod.getSpecificityRules().isEmpty()) {
                         for (SpecificityRules rule
                                 : searchMod.getSpecificityRules()) {
                             for (CvParam cvParam : rule.getCvParam()) {
-                                if (cvParam.getAccession().equals(
-                                        PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_N_TERM_ACCESSION)) {
+                                if (cvParam.getAccession().equals(OntologyConstants.MODIFICATION_SPECIFICITY_PEP_N_TERM.getPsiAccession())) {
                                     loc = 0;
                                     break;
                                 }
@@ -916,7 +843,7 @@ public class TandemFileParser {
                 }
 
                 // the quick acetyl and quick pyrolidone are also n-terminal
-                if (Math.abs(mod.getMass() - 42.010565) < PIAConstants.unimod_mass_tolerance) {
+                if (Math.abs(mod.getMass() - 42.010565) < UnimodParser.UNIMOD_MASS_TOLERANCE) {
                     // acetylation
                     Modification modification = new Modification('.',
                             42.0105647,
@@ -924,8 +851,8 @@ public class TandemFileParser {
                             "UNIMOD:1");
                     modifications.put(0, modification);
                     continue;
-                } else if ((Math.abs(mod.getMass() + 18.010565) < PIAConstants.unimod_mass_tolerance) ||
-                        (Math.abs(mod.getMass() + 17.026549) < PIAConstants.unimod_mass_tolerance)) {
+                } else if ((Math.abs(mod.getMass() + 18.010565) < UnimodParser.UNIMOD_MASS_TOLERANCE) ||
+                        (Math.abs(mod.getMass() + 17.026549) < UnimodParser.UNIMOD_MASS_TOLERANCE)) {
                     // pyrolidone
                     loc = 0;
                 }
@@ -935,11 +862,11 @@ public class TandemFileParser {
                 for (SearchModification searchMod
                         : modParams.getSearchModification()) {
                     if ((searchMod.getSpecificityRules() != null) &&
-                            (searchMod.getSpecificityRules().size() > 0)) {
+                            !searchMod.getSpecificityRules().isEmpty()) {
                         for (SpecificityRules rule
                                 : searchMod.getSpecificityRules()) {
                             for (CvParam cvParam : rule.getCvParam()) {
-                                if (cvParam.getAccession().equals(PIAConstants.CV_MODIFICATION_SPECIFICITY_PEP_C_TERM_ACCESSION)) {
+                                if (cvParam.getAccession().equals(OntologyConstants.MODIFICATION_SPECIFICITY_PEP_C_TERM.getPsiAccession())) {
                                     loc = peptideSequence.length()+1;
                                     break;
                                 }
@@ -949,7 +876,7 @@ public class TandemFileParser {
                 }
             }
 
-            Character residue = null;
+            Character residue;
             if ((loc == 0) || (loc > peptideSequence.length())) {
                 residue = '.';
             } else {
@@ -958,8 +885,8 @@ public class TandemFileParser {
 
             Modification modification = new Modification(residue,
                     mod.getMass(),
-                    null,		// no description
-                    null);		// no CV accession
+                    null,       // no description
+                    null);      // no CV accession
 
             modifications.put(loc, modification);
         }
