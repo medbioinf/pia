@@ -186,7 +186,7 @@ public class UnimodParser {
 
 
     /**
-     * Looks for a modification given the NAME and (some) residues.
+     * Looks for a modification given the name and (some) residues.
      *
      * @param query
      * @param residues
@@ -207,7 +207,7 @@ public class UnimodParser {
 
 
     /**
-     * Looks for a modification given the NAME and a residue.
+     * Looks for a modification given the name and a residue.
      *
      * @param query
      * @param residue
@@ -221,7 +221,7 @@ public class UnimodParser {
 
 
     /**
-     * Looks for a modification with the given NAME and mass shift on the
+     * Looks for a modification with the given name and mass shift on the
      * allowed residues.
      *
      * @param query
@@ -247,7 +247,7 @@ public class UnimodParser {
 
 
     /**
-     * Checks whether the query is either title, full NAME or alternative NAME
+     * Checks whether the query is either title, full name or alternative name
      * of the mod.
      *
      * @param query
@@ -264,7 +264,7 @@ public class UnimodParser {
 
 
     /**
-     * Checks whether the query is an alternative NAME of the modification.
+     * Checks whether the query is an alternative name of the modification.
      * @param query
      * @param mod
      * @return

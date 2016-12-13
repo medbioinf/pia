@@ -39,7 +39,7 @@ class JPiaXML {
     private static final Logger LOGGER = Logger.getLogger(JPiaXML.class);
 
 
-    /** NAME of the compilation/project */
+    /** name of the compilation/project */
     private String name;
 
     /** the creation date of the compilation/project */
@@ -79,7 +79,7 @@ class JPiaXML {
 
 
     /**
-     * Sets the value of the NAME property.
+     * Sets the value of the name property.
      */
     public void setName(String name) {
         this.name = name;

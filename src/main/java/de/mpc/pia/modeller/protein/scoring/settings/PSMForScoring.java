@@ -101,7 +101,7 @@ public enum PSMForScoring {
 	;
 	
 	/**
-	 * Getter for the method's NAME.
+	 * Getter for the method's name.
 	 * @return
 	 */
 	public abstract String getName();

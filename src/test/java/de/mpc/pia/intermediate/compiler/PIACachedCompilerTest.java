@@ -179,7 +179,7 @@ public class PIACachedCompilerTest {
 
         File piaIntermediateFile = File.createTempFile(PIA_INTERMEDIATE_FILE_NAME, null);
 
-        // test writing using the file's NAME
+        // test writing using the file's name
         piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
         piaIntermediateFile.delete();
 

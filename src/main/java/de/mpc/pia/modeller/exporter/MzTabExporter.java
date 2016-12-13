@@ -831,7 +831,7 @@ public class MzTabExporter {
             if (ontologyEntry != null) {
                 switch (ontologyEntry) {
                 case CONTACT_NAME:
-                    // the first entry of a contact detail has to be the NAME
+                    // the first entry of a contact detail has to be the name
                     Contact contact = processContactData(param.getValue(),
                             cvIterator, contactNames.size()+1);
                     if (!contactNames.contains(contact.getName())) {
@@ -853,7 +853,7 @@ public class MzTabExporter {
                     break;
 
                 case SAMPLE_NAME:
-                    // wenn "sample NAME" -> baue sample, mit enzyme und allen möglichen anderen beschreibungen (iTraq, alles was subsample im Namen hat...)
+                    // wenn "sample name" -> baue sample, mit enzyme und allen möglichen anderen beschreibungen (iTraq, alles was subsample im Namen hat...)
                     if (!sampleDescriptions.contains(param.getValue())) {
                         Sample sample = new Sample(sampleDescriptions.size()+1);
                         sample.setDescription(param.getValue());
@@ -882,14 +882,14 @@ public class MzTabExporter {
      * Processes the subsequent cvParams in the additional search params, which
      * belong to a contact.
      *
-     * @param name NAME of the contact, which is always the first of the contact
+     * @param name name of the contact, which is always the first of the contact
      * details in the list
      * @param cvIterator Iterator over the cvParams
      * @param id id of the created contact
      * @return
      */
     private Contact processContactData(String name, ListIterator<CvParam> cvIterator, int id) {
-        // get the NAME again
+        // get the name again
         Contact contact = new Contact(id);
         contact.setName(name);
 
@@ -996,7 +996,7 @@ public class MzTabExporter {
         outWriter.append(columnFactory.toString());
         outWriter.append(MZTabConstants.NEW_LINE);
 
-        // cache the databaseRefs to an array with NAME and version
+        // cache the databaseRefs to an array with name and version
         Map<String, String[]> dbRefToDbNameAndVersion =
                 new HashMap<>();
 
@@ -1164,7 +1164,7 @@ public class MzTabExporter {
                 for (String dbRef : accession.getSearchDatabaseRefs()) {
                     String[] nameAndVersion =
                             dbRefToDbNameAndVersion.get(dbRef);
-                    // cache the NAME and version of databases
+                    // cache the name and version of databases
                     if (nameAndVersion == null) {
                         SearchDatabase sDB = piaModeller.getSearchDatabases().get(dbRef);
 
@@ -1386,7 +1386,7 @@ public class MzTabExporter {
         outWriter.append(columnFactory.toString());
         outWriter.append(MZTabConstants.NEW_LINE);
 
-        // cache the databaseRefs to an array with NAME and version
+        // cache the databaseRefs to an array with name and version
         Map<String, String[]> dbRefToDbNameAndVersion =
                 new HashMap<>();
 
@@ -1407,7 +1407,7 @@ public class MzTabExporter {
             // set the first available dbName and dbVersion of the representative
             for (String dbRef : representative.getSearchDatabaseRefs()) {
                 String[] nameAndVersion = dbRefToDbNameAndVersion.get(dbRef);
-                // cache the NAME and version of databases
+                // cache the name and version of databases
                 if (nameAndVersion == null) {
                     SearchDatabase sDB = piaModeller.getSearchDatabases().get(dbRef);
 
@@ -1572,7 +1572,7 @@ public class MzTabExporter {
     /**
      * Get the Unimod modification for the Modification. If this is not yet in
      * the caches, create it. If there is no UniMod modification for the
-     * residue, mass and possible NAME, create a simple ChemMod modification.
+     * residue, mass and possible name, create a simple ChemMod modification.
      *
      * @param modification
      * @return
@@ -1657,7 +1657,7 @@ public class MzTabExporter {
                     }
                 }
             } else {
-                // no NAME is given, return any of the possible modifications
+                // no name is given, return any of the possible modifications
                 uniMod = possibleMods.iterator().next();
             }
 

@@ -24,7 +24,7 @@ public class ScoreModel implements Serializable, Comparable<ScoreModel> {
     /** the cvAccession, if possible. only used for unknown type */
     private String cvAccession;
 
-    /** the cvName, if possible, or just a NAME. only used for unknown type */
+    /** the cvName, if possible, or just a name. only used for unknown type */
     private String name;
 
 
@@ -59,8 +59,8 @@ public class ScoreModel implements Serializable, Comparable<ScoreModel> {
 
 
     /**
-     * Returns the human readable NAME of the score, either from the type or, if
-     * the type is SCORE_UNKNOWN, the instantiating NAME.
+     * Returns the human readable name of the score, either from the type or, if
+     * the type is SCORE_UNKNOWN, the instantiating name.
      * @return
      */
     public String getName() {

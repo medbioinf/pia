@@ -285,7 +285,7 @@ public enum CleavageAgent {
 
 
     /**
-     * Returns the NAME in the CV
+     * Returns the name in the CV
      * @return
      */
     public abstract String getName();
@@ -308,7 +308,7 @@ public enum CleavageAgent {
 
     /**
      * Returns a list of all alternative names of the enzyme, including the
-     * original NAME.
+     * original name.
      * @return
      */
     public List<String> getAlternativeNames() {
@@ -317,7 +317,7 @@ public enum CleavageAgent {
 
 
     /**
-     * Gets the {@link CleavageAgent} with the given case-insensitive NAME. If
+     * Gets the {@link CleavageAgent} with the given case-insensitive name. If
      * there is none, returns null.
      *
      * @param name

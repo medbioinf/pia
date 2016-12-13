@@ -128,7 +128,7 @@ public class CTDFileHandler {
 			ITEMType item;
 			
 			/*
-			<ITEM NAME="paramFile"
+			<ITEM name="paramFile"
 					type="input-file"
 					value=""
 					advanced="false"
@@ -148,7 +148,7 @@ public class CTDFileHandler {
 			node.getITEMOrITEMLISTOrNODE().add(item);
 			
 			/*
-			<ITEM NAME="paramOutFile"
+			<ITEM name="paramOutFile"
 					type="output-file"
 					value=""
 					advanced="false"
@@ -168,7 +168,7 @@ public class CTDFileHandler {
 			node.getITEMOrITEMLISTOrNODE().add(item);
 			
 			/*
-			<ITEM NAME="ARGUMENT"
+			<ITEM name="ARGUMENT"
 					type="string"
 					value=""
 					advanced="false"
@@ -291,7 +291,7 @@ public class CTDFileHandler {
 			ITEMType item;
 			
 			/*
-			<ITEM NAME="version"
+			<ITEM name="version"
 					type="string"
 					value="0.1.22"
 					advanced="true"
@@ -308,7 +308,7 @@ public class CTDFileHandler {
 			node.getITEMOrITEMLISTOrNODE().add(item);
 			
 			/*
-			<ITEM NAME="vmsettings"
+			<ITEM name="vmsettings"
 					type="string"
 					value="-Xmx8G"
 					advanced="true"
@@ -325,7 +325,7 @@ public class CTDFileHandler {
 			node.getITEMOrITEMLISTOrNODE().add(item);
 			
 			/*
-			<ITEM NAME="classpath"
+			<ITEM name="classpath"
 					type="string"
 					value="/home/julian/workspace/packages/pia-runnable.jar"
 					advanced="true"

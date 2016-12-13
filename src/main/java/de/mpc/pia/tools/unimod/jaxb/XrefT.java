@@ -20,13 +20,13 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType NAME="xref_t">
+ * &lt;complexType name="xref_t">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element NAME="text" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element NAME="source" type="{http://www.unimod.org/xmlns/schema/unimod_2}xref_source_t"/>
- *         &lt;element NAME="url" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="text" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="source" type="{http://www.unimod.org/xmlns/schema/unimod_2}xref_source_t"/>
+ *         &lt;element name="url" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>

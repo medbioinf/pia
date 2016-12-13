@@ -60,7 +60,7 @@ public class PSMModeller {
     /** maps from the fileID to the {@link PIAInputFile}s, they are straight from the intermediateHandler */
     private Map<Long, PIAInputFile> inputFiles;
 
-    /** the NAME of the PIA XML file */
+    /** the name of the PIA XML file */
     private String fileName;
 
     /** maps from the spectrum ID in the PIA intermediate file to the report PSM */
@@ -770,7 +770,7 @@ public class PSMModeller {
 
 
     /**
-     * Returns the Score NAME, given the scoreShortName.
+     * Returns the Score name, given the scoreShortName.
      * @param shortName
      * @return
      */
@@ -1307,7 +1307,7 @@ public class PSMModeller {
             return;
         }
 
-        // get the unique score SHORT_NAME, if the score is known
+        // get the unique score SHORT_name, if the score is known
         ScoreModelEnum model =
                 ScoreModelEnum.getModelByDescription(scoreShortName);
         String shortName = model.getShortName();

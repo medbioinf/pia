@@ -83,7 +83,7 @@ public class ReportProteinComparatorFactory {
         },
 
         /**
-         * sort by the score with a given NAME, interpreting a higher score as better
+         * sort by the score with a given name, interpreting a higher score as better
          */
         SCORE_SORT {
             @Override
@@ -173,7 +173,7 @@ public class ReportProteinComparatorFactory {
 
 
     /**
-     * returns the comparator given by its NAME using the given order.
+     * returns the comparator given by its name using the given order.
      *
      * @param name
      * @param order

@@ -44,7 +44,7 @@ import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModeller> {
 
     AddFilter {
-        /** the identification string for the filter NAME */
+        /** the identification string for the filter name */
         private static final String ID_FILTERNAME= "filtername";
 
         /** the identification string for the equation */
@@ -167,7 +167,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
 
     AddInferenceFilter {
-        /** the identification string for the filter NAME */
+        /** the identification string for the filter name */
         private static final String ID_FILTERNAME = "filtername";
 
         /** the identification string for the equation */

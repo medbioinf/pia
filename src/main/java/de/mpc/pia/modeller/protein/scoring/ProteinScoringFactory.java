@@ -64,14 +64,14 @@ public class ProteinScoringFactory {
 		;
 		
 		/**
-		 * Returns the human readable NAME for this scoring.
+		 * Returns the human readable name for this scoring.
 		 * @return
 		 */
 		public abstract String getName();
 		
 		
 		/**
-		 * Returns the machine readable NAME for this scoring.
+		 * Returns the machine readable name for this scoring.
 		 * @return
 		 */
 		public abstract String getShortName();
@@ -98,7 +98,7 @@ public class ProteinScoringFactory {
 	
 	/**
 	 * Returns the scoring type with the given SHORT_NAME.<br/>
-	 * If no Scoring type with this NAME is found, returns <code>null</code>.
+	 * If no Scoring type with this name is found, returns <code>null</code>.
 	 * 
 	 * @param shortName
 	 * @return
@@ -134,7 +134,7 @@ public class ProteinScoringFactory {
 	
 	
 	/**
-	 * Returns a map from each scoring's SHORT_NAME to the human readable NAME of
+	 * Returns a map from each scoring's SHORT_NAME to the human readable name of
 	 * the scoring.
 	 * 
 	 * @return

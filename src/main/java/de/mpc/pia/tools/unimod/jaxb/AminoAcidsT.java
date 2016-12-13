@@ -21,11 +21,11 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType NAME="amino_acids_t">
+ * &lt;complexType name="amino_acids_t">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element NAME="aa" type="{http://www.unimod.org/xmlns/schema/unimod_2}aa_t" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="aa" type="{http://www.unimod.org/xmlns/schema/unimod_2}aa_t" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>

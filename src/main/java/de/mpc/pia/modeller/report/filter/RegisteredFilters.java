@@ -1262,10 +1262,10 @@ public enum RegisteredFilters {
     /** the values which are compared by his filter */
     private Class<?> valueInstance;
 
-    /** a longer, more descriptive NAME */
+    /** a longer, more descriptive name */
     private String longName;
 
-    /** getter for the NAME, which should be displayed at a filter list */
+    /** getter for the name, which should be displayed at a filter list */
     private String filteringListName;
 
     /** list of filters for PSMs */
@@ -1337,7 +1337,7 @@ public enum RegisteredFilters {
 
 
     /**
-     * Returns the short NAME of this filter.
+     * Returns the short name of this filter.
      * @return
      */
     public final String getShortName() {
@@ -1346,7 +1346,7 @@ public enum RegisteredFilters {
 
 
     /**
-     * getter for a longer, more descriptive NAME
+     * getter for a longer, more descriptive name
      * @return
      */
     public final String getLongName() {
@@ -1355,7 +1355,7 @@ public enum RegisteredFilters {
 
 
     /**
-     * getter for the NAME, which should be displayed at a filter list
+     * getter for the name, which should be displayed at a filter list
      * @return
      */
     public final String getFilteringListName() {

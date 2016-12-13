@@ -21,7 +21,7 @@ import de.mpc.pia.tools.CleavageAgent;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
- * &lt;simpleType NAME="DigestionEnzyme">
+ * &lt;simpleType name="DigestionEnzyme">
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
  *     &lt;enumeration value="pepsin_a"/>
  *     &lt;enumeration value="chymotrypsin"/>

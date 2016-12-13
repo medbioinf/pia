@@ -264,7 +264,7 @@ public class MzIdentMLTools {
 
 
     /**
-     * Create an {@link Enzyme} corresponding to the given NAME
+     * Create an {@link Enzyme} corresponding to the given name
      *
      * @param enzymeString
      * @return

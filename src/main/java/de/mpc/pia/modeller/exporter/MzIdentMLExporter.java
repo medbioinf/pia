@@ -1882,7 +1882,7 @@ public class MzIdentMLExporter {
             String location = encodeLocation(spectraData.getLocation());
             spectraData.setLocation(location);
 
-            // the NAME of the "MGF format" entry changed in the OBO -> set to current value
+            // the name of the "MGF format" entry changed in the OBO -> set to current value
             FileFormat fileFormat = spectraData.getFileFormat();
             if (fileFormat != null) {
                 CvParam formatCvParam = fileFormat.getCvParam();

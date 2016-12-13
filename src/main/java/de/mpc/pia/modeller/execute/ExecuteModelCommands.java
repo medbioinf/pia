@@ -37,7 +37,7 @@ public interface ExecuteModelCommands<T> {
      * parameter file.<br/>
      *
      * Otherwise, one List<String> in the returned List stands for one needed
-     * parameter. The first string is the parameter NAME and any following
+     * parameter. The first string is the parameter name and any following
      * Strings are used to restrict the valid values. If the list is empty, no
      * parameters are needed for the execution.
      *
@@ -57,7 +57,7 @@ public interface ExecuteModelCommands<T> {
     /**
      * Creates a node with the given params. The params should be in the same
      * order as specified by {@link #neededXMLParameters()}, except for the
-     * first parameter, which indicates the NAME of the execute command, either
+     * first parameter, which indicates the name of the execute command, either
      * with or without PREFIX.
      *
      * @param params

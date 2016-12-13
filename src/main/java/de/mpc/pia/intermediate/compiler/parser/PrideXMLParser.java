@@ -542,12 +542,12 @@ public class PrideXMLParser {
             ParamList additionalInformation, SpectraData spectraData, StringBuilder sourceIdBase) {
         AbstractParam abstractParam;
 
-        // the sample NAME
+        // the sample name
         if (adminSection.getSampleName() != null) {
             abstractParam = MzIdentMLTools.createCvParam(
                     "MS:1000002",
                     MzIdentMLTools.getCvPSIMS(),
-                    "sample NAME",
+                    "sample name",
                     adminSection.getSampleName());
             additionalInformation.getCvParam().add((CvParam)abstractParam);
         }
@@ -580,7 +580,7 @@ public class PrideXMLParser {
             } else {
                 // it's no spectra data -> put into additional search params
                 abstractParam = MzIdentMLTools.createUserParam(
-                        "original file NAME",
+                        "original file name",
                         adminSection.getSourceFile().getNameOfFile(),
                         "string");
                 additionalInformation.getUserParam().add((UserParam)abstractParam);
@@ -770,9 +770,9 @@ public class PrideXMLParser {
             ParamList additionalInformation) {
 
         String pxdAccession = null;
-        //<cvParam cvLabel="MS" accession="MS:1001919" NAME="ProteomeXchange accession number" value="PXD000218"></cvParam>
+        //<cvParam cvLabel="MS" accession="MS:1001919" name="ProteomeXchange accession number" value="PXD000218"></cvParam>
         String projectName = null;
-        //<cvParam cvLabel="PRIDE" accession="PRIDE:0000097" NAME="Project" value="System-level analysis of cancer and stomal cell specific proteomes reveals extensive reprogramming of phosphorylation networks by tumor microenvironment"></cvParam>
+        //<cvParam cvLabel="PRIDE" accession="PRIDE:0000097" name="Project" value="System-level analysis of cancer and stomal cell specific proteomes reveals extensive reprogramming of phosphorylation networks by tumor microenvironment"></cvParam>
 
         for (uk.ac.ebi.pride.jaxb.model.CvParam param : additionalParams.getCvParam()) {
             if (param.getAccession().equals(OntologyConstants.PROTEOMEXCHANGE_ACCESSION_NUMBER.getPsiAccession()) ||

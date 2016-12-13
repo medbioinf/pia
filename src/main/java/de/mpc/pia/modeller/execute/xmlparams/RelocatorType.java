@@ -20,12 +20,12 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType NAME="relocatorType">
+ * &lt;complexType name="relocatorType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element NAME="reference" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element NAME="location" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="reference" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="location" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>

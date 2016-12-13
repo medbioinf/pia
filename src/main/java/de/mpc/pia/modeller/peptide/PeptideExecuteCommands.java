@@ -97,7 +97,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
         /** the identification string for the file ID */
         private static final String ID_FILE_ID= "file ID";
 
-        /** the identification string for the filter NAME */
+        /** the identification string for the filter name */
         private static final String ID_FILTERNAME= "filtername";
 
         /** the identification string for negate */

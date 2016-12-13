@@ -60,7 +60,7 @@ public class PIAModeller {
     private ProteinModeller proteinModeller;
 
 
-    /** NAME of the used file */
+    /** name of the used file */
     private String fileName;
 
     /** handler for the intermediate file */
@@ -232,7 +232,7 @@ public class PIAModeller {
 
 
     /**
-     * Returns the project NAME.
+     * Returns the project name.
      * @return
      */
     public String getProjectName() {
@@ -561,7 +561,7 @@ public class PIAModeller {
 
 
     /**
-     * This method initialises a new pipeline XML file with only the NAME
+     * This method initialises a new pipeline XML file with only the name
      * given. This file then can be filled by pipeline modeling procedures and
      * finally be executed by .
      *

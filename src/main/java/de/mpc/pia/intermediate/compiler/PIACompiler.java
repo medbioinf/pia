@@ -79,7 +79,7 @@ public abstract class PIACompiler {
     private static final Logger LOGGER = Logger.getLogger(PIACompiler.class);
 
 
-    /** just a NAME for the compilation */
+    /** just a name for the compilation */
     private String compilationName;
 
     /** the date, when the compiler was initialised */
@@ -130,7 +130,7 @@ public abstract class PIACompiler {
     private Map<Long, Group> groups;
 
 
-    /** the default NAME for a compilation */
+    /** the default name for a compilation */
     private static final String DEFAULT_PIA_COMPILATION_NAME = "PIA compilation";
 
     /** namespace declaration for jPiaXML */
@@ -142,7 +142,7 @@ public abstract class PIACompiler {
     /** namespace declaration for mzIdentML */
     private static String nsMzIdentML = "http://psidev.info/psi/pi/mzIdentML/1.1";
 
-    /** PREFIX declaration for mzIdentML */
+    /** prefix declaration for mzIdentML */
     private static String prefixMzIdentML = "ns2";
 
     /** encoding specification */
@@ -226,7 +226,7 @@ public abstract class PIACompiler {
     /**
      * Parses the data from the file, given by the fileName.
      *
-     * @param name just a NAME for easier identification
+     * @param name just a name for easier identification
      * @param fileName the path to the file
      * @param additionalInfoFileName an additional information file for the
      * search engine results (like RT for Tandem)
@@ -312,7 +312,7 @@ public abstract class PIACompiler {
 
     /**
      * Inserts a new accession into the map of accessions.
-     * @param accession new protein assession
+     * @param accession new protein accession
      * @param dbSequence sequence
      * @return
      */
@@ -854,7 +854,7 @@ public abstract class PIACompiler {
 
 
     /**
-     * Setter for the NAME
+     * Setter for the name
      * @param name
      */
     public final void  setName(String name) {
@@ -863,7 +863,7 @@ public abstract class PIACompiler {
 
 
     /**
-     * Getter for the NAME.
+     * Getter for the name.
      * @return
      */
     public final String getName() {
@@ -1203,7 +1203,7 @@ public abstract class PIACompiler {
                         + "multiple times. Any further information not given "
                         + "will be treated as null, the information is in this "
                         + "order:\n"
-                        + "NAME of the input file (as shown in the PIA viewers, "
+                        + "name of the input file (as shown in the PIA viewers, "
                         + "if not given will be set to the path of the input file), "
                         + "type of the file (usually guessed, but may also be "
                         + "explicitly given, possible values are "
@@ -1261,7 +1261,7 @@ public abstract class PIACompiler {
 
     /**
      * Parses the files given from the command line in the String array into the
-     * given {@link PIACompiler}. The files may also contain the NAME and
+     * given {@link PIACompiler}. The files may also contain the name and
      * additionalFile separated by a semicolon.
      *
      * @param inputFiles
@@ -1280,7 +1280,7 @@ public abstract class PIACompiler {
 
     /**
      * Parses one file from the command line into the given {@link PIACompiler}.
-     * The file string may also contain the NAME and additionalFile separated by
+     * The file string may also contain the name and additionalFile separated by
      * a semicolon.
      *
      * @param inputFile
@@ -1305,13 +1305,13 @@ public abstract class PIACompiler {
             }
         } else {
             if (file.contains(File.separator)) {
-                // take the filename-only as NAME, if none is given
+                // take the filename-only as name, if none is given
                 name = new File(file).getName();
             }
         }
 
         LOGGER.info("file: " + file +
-                "\n\tNAME: " + name +
+                "\n\tname: " + name +
                 "\n\ttype: " + type +
                 "\n\tadditional info file: " + additionalInfoFile);
 

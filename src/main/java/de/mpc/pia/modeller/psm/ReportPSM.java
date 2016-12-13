@@ -268,7 +268,7 @@ public class ReportPSM  implements PSMReportItem {
 
 
     /**
-     * Getter for the NAME of the {@link PIAInputFile}
+     * Getter for the name of the {@link PIAInputFile}
      * @return
      */
     public String getInputFileName() {

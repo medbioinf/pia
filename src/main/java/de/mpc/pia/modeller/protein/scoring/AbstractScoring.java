@@ -99,7 +99,7 @@ public abstract class AbstractScoring {
 	
 	
 	/**
-	 * Getter for the NAME of the Scoring
+	 * Getter for the name of the Scoring
 	 * @return
 	 */
 	public abstract String getName();
@@ -158,7 +158,7 @@ public abstract class AbstractScoring {
 	 * This should be called every time a new {@link de.mpc.pia.modeller.score.ScoreModel} (like e.g. the
 	 * combined FDR Score) is added / calculated.
 	 * 
-	 * @param scoreNameMap map of the {@link de.mpc.pia.modeller.score.ScoreModel}s shortNames to its corresponding NAME
+	 * @param scoreNameMap map of the {@link de.mpc.pia.modeller.score.ScoreModel}s shortNames to its corresponding name
 	 */
 	public void updateAvailableScores(Map<String, String> scoreNameMap) {
 		scoreSetting.updateParams(scoreNameMap);

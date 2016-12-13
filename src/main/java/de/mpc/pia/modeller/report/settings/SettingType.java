@@ -67,7 +67,7 @@ public enum SettingType {
 	
 	
 	/**
-	 * Returns the short NAME of this SettingType.
+	 * Returns the short name of this SettingType.
 	 * @return
 	 */
 	public abstract String getShortName();

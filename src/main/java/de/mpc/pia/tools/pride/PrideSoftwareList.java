@@ -19,13 +19,13 @@ public enum PrideSoftwareList {
 
     ;
 
-    /** tha NAME, that will be put into the software element of mzIdentML */
+    /** tha name, that will be put into the software element of mzIdentML */
     private String shortName;
 
-    /** the NAME in the PRIDE XML format */
+    /** the name in the PRIDE XML format */
     private String prideName;
 
-    /** NAME in PSI OBO*/
+    /** name in PSI OBO*/
     private String psiName;
 
     /** accession in PSI OBO */
@@ -38,10 +38,10 @@ public enum PrideSoftwareList {
     /**
      * basic constructor
      *
-     * @param shortName short description, used for the software element NAME in
+     * @param shortName short description, used for the software element name in
      * mzIdentML
-     * @param prideName NAME in PRIDE XML files, must not be null
-     * @param psiName NAME in PSI OBO, must not be null
+     * @param prideName name in PRIDE XML files, must not be null
+     * @param psiName name in PSI OBO, must not be null
      * @param psiAccession accession in PSI OBO, must not be null
      * @param uri URI to the software, may be null
      */
@@ -56,7 +56,7 @@ public enum PrideSoftwareList {
 
 
     /**
-     * Returns the PRIDE software given by the NAME. If none exists, returns
+     * Returns the PRIDE software given by the name. If none exists, returns
      * null.
      *
      * @param prideName

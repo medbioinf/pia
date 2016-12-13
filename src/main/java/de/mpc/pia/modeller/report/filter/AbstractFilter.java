@@ -44,7 +44,7 @@ public abstract class AbstractFilter {
 
 
     /**
-     * returns the machine readable NAME of the filter
+     * returns the machine readable name of the filter
      */
     public final String getShortName() {
         return filter.getShortName();
@@ -52,7 +52,7 @@ public abstract class AbstractFilter {
 
 
     /**
-     * returns the human readable long NAME of the filter
+     * returns the human readable long name of the filter
      */
     public final String getName() {
         return filter.getLongName();
@@ -60,7 +60,7 @@ public abstract class AbstractFilter {
 
 
     /**
-     * returns the NAME, which should be displayed at a filter list
+     * returns the name, which should be displayed at a filter list
      */
     public final String getFilteringListName() {
         return filter.getFilteringListName();

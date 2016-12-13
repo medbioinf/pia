@@ -21,23 +21,23 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType NAME="AbstractITEMType">
+ * &lt;complexType name="AbstractITEMType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute NAME="NAME" use="required">
+ *       &lt;attribute name="name" use="required">
  *         &lt;simpleType>
  *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
  *             &lt;minLength value="1"/>
  *           &lt;/restriction>
  *         &lt;/simpleType>
  *       &lt;/attribute>
- *       &lt;attribute NAME="type" use="required" type="{}PossibleITEMType" />
- *       &lt;attribute NAME="description" type="{http://www.w3.org/2001/XMLSchema}string" default="" />
- *       &lt;attribute NAME="tags" type="{http://www.w3.org/2001/XMLSchema}string" default="false" />
- *       &lt;attribute NAME="restrictions" type="{http://www.w3.org/2001/XMLSchema}string" default="" />
- *       &lt;attribute NAME="supported_formats" type="{http://www.w3.org/2001/XMLSchema}string" default="false" />
- *       &lt;attribute NAME="required" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
- *       &lt;attribute NAME="advanced" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
+ *       &lt;attribute name="type" use="required" type="{}PossibleITEMType" />
+ *       &lt;attribute name="description" type="{http://www.w3.org/2001/XMLSchema}string" default="" />
+ *       &lt;attribute name="tags" type="{http://www.w3.org/2001/XMLSchema}string" default="false" />
+ *       &lt;attribute name="restrictions" type="{http://www.w3.org/2001/XMLSchema}string" default="" />
+ *       &lt;attribute name="supported_formats" type="{http://www.w3.org/2001/XMLSchema}string" default="false" />
+ *       &lt;attribute name="required" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
+ *       &lt;attribute name="advanced" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -71,7 +71,7 @@ public abstract class AbstractITEMType {
     private Boolean advanced;
 
     /**
-     * Gets the value of the NAME property.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
@@ -83,7 +83,7 @@ public abstract class AbstractITEMType {
     }
 
     /**
-     * Sets the value of the NAME property.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is

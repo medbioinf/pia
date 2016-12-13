@@ -28,7 +28,7 @@ public class PIAInputFileXML {
 	/** id of the {@link PIAInputFile} element */
 	private Long id;
 	
-	/** the NAME of the {@link PIAInputFile} */
+	/** the name of the {@link PIAInputFile} */
 	private String name;
 	
 	/** the fileName of the {@link PIAInputFile} */
@@ -74,7 +74,7 @@ public class PIAInputFileXML {
 	
 	
 	/**
-	 * Sets the value of the NAME property.
+	 * Sets the value of the name property.
 	 */
 	public void setName(String name) {
 		this.name = name;

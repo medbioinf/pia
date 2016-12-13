@@ -136,7 +136,7 @@ public class FastaHeaderInfos {
 		
 		
 		/**
-		 * The human readable NAME of the database
+		 * The human readable name of the database
 		 */
 		public abstract String getName();
 		

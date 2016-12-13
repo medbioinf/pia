@@ -33,7 +33,7 @@ public class PIAInputFile implements Serializable {
 	/** ID of the file */
 	private long ID;
 	
-	/** a NAME for easier identification */
+	/** a name for easier identification */
 	private String name;
 	
 	/** the path to the file */
@@ -96,7 +96,7 @@ public class PIAInputFile implements Serializable {
 	
 	
 	/**
-	 * Getter for the NAME.
+	 * Getter for the name.
 	 * @return
 	 */
 	public String getName() {

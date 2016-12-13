@@ -62,7 +62,7 @@ class IdXMLFileParser {
     private static final Logger LOGGER = Logger.getLogger(IdXMLFileParser.class);
 
 
-    /** NAME of the UserParam indicating the delta mass (shift) */
+    /** name of the UserParam indicating the delta mass (shift) */
     private static final String USERPARAM_NAME_DELTA_MASS = "delta";
 
 
@@ -75,10 +75,10 @@ class IdXMLFileParser {
 
 
     /**
-     * Parses the data from an IdXML file given by its NAME into the given
+     * Parses the data from an IdXML file given by its name into the given
      * {@link PIACompiler}.
      *
-     * @param fileName NAME of the parsed file
+     * @param fileName name of the parsed file
      */
     public static boolean getDataFromIdXMLFile(String name, String fileName,
             PIACompiler compiler) {

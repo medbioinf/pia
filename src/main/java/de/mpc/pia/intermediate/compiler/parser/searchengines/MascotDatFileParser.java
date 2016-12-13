@@ -78,10 +78,10 @@ public class MascotDatFileParser {
 
 
     /**
-     * Parses the data from an mzIdentML file given by its NAME into the given
+     * Parses the data from an mzIdentML file given by its name into the given
      * {@link PIACompiler}.
      *
-     * @param fileName NAME of the mzTab file
+     * @param fileName name of the mzTab file
      */
     public static boolean getDataFromMascotDatFile(String name, String fileName,
             PIACompiler compiler) {

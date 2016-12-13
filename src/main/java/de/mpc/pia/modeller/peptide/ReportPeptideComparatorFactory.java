@@ -124,7 +124,7 @@ public class ReportPeptideComparatorFactory {
 		},
 		
 		/**
-		 * sort by the score with a given NAME
+		 * sort by the score with a given name
 		 */
 		SCORE_SORT {
 			@Override
@@ -201,7 +201,7 @@ public class ReportPeptideComparatorFactory {
 	
 	
 	/**
-	 * returns the comparator given by its NAME using the given order.
+	 * returns the comparator given by its name using the given order.
 	 * 
 	 * @param name
 	 * @param order
@@ -250,8 +250,8 @@ public class ReportPeptideComparatorFactory {
 	
 	
 	/**
-	 * Returns the sorting NAME NAME of the score with the given SHORT_NAME.
-	 * If no score with the given NAME exists, null is returned.
+	 * Returns the sorting name name of the score with the given SHORT_NAME.
+	 * If no score with the given name exists, null is returned.
 	 * @return
 	 */
 	public static String getScoreSortName(String shortName) {

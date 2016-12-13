@@ -21,11 +21,11 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType NAME="elem_ref_t">
+ * &lt;complexType name="elem_ref_t">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute NAME="symbol" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute NAME="number" type="{http://www.w3.org/2001/XMLSchema}integer" default="1" />
+ *       &lt;attribute name="symbol" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="number" type="{http://www.w3.org/2001/XMLSchema}integer" default="1" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>

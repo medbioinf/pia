@@ -35,7 +35,7 @@ import de.mpc.pia.modeller.score.FDRData;
  */
 public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     AddPreferredFDRScore {
-        /** the identification string for the score NAME */
+        /** the identification string for the score name */
         private static final String ID_SCORE_NAME = "score NAME";
 
         @Override
@@ -156,7 +156,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     },
 
     SetAllDecoyPattern {
-        /** the identification string for the score NAME */
+        /** the identification string for the score name */
         private static final String ID_DECOY_PATTERN = "decoy pattern";
 
         @Override
@@ -254,7 +254,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
         /** the identification string for the file ID */
         private static final String ID_FILE_ID= "file ID";
 
-        /** the identification string for the filter NAME */
+        /** the identification string for the filter name */
         private static final String ID_FILTERNAME= "filtername";
 
         /** the identification string for negate */

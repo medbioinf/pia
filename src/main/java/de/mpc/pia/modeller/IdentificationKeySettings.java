@@ -128,8 +128,8 @@ public enum IdentificationKeySettings {
 
 
     /**
-     * Returns the {@link IdentificationKeySettings} given by the NAME or null, if
-     * none exists with the NAME.
+     * Returns the {@link IdentificationKeySettings} given by the name or null, if
+     * none exists with the name.
      *
      * @param name
      * @return

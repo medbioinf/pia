@@ -28,7 +28,7 @@ public class FilterFactory {
 
 
     /**
-     * gets the available comparators for the filter given by the short NAME
+     * gets the available comparators for the filter given by the short name
      *
      * @param filterShort
      * @return
@@ -46,8 +46,8 @@ public class FilterFactory {
 
 
     /**
-     * Builds a new instance of the filter type, given by the short NAME.
-     * The comparatorName must be a {@link FilterComparator}'s NAME valid for
+     * Builds a new instance of the filter type, given by the short name.
+     * The comparatorName must be a {@link FilterComparator}'s name valid for
      * this filter type and the input of a valid type.
      *
      * @param filterShort
@@ -75,7 +75,7 @@ public class FilterFactory {
 
     /**
      * Builds a new instance of the filter type, given the comparator.
-     * The comparatorName must be a {@link FilterComparator}'s NAME valid for
+     * The comparatorName must be a {@link FilterComparator}'s name valid for
      * this filter type and the input of a valid type.
      *
      * @param filterShort

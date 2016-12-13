@@ -53,7 +53,7 @@ public class FixedModification {
     }
 
     /**
-     * Gets the value of the NAME property.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
@@ -65,7 +65,7 @@ public class FixedModification {
     }
 
     /**
-     * Sets the value of the NAME property.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is

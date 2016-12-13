@@ -1,12 +1,6 @@
 package de.mpc.pia.intermediate.compiler.parser.searchengines;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
@@ -93,7 +87,7 @@ public class ThermoMSFFileParser {
 
 
     /**
-     * Parses the data from an ProteomeDiscoverer's MSF file given by its NAME
+     * Parses the data from an ProteomeDiscoverer's MSF file given by its name
      * into the given {@link PIACompiler}.
      */
     public static boolean getDataFromThermoMSFFile(String name, String fileName,
@@ -109,12 +103,9 @@ public class ThermoMSFFileParser {
         jdbc.connectToExistingDB(fileName);
         fileConnectionParams.setJDBCAccess(jdbc);
 
-        Map<Long, SpectrumIdentification> nodeNumbersToIdentifications =
-                new HashMap<>();
-        Map<Long, SpectrumIdentificationProtocol> nodeNumbersToProtocols =
-                new HashMap<>();
-        Map<Long, AnalysisSoftware> nodeNumbersToSoftwares =
-                new HashMap<>();
+        Map<Long, SpectrumIdentification> nodeNumbersToIdentifications = Collections.EMPTY_MAP;
+        Map<Long, SpectrumIdentificationProtocol> nodeNumbersToProtocols = Collections.EMPTY_MAP;
+        Map<Long, AnalysisSoftware> nodeNumbersToSoftwares = Collections.EMPTY_MAP;
 
         // iterate through the ProcessingNodes and get the settings etc.
         for (Map.Entry<Object, Object> nodeObjectIt
@@ -165,7 +156,7 @@ public class ThermoMSFFileParser {
                             // databaseName
                             Param dbParam = new Param();
                             dbParam.setParam(MzIdentMLTools.createUserParam(
-                                    "FASTA file NAME",
+                                    "FASTA file name",
                                     fastaFiles.getFileName(),
                                     "string"));
                             searchDatabase.setDatabaseName(dbParam);
@@ -332,8 +323,7 @@ public class ThermoMSFFileParser {
             return false;
         }
 
-        Map<Long, PIAInputFile> nodeNumbersToInputFiles =
-                new HashMap<>();
+        Map<Long, PIAInputFile> nodeNumbersToInputFiles = new HashMap<>();
         for (Map.Entry<Long, SpectrumIdentification> idIt : nodeNumbersToIdentifications.entrySet()) {
             PIAInputFile file;
 

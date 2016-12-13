@@ -20,10 +20,10 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType NAME="PepNeutralLoss_t">
+ * &lt;complexType name="PepNeutralLoss_t">
  *   &lt;complexContent>
  *     &lt;extension base="{http://www.unimod.org/xmlns/schema/unimod_2}composition_t">
- *       &lt;attribute NAME="required" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
+ *       &lt;attribute name="required" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
  *     &lt;/extension>
  *   &lt;/complexContent>
  * &lt;/complexType>

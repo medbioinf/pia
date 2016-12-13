@@ -221,7 +221,7 @@ public enum FilterComparator {
 	
 	
 	/**
-	 * returns the NAME used as the SelectItem's value
+	 * returns the name used as the SelectItem's value
 	 * @return
 	 */
 	public String getName() {
@@ -246,7 +246,7 @@ public enum FilterComparator {
 	
 	
 	/**
-	 * gets the FilterArgument given by the NAME, or null, if the NAME is not found.
+	 * gets the FilterArgument given by the name, or null, if the name is not found.
 	 * 
 	 * @param name
 	 * @return

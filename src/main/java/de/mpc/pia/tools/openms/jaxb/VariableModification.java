@@ -53,7 +53,7 @@ public class VariableModification {
     }
 
     /**
-     * Gets the value of the NAME property.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
@@ -65,7 +65,7 @@ public class VariableModification {
     }
 
     /**
-     * Sets the value of the NAME property.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is

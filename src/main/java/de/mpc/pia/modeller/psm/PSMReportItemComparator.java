@@ -416,7 +416,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	
 	
 	/**
-	 * returns the comparator given by its NAME using the given order.
+	 * returns the comparator given by its name using the given order.
 	 * 
 	 * @param name
 	 * @param order
@@ -452,8 +452,8 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem> {
 	
 	
 	/**
-	 * Returns the NAME of the score with the given SHORT_NAME.<br/>
-	 * The SHORT_NAME has the score PREFIX, to distinguish it from a normal
+	 * Returns the name of the score with the given SHORT_NAME.<br/>
+	 * The SHORT_NAME has the score prefix, to distinguish it from a normal
 	 * sorting field.
 	 * @return
 	 */

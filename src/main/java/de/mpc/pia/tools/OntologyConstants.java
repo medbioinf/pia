@@ -27,7 +27,7 @@ public enum OntologyConstants {
     SPECTRUM_TITLE("spectrum title", "MS:1000796"),
     SCAN_START_TIME("scan start time", "MS:1000016"),
     DELTA_MZ("delta m/z", "MS:1001975"),
-    CLEAVAGE_AGENT_NAME("cleavage agent NAME", "MS:1001045"),
+    CLEAVAGE_AGENT_NAME("cleavage agent name", "MS:1001045"),
     SEARCH_TOLERANCE_PLUS_VALUE("search tolerance plus value", "MS:1001412"),
     SEARCH_TOLERANCE_MINUS_VALUE("search tolerance minus value", "MS:1001413"),
     MS_MS_SEARCH("ms-ms search", "MS:1001083"),
@@ -140,13 +140,13 @@ public enum OntologyConstants {
     public static final String PRIDE_CV_URL = "https://raw.githubusercontent.com/PRIDE-Utilities/pride-ontology/master/pride_cv.obo";
 
 
-    /** NAME in PSI OBO*/
+    /** name in PSI OBO*/
     private String psiName;
 
     /** accession in PSI OBO */
     private String psiAccession;
 
-    /** the NAME in the PRIDE ontoogy */
+    /** the name in the PRIDE ontoogy */
     private String prideName;
 
     /** the accession in the PRIDE ontology */

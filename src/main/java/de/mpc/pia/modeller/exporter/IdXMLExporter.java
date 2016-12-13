@@ -288,9 +288,9 @@ public class IdXMLExporter {
 
         // TODO: write PIA inference params
         /*
-        <UserParam type="float" NAME="Fido_prob_protein" value="0.9"/>
-        <UserParam type="float" NAME="Fido_prob_peptide" value="0.09"/>
-        <UserParam type="float" NAME="Fido_prob_spurious" value="0"/>
+        <UserParam type="float" name="Fido_prob_protein" value="0.9"/>
+        <UserParam type="float" name="Fido_prob_peptide" value="0.09"/>
+        <UserParam type="float" name="Fido_prob_spurious" value="0"/>
         */
 
         for (int idx=0; idx < indistinguishableList.size(); idx++) {
@@ -442,7 +442,7 @@ public class IdXMLExporter {
 
 
     /**
-     * Returns the NAME or location of the used searchdatabase for th egiven
+     * Returns the name or location of the used searchdatabase for th egiven
      * file.
      *
      * @param fileID
@@ -485,8 +485,8 @@ public class IdXMLExporter {
      */
     private MassType getMassType(Long fileID) {
         for (CvParam cvParam : piaModeller.getFiles().get(fileID).getAnalysisProtocolCollection().getSpectrumIdentificationProtocol().get(0).getAdditionalSearchParams().getCvParam()) {
-            if ("MS:1001255".equals(cvParam.getAccession()) ||          // NAME: fragment mass type average
-                    "MS:1001212".equals(cvParam.getAccession())) {      // NAME: parent mass type average
+            if ("MS:1001255".equals(cvParam.getAccession()) ||          // name: fragment mass type average
+                    "MS:1001212".equals(cvParam.getAccession())) {      // name: parent mass type average
                 return MassType.AVERAGE;
             }
         }

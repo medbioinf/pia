@@ -24,21 +24,21 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType NAME="NODEType">
+ * &lt;complexType name="NODEType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;choice maxOccurs="unbounded" minOccurs="0">
  *         &lt;group ref="{}ITEMS"/>
- *         &lt;element NAME="NODE" type="{}NODEType"/>
+ *         &lt;element name="NODE" type="{}NODEType"/>
  *       &lt;/choice>
- *       &lt;attribute NAME="NAME" use="required">
+ *       &lt;attribute name="name" use="required">
  *         &lt;simpleType>
  *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
  *             &lt;minLength value="1"/>
  *           &lt;/restriction>
  *         &lt;/simpleType>
  *       &lt;/attribute>
- *       &lt;attribute NAME="description" type="{http://www.w3.org/2001/XMLSchema}string" default="" />
+ *       &lt;attribute name="description" type="{http://www.w3.org/2001/XMLSchema}string" default="" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -95,7 +95,7 @@ public class NODEType {
     }
 
     /**
-     * Gets the value of the NAME property.
+     * Gets the value of the name property.
      * 
      * @return
      *     possible object is
@@ -107,7 +107,7 @@ public class NODEType {
     }
 
     /**
-     * Sets the value of the NAME property.
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is

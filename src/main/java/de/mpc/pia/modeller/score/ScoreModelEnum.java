@@ -1415,14 +1415,14 @@ public enum ScoreModelEnum {
 
 
     /**
-     * Returns the human readable NAME of the score model.
+     * Returns the human readable name of the score model.
      * @return
      */
     public abstract String getName();
 
 
     /**
-     * Returns the human readable NAME of the score model given by the
+     * Returns the human readable name of the score model given by the
      * description (i.e. NAME, SHORT_NAME or cvAccession). If the model is
      * {@link ScoreModelEnum#UNKNOWN_SCORE}, return the description.
      *
@@ -1440,7 +1440,7 @@ public enum ScoreModelEnum {
 
 
     /**
-     * Returns the machine readable NAME of the score model
+     * Returns the machine readable name of the score model
      * @return
      */
     public abstract String getShortName();
@@ -1463,7 +1463,7 @@ public enum ScoreModelEnum {
 
 
     /**
-     * Returns the CV NAME of the score model
+     * Returns the CV name of the score model
      * @return
      */
     public abstract String getCvName();

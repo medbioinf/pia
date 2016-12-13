@@ -132,7 +132,7 @@ public class PeptideModeller {
 
 
     /**
-     * Returns the Score NAME, given the scoreShortName.
+     * Returns the Score name, given the scoreShortName.
      * @param shortName
      * @return
      */
@@ -573,7 +573,7 @@ public class PeptideModeller {
 
 
                     if (psm instanceof ReportPSM) {
-                        // write the input file NAME before the remaining row
+                        // write the input file name before the remaining row
                         if (includePSMs) {
                             writer.append("\"PSM\"" + separator + "\"" +
                                     ((ReportPSM) psm).getInputFileName() + "\"" + separator);

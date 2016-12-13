@@ -36,10 +36,10 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
  */
 public class OccamsRazorInference extends AbstractProteinInference {
 
-    /** the human readable NAME of this filter */
+    /** the human readable name of this filter */
     protected static final String NAME = "Occam's Razor";
 
-    /** the machine readable NAME of the filter */
+    /** the machine readable name of the filter */
     protected static final String SHORT_NAME= "inference_occams_razor";
 
     /** the progress of the inference */

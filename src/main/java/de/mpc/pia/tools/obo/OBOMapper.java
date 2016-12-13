@@ -146,7 +146,7 @@ public class OBOMapper {
 
 
     /**
-     * Gets the entry in the OBO with the given NAME. If none is found, returns
+     * Gets the entry in the OBO with the given name. If none is found, returns
      * null.
      *
      * @param name

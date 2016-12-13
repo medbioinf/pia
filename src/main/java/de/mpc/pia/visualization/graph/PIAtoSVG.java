@@ -36,7 +36,7 @@ public class PIAtoSVG {
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(PIAtoSVG.class);
 
-    /** NAME of the graph */
+    /** name of the graph */
     private String graphName;
 
     /** the edges */
@@ -79,7 +79,7 @@ public class PIAtoSVG {
      * startGroup.
      *
      * @param startGroup
-     * @param name NAME of the returned graph
+     * @param name name of the returned graph
      */
     public PIAtoSVG(Group startGroup, String name) {
         this(startGroup, name,

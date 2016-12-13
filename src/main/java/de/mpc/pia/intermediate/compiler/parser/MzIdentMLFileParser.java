@@ -44,10 +44,10 @@ class MzIdentMLFileParser {
 
 
     /**
-     * Parses the data from an mzIdentML file given by its NAME into the given
+     * Parses the data from an mzIdentML file given by its name into the given
      * {@link PIACompiler}.
      *
-     * @param fileName NAME of the mzIdentML file
+     * @param fileName name of the mzIdentML file
      */
     public static boolean getDataFromMzIdentMLFile(String name, String fileName,
             PIACompiler compiler) {

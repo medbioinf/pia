@@ -71,13 +71,13 @@ public class ProteinInferenceFactory {
         ;
 
         /**
-         * Get the NAME of the filter.
+         * Get the name of the filter.
          * @return
          */
         public abstract String getName();
 
         /**
-         * Get the unique machine readable short NAME of the filter.
+         * Get the unique machine readable short name of the filter.
          * @return
          */
         public abstract String getShortName();
@@ -99,7 +99,7 @@ public class ProteinInferenceFactory {
 
 
     /**
-     * Returns a new instance of the inference filter given by the SHORT_NAME or
+     * Returns a new instance of the inference filter given by the SHORT_name or
      * null, if no filter with this SHORT_NAME exists.
      *
      * @param shortName
@@ -118,7 +118,7 @@ public class ProteinInferenceFactory {
 
     /**
      * Returns a map from each inference filter's SHORT_NAME to the human
-     * readable NAME of the filter.
+     * readable name of the filter.
      *
      * @return
      */
@@ -135,7 +135,7 @@ public class ProteinInferenceFactory {
 
     /**
      * Returns the inference filter with the given SHORT_NAME.<br/>
-     * If no inference filter with this NAME is found, returns <code>null</code>.
+     * If no inference filter with this name is found, returns <code>null</code>.
      *
      * @param shortName
      * @return

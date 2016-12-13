@@ -84,10 +84,10 @@ public class TandemFileParser {
 
 
     /**
-     * Parses the data from an mzIdentML file given by its NAME into the given
+     * Parses the data from an mzIdentML file given by its name into the given
      * {@link PIACompiler}.
      *
-     * @param fileName NAME of the XTandem XML result file
+     * @param fileName name of the XTandem XML result file
      * @param compiler the PIACompiler
      * @param rtMapFileName maps from the spectrum ID to the retentionTime
      */

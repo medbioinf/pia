@@ -42,20 +42,20 @@ public class PSMScoreFilter extends AbstractFilter {
 
 
     /**
-     * Returns the short NAME and the filtering NAME for the score filter of the
+     * Returns the short name and the filtering name for the score filter of the
      * {@link ScoreModel} given by the scoreShort.
      *
      * @param scoreShort
-     * @param defaultName the default NAME of the score, if it is not hard
+     * @param defaultName the default name of the score, if it is not hard
      * programmed in the {@link ScoreModelEnum}
-     * @return an array of two Strings, containing the short and filtering NAME, or null, if scoreShort is invalid
+     * @return an array of two Strings, containing the short and filtering name, or null, if scoreShort is invalid
      */
     static public String[] getShortAndFilteringName(String scoreShort,
             String defaultName) {
         String modelName = ScoreModelEnum.getName(scoreShort);
 
         if (scoreShort.equals(modelName)) {
-            // there was no good NAME of the score, so the SHORT_NAME will be returned
+            // there was no good name of the score, so the SHORT_NAME will be returned
             modelName = defaultName;
         }
 

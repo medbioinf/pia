@@ -97,7 +97,7 @@ public class PIACompilerTest {
         piaCompiler.writeOutXML(piaIntermediateFile);
         piaIntermediateFile.delete();
 
-        // test writing using the file's NAME
+        // test writing using the file's name
         piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
         piaIntermediateFile.delete();
 
@@ -241,7 +241,7 @@ public class PIACompilerTest {
         piaCompiler.writeOutXML(piaIntermediateFile);
         piaIntermediateFile.delete();
 
-        // test writing using the file's NAME
+        // test writing using the file's name
         piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
         piaIntermediateFile.delete();
 
@@ -267,7 +267,7 @@ public class PIACompilerTest {
 
         File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
 
-        // test writing using the file's NAME
+        // test writing using the file's name
         piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
         piaIntermediateFile.delete();
 

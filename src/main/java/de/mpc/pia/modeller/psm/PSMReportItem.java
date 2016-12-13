@@ -76,7 +76,7 @@ public interface PSMReportItem extends PSMItem, FDRComputable, FDRScoreComputabl
     Map<String, Boolean> getNotRedundantIdentificationKeySettings();
 
     /**
-     * Returns a nice NAME / header for the spectrum in this PSM or PSM set.
+     * Returns a nice name / header for the spectrum in this PSM or PSM set.
      * @return
      */
     String getNiceSpectrumName();
