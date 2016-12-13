@@ -25,7 +25,7 @@ import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.MzIdentMLTools;
 
-class FastaFileParser {
+public class FastaFileParser {
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(FastaFileParser.class);

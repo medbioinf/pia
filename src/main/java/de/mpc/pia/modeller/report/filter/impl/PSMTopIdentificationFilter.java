@@ -17,11 +17,11 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
  */
 public class PSMTopIdentificationFilter extends AbstractFilter {
 
-    private final String shortName;
+    protected final String shortName;
 
-    private final String name;
+    protected final String name;
 
-    private final String filteringName;
+    protected final String filteringName;
 
     public static final FilterType filterType = FilterType.numerical;
 
@@ -67,7 +67,7 @@ public class PSMTopIdentificationFilter extends AbstractFilter {
         String modelName = ScoreModelEnum.getName(scoreShort);
 
         if (scoreShort.equals(modelName)) {
-            // there was no good name of the score, so the SHORT_NAME was returned
+            // there was no good name of the score, so the shortName was returned
             modelName = defaultName;
         }
 
@@ -84,7 +84,7 @@ public class PSMTopIdentificationFilter extends AbstractFilter {
     }
 
 
-    private String getScoreShortName() {
+    public String getScoreShortName() {
         return scoreShortName;
     }
 

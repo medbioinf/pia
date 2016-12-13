@@ -87,7 +87,7 @@ public class MzIdentMLExporter {
     private static final Logger LOGGER = Logger.getLogger(MzIdentMLExporter.class);
 
     /** the modeller, that should be exported */
-    private final PIAModeller piaModeller;
+    private PIAModeller piaModeller;
 
     /** the writer used to export the mzTab file */
     private BufferedWriter outWriter;
@@ -132,19 +132,19 @@ public class MzIdentMLExporter {
     private Map<String, SpectrumIdentificationResult> sirMap;
 
 
-    /** PREFIX for a protein group in the mzIdentML */
+    /** prefix for a protein group in the mzIdentML */
     private static final String PROTEIN_AMBIGUITY_GROUP_PREFIX = "PAG_";
 
-    /** PREFIX for a protein detection hypothesis in the mzIdentML */
+    /** prefix for a protein detection hypothesis in the mzIdentML */
     private static final String PROTEIN_DETECTION_HYPOTHESIS_PREFIX = "PDH_";
 
-    /** PREFIX for a peptide in the mzIdentML */
+    /** prefix for a peptide in the mzIdentML */
     private static final String PEPTIDE_PREFIX = "PEP_";
 
-    /** PREFIX for a peptide evidence in the mzIdentML */
+    /** prefix for a peptide evidence in the mzIdentML */
     private static final String PEPTIDE_EVIDENCE_PREFIX = "PE_";
 
-    /** PREFIX for a DBSequence in the mzIdentML */
+    /** prefix for a DBSequence in the mzIdentML */
     private static final String DBSEQUENCE_PREFIX = "DBSeq_";
 
     /** the PSMSetSettings for the {@link SpectrumIdentificationResult}s in mzIdentML export */

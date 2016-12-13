@@ -55,7 +55,7 @@ public class PSMScoreFilter extends AbstractFilter {
         String modelName = ScoreModelEnum.getName(scoreShort);
 
         if (scoreShort.equals(modelName)) {
-            // there was no good name of the score, so the SHORT_NAME will be returned
+            // there was no good name of the score, so the shortName will be returned
             modelName = defaultName;
         }
 

@@ -108,7 +108,7 @@ public enum PSMForScoring {
 	
 	
 	/**
-	 * Getter for the method's SHORT_NAME
+	 * Getter for the method's shortName
 	 * @return
 	 */
 	public abstract String getShortName();

@@ -31,7 +31,7 @@ import java.util.Locale;
 public class ProteinVertexLabeller
         implements Renderer.VertexLabel<VertexObject, String>, Transformer<VertexObject, String> {
 
-    private final RenderContext<VertexObject, String> rc;
+    private RenderContext<VertexObject, String> rc;
 
     /** formatter to show m/z values in PSM labels */
     final static DecimalFormat decimalFormatter;

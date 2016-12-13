@@ -58,7 +58,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
     /** list of the spectrumIdentificationKeys of the already used spectra (this map gets filled while reporting proteins) */
     private Set<String> usedSpectra;
 
-    /** SHORT_NAME of the used protein scoring */
+    /** shortName of the used protein scoring */
     private String scoreShort;
 
     /** whether modifications are considered while inferring the peptides */
@@ -85,7 +85,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
      * by the reportPeptide
      * @param usedSpectra list of the spectrumIdentificationKeys of the already
      * used spectra (this map gets filled while reporting proteins)
-     * @param scoreShort SHORT_NAME of the used protein scoring
+     * @param scoreShort shortName of the used protein scoring
      * @param considerModifications whether modifications are considered while
      * inferring the peptides
      * @param psmSetSettings settings for PSMSet creation

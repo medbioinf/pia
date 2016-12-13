@@ -19,13 +19,13 @@ import de.mpc.pia.tools.unimod.UnimodParser;
 public abstract class AbstractFilter {
 
     /** the used comparator */
-    private final FilterComparator comparator;
+    private FilterComparator comparator;
 
     /** whether this filter is negated */
     private boolean negate;
 
     /** the represented filter */
-    private final RegisteredFilters filter;
+    private RegisteredFilters filter;
 
 
     public AbstractFilter(FilterComparator arg, RegisteredFilters filter, boolean negate) {

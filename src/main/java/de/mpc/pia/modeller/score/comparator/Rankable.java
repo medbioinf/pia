@@ -16,19 +16,19 @@ public interface Rankable extends ScoreComparable {
 	 * @param scoreName
 	 * @return
 	 */
-	Double getScore(String scoreName);
+	public abstract Double getScore(String scoreName);
 	
 	
 	/**
 	 * Getter for the rank.
 	 * @return
 	 */
-	Long getRank();
+	public abstract Long getRank();
 	
 	
 	/**
 	 * Setter for the rank.
 	 * @return
 	 */
-	void setRank(Long rank);
+	public abstract void setRank(Long rank);
 }

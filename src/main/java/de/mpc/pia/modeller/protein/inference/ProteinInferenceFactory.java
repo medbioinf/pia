@@ -99,8 +99,8 @@ public class ProteinInferenceFactory {
 
 
     /**
-     * Returns a new instance of the inference filter given by the SHORT_name or
-     * null, if no filter with this SHORT_NAME exists.
+     * Returns a new instance of the inference filter given by the shortName or
+     * null, if no filter with this shortName exists.
      *
      * @param shortName
      * @return
@@ -117,7 +117,7 @@ public class ProteinInferenceFactory {
 
 
     /**
-     * Returns a map from each inference filter's SHORT_NAME to the human
+     * Returns a map from each inference filter's shortName to the human
      * readable name of the filter.
      *
      * @return
@@ -134,7 +134,7 @@ public class ProteinInferenceFactory {
 
 
     /**
-     * Returns the inference filter with the given SHORT_NAME.<br/>
+     * Returns the inference filter with the given shortName.<br/>
      * If no inference filter with this name is found, returns <code>null</code>.
      *
      * @param shortName

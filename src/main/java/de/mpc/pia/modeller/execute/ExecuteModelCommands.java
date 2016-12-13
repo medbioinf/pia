@@ -21,14 +21,14 @@ public interface ExecuteModelCommands<T> {
      * @param params
      * @return
      */
-    boolean execute(T modeller, PIAModeller piaModeller, String[] params);
+    public abstract boolean execute(T modeller, PIAModeller piaModeller, String[] params);
 
 
     /**
      * Gives a short description for the command
      * @return
      */
-    String describe();
+    public abstract String describe();
 
 
     /**
@@ -43,7 +43,7 @@ public interface ExecuteModelCommands<T> {
      *
      * @return
      */
-    List<List<String>> neededXMLParameters();
+    public abstract List<List<String>> neededXMLParameters();
 
 
     /**
@@ -51,25 +51,25 @@ public interface ExecuteModelCommands<T> {
      *
      * @param node
      */
-    void executeXMLParameters(NODEType node, T modeller, PIAModeller piaModeller);
+    public abstract void executeXMLParameters(NODEType node, T modeller, PIAModeller piaModeller);
 
 
     /**
      * Creates a node with the given params. The params should be in the same
      * order as specified by {@link #neededXMLParameters()}, except for the
      * first parameter, which indicates the name of the execute command, either
-     * with or without PREFIX.
+     * with or without prefix.
      *
      * @param params
      * @return null, if the parameters were invalid, else a node which can be
      * processed in a pipeline call
      */
-    NODEType generateNode(String[] params);
+    public NODEType generateNode(String[] params);
 
 
     /**
-     * The PREFIX for the commands in this enumeration.
+     * The prefix for the commands in this enumeration.
      * @return
      */
-    String prefix();
+    public String prefix();
 }

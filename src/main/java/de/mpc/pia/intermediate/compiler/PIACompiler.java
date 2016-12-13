@@ -131,7 +131,7 @@ public abstract class PIACompiler {
 
 
     /** the default name for a compilation */
-    private static final String DEFAULT_PIA_COMPILATION_NAME = "PIA compilation";
+    public static final String DEFAULT_PIA_COMPILATION_NAME = "PIA compilation";
 
     /** namespace declaration for jPiaXML */
     private static String nsjPiaXML = "http://www.medizinisches-proteom-center.de/PIA/piaintermediate";
@@ -287,7 +287,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    private Set<Long> getAllFileIDs() {
+    public final Set<Long> getAllFileIDs() {
         return files.keySet();
     }
 
@@ -366,7 +366,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    protected abstract int getNrPeptides();
+    public abstract int getNrPeptides();
 
 
     /**
@@ -374,7 +374,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    protected abstract Collection<Long> getAllPeptideIDs();
+    public abstract Collection<Long> getAllPeptideIDs();
 
 
     /**
@@ -382,7 +382,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    protected abstract PeptideSpectrumMatch getPeptideSpectrumMatch(Long psmId);
+    public abstract PeptideSpectrumMatch getPeptideSpectrumMatch(Long psmId);
 
 
     /**
@@ -411,7 +411,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    protected abstract int getNrPeptideSpectrumMatches();
+    public abstract int getNrPeptideSpectrumMatches();
 
 
     /**
@@ -419,7 +419,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    protected abstract Collection<Long> getAllPeptideSpectrumMatcheIDs();
+    public abstract Collection<Long> getAllPeptideSpectrumMatcheIDs();
 
 
     /**
@@ -449,7 +449,7 @@ public abstract class PIACompiler {
      * @param accId
      * @return
      */
-    protected abstract Collection<Long> getPepIDsFromConnectionMap(Long accId);
+    public abstract Collection<Long> getPepIDsFromConnectionMap(Long accId);
 
 
     /**
@@ -458,7 +458,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    protected abstract Collection<Long> getAccIDsFromConnectionMap(Long pepId);
+    public abstract Collection<Long> getAccIDsFromConnectionMap(Long pepId);
 
 
     /**
@@ -475,7 +475,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    protected abstract void clearConnectionMap();
+    public abstract void clearConnectionMap();
 
 
     /**
@@ -695,8 +695,8 @@ public abstract class PIACompiler {
      * @param accessionsDone
      * @return
      */
-    private Map<Long, Collection<Long>> createCluster(Long accessionID,
-                                                      Set<Long> peptidesDone, Set<Long> accessionsDone) {
+    private final Map<Long, Collection<Long>> createCluster(Long accessionID,
+            Set<Long> peptidesDone, Set<Long> accessionsDone) {
         Set<Long> clusterAccessions = new HashSet<>();
         Set<Long> clusterPeptides = new HashSet<>();
 

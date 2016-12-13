@@ -37,14 +37,14 @@ import java.util.*;
  *
  * @date 08/02/2016
  */
-class MzTabParser {
+public class MzTabParser {
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(MzTabParser.class);
 
 
     /** optional column header for protein sequences */
-    private static final String OPTIONAL_SEQUENCE_COLUMN = "protein_sequence";
+    public static final String OPTIONAL_SEQUENCE_COLUMN = "protein_sequence";
 
 
     /**
@@ -61,7 +61,7 @@ class MzTabParser {
      * @param compiler
      * @return
      */
-    public static boolean getDataFromMzTabFile(String fileName, PIACompiler compiler){
+    public static boolean getDataFromMzTabFile(String name, String fileName, PIACompiler compiler){
 
         // Open the mztab files.
 
@@ -516,7 +516,7 @@ class MzTabParser {
      *
      * @return Protocol protocol in core data model format.
      */
-    public static SpectrumIdentificationProtocol addProtocol(SpectrumIdentificationProtocol protocol) {
+    public static SpectrumIdentificationProtocol addProtocol(SpectrumIdentificationProtocol protocol, uk.ac.ebi.pride.jaxb.model.Protocol rawProt) {
         return protocol;
         //TODO: we need to parse here the rawProtocol and been able to add them to the General Protocol.
     }

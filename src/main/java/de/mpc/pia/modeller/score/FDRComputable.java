@@ -15,43 +15,44 @@ public interface FDRComputable extends ScoreComparable {
 	/**
 	 * Returns the score value of the model with the given name.
 	 * 
+	 * @param scoreShortName
 	 * @return
 	 */
-	Double getScore(String scoreShortName);
+	public Double getScore(String scoreShortName);
 	
 	
 	/**
 	 * Gets the local FDR value.
 	 * @return
 	 */
-	double getFDR();
+	public double getFDR();
 	
 	
 	/**
 	 * Sets the local FDR value.
 	 * @return
 	 */
-	void setFDR(double fdr);
+	public void setFDR(double fdr);
 	
 	
 	/**
 	 * Getter for the qValue.
 	 * @return
 	 */
-	double getQValue();
+	public double getQValue();
 	
 	
 	/**
 	 * Setter for the qValue.
 	 * @return
 	 */
-	void setQValue(double value);
+	public void setQValue(double value);
 	
 	
 	/**
 	 * Delete everything left of a prior FDR calculation.
 	 */
-	void dumpFDRCalculation();
+	public void dumpFDRCalculation();
 	
 	
 	/**
@@ -60,7 +61,7 @@ public interface FDRComputable extends ScoreComparable {
 	 * 
 	 * @return
 	 */
-	void updateDecoyStatus(DecoyStrategy strategy, Pattern p);
+	public void updateDecoyStatus(DecoyStrategy strategy, Pattern p);
 	
 	
 	/**
@@ -68,7 +69,7 @@ public interface FDRComputable extends ScoreComparable {
 	 * item should be set via updateDecoyStatus.
 	 * @return
 	 */
-	boolean getIsDecoy();
+	public boolean getIsDecoy();
 	
 	
 	/**
@@ -76,5 +77,5 @@ public interface FDRComputable extends ScoreComparable {
 	 * 
 	 * @param isGood
 	 */
-	void setIsFDRGood(boolean isGood);
+	public void setIsFDRGood(boolean isGood);
 }

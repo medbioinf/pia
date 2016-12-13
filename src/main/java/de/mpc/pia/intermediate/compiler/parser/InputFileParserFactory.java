@@ -103,7 +103,7 @@ public class InputFileParserFactory {
             @Override
             public boolean parseFile(String name, String fileName,
                     PIACompiler compiler, String additionalInfoFileName) {
-                return MzTabParser.getDataFromMzTabFile(fileName,
+                return MzTabParser.getDataFromMzTabFile(name, fileName,
                         compiler);
             }
 
@@ -312,7 +312,7 @@ public class InputFileParserFactory {
      * Returns the {@link InputFileTypes} specified by the given fileSuffix or
      * null.
      */
-    private static InputFileTypes getFileTypeBySuffix(String fileSuffix) {
+    public static InputFileTypes getFileTypeBySuffix(String fileSuffix) {
         if (fileSuffix != null) {
             for (InputFileTypes type : InputFileTypes.values()) {
                 if (type.getFileSuffix().equalsIgnoreCase(fileSuffix)) {
@@ -326,10 +326,10 @@ public class InputFileParserFactory {
 
 
     /**
-     * Returns the {@link InputFileTypes} specified by the given SHORT_NAME or
+     * Returns the {@link InputFileTypes} specified by the given shortName or
      * null.
      */
-    private static InputFileTypes getFileTypeByShortName(String shortName) {
+    public static InputFileTypes getFileTypeByShortName(String shortName) {
         for (InputFileTypes type : InputFileTypes.values()) {
             if (type.getFileTypeShort().equalsIgnoreCase(shortName)) {
                 return type;

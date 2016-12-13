@@ -1326,8 +1326,7 @@ public enum RegisteredFilters {
      * @param longName
      * @param filteringListName
      */
-
-    RegisteredFilters(FilterType filterType, Class<?> valueInstance,
+    private RegisteredFilters(FilterType filterType, Class<?> valueInstance,
             String longName, String filteringListName) {
         this.filterType = filterType;
         this.valueInstance = valueInstance;
@@ -1444,7 +1443,7 @@ public enum RegisteredFilters {
     /**
      * Returns a set of registered filters for the PSM level
      */
-    public static List<RegisteredFilters> getPSMFilters() {
+    public static final List<RegisteredFilters> getPSMFilters() {
         return psmFilters;
     }
 
@@ -1453,8 +1452,8 @@ public enum RegisteredFilters {
      * Returns a set of (descriptive) shorts for the registered PSM filters.
      * These are only used to print the help.
      */
-    public static List<String> getPSMFilterShortsForHelp() {
-        List<String> filterShorts = new ArrayList<>();
+    public static final List<String> getPSMFilterShortsForHelp() {
+        List<String> filterShorts = new ArrayList<String>();
 
         filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
         filterShorts.add(PSMTopIdentificationFilter.prefix + "[scoreShort]");
@@ -1477,8 +1476,8 @@ public enum RegisteredFilters {
      * Returns a set of (descriptive) shorts for the registered peptide filters.
      * These are only used to print the help.
      */
-    public static Set<String> getPeptideFilterShortsForHelp() {
-        Set<String> filterShorts = new HashSet<>();
+    public static final Set<String> getPeptideFilterShortsForHelp() {
+        Set<String> filterShorts = new HashSet<String>();
 
         filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
         filterShorts.add(PSMTopIdentificationFilter.prefix + "[scoreShort]");
@@ -1493,7 +1492,7 @@ public enum RegisteredFilters {
     /**
      * Returns a set of registered filters for the protein level
      */
-    public static List<RegisteredFilters> getProteinFilters() {
+    public static final List<RegisteredFilters> getProteinFilters() {
         return proteinFilters;
     }
 

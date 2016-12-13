@@ -1423,7 +1423,7 @@ public enum ScoreModelEnum {
 
     /**
      * Returns the human readable name of the score model given by the
-     * description (i.e. NAME, SHORT_NAME or cvAccession). If the model is
+     * description (i.e. name, shortName or cvAccession). If the model is
      * {@link ScoreModelEnum#UNKNOWN_SCORE}, return the description.
      *
      * @return
@@ -1496,7 +1496,7 @@ public enum ScoreModelEnum {
 
 
     /**
-     * Gets all the valid descriptors for the ScoreModel (i.e. NAME, SHORT_NAME
+     * Gets all the valid descriptors for the ScoreModel (i.e. name, shortName
      * or cvAccession, some additional names)
      * @return
      */
@@ -1504,8 +1504,8 @@ public enum ScoreModelEnum {
 
 
     /**
-     * Returns true, if the given description is a valid descriptor (i.e. NAME,
-     * SHORT_NAME or cvAccession) of the score model.
+     * Returns true, if the given description is a valid descriptor (i.e. name,
+     * shortName or cvAccession) of the score model.
      * @return
      */
     public final boolean isValidDescriptor(String desc) {
@@ -1514,13 +1514,13 @@ public enum ScoreModelEnum {
 
 
     /**
-     * Returns the model for the given description (i.e. NAME, SHORT_NAME or
+     * Returns the model for the given description (i.e. name, shortName or
      * cvAccession)or UNKNOWN_SCORE, if there is none for the description.
      *
      * @param desc
      * @return
      */
-    public static ScoreModelEnum getModelByDescription(String desc) {
+    public static final ScoreModelEnum getModelByDescription(String desc) {
         for (ScoreModelEnum model : values()) {
             if (!model.equals(UNKNOWN_SCORE) &&
                     model.isValidDescriptor(desc)) {
@@ -1536,7 +1536,7 @@ public enum ScoreModelEnum {
      * Returns the scores which should not be used for FDR estimation on PSM level.
      * @return
      */
-    public static List<ScoreModelEnum> getNotForPSMFdrScore() {
+    public static final List<ScoreModelEnum> getNotForPSMFdrScore() {
         return notForPSMFdrScore;
     }
 }

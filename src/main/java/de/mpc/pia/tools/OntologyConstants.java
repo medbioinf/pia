@@ -73,14 +73,14 @@ public enum OntologyConstants {
     MODIFICATION_SPECIFICITY_PROTEIN_C_TERM("modification specificity protein C-term", "MS:1002058"),
 
     CONTACT_ATTRIBUTE("contact attribute", "MS:1000585"),
-    CONTACT_NAME("contact NAME", "MS:1000586"),
+    CONTACT_NAME("contact name", "MS:1000586"),
     CONTACT_ADDRESS("contact address", "MS:1000587"),
     CONTACT_URL("contact URL", "MS:1000588"),
     CONTACT_EMAIL("contact email", "MS:1000589"),
     CONTACT_AFFILIATION("contact affiliation", "MS:1000590"),
 
     INSTRUMENT_MODEL("instrument model", "MS:1000031"),
-    SAMPLE_NAME("sample NAME", "MS:1000002"),
+    SAMPLE_NAME("sample name", "MS:1000002"),
 
     AMINOACID_SEQUENCE("AA sequence", "MS:1001344"),
     FASTA_FORMAT("FASTA format", "MS:1001348"),

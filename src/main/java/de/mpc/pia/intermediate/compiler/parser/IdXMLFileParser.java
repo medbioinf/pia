@@ -56,7 +56,7 @@ import de.mpc.pia.tools.unimod.jaxb.ModT;
  * @author julian
  *
  */
-class IdXMLFileParser {
+public class IdXMLFileParser {
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(IdXMLFileParser.class);

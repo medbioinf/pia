@@ -45,18 +45,18 @@ public class TideTXTFileParser {
     private static final Logger LOGGER = Logger.getLogger(TideTXTFileParser.class);
 
     /** the seperator in the TSV/CSV file */
-    private static final String SEPARATOR_STRING = "\t";
+    public static final String SEPARATOR_STRING = "\t";
 
 
-    private static final String HEADER_CHARGE = "charge";
-    private static final String HEADER_PRECURSOR_MZ = "spectrum precursor m/z";
-    private static final String HEADER_SPECTRUM_NEUTRAL_MASS = "peptide mass";
-    private static final String HEADER_PEPTIDE_MASS = "peptide mass";
-    private static final String HEADER_SEQUENCE = "sequence";
-    private static final String HEADER_CLEAVAGE_TYPE = "cleavage type";
-    private static final String HEADER_SCAN = "scan";
-    private static final String HEADER_XCORR = "xcorr score";
-    private static final String HEADER_PROTEINID = "protein id";
+    public static final String HEADER_CHARGE = "charge";
+    public static final String HEADER_PRECURSOR_MZ = "spectrum precursor m/z";
+    public static final String HEADER_SPECTRUM_NEUTRAL_MASS = "peptide mass";
+    public static final String HEADER_PEPTIDE_MASS = "peptide mass";
+    public static final String HEADER_SEQUENCE = "sequence";
+    public static final String HEADER_CLEAVAGE_TYPE = "cleavage type";
+    public static final String HEADER_SCAN = "scan";
+    public static final String HEADER_XCORR = "xcorr score";
+    public static final String HEADER_PROTEINID = "protein id";
 
     /** pattern to match and grep the accession */
     private static final Pattern patternAccessions = Pattern.compile("([^(]+)\\(\\d+\\)");

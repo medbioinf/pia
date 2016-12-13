@@ -19,7 +19,7 @@ public class OccamsRazorWorkerThread extends Thread {
     private int ID;
 
     /** the caller of this thread */
-    private final OccamsRazorInference parent;
+    private OccamsRazorInference parent;
 
     /** the applied inference filters */
     private List<AbstractFilter> filters;

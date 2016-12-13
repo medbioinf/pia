@@ -17,13 +17,13 @@ public class AccessionOccurrence implements Serializable {
     private static final long serialVersionUID = 1738822043859868668L;
 
     /** the Accession */
-    private Accession accession;
+    Accession accession;
 
     /** start in the DBSequence for this occurrence */
-    private Integer start;
+    Integer start;
 
     /** end in the DBSequence for this occurrence */
-    private Integer end;
+    Integer end;
 
 
     /**

@@ -36,7 +36,7 @@ import de.mpc.pia.modeller.score.FDRData;
 public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     AddPreferredFDRScore {
         /** the identification string for the score name */
-        private static final String ID_SCORE_NAME = "score NAME";
+        private static final String ID_SCORE_NAME = "score name";
 
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
@@ -47,7 +47,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public String describe() {
-            return "Adds the given score NAME to the list of preferred scores for FDR calculation.";
+            return "Adds the given score name to the list of preferred scores for FDR calculation.";
         }
 
         @Override
@@ -526,7 +526,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                     "valid parameters are:" +
                     "\nformat: mzid [default], mztab, csv" +
                     "\nfileID: default 0 (overview)" +
-                    "\nfileName: the report file NAME [report.mzid]" +
+                    "\nfileName: the report file name [report.mzid]" +
                     "\nspectral_count: defaults to no";
         }
 

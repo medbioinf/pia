@@ -11,7 +11,7 @@ import de.mpc.pia.modeller.score.ScoreModel;
 public class AdditiveScoring extends AbstractScoring {
 	
 	/** the human readable score */
-	protected static final String NAME = "Additive Scoring";
+	protected static String NAME = "Additive Scoring";
 	
 	/** the machine readable score */
 	protected static String SHORT_NAME = "scoring_additive";

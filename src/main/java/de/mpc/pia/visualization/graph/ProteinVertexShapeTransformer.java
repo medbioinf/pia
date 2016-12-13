@@ -26,8 +26,8 @@ import edu.uci.ics.jung.visualization.RenderContext;
 public class ProteinVertexShapeTransformer
         implements Transformer<VertexObject, Shape> {
 
-    private final RenderContext<VertexObject, String> rc;
-    private final int margin;
+    private RenderContext<VertexObject, String> rc;
+    private int margin;
 
 
     /**

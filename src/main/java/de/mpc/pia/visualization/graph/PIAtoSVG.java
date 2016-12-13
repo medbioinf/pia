@@ -40,10 +40,10 @@ public class PIAtoSVG {
     private String graphName;
 
     /** the edges */
-    private final StringBuilder edges;
+    private StringBuilder edges;
 
     /** th enodes */
-    private final StringBuilder nodes;
+    private StringBuilder nodes;
 
     /** will be returned, if dot cannot be called */
     private static final String ERROR_DOT_SVG = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +

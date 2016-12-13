@@ -23,7 +23,7 @@ public interface PSMReportItem extends PSMItem, FDRComputable, FDRScoreComputabl
      * Returns a identification String for the PSM.
      * @return
      */
-    String getIdentificationKey(Map<String, Boolean> psmSetSettings);
+    public String getIdentificationKey(Map<String, Boolean> psmSetSettings);
 
 
     /**
@@ -31,14 +31,14 @@ public interface PSMReportItem extends PSMItem, FDRComputable, FDRScoreComputabl
      * @param considerModifications
      * @return
      */
-    String getPeptideStringID(boolean considerModifications);
+    public String getPeptideStringID(boolean considerModifications);
 
 
     /**
      * Getter for the delta mass given in PPM.
      * @return
      */
-    double getDeltaPPM();
+    public double getDeltaPPM();
 
 
     /**
@@ -48,14 +48,14 @@ public interface PSMReportItem extends PSMItem, FDRComputable, FDRScoreComputabl
      *
      * @return
      */
-    String getModificationsString();
+    public String getModificationsString();
 
 
     /**
      * Getter for all the Accessions in the item
      * @return
      */
-    List<Accession> getAccessions();
+    public List<Accession> getAccessions();
 
 
     /**
@@ -64,7 +64,7 @@ public interface PSMReportItem extends PSMItem, FDRComputable, FDRScoreComputabl
      * available on all spectra in this PSM or PSM set.
      * @return
      */
-    Map<String, Boolean> getAvailableIdentificationKeySettings();
+    public Map<String, Boolean> getAvailableIdentificationKeySettings();
 
     /**
      * Returns the settings, which are available for identification key
@@ -73,22 +73,22 @@ public interface PSMReportItem extends PSMItem, FDRComputable, FDRScoreComputabl
      * i.e. the best minimal set of settings.
      * @return
      */
-    Map<String, Boolean> getNotRedundantIdentificationKeySettings();
+    public Map<String, Boolean> getNotRedundantIdentificationKeySettings();
 
     /**
      * Returns a nice name / header for the spectrum in this PSM or PSM set.
      * @return
      */
-    String getNiceSpectrumName();
+    public String getNiceSpectrumName();
 
 
     /** Returns a representation of the PSM's or PSM set's scores */
-    String getScoresString();
+    public String getScoresString();
 
 
     /**
      * Returns the peptide in which this PSM occurs.
      * @return
      */
-    Peptide getPeptide();
+    public Peptide getPeptide();
 }

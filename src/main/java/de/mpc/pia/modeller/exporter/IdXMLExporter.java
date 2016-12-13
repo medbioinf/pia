@@ -51,7 +51,7 @@ public class IdXMLExporter {
 
 
     /** the modeller, that should be exported */
-    private final PIAModeller piaModeller;
+    private PIAModeller piaModeller;
 
 
     /** type for userParam "string" */

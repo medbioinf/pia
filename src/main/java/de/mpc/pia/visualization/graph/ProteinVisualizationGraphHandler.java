@@ -32,28 +32,28 @@ public class ProteinVisualizationGraphHandler {
 
 
     /** mapping from the group's label to whether its accessions are shown */
-    private final Map<String, Boolean> expandedAccessionsMap;
+    private Map<String, Boolean> expandedAccessionsMap;
 
     /** mapping from the group's label to whether its peptides are shown */
-    private final Map<String, Boolean> expandedPeptidesMap;
+    private Map<String, Boolean> expandedPeptidesMap;
 
     /** mapping from the peptide's label to whether its spectra a shown */
-    private final Map<String, Boolean> showPSMsMap;
+    private Map<String, Boolean> showPSMsMap;
 
     /** mapping from the group ID to the vertex in the graph */
     private Map<Long, VertexObject> groupVertices;
 
 
     /** the protein ambiguity group, for which relations should be calculated (can be null) */
-    private final ReportProtein reportProteinGroup;
+    private ReportProtein reportProteinGroup;
 
 
     /** IDs of accessions, grouped by relations to selected PAG */
-    private final Map<VertexRelation, Set<Long>> relationsAccessions;
+    private Map<VertexRelation, Set<Long>> relationsAccessions;
     /** IDs of peptides, grouped by relations to selected PAG */
-    private final Map<VertexRelation, Set<Long>> relationsPeptides;
+    private Map<VertexRelation, Set<Long>> relationsPeptides;
     /** IDs of spectra, grouped by relations to selected PAG */
-    private final Map<VertexRelation, Set<Long>> relationsSpectra;
+    private Map<VertexRelation, Set<Long>> relationsSpectra;
 
 
 

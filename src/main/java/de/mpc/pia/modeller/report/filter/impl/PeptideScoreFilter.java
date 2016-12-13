@@ -50,7 +50,7 @@ public class PeptideScoreFilter extends AbstractFilter {
         String modelName = ScoreModelEnum.getName(scoreShort);
 
         if (scoreShort.equals(modelName)) {
-            // there was no good name of the score, so the SHORT_NAME was returned
+            // there was no good name of the score, so the shortName was returned
             modelName = defaultName;
         }
 

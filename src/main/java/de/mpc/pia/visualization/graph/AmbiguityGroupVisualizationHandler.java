@@ -34,10 +34,10 @@ import edu.uci.ics.jung.visualization.util.Animator;
 public class AmbiguityGroupVisualizationHandler implements GraphMouseListener<VertexObject> {
 
     /** handler for the shown graph */
-    private final ProteinVisualizationGraphHandler visGraph;
+    private ProteinVisualizationGraphHandler visGraph;
 
     /** the currently selected vertex */
-    private final VertexObject selectedVertex;
+    private VertexObject selectedVertex;
 
     /** the default used layout */
     private static final Class<? extends Layout> defaultLayout = ProteinLayout.class;

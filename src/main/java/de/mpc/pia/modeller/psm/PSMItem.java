@@ -16,28 +16,28 @@ public interface PSMItem {
      *
      * @return
      */
-    String getSequence();
+    public String getSequence();
 
 
     /**
      * Returns the charge of the item.
      * @return
      */
-    int getCharge();
+    public int getCharge();
 
 
     /**
      * Getter for the mass to charge value
      * @return
      */
-    double getMassToCharge();
+    public double getMassToCharge();
 
 
     /**
      * Getter for the missed cleavages
      * @return
      */
-    int getMissedCleavages();
+    public int getMissedCleavages();
 
 
     /**
@@ -45,7 +45,7 @@ public interface PSMItem {
      *
      * @return
      */
-    Double getRetentionTime();
+    public Double getRetentionTime();
 
 
     /**
@@ -53,7 +53,7 @@ public interface PSMItem {
      *
      * @return
      */
-    String getSourceID();
+    public String getSourceID();
 
 
     /**
@@ -61,19 +61,19 @@ public interface PSMItem {
      *
      * @return
      */
-    String getSpectrumTitle();
+    public String getSpectrumTitle();
 
 
     /**
      * Getter for the delta mass.
      * @return
      */
-    double getDeltaMass();
+    public double getDeltaMass();
 
 
     /**
      * Getter for the modifications of this item.
      * @return
      */
-    Map<Integer, Modification> getModifications();
+    public Map<Integer, Modification> getModifications();
 }

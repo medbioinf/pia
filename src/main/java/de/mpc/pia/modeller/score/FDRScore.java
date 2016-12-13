@@ -13,7 +13,7 @@ public class FDRScore {
 	 * {@link FDRData#calculateFDR(List)} on the List before.
 	 * 
 	 * @param reportItems the list of items, for which the FDR should be
-	 * calculated
+	 * calculated end of the list
 	 */
 	public static <T extends FDRScoreComputable> void calculateFDRScore(
 			List<T> reportItems, FDRData fdrData, boolean higherScoreBetter) {

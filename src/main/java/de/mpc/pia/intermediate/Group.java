@@ -214,8 +214,8 @@ public class Group implements Serializable {
 	 * Getter for all children groups of this group, including children's
 	 * children and so on.
 	 */
-	private Map<Long, Group> getAllChildren(){
-		Map<Long, Group> allChildren = new HashMap<>();
+	public Map<Long, Group> getAllChildren(){
+		Map<Long, Group> allChildren = new HashMap<Long, Group>();
 		
 		for (Map.Entry<Long, Group> cIt : children.entrySet()) {
 			allChildren.put(cIt.getKey(), cIt.getValue());
@@ -308,7 +308,7 @@ public class Group implements Serializable {
 	 * 
 	 * @param accession
 	 */
-	private void addToAllAccessions(Accession accession) {
+	protected void addToAllAccessions(Accession accession) {
 		allAccessions.put(accession.getAccession(), accession);
 		
 		for (Map.Entry<Long, Group> child : children.entrySet()) {
@@ -371,8 +371,8 @@ public class Group implements Serializable {
 	 * 
 	 * @return
 	 */
-	private String getPeptidesStr() {
-		StringBuilder sb = new StringBuilder();
+	public String getPeptidesStr() {
+		StringBuffer sb = new StringBuffer();
 		
 		if (peptides != null) {
 			for (Map.Entry<String, Peptide> pep : peptides.entrySet()) {

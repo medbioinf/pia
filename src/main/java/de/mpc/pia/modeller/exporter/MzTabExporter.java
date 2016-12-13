@@ -88,7 +88,7 @@ public class MzTabExporter {
 
 
     /** the modeller, that should be exported */
-    private final PIAModeller piaModeller;
+    private PIAModeller piaModeller;
 
     /** the writer used to export the mzTab file */
     private BufferedWriter outWriter;

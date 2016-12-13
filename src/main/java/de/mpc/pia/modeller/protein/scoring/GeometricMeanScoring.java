@@ -11,10 +11,10 @@ import de.mpc.pia.modeller.score.ScoreModel;
 public class GeometricMeanScoring extends AbstractScoring {
 	
 	/** the human readable score */
-	protected static final String NAME = "Geometric Mean Scoring";
+	protected static String NAME = "Geometric Mean Scoring";
 	
 	/** the machine readable score */
-	protected static final String SHORT_NAME = "geometric_mean_scoring";
+	protected static String SHORT_NAME = "geometric_mean_scoring";
 	
 	
 	public GeometricMeanScoring(Map<String, String> scoreNameMap) {

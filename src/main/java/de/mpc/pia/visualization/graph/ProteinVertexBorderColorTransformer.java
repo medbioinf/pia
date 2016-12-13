@@ -23,10 +23,10 @@ public class ProteinVertexBorderColorTransformer
         implements Transformer<VertexObject, Paint> {
 
     /** the graph handler which holds also information about the inferred proteins */
-    private final ProteinVisualizationGraphHandler graphHandler;
+    private ProteinVisualizationGraphHandler graphHandler;
 
     /** the currently selected vertex */
-    private final PickedState<VertexObject> pickedState;
+    private PickedState<VertexObject> pickedState;
 
 
     // some border colors

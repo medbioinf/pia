@@ -23,7 +23,7 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
 public abstract class AbstractScoring {
 	
 	/** the score used for this scoring method */
-	private final Setting scoreSetting;
+	private Setting scoreSetting;
 	
 	/** which PSMs of the peptide should be used for scoring */
 	private Setting psmForScoringSetting;
