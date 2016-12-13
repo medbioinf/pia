@@ -492,7 +492,7 @@ public abstract class PIACompiler {
                     swIt.getValue().getSoftwareName())) {
                 boolean equal = true;
 
-                equal &= PIATools.bothNullOrEqual(swIt.getValue().getName(),
+                equal = PIATools.bothNullOrEqual(swIt.getValue().getName(),
                         software.getName());
 
                 equal &= PIATools.bothNullOrEqual(swIt.getValue().getUri(),
@@ -534,7 +534,7 @@ public abstract class PIACompiler {
             if (dbIt.getValue().getLocation().equals(database.getLocation())) {
                 boolean equal = true;
 
-                equal &= PIATools.bothNullOrEqual(dbIt.getValue().getName(),
+                equal = PIATools.bothNullOrEqual(dbIt.getValue().getName(),
                         database.getName());
 
                 equal &= PIATools.bothNullOrEqual(dbIt.getValue().getNumDatabaseSequences(),
@@ -620,7 +620,7 @@ public abstract class PIACompiler {
             if (spectraIt.getValue().getLocation().equals(spectra.getLocation())) {
                 boolean equal = true;
 
-                equal &= PIATools.bothNullOrEqual(spectraIt.getValue().getName(),
+                equal = PIATools.bothNullOrEqual(spectraIt.getValue().getName(),
                         spectra.getName());
 
                 equal &= PIATools.bothNullOrEqual(

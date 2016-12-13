@@ -190,16 +190,12 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
             String pattern = null;
 
             for (Object item : node.getITEMOrITEMLISTOrNODE()) {
-                if ((item instanceof ITEMType)
-                        && ID_DECOY_PATTERN.equals(((ITEMType) item).getName())) {
+                if ((item instanceof ITEMType) && ID_DECOY_PATTERN.equals(((ITEMType) item).getName())) {
                     pattern = ((ITEMType) item).getValue();
                     break;
                 }
             }
-
-            if (ID_DECOY_PATTERN != null) {
-                execute(psmModeller, piaModeller, new String[] {pattern});
-            }
+            execute(psmModeller, piaModeller, new String[] {pattern});
         }
     },
 

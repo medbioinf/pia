@@ -274,7 +274,7 @@ public class OccamsRazorWorkerThread extends Thread {
                 }
             }
 
-            for (Long protID : mostPepsIDs) {
+            for (Long protID : mostPepsIDs != null ? mostPepsIDs : null) {
                 ReportProtein protein = proteins.get(protID);
                 if (nrMostPeps > 0) {
                     // TODO: for now, the proteins which "explain" no more peptides are not reported (this happens sometimes)
