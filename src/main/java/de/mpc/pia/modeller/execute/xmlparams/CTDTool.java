@@ -67,25 +67,25 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "tool")
 public class CTDTool {
 
-    protected String description;
-    protected String manual;
-    protected String executableName;
+    private String description;
+    private String manual;
+    private String executableName;
     @XmlSchemaType(name = "anyURI")
-    protected String executablePath;
-    protected CliType cli;
-    protected LogCollectionType logs;
-    protected RelocatorCollectionType relocators;
+    private String executablePath;
+    private CliType cli;
+    private LogCollectionType logs;
+    private RelocatorCollectionType relocators;
     @XmlElement(name = "PARAMETERS", required = true)
-    protected PARAMETERSType parameters;
+    private PARAMETERSType parameters;
     @XmlAttribute(required = true)
-    protected String version;
+    private String version;
     @XmlAttribute(required = true)
-    protected String name;
+    private String name;
     @XmlAttribute
     @XmlSchemaType(name = "anyURI")
-    protected String docurl;
+    private String docurl;
     @XmlAttribute
-    protected String category;
+    private String category;
 
     /**
      * Gets the value of the description property.

@@ -62,34 +62,34 @@ import javax.xml.bind.annotation.XmlType;
 public class ModT {
 
     @XmlElement(required = true)
-    protected List<SpecificityT> specificity;
+    private List<SpecificityT> specificity;
     @XmlElement(required = true)
-    protected CompositionT delta;
+    private CompositionT delta;
     @XmlElement(name = "Ignore")
-    protected List<CompositionT> ignore;
+    private List<CompositionT> ignore;
     @XmlElement(name = "alt_name")
-    protected List<String> altName;
-    protected List<XrefT> xref;
+    private List<String> altName;
+    private List<XrefT> xref;
     @XmlElement(name = "misc_notes")
-    protected String miscNotes;
+    private String miscNotes;
     @XmlAttribute(required = true)
-    protected String title;
+    private String title;
     @XmlAttribute(name = "full_name", required = true)
-    protected String fullName;
+    private String fullName;
     @XmlAttribute(name = "username_of_poster", required = true)
-    protected String usernameOfPoster;
+    private String usernameOfPoster;
     @XmlAttribute(name = "group_of_poster")
-    protected String groupOfPoster;
+    private String groupOfPoster;
     @XmlAttribute(name = "date_time_posted", required = true)
-    protected String dateTimePosted;
+    private String dateTimePosted;
     @XmlAttribute(name = "date_time_modified", required = true)
-    protected String dateTimeModified;
+    private String dateTimeModified;
     @XmlAttribute
-    protected Boolean approved;
+    private Boolean approved;
     @XmlAttribute(name = "ex_code_name")
-    protected String exCodeName;
+    private String exCodeName;
     @XmlAttribute(name = "record_id")
-    protected Long recordId;
+    private Long recordId;
 
     /**
      * Gets the value of the specificity property.

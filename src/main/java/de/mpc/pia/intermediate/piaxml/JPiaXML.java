@@ -43,7 +43,7 @@ class JPiaXML {
     private String name;
 
     /** the creation date of the compilation/project */
-    protected XMLGregorianCalendar date;
+    private XMLGregorianCalendar date;
 
     /** the input files (the ones in Inputs can not be used, more information needed) */
     private FilesListXML filesList;

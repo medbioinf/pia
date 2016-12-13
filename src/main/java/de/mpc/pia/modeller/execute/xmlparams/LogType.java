@@ -52,17 +52,17 @@ import javax.xml.datatype.XMLGregorianCalendar;
 })
 public class LogType {
 
-    protected List<String> executionWarnings;
-    protected List<String> executionErrors;
-    protected List<String> executionMessage;
+    private List<String> executionWarnings;
+    private List<String> executionErrors;
+    private List<String> executionMessage;
     @XmlAttribute(required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar executionTimeStart;
+    private XMLGregorianCalendar executionTimeStart;
     @XmlAttribute(required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar executionTimeStop;
+    private XMLGregorianCalendar executionTimeStop;
     @XmlAttribute(required = true)
-    protected int executionStatus;
+    private int executionStatus;
 
     /**
      * Gets the value of the executionWarnings property.

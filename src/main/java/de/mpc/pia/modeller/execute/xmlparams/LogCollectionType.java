@@ -44,7 +44,7 @@ import javax.xml.bind.annotation.XmlType;
 public class LogCollectionType {
 
     @XmlElement(required = true)
-    protected List<LogType> log;
+    private List<LogType> log;
 
     /**
      * Gets the value of the log property.

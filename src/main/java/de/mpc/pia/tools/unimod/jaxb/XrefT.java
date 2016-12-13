@@ -44,10 +44,10 @@ import javax.xml.bind.annotation.XmlType;
 public class XrefT {
 
     @XmlElement(required = true)
-    protected String text;
+    private String text;
     @XmlElement(required = true)
-    protected String source;
-    protected String url;
+    private String source;
+    private String url;
 
     /**
      * Gets the value of the text property.

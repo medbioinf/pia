@@ -49,17 +49,17 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class UnimodT {
 
-    protected ElementsT elements;
-    protected ModificationsT modifications;
+    private ElementsT elements;
+    private ModificationsT modifications;
     @XmlElement(name = "amino_acids")
-    protected AminoAcidsT aminoAcids;
+    private AminoAcidsT aminoAcids;
     @XmlElement(name = "mod_bricks")
-    protected ModBricksT modBricks;
+    private ModBricksT modBricks;
     @XmlAttribute(required = true)
     @XmlSchemaType(name = "unsignedShort")
-    protected int majorVersion;
+    private int majorVersion;
     @XmlAttribute(required = true)
-    protected int minorVersion;
+    private int minorVersion;
 
     /**
      * Gets the value of the elements property.

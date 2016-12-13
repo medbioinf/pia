@@ -26,35 +26,35 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class SearchParameters {
 
     @XmlElement(name = "FixedModification")
-    protected List<FixedModification> fixedModification;
+    private List<FixedModification> fixedModification;
     @XmlElement(name = "VariableModification")
-    protected List<VariableModification> variableModification;
+    private List<VariableModification> variableModification;
     @XmlElement(name = "UserParam")
-    protected List<UserParamIdXML> userParam;
+    private List<UserParamIdXML> userParam;
     @XmlAttribute(required = true)
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
     @XmlSchemaType(name = "ID")
-    protected String id;
+    private String id;
     @XmlAttribute(required = true)
-    protected String db;
+    private String db;
     @XmlAttribute(name = "db_version", required = true)
-    protected String dbVersion;
+    private String dbVersion;
     @XmlAttribute
-    protected String taxonomy;
+    private String taxonomy;
     @XmlAttribute(name = "mass_type", required = true)
-    protected MassType massType;
+    private MassType massType;
     @XmlAttribute(required = true)
-    protected String charges;
+    private String charges;
     @XmlAttribute
-    protected DigestionEnzyme enzyme;
+    private DigestionEnzyme enzyme;
     @XmlAttribute(name = "missed_cleavages")
     @XmlSchemaType(name = "unsignedInt")
-    protected Long missedCleavages;
+    private Long missedCleavages;
     @XmlAttribute(name = "precursor_peak_tolerance", required = true)
-    protected float precursorPeakTolerance;
+    private float precursorPeakTolerance;
     @XmlAttribute(name = "peak_mass_tolerance", required = true)
-    protected float peakMassTolerance;
+    private float peakMassTolerance;
 
     /**
      * Gets the value of the fixedModification property.

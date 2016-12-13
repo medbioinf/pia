@@ -44,7 +44,7 @@ public class ITEMLISTType
 {
 
     @XmlElement(name = "LISTITEM")
-    protected List<LISTITEMType> listitem;
+    private List<LISTITEMType> listitem;
 
     /**
      * Gets the value of the listitem property.

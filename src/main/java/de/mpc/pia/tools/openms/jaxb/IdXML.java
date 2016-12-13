@@ -30,13 +30,13 @@ import javax.xml.bind.annotation.XmlType;
 public class IdXML {
 
     @XmlElement(name = "SearchParameters", required = true)
-    protected List<SearchParameters> searchParameters;
+    private List<SearchParameters> searchParameters;
     @XmlElement(name = "IdentificationRun", required = true)
-    protected List<IdentificationRun> identificationRun;
+    private List<IdentificationRun> identificationRun;
     @XmlAttribute
-    protected Float version;
+    private Float version;
     @XmlAttribute
-    protected String id;
+    private String id;
 
     /**
      * Gets the value of the searchParameters property.

@@ -45,15 +45,15 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class BrickT {
 
-    protected List<ElemRefT> element;
+    private List<ElemRefT> element;
     @XmlAttribute
-    protected String title;
+    private String title;
     @XmlAttribute(name = "full_name")
-    protected String fullName;
+    private String fullName;
     @XmlAttribute(name = "mono_mass")
-    protected Double monoMass;
+    private Double monoMass;
     @XmlAttribute(name = "avge_mass")
-    protected Double avgeMass;
+    private Double avgeMass;
 
     /**
      * Gets the value of the element property.

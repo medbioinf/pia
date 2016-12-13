@@ -46,17 +46,17 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class AaT {
 
-    protected List<ElemRefT> element;
+    private List<ElemRefT> element;
     @XmlAttribute
-    protected String title;
+    private String title;
     @XmlAttribute(name = "three_letter")
-    protected String threeLetter;
+    private String threeLetter;
     @XmlAttribute(name = "full_name")
-    protected String fullName;
+    private String fullName;
     @XmlAttribute(name = "mono_mass")
-    protected Double monoMass;
+    private Double monoMass;
     @XmlAttribute(name = "avge_mass")
-    protected Double avgeMass;
+    private Double avgeMass;
 
     /**
      * Gets the value of the element property.

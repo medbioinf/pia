@@ -23,18 +23,18 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class ProteinHit {
 
     @XmlElement(name = "UserParam")
-    protected List<UserParamIdXML> userParam;
+    private List<UserParamIdXML> userParam;
     @XmlAttribute(required = true)
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
     @XmlSchemaType(name = "ID")
-    protected String id;
+    private String id;
     @XmlAttribute(required = true)
-    protected String accession;
+    private String accession;
     @XmlAttribute(required = true)
-    protected float score;
+    private float score;
     @XmlAttribute
-    protected String sequence;
+    private String sequence;
 
     /**
      * Gets the value of the userParam property.

@@ -165,7 +165,7 @@ public class ReportPeptideComparatorFactory {
 	
 	
 	/** the PREFIX before all score tags */
-	public final static String score_prefix = "score_";
+	public final static String SCORE_PREFIX = "score_";
 	
 	
 	/**
@@ -218,7 +218,7 @@ public class ReportPeptideComparatorFactory {
 		}
 		
 		// it still may be a score comparator
-		if (name.startsWith(score_prefix)) {
+		if (name.startsWith(SCORE_PREFIX)) {
 			String scoreName = name.substring(6);
 			Comparator<ReportPeptide> comp = ReportPeptideComparatorFactory.CompareType.SCORE_SORT.getNewInstance(scoreName);
 			
@@ -240,7 +240,7 @@ public class ReportPeptideComparatorFactory {
 		Map<String, SortOrder> orders = new HashMap<>();
 		
 		for (ReportPeptideComparatorFactory.CompareType comp : CompareType.values()) {
-			if (!comp.toString().startsWith(score_prefix)) {
+			if (!comp.toString().startsWith(SCORE_PREFIX)) {
 				orders.put(comp.toString(), SortOrder.unsorted);
 			}
 		}
@@ -256,7 +256,7 @@ public class ReportPeptideComparatorFactory {
 	 */
 	public static String getScoreSortName(String shortName) {
 		if (ScoreModelEnum.getName(shortName) != null) {
-			return score_prefix + shortName;
+			return SCORE_PREFIX + shortName;
 		} else {
 			return null;
 		}

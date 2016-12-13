@@ -41,12 +41,12 @@ import javax.xml.bind.annotation.XmlType;
 public class UserParamIdXML {
 
     @XmlAttribute(required = true)
-    protected UserParamType type;
+    private UserParamType type;
     @XmlAttribute(required = true)
-    protected String name;
+    private String name;
     @XmlAttribute(required = true)
     @XmlSchemaType(name = "anySimpleType")
-    protected String value;
+    private String value;
 
     /**
      * Gets the value of the type property.

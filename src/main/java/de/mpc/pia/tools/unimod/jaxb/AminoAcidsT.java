@@ -40,7 +40,7 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class AminoAcidsT {
 
-    protected List<AaT> aa;
+    private List<AaT> aa;
 
     /**
      * Gets the value of the aa property.

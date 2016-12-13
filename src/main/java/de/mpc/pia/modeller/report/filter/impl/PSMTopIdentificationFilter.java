@@ -17,11 +17,11 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
  */
 public class PSMTopIdentificationFilter extends AbstractFilter {
 
-    protected final String shortName;
+    private final String shortName;
 
-    protected final String name;
+    private final String name;
 
-    protected final String filteringName;
+    private final String filteringName;
 
     public static final FilterType filterType = FilterType.numerical;
 
@@ -84,7 +84,7 @@ public class PSMTopIdentificationFilter extends AbstractFilter {
     }
 
 
-    public String getScoreShortName() {
+    private String getScoreShortName() {
         return scoreShortName;
     }
 

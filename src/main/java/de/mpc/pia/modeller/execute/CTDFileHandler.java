@@ -36,7 +36,7 @@ public class CTDFileHandler {
 	 * @param pathName
 	 * @param command
 	 */
-	public static <T extends ExecuteModelCommands<?>> void generateCTDFile(
+	private static <T extends ExecuteModelCommands<?>> void generateCTDFile(
 			String pathName, T command, String category) {
 		List<List<String>> neededParameters = command.neededXMLParameters();
 		if (neededParameters == null) {
@@ -227,9 +227,9 @@ public class CTDFileHandler {
      * @param defaultClasspath
      * @param toolName
      */
-    public static void initializeForJavaCommand(CTDTool tool, String className,
-    		String defaultClasspath, String defaultVMsettings, String toolName,
-    		String description) {
+    private static void initializeForJavaCommand(CTDTool tool, String className,
+												 String defaultClasspath, String defaultVMsettings, String toolName,
+												 String description) {
     	if (tool != null) {
 			tool.setExecutableName("java");
 			tool.setVersion(PIAConstants.version);

@@ -44,7 +44,7 @@ import javax.xml.bind.annotation.XmlType;
 public class CliType {
 
     @XmlElement(required = true)
-    protected List<CliElementType> clielement;
+    private List<CliElementType> clielement;
 
     /**
      * Gets the value of the clielement property.
