@@ -131,7 +131,7 @@ public class PIAModeller {
         this();
 
         if (fileName == null) {
-            throw new IllegalArgumentException("No file NAME given.");
+            throw new IllegalArgumentException("No file name given.");
         }
 
         if (!loadFileName(fileName, null)) {
@@ -612,7 +612,7 @@ public class PIAModeller {
 
             // add the new node
             NODEType node = null;
-            // the first param's PREFIX always specifies the level for execution
+            // the first param's prefix always specifies the level for execution
             if (params[0].startsWith(PSMExecuteCommands.getPrefix())) {
                 PSMExecuteCommands execute = PSMExecuteCommands.valueOf(
                         params[0].substring(PSMExecuteCommands.getPrefix().length()));
@@ -721,7 +721,7 @@ public class PIAModeller {
                 .argName("name")
                 .hasArg()
                 .desc("Initialize the parameter file given by paramFile, giving "
-                        + "the pipeline the specified NAME. This is mainly used "
+                        + "the pipeline the specified name. This is mainly used "
                         + "to build a pipeline via KNIME and not intended to be "
                         + "called on the command line." )
                 .build();
@@ -730,7 +730,7 @@ public class PIAModeller {
         Option appendOpt = Option.builder(APPEND_OPTION)
                 .desc("All free arguments together are appended as one command "
                         + "to the param file. The first argument specifies the "
-                        + "command with PREFIX (e.g. psm_add_filter), all "
+                        + "command with prefix (e.g. psm_add_filter), all "
                         + "following arguments are passed to the execution of "
                         + "the command. This is mainly used to build a pipeline "
                         + "via KNIME and not intended to be called on the command line." )

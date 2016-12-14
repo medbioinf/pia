@@ -22,7 +22,7 @@
 			<roles>
 				<role>developer</role>
 			</roles>
-			<timezone>1</timezone>
+			<timezone>Europe/Berlin</timezone>
 		</developer>
 		<developer>
 			<id>ypriverol</id>
@@ -32,7 +32,7 @@
 			<roles>
 				<role>developer</role>
 			</roles>
-			<timezone>1</timezone>
+			<timezone>Europe/London</timezone>
 		</developer>
 	</developers>
 
@@ -61,8 +61,6 @@
 		<jung-visualization.version>2.0.1</jung-visualization.version>
 		<inspector-mzgraph-browser.version>2.0.5</inspector-mzgraph-browser.version>
 		<ehcache.version>3.1.1</ehcache.version>
-        <argLine></argLine>
-
 	</properties>
 
 	<dependencies>
