@@ -81,7 +81,7 @@ public class PARAMETERSType {
      */
     public List<AbstractITEMType> getITEMS() {
         if (items == null) {
-            items = new ArrayList<AbstractITEMType>();
+            items = new ArrayList<>();
         }
         return this.items;
     }
@@ -110,7 +110,7 @@ public class PARAMETERSType {
      */
     public List<NODEType> getNODE() {
         if (node == null) {
-            node = new ArrayList<NODEType>();
+            node = new ArrayList<>();
         }
         return this.node;
     }

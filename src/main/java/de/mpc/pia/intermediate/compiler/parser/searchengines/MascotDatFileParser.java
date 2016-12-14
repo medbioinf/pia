@@ -90,7 +90,7 @@ public class MascotDatFileParser {
         //   - the "index" variable of the queries
         //   - the "fastafile"
         //   - no good information for enzyme
-        Map<String, String> queryIndexMap = new HashMap<String, String>();
+        Map<String, String> queryIndexMap = new HashMap<>();
         String fastaFile = null;
 
         String enzymeCleavage = null;
@@ -105,7 +105,7 @@ public class MascotDatFileParser {
 
             while ((line = rd.readLine()) != null) {
                 if (!inQuery) {
-                    if (line.startsWith("Content-Type: application/x-Mascot; name=\"query")) {
+                    if (line.startsWith("Content-Type: application/x-Mascot; NAME=\"query")) {
                         queryName = line.substring(42, line.length()-1);
                         inQuery = true;
                     } else if ((fastaFile == null) &&
@@ -120,7 +120,7 @@ public class MascotDatFileParser {
 
                 if (!inEnzyme) {
                     if (((enzymeCleavage == null) || (enzymeRestrict == null)) &&
-                            line.startsWith("Content-Type: application/x-Mascot; name=\"enzyme\"")) {
+                            line.startsWith("Content-Type: application/x-Mascot; NAME=\"enzyme\"")) {
                         inEnzyme = true;
                     }
                 } else {
@@ -448,9 +448,7 @@ public class MascotDatFileParser {
         }
 
         // the peptideHits are the SpectrumPeptideMatches
-        for (int i=0; i < peptideHits.size(); i++) {
-            PeptideHit peptideHit = peptideHits.get(i);
-
+        for (PeptideHit peptideHit : peptideHits) {
             PeptideSpectrumMatch psm;
             psm = compiler.createNewPeptideSpectrumMatch(
                     charge,
@@ -541,7 +539,7 @@ public class MascotDatFileParser {
 
             // add the modifications
             com.compomics.mascotdatfile.util.interfaces.Modification[] mods = peptideHit.getModifications();
-            for (int loc=0; loc < mods.length; loc++) {
+            for (int loc = 0; loc < mods.length; loc++) {
                 if (mods[loc] != null) {
                     Modification modification;
 
@@ -549,7 +547,7 @@ public class MascotDatFileParser {
                     if ((loc == 0) || (loc > psm.getSequence().length())) {
                         residue = '.';
                     } else {
-                        residue = psm.getSequence().charAt(loc-1);
+                        residue = psm.getSequence().charAt(loc - 1);
                     }
 
                     modification = new Modification(

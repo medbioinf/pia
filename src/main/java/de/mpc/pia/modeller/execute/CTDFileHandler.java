@@ -187,7 +187,7 @@ public class CTDFileHandler {
 				
 				if (arg.size() > 1) {
 					// add all further arguments to the restrictions
-					StringBuffer restrictions = new StringBuffer();
+					StringBuilder restrictions = new StringBuilder();
 					int c = 0;
 					for (String restrict : arg) {
 						c++;

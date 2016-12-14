@@ -36,7 +36,7 @@ public abstract class AbstractScoring {
 	
 	/**
 	 * Basic constructor, requires a mapping of the available
-	 * {@link ScoreModel}s.
+	 * {@link de.mpc.pia.modeller.score.ScoreModel}s.
 	 * 
 	 * @param scoreNameMap
 	 */
@@ -51,7 +51,7 @@ public abstract class AbstractScoring {
 				initialKey, SettingType.SELECT_ONE_RADIO.getShortName(),
 				scoreNameMap);
 		
-		Map<String, String> psmSettingsMap = new HashMap<String, String>();
+		Map<String, String> psmSettingsMap = new HashMap<>();
 		for (PSMForScoring psmForScoring : PSMForScoring.values()) {
 			psmSettingsMap.put(psmForScoring.getShortName(),
 					psmForScoring.getName());
@@ -69,7 +69,7 @@ public abstract class AbstractScoring {
 	 * @return
 	 */
 	public List<Setting> getSettings() {
-		List<Setting> settingsList = new ArrayList<Setting>(2);
+		List<Setting> settingsList = new ArrayList<>(2);
 		
 		settingsList.add(getScoreSetting());
 		settingsList.add(psmForScoringSetting);
@@ -106,7 +106,7 @@ public abstract class AbstractScoring {
 	
 	
 	/**
-	 * Getter for the shortName of the Scoring
+	 * Getter for the SHORT_NAME of the Scoring
 	 * @return
 	 */
 	public abstract String getShortName();
@@ -117,7 +117,7 @@ public abstract class AbstractScoring {
 	 * @return
 	 */
 	public String getDescriptiveSettings() {
-		StringBuffer description = new StringBuffer();
+		StringBuilder description = new StringBuilder();
 		
 		description.append(getName());
 		description.append(", ");
@@ -154,11 +154,11 @@ public abstract class AbstractScoring {
 	
 	
 	/**
-	 * Updates the available {@link ScoreModel}s for this scoring.<br/>
-	 * This should be called every time a new {@link ScoreModel} (like e.g. the
+	 * Updates the available {@link de.mpc.pia.modeller.score.ScoreModel}s for this scoring.<br/>
+	 * This should be called every time a new {@link de.mpc.pia.modeller.score.ScoreModel} (like e.g. the
 	 * combined FDR Score) is added / calculated.
 	 * 
-	 * @param scoreNameMap map of the {@link ScoreModel}s shortNames to its corresponding name
+	 * @param scoreNameMap map of the {@link de.mpc.pia.modeller.score.ScoreModel}s shortNames to its corresponding name
 	 */
 	public void updateAvailableScores(Map<String, String> scoreNameMap) {
 		scoreSetting.updateParams(scoreNameMap);
@@ -182,18 +182,14 @@ public abstract class AbstractScoring {
 	 * @param proteinList
 	 */
 	public final void calculateProteinScores(List<ReportProtein> proteinList) {
-		Map<Long, ReportProtein> subProteins = new HashMap<Long, ReportProtein>();
+		Map<Long, ReportProtein> subProteins = new HashMap<>();
 		
 		// calculate scores for the reported proteins
 		for (ReportProtein protein : proteinList) {
 			protein.setScore(calculateProteinScore(protein));
 			
 			// get the subset proteins
-			for (ReportProtein subProtein : protein.getSubSets()) {
-				if (!subProteins.containsKey(subProtein.getID())) {
-					subProteins.put(subProtein.getID(), subProtein);
-				}
-			}
+			protein.getSubSets().stream().filter(subProtein -> !subProteins.containsKey(subProtein.getID())).forEach(subProtein -> subProteins.put(subProtein.getID(), subProtein));
 		}
 		
 		// and the scores for the subset proteins
@@ -207,16 +203,13 @@ public abstract class AbstractScoring {
 	 * @return
 	 */
 	public final AbstractScoring smallCopy() {
-		Map<String, String> scoreNameMap = new HashMap<String, String>(1);
+		Map<String, String> scoreNameMap = new HashMap<>(1);
 		
 		String scoreName = getScoreSetting().getValue();
 		scoreNameMap.put(scoreName, ScoreModelEnum.getName(scoreName));
-		
-		AbstractScoring scoring = ProteinScoringFactory.getNewInstanceByName(
-				getShortName(), scoreNameMap);
-		
-		scoring.getPSMForScoringSetting().setValue(
-				getPSMForScoringSetting().getValue());
+		AbstractScoring scoring = ProteinScoringFactory.getNewInstanceByName(getShortName(), scoreNameMap);
+		if(scoring != null)
+		   scoring.getPSMForScoringSetting().setValue(getPSMForScoringSetting().getValue());
 		
 		return scoring;
 	}

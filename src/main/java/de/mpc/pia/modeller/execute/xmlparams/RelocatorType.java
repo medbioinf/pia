@@ -42,9 +42,9 @@ import javax.xml.bind.annotation.XmlType;
 public class RelocatorType {
 
     @XmlElement(required = true)
-    protected String reference;
+    private String reference;
     @XmlElement(required = true)
-    protected String location;
+    private String location;
 
     /**
      * Gets the value of the reference property.

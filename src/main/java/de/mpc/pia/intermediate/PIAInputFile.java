@@ -1,9 +1,9 @@
 package de.mpc.pia.intermediate;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import de.mpc.pia.tools.PIAConstants;
 
@@ -67,13 +67,9 @@ public class PIAInputFile implements Serializable {
 		}
 		
 		PIAInputFile objFile = (PIAInputFile)obj;
-	    if ((objFile.ID == this.ID) &&
-	    		objFile.fileName.equals(fileName) &&
-	    		objFile.format.equals(format)) {
-	    	return true;
-	    } else {
-	    	return false;
-	    }
+		return (objFile.ID == this.ID) &&
+				objFile.fileName.equals(fileName) &&
+				objFile.format.equals(format);
 	}
 	
 	
@@ -179,12 +175,7 @@ public class PIAInputFile implements Serializable {
 		analysisProtocolCollection.getSpectrumIdentificationProtocol().add(sip);
 		
 		// go through the analysisCollection an re-reference the SpectrumIdentificationProtocol
-		for (SpectrumIdentification spectrumId
-				: analysisCollection.getSpectrumIdentification()) {
-			if (spectrumId.getSpectrumIdentificationProtocolRef().equals(ref)) {
-				spectrumId.setSpectrumIdentificationProtocol(sip);
-			}
-		}
+		analysisCollection.getSpectrumIdentification().stream().filter(spectrumId -> spectrumId.getSpectrumIdentificationProtocolRef().equals(ref)).forEach(spectrumId -> spectrumId.setSpectrumIdentificationProtocol(sip));
 		
 		// uniquify the enzymes' IDs in the SpectrumIdentificationProtocol
 		int idx = 1;
@@ -209,12 +200,8 @@ public class PIAInputFile implements Serializable {
 		for (SpectrumIdentification si
 				: analysisCollection.getSpectrumIdentification()) {
 			// update the SpectraDataRefs
-			Set<SpectraData> newSpectraData = new HashSet<SpectraData>();
-			for (InputSpectra spectra : si.getInputSpectra()) {
-				newSpectraData.add(
-						spectraDataRefs.get(spectra.getSpectraDataRef()) );
-			}
-			
+			Set<SpectraData> newSpectraData = si.getInputSpectra().stream().map(spectra -> spectraDataRefs.get(spectra.getSpectraDataRef())).collect(Collectors.toSet());
+
 			// clear the old InputSpectra
 			si.getInputSpectra().clear();
 			// and add the new spectra
@@ -226,11 +213,7 @@ public class PIAInputFile implements Serializable {
 			
 			
 			// update the SearchDatabaseRefs
-			Set<SearchDatabase> newSearchDBs = new HashSet<SearchDatabase>();
-			for (SearchDatabaseRef searchDBRef : si.getSearchDatabaseRef()) {
-				newSearchDBs.add(
-						searchDBRefs.get(searchDBRef.getSearchDatabaseRef()) );
-			}
+			Set<SearchDatabase> newSearchDBs = si.getSearchDatabaseRef().stream().map(searchDBRef -> searchDBRefs.get(searchDBRef.getSearchDatabaseRef())).collect(Collectors.toSet());
 			// clear old searchDBRefs
 			si.getSearchDatabaseRef().clear();
 			// add the new searchDBs

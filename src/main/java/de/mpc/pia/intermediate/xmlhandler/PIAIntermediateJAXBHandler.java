@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -20,14 +21,12 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.log4j.Logger;
 
-import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftwareList;
 import uk.ac.ebi.jmzidml.model.mzidml.Inputs;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
-import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Group;
@@ -109,22 +108,21 @@ public class PIAIntermediateJAXBHandler {
 
     /**
      * Basic constructor, initializing all the Maps.
-     * @param fileName
      */
     public PIAIntermediateJAXBHandler() {
         projectName = null;
-        files = new HashMap<Long, PIAInputFile>();
-        spectraData = new HashMap<String, SpectraData>();
-        searchDatabases = new HashMap<String, SearchDatabase>();
-        software = new HashMap<String, AnalysisSoftware>();
-        psms = new HashMap<Long, PeptideSpectrumMatch>();
-        peptides = new HashMap<Long, Peptide>();
-        accessions = new HashMap<Long, Accession>();
-        groups = new HashMap<Long, Group>();
+        files = new HashMap<>();
+        spectraData = new HashMap<>();
+        searchDatabases = new HashMap<>();
+        software = new HashMap<>();
+        psms = new HashMap<>();
+        peptides = new HashMap<>();
+        accessions = new HashMap<>();
+        groups = new HashMap<>();
         psmSetSettingsWarnings =
-                new HashMap<String, Set<Long>>(IdentificationKeySettings.values().length);
+                new HashMap<>(IdentificationKeySettings.values().length);
         for (IdentificationKeySettings setting : IdentificationKeySettings.values()) {
-            psmSetSettingsWarnings.put(setting.toString(), new HashSet<Long>());
+            psmSetSettingsWarnings.put(setting.toString(), new HashSet<>());
         }
     }
 
@@ -149,7 +147,6 @@ public class PIAIntermediateJAXBHandler {
      * The progress gets increased by 40 (remaining 60 are in the PIAModeller).
      *
      * @param fileName
-     * @param progress the first entry in this array holds the progress
      * @param notifier progress is notified on this object
      *
      * @throws IOException
@@ -158,14 +155,14 @@ public class PIAIntermediateJAXBHandler {
             throws IOException {
         Long[] progress = progressArr;
         projectName = null;
-        files = new HashMap<Long, PIAInputFile>();
-        spectraData = new HashMap<String, SpectraData>();
-        searchDatabases = new HashMap<String, SearchDatabase>();
-        software = new HashMap<String, AnalysisSoftware>();
-        psms = new HashMap<Long, PeptideSpectrumMatch>();
-        peptides = new HashMap<Long, Peptide>();
-        accessions = new HashMap<Long, Accession>();
-        groups = new HashMap<Long, Group>();
+        files = new HashMap<>();
+        spectraData = new HashMap<>();
+        searchDatabases = new HashMap<>();
+        software = new HashMap<>();
+        psms = new HashMap<>();
+        peptides = new HashMap<>();
+        accessions = new HashMap<>();
+        groups = new HashMap<>();
 
         if ((progress == null) || (progressArr.length < 1) || (progressArr[0] == null)) {
             LOGGER.warn("no progress array given, creating one. "
@@ -272,7 +269,7 @@ public class PIAIntermediateJAXBHandler {
      */
     private Long parseTag(String tag, XMLStreamReader xmlr)
             throws JAXBException, XMLStreamException {
-        Long progress = new Long(0);
+        Long progress = 0L;
 
         if (XML_TAG_FILES_LIST.equalsIgnoreCase(tag)) {
             LOGGER.info(tag);
@@ -335,17 +332,11 @@ public class PIAIntermediateJAXBHandler {
                     fileXML.getFormat());
 
             if (fileXML.getAnalysisCollection() != null) {
-                for (SpectrumIdentification si
-                        : fileXML.getAnalysisCollection().getSpectrumIdentification()) {
-                    file.addSpectrumIdentification(si);
-                }
+                fileXML.getAnalysisCollection().getSpectrumIdentification().forEach(file::addSpectrumIdentification);
             }
 
             if (fileXML.getAnalysisProtocolCollection() != null) {
-                for (SpectrumIdentificationProtocol sip
-                        : fileXML.getAnalysisProtocolCollection().getSpectrumIdentificationProtocol()) {
-                    file.addSpectrumIdentificationProtocol(sip);
-                }
+                fileXML.getAnalysisProtocolCollection().getSpectrumIdentificationProtocol().forEach(file::addSpectrumIdentificationProtocol);
             }
 
             files.put(file.getID(), file);
@@ -416,9 +407,9 @@ public class PIAIntermediateJAXBHandler {
         Unmarshaller um = jaxbContext.createUnmarshaller();
 
         psmSetSettingsWarnings =
-                new HashMap<String, Set<Long>>(IdentificationKeySettings.values().length);
+                new HashMap<>(IdentificationKeySettings.values().length);
         for (IdentificationKeySettings setting : IdentificationKeySettings.values()) {
-            psmSetSettingsWarnings.put(setting.toString(), new HashSet<Long>());
+            psmSetSettingsWarnings.put(setting.toString(), new HashSet<>());
         }
 
         // move to the first spectrumMatch element
@@ -501,9 +492,7 @@ public class PIAIntermediateJAXBHandler {
         }
 
         // the params
-        for (AbstractParam param : psmXML.getParamList()) {
-            psm.addParam(param);
-        }
+        psmXML.getParamList().forEach(psm::addParam);
 
         // check for PSM set settings warnings
         updatePSMSetSettingsWarnings(psm);
@@ -599,21 +588,17 @@ public class PIAIntermediateJAXBHandler {
 
             AccessionXML accXML = (AccessionXML) um.unmarshal(xmlr);
             Accession accession;
-            Set<Long> filesSet = new HashSet<Long>();
-            Map<Long, String> descriptions = new HashMap<Long, String>();
-            Set<String> searchDatabaseRefs = new HashSet<String>();
+            Set<Long> filesSet = new HashSet<>();
+            Map<Long, String> descriptions = new HashMap<>();
+            Set<String> searchDatabaseRefs = new HashSet<>();
 
-            for (FileRefXML fileRef : accXML.getFileRefs()) {
-                filesSet.add(fileRef.getFile_ref());
-            }
+            filesSet.addAll(accXML.getFileRefs().stream().map(FileRefXML::getFile_ref).collect(Collectors.toList()));
 
             for (DescriptionXML descXML : accXML.getDescriptions()) {
                 descriptions.put(descXML.getFileRefID(), descXML.getValue());
             }
 
-            for (SearchDatabaseRefXML dbRef : accXML.getSearchDatabaseRefs()) {
-                searchDatabaseRefs.add(dbRef.getSearchDatabase_ref());
-            }
+            searchDatabaseRefs.addAll(accXML.getSearchDatabaseRefs().stream().map(SearchDatabaseRefXML::getSearchDatabase_ref).collect(Collectors.toList()));
 
             accession = new Accession(accXML.getId(),
                     accXML.getAcc(),
@@ -657,7 +642,7 @@ public class PIAIntermediateJAXBHandler {
 
             PeptideXML pepXML = (PeptideXML) um.unmarshal(xmlr);
             Peptide peptide;
-            List<PeptideSpectrumMatch> psmList = new ArrayList<PeptideSpectrumMatch>();
+            List<PeptideSpectrumMatch> psmList = new ArrayList<>();
 
             peptide = new Peptide(pepXML.getId(), pepXML.getSequence());
 
@@ -710,7 +695,7 @@ public class PIAIntermediateJAXBHandler {
      */
     private void parseGroupsChunked(XMLStreamReader xmlr)
             throws XMLStreamException, JAXBException {
-        Map<Long, List<ChildRefXML>> groupsChildren = new HashMap<Long, List<ChildRefXML>>();
+        Map<Long, List<ChildRefXML>> groupsChildren = new HashMap<>();
 
         xmlr.require(XMLStreamConstants.START_ELEMENT, null, XML_TAG_GROUPS_LIST);
 

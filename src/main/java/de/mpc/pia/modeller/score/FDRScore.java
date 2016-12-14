@@ -13,10 +13,7 @@ public class FDRScore {
 	 * {@link FDRData#calculateFDR(List)} on the List before.
 	 * 
 	 * @param reportItems the list of items, for which the FDR should be
-	 * calculated
-	 * @param scoreShortName the shortName of the Score used for FDR calculation
-	 * @param artificialDecoyFDR the FDR value of an artificial decoy at the
-	 * end of the list
+	 * calculated end of the list
 	 */
 	public static <T extends FDRScoreComputable> void calculateFDRScore(
 			List<T> reportItems, FDRData fdrData, boolean higherScoreBetter) {
@@ -28,7 +25,7 @@ public class FDRScore {
 		// set the stepPoints
 		ListIterator<T> it;
 		FDRScoreComputable item;
-		List<Integer> stepPoints = new ArrayList<Integer>();
+		List<Integer> stepPoints = new ArrayList<>();
 		
 		it = reportItems.listIterator(reportItems.size());
 		double qValue = Double.NaN;

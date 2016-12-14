@@ -44,7 +44,7 @@ import javax.xml.bind.annotation.XmlType;
 public class LogCollectionType {
 
     @XmlElement(required = true)
-    protected List<LogType> log;
+    private List<LogType> log;
 
     /**
      * Gets the value of the log property.
@@ -70,7 +70,7 @@ public class LogCollectionType {
      */
     public List<LogType> getLog() {
         if (log == null) {
-            log = new ArrayList<LogType>();
+            log = new ArrayList<>();
         }
         return this.log;
     }

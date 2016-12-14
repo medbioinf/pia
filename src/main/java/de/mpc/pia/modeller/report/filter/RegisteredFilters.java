@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Modification;
@@ -35,7 +35,7 @@ public enum RegisteredFilters {
     CHARGE_FILTER(FilterType.numerical, Number.class, "Charge Filter", "Charge (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -60,7 +60,7 @@ public enum RegisteredFilters {
     DELTA_MASS_FILTER(FilterType.numerical, Number.class, "dMass Filter for PSM", "dMass (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).doubleValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).doubleValue());
         }
 
         @Override
@@ -83,7 +83,7 @@ public enum RegisteredFilters {
     DELTA_PPM_FILTER(FilterType.numerical, Number.class, "dPPM Filter for PSM", "dPPM (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).doubleValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).doubleValue());
         }
 
         @Override
@@ -106,7 +106,7 @@ public enum RegisteredFilters {
     MZ_FILTER(FilterType.numerical, Number.class, "m/z Filter for PSM", "m/z (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).doubleValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).doubleValue());
         }
 
         @Override
@@ -129,7 +129,7 @@ public enum RegisteredFilters {
     PSM_ACCESSIONS_FILTER(FilterType.literal_list, String.class, "Accessions Filter for PSM", "Accessions (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -137,13 +137,7 @@ public enum RegisteredFilters {
             if (o instanceof PSMReportItem) {
                 return ((PSMReportItem) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = new ArrayList<String>();
-                for (Object obj : (List<?>)o) {
-                    if (obj instanceof String) {
-                        objList.add((String)obj);
-                    }
-                }
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -163,7 +157,7 @@ public enum RegisteredFilters {
         @Override
         public Object doFileRefinement(Long fileID, Object o) {
             // converts the list of strings or accessions into a List<String>
-            List<String> strList = new ArrayList<String>();
+            List<String> strList = new ArrayList<>();
 
             if (o instanceof List<?>) {
                 for (Object obj : (List<?>)o) {
@@ -184,7 +178,7 @@ public enum RegisteredFilters {
     PSM_DESCRIPTION_FILTER(FilterType.literal_list, String.class, "Description Filter for PSM", "Description (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -192,13 +186,7 @@ public enum RegisteredFilters {
             if (o instanceof PSMReportItem) {
                 return ((PSMReportItem) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = new ArrayList<String>();
-                for (Object obj : (List<?>)o) {
-                    if (obj instanceof String) {
-                        objList.add((String)obj);
-                    }
-                }
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -217,7 +205,7 @@ public enum RegisteredFilters {
 
         @Override
         public Object doFileRefinement(Long fileID, Object o) {
-            List<String> strList = new ArrayList<String>();
+            List<String> strList = new ArrayList<>();
 
             if (o instanceof List<?>) {
                 for (Object obj : (List<?>)o) {
@@ -225,9 +213,7 @@ public enum RegisteredFilters {
                         if ((fileID > 0) && (((Accession)obj).foundInFile(fileID))) {
                             strList.add(((Accession)obj).getDescription(fileID));
                         } else if (fileID == 0) {
-                            for (Map.Entry<Long, String> descIt : ((Accession)obj).getDescriptions().entrySet()) {
-                                strList.add(descIt.getValue());
-                            }
+                            strList.addAll(((Accession) obj).getDescriptions().entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
                         }
                     } else if (obj instanceof String) {
                         strList.add((String)obj);
@@ -241,7 +227,7 @@ public enum RegisteredFilters {
     PSM_FILE_LIST_FILTER(FilterType.literal_list, String.class, "File List Filter for PSM", "File List (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -252,13 +238,7 @@ public enum RegisteredFilters {
                 // if we get an ReportPSM, return its PSMs
                 return ((ReportPSMSet)o).getPSMs();
             } else if (o instanceof List<?>) {
-                List<ReportPSM> objList = new ArrayList<ReportPSM>();
-                for (Object obj : (List<?>)o) {
-                    if (obj instanceof ReportPSM) {
-                        objList.add((ReportPSM)obj);
-                    }
-                }
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof ReportPSM).map(obj -> (ReportPSM) obj).collect(Collectors.toList());
             } else {
                 // nothing supported
                 return null;
@@ -267,11 +247,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            if ((c instanceof ReportPSMSet) || (c instanceof ReportPSM)) {
-                return true;
-            } else {
-                return false;
-            }
+            return (c instanceof ReportPSMSet) || (c instanceof ReportPSM);
         }
 
         @Override
@@ -281,7 +257,7 @@ public enum RegisteredFilters {
 
         @Override
         public Object doFileRefinement(Long fileID, Object o) {
-            List<String> strList = new ArrayList<String>();
+            List<String> strList = new ArrayList<>();
 
             if (o instanceof List<?>) {
                 for (Object obj : (List<?>)o) {
@@ -301,7 +277,7 @@ public enum RegisteredFilters {
     PSM_MISSED_CLEAVAGES_FILTER(FilterType.numerical, Number.class, "Missed Cleavages Filter for PSM", "Missed Cleavages (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -324,25 +300,15 @@ public enum RegisteredFilters {
     PSM_MODIFICATIONS_FILTER(FilterType.modification, String.class, "Modifications Filter for PSM", "Modifications (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
         public Object getObjectsValue(Object o) {
             if (o instanceof PSMReportItem) {
-                List<Modification> modList = new ArrayList<Modification>();
-                for (Map.Entry<Integer, Modification> modIt : ((PSMReportItem) o).getModifications().entrySet()) {
-                    modList.add(modIt.getValue());
-                }
-                return modList;
+                return ((PSMReportItem) o).getModifications().entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
             } else if (o instanceof List<?>) {
-                List<Modification> modList = new ArrayList<Modification>();
-                for (Object obj : (List<?>)o) {
-                    if (obj instanceof Modification) {
-                        modList.add((Modification)obj);
-                    }
-                }
-                return modList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof Modification).map(obj -> (Modification) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -357,7 +323,7 @@ public enum RegisteredFilters {
     PSM_RANK_FILTER(FilterType.numerical, Number.class, "Rank Filter for PSM", "Rank (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -380,7 +346,7 @@ public enum RegisteredFilters {
     PSM_SEQUENCE_FILTER(FilterType.literal, String.class, "Sequence Filter for PSM", "Sequence (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -403,7 +369,7 @@ public enum RegisteredFilters {
     PSM_UNIQUE_FILTER(FilterType.bool, Boolean.class, "Unique Filter for PSM", "Unique (PSM)") {
         @Override
         public SimpleTypeFilter<Boolean> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Boolean>(arg, this, negate, (Boolean)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (Boolean) value);
         }
 
         @Override
@@ -419,7 +385,7 @@ public enum RegisteredFilters {
                 if (isUnique != null) {
                     return isUnique;
                 } else {
-                    return new Boolean(false);
+                    return Boolean.FALSE;
                 }
             } else if (o instanceof Boolean) {
                 return o;
@@ -438,7 +404,7 @@ public enum RegisteredFilters {
     NR_ACCESSIONS_PER_PSM_FILTER(FilterType.numerical, Number.class, "#accessions per PSM", "#accessions (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -446,13 +412,7 @@ public enum RegisteredFilters {
             if (o instanceof PSMReportItem) {
                 return ((PSMReportItem) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = new ArrayList<String>();
-                for (Object obj : (List<?>)o) {
-                    if (obj instanceof String) {
-                        objList.add((String)obj);
-                    }
-                }
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -471,7 +431,7 @@ public enum RegisteredFilters {
 
         @Override
         public Object doFileRefinement(Long fileID, Object o) {
-            List<String> strList = new ArrayList<String>();
+            List<String> strList = new ArrayList<>();
 
             if (o instanceof List<?>) {
                 for (Object obj : (List<?>)o) {
@@ -492,7 +452,7 @@ public enum RegisteredFilters {
     NR_PSMS_PER_PSM_SET_FILTER(FilterType.numerical, Number.class, "#PSMs per PSM Set", "#PSMs (PSM Set)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -516,7 +476,7 @@ public enum RegisteredFilters {
     PSM_SOURCE_ID_FILTER(FilterType.literal, String.class, "Source ID Filter for PSM", "Source ID (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -544,7 +504,7 @@ public enum RegisteredFilters {
     PEPTIDE_ACCESSIONS_FILTER(FilterType.literal_list, String.class, "Accessions Filter for Peptide", "Accessions (Peptide)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -552,13 +512,7 @@ public enum RegisteredFilters {
             if (o instanceof ReportPeptide) {
                 return ((ReportPeptide) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = new ArrayList<String>();
-                for (Object obj : (List<?>)o) {
-                    if (obj instanceof String) {
-                        objList.add((String)obj);
-                    }
-                }
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -577,7 +531,7 @@ public enum RegisteredFilters {
 
         @Override
         public Object doFileRefinement(Long fileID, Object o) {
-            List<String> strList = new ArrayList<String>();
+            List<String> strList = new ArrayList<>();
 
             if (o instanceof List<?>) {
                 for (Object obj : (List<?>)o) {
@@ -598,7 +552,7 @@ public enum RegisteredFilters {
     PEPTIDE_DESCRIPTION_FILTER(FilterType.literal_list, String.class, "Description Filter for Peptide", "Description (Peptide)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -606,13 +560,7 @@ public enum RegisteredFilters {
             if (o instanceof ReportPeptide) {
                 return ((ReportPeptide) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = new ArrayList<String>();
-                for (Object obj : (List<?>)o) {
-                    if (obj instanceof String) {
-                        objList.add((String)obj);
-                    }
-                }
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -631,7 +579,7 @@ public enum RegisteredFilters {
 
         @Override
         public Object doFileRefinement(Long fileID, Object o) {
-            List<String> strList = new ArrayList<String>();
+            List<String> strList = new ArrayList<>();
 
             if (o instanceof List<?>) {
                 for (Object obj : (List<?>)o) {
@@ -639,9 +587,7 @@ public enum RegisteredFilters {
                         if ((fileID > 0) && (((Accession)obj).foundInFile(fileID))) {
                             strList.add(((Accession)obj).getDescription(fileID));
                         } else if (fileID == 0) {
-                            for (Map.Entry<Long, String> descIt : ((Accession)obj).getDescriptions().entrySet()) {
-                                strList.add(descIt.getValue());
-                            }
+                            strList.addAll(((Accession) obj).getDescriptions().entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
                         }
                     } else if (obj instanceof String) {
                         strList.add((String)obj);
@@ -655,7 +601,7 @@ public enum RegisteredFilters {
     PEPTIDE_FILE_LIST_FILTER(FilterType.literal_list, String.class, "File List Filter for Peptide", "File List (Peptide)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -676,7 +622,7 @@ public enum RegisteredFilters {
     PEPTIDE_MISSED_CLEAVAGES_FILTER(FilterType.numerical, Number.class, "Missed Cleavages Filter for Peptide", "Missed Cleavages (Peptide)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -700,7 +646,7 @@ public enum RegisteredFilters {
     PEPTIDE_MODIFICATIONS_FILTER(FilterType.modification, String.class, "Modifications Filter for Peptide", "Modifications (Peptide)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -708,13 +654,7 @@ public enum RegisteredFilters {
             if (o instanceof ReportPeptide) {
                 return ((ReportPeptide) o).getModificationsList();
             } else if (o instanceof List<?>) {
-                List<Modification> modList = new ArrayList<Modification>();
-                for (Object obj : (List<?>)o) {
-                    if (obj instanceof Modification) {
-                        modList.add((Modification)obj);
-                    }
-                }
-                return modList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof Modification).map(obj -> (Modification) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -729,7 +669,7 @@ public enum RegisteredFilters {
     PEPTIDE_SEQUENCE_FILTER(FilterType.literal, String.class, "Sequence Filter for Peptide", "Sequence (Peptide)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -752,7 +692,7 @@ public enum RegisteredFilters {
     PEPTIDE_SOURCE_ID_LIST_FILTER(FilterType.literal, String.class, "Source ID Filter for Peptide", "Source ID (Peptide)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -773,30 +713,28 @@ public enum RegisteredFilters {
     PEPTIDE_UNIQUE_FILTER(FilterType.bool, Boolean.class, "Unique Filter for Peptide", "Unique (Peptide)") {
         @Override
         public SimpleTypeFilter<Boolean> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Boolean>(arg, this, negate, (Boolean)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (Boolean) value);
         }
 
         @Override
         public Object getObjectsValue(Object o) {
             if (o instanceof ReportPeptide) {
-                ListIterator<PSMReportItem> psmIt =  ((ReportPeptide) o).getPSMs().listIterator();
 
-                while (psmIt.hasNext()) {
+                for (PSMReportItem psmReportItem : ((ReportPeptide) o).getPSMs()) {
                     Boolean isUnique = null;
 
-                    PSMReportItem psm = psmIt.next();
-                    if (psm instanceof ReportPSMSet) {
-                        isUnique = ((ReportPSMSet) psm).getPSMs().iterator().next().getSpectrum().getIsUnique();
-                    } else if (psm instanceof ReportPSM) {
-                        isUnique = ((ReportPSM) psm).getSpectrum().getIsUnique();
+                    if (psmReportItem instanceof ReportPSMSet) {
+                        isUnique = ((ReportPSMSet) psmReportItem).getPSMs().iterator().next().getSpectrum().getIsUnique();
+                    } else if (psmReportItem instanceof ReportPSM) {
+                        isUnique = ((ReportPSM) psmReportItem).getSpectrum().getIsUnique();
                     }
 
-                    if ((isUnique == null) || (isUnique == false)) {
-                        return new Boolean(false);
+                    if ((isUnique == null) || (!isUnique)) {
+                        return false;
                     }
                 }
                 // all PSMs were unique
-                return new Boolean(true);
+                return Boolean.TRUE;
             } else if (o instanceof Boolean) {
                 return o;
             }
@@ -813,7 +751,7 @@ public enum RegisteredFilters {
     NR_PSMS_PER_PEPTIDE_FILTER(FilterType.numerical, Number.class, "#PSMs per Peptide Set", "#PSMs (Peptide)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -836,7 +774,7 @@ public enum RegisteredFilters {
     NR_SPECTRA_PER_PEPTIDE_FILTER(FilterType.numerical, Number.class, "#Spectra per Peptide Set", "#spectra (Peptide)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -864,7 +802,7 @@ public enum RegisteredFilters {
     PROTEIN_ACCESSIONS_FILTER(FilterType.literal_list, String.class, "Accessions Filter for Protein", "Accessions (Protein)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -872,13 +810,7 @@ public enum RegisteredFilters {
             if (o instanceof ReportProtein) {
                 return ((ReportProtein) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = new ArrayList<String>();
-                for (Object obj : (List<?>)o) {
-                    if (obj instanceof String) {
-                        objList.add((String)obj);
-                    }
-                }
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -897,7 +829,7 @@ public enum RegisteredFilters {
 
         @Override
         public Object doFileRefinement(Long fileID, Object o) {
-            List<String> strList = new ArrayList<String>();
+            List<String> strList = new ArrayList<>();
 
             if (o instanceof List<?>) {
                 for (Object obj : (List<?>)o) {
@@ -918,7 +850,7 @@ public enum RegisteredFilters {
     PROTEIN_DESCRIPTION_FILTER(FilterType.literal_list, String.class, "Description Filter for Protein", "Description (Protein)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -926,13 +858,7 @@ public enum RegisteredFilters {
             if (o instanceof ReportProtein) {
                 ((ReportProtein) o).getAccessions();
             } else if (o instanceof List<?>) {
-                List<String> objList = new ArrayList<String>();
-                for (Object obj : (List<?>)o) {
-                    if (obj instanceof String) {
-                        objList.add((String)obj);
-                    }
-                }
-                return objList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof String).map(obj -> (String) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -951,7 +877,7 @@ public enum RegisteredFilters {
 
         @Override
         public Object doFileRefinement(Long fileID, Object o) {
-            List<String> strList = new ArrayList<String>();
+            List<String> strList = new ArrayList<>();
 
             if (o instanceof List<?>) {
                 for (Object obj : (List<?>)o) {
@@ -959,9 +885,7 @@ public enum RegisteredFilters {
                         if ((fileID > 0) && (((Accession)obj).foundInFile(fileID))) {
                             strList.add(((Accession)obj).getDescription(fileID));
                         } else if (fileID == 0) {
-                            for (Map.Entry<Long, String> descIt : ((Accession)obj).getDescriptions().entrySet()) {
-                                strList.add(descIt.getValue());
-                            }
+                            strList.addAll(((Accession) obj).getDescriptions().entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
                         }
                     } else if (obj instanceof String) {
                         strList.add((String)obj);
@@ -975,19 +899,19 @@ public enum RegisteredFilters {
     PROTEIN_FILE_LIST_FILTER(FilterType.literal_list, String.class, "File List Filter for Protein", "File List (Protein)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
         public Object getObjectsValue(Object o) {
             if (o instanceof ReportProtein) {
-                Set<String> fileNames = new HashSet<String>();
+                Set<String> fileNames = new HashSet<>();
 
                 for (ReportPeptide pepIt :((ReportProtein) o).getPeptides()) {
                     fileNames.addAll(pepIt.getFileNames());
                 }
 
-                return new ArrayList<String>(fileNames);
+                return new ArrayList<>(fileNames);
             } else {
                 // nothing supported
                 return null;
@@ -1002,25 +926,19 @@ public enum RegisteredFilters {
     PROTEIN_MODIFICATIONS_FILTER(FilterType.modification, String.class, "Modifications Filter for Protein", "Modifications (Protein)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
         public Object getObjectsValue(Object o) {
             if (o instanceof ReportProtein) {
-                List<Modification> modList = new ArrayList<Modification>();
+                List<Modification> modList = new ArrayList<>();
                 for (ReportPeptide pep : ((ReportProtein) o).getPeptides()) {
                     modList.addAll(pep.getModificationsList());
                 }
                 return modList;
             } else if (o instanceof List<?>) {
-                List<Modification> modList = new ArrayList<Modification>();
-                for (Object obj : (List<?>)o) {
-                    if (obj instanceof Modification) {
-                        modList.add((Modification)obj);
-                    }
-                }
-                return modList;
+                return ((List<?>) o).stream().filter(obj -> obj instanceof Modification).map(obj -> (Modification) obj).collect(Collectors.toList());
             }
 
             // nothing supported
@@ -1035,7 +953,7 @@ public enum RegisteredFilters {
     PROTEIN_RANK_FILTER(FilterType.numerical, Number.class, "Rank Filter for Protein", "Rank (Protein)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -1058,7 +976,7 @@ public enum RegisteredFilters {
     PROTEIN_SEQUENCE_LIST_FILTER(FilterType.literal_list, String.class, "Sequence List Filter for Protein", "Sequence List (Protein)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<String>(arg, this, negate, (String)value);
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
         }
 
         @Override
@@ -1083,7 +1001,7 @@ public enum RegisteredFilters {
 
         @Override
         public Object doFileRefinement(Long fileID, Object o) {
-            List<String> strList = new ArrayList<String>();
+            List<String> strList = new ArrayList<>();
 
             if (o instanceof List<?>) {
                 for (Object obj : (List<?>)o) {
@@ -1101,7 +1019,7 @@ public enum RegisteredFilters {
     PROTEIN_SCORE_FILTER(FilterType.numerical, Number.class, "Protein Score filter", "score (Protein)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).doubleValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).doubleValue());
         }
 
         @Override
@@ -1124,7 +1042,7 @@ public enum RegisteredFilters {
     NR_PEPTIDES_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#Peptides per Protein Filter", "#peptides (Protein)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -1147,7 +1065,7 @@ public enum RegisteredFilters {
     NR_PSMS_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#PSMs per Protein Filter", "#PSMs (Protein)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -1170,7 +1088,7 @@ public enum RegisteredFilters {
     NR_SPECTRA_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#Spectra per Protein Filter", "#spectra (Protein)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -1193,7 +1111,7 @@ public enum RegisteredFilters {
     NR_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#Unique Peptides per Protein Filter", "#unique peptides (Protein)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -1201,11 +1119,8 @@ public enum RegisteredFilters {
             if (o instanceof ReportProtein) {
                 Integer nrUnique = 0;
 
-                ListIterator<ReportPeptide> peptideIt = ((ReportProtein) o).getPeptides().listIterator();
-                while (peptideIt.hasNext()) {
-                    ListIterator<PSMReportItem> psmIt = peptideIt.next().getPSMs().listIterator();
-                    while (psmIt.hasNext()) {
-                        PSMReportItem psmItem = psmIt.next();
+                for (ReportPeptide reportPeptide : ((ReportProtein) o).getPeptides()) {
+                    for (PSMReportItem psmItem : reportPeptide.getPSMs()) {
                         Boolean isUnique = null;
 
                         if (psmItem instanceof ReportPSMSet) {
@@ -1246,7 +1161,7 @@ public enum RegisteredFilters {
     NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#Unique Peptides per Protein Group Filter", "#unique peptides for group (Protein)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<Number>(arg, this, negate, ((Number)value).intValue());
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).intValue());
         }
 
         @Override
@@ -1254,11 +1169,10 @@ public enum RegisteredFilters {
             if (o instanceof ReportProtein) {
                 Integer nrGroupUnique = 0;
                 Set<Accession> protAccesssions =
-                        new HashSet<Accession>(((ReportProtein) o).getAccessions());
+                        new HashSet<>(((ReportProtein) o).getAccessions());
 
-                ListIterator<ReportPeptide> peptideIt = ((ReportProtein) o).getPeptides().listIterator();
-                while (peptideIt.hasNext()) {
-                    if (protAccesssions.equals(new HashSet<Accession>(peptideIt.next().getAccessions()))) {
+                for (ReportPeptide reportPeptide : ((ReportProtein) o).getPeptides()) {
+                    if (protAccesssions.equals(new HashSet<>(reportPeptide.getAccessions()))) {
                         nrGroupUnique++;
                     }
                 }
@@ -1356,55 +1270,49 @@ public enum RegisteredFilters {
 
     /** list of filters for PSMs */
     private static final List<RegisteredFilters> psmFilters = Arrays.asList(
-            new RegisteredFilters[]{
-                    CHARGE_FILTER,
-                    DELTA_MASS_FILTER,
-                    DELTA_PPM_FILTER,
-                    MZ_FILTER,
-                    PSM_ACCESSIONS_FILTER,
-                    PSM_DESCRIPTION_FILTER,
-                    PSM_FILE_LIST_FILTER,
-                    PSM_MISSED_CLEAVAGES_FILTER,
-                    PSM_MODIFICATIONS_FILTER,
-                    PSM_RANK_FILTER,
-                    PSM_SEQUENCE_FILTER,
-                    PSM_UNIQUE_FILTER,
-                    PSM_SOURCE_ID_FILTER,
-                    NR_ACCESSIONS_PER_PSM_FILTER,
-                    NR_PSMS_PER_PSM_SET_FILTER,
-            });
+            CHARGE_FILTER,
+            DELTA_MASS_FILTER,
+            DELTA_PPM_FILTER,
+            MZ_FILTER,
+            PSM_ACCESSIONS_FILTER,
+            PSM_DESCRIPTION_FILTER,
+            PSM_FILE_LIST_FILTER,
+            PSM_MISSED_CLEAVAGES_FILTER,
+            PSM_MODIFICATIONS_FILTER,
+            PSM_RANK_FILTER,
+            PSM_SEQUENCE_FILTER,
+            PSM_UNIQUE_FILTER,
+            PSM_SOURCE_ID_FILTER,
+            NR_ACCESSIONS_PER_PSM_FILTER,
+            NR_PSMS_PER_PSM_SET_FILTER);
 
     /** list of filters for peptides */
     private static final List<RegisteredFilters> peptideFilters = Arrays.asList(
-            new RegisteredFilters[]{
-                    PEPTIDE_ACCESSIONS_FILTER,
-                    PEPTIDE_DESCRIPTION_FILTER,
-                    PEPTIDE_FILE_LIST_FILTER,
-                    PEPTIDE_MISSED_CLEAVAGES_FILTER,
-                    PEPTIDE_MODIFICATIONS_FILTER,
-                    PEPTIDE_SEQUENCE_FILTER,
-                    PEPTIDE_SOURCE_ID_LIST_FILTER,
-                    PEPTIDE_UNIQUE_FILTER,
-                    NR_PSMS_PER_PEPTIDE_FILTER,
-                    NR_SPECTRA_PER_PEPTIDE_FILTER,
-            });
+            PEPTIDE_ACCESSIONS_FILTER,
+            PEPTIDE_DESCRIPTION_FILTER,
+            PEPTIDE_FILE_LIST_FILTER,
+            PEPTIDE_MISSED_CLEAVAGES_FILTER,
+            PEPTIDE_MODIFICATIONS_FILTER,
+            PEPTIDE_SEQUENCE_FILTER,
+            PEPTIDE_SOURCE_ID_LIST_FILTER,
+            PEPTIDE_UNIQUE_FILTER,
+            NR_PSMS_PER_PEPTIDE_FILTER,
+            NR_SPECTRA_PER_PEPTIDE_FILTER);
 
     /** list of filters for proteins */
     private static final List<RegisteredFilters> proteinFilters = Arrays.asList(
-            new RegisteredFilters[]{
-                    PROTEIN_SCORE_FILTER,
-                    PROTEIN_RANK_FILTER,
-                    NR_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER,
-                    NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER,
-                    PROTEIN_ACCESSIONS_FILTER,
-                    PROTEIN_DESCRIPTION_FILTER,
-                    PROTEIN_FILE_LIST_FILTER,
-                    PROTEIN_MODIFICATIONS_FILTER,
-                    PROTEIN_SEQUENCE_LIST_FILTER,
-                    NR_PEPTIDES_PER_PROTEIN_FILTER,
-                    NR_PSMS_PER_PROTEIN_FILTER,
-                    NR_SPECTRA_PER_PROTEIN_FILTER,
-            });
+            PROTEIN_SCORE_FILTER,
+            PROTEIN_RANK_FILTER,
+            NR_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER,
+            NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER,
+            PROTEIN_ACCESSIONS_FILTER,
+            PROTEIN_DESCRIPTION_FILTER,
+            PROTEIN_FILE_LIST_FILTER,
+            PROTEIN_MODIFICATIONS_FILTER,
+            PROTEIN_SEQUENCE_LIST_FILTER,
+            NR_PEPTIDES_PER_PROTEIN_FILTER,
+            NR_PSMS_PER_PROTEIN_FILTER,
+            NR_SPECTRA_PER_PROTEIN_FILTER);
 
 
     /** a copy of all filters */
@@ -1550,9 +1458,7 @@ public enum RegisteredFilters {
         filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
         filterShorts.add(PSMTopIdentificationFilter.prefix + "[scoreShort]");
 
-        for (RegisteredFilters filter : getPSMFilters()) {
-            filterShorts.add(filter.getShortName());
-        }
+        filterShorts.addAll(getPSMFilters().stream().map(RegisteredFilters::getShortName).collect(Collectors.toList()));
 
         return filterShorts;
     }
@@ -1561,7 +1467,7 @@ public enum RegisteredFilters {
     /**
      * Returns a set of registered filters for the peptide level
      */
-    public static final List<RegisteredFilters> getPeptideFilters() {
+    public static List<RegisteredFilters> getPeptideFilters() {
         return peptideFilters;
     }
 
@@ -1575,11 +1481,9 @@ public enum RegisteredFilters {
 
         filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
         filterShorts.add(PSMTopIdentificationFilter.prefix + "[scoreShort]");
-        filterShorts.add(PeptideScoreFilter.prefix + "[scoreShort]");
+        filterShorts.add(PeptideScoreFilter.PREFIX + "[scoreShort]");
 
-        for (RegisteredFilters filter : getPeptideFilters()) {
-            filterShorts.add(filter.getShortName());
-        }
+        filterShorts.addAll(getPeptideFilters().stream().map(RegisteredFilters::getShortName).collect(Collectors.toList()));
 
         return filterShorts;
     }
@@ -1597,14 +1501,12 @@ public enum RegisteredFilters {
      * Returns a set of (descriptive) shorts for the registered protein filters.
      * These are only used to print the help.
      */
-    public static final Set<String> getProteinFilterShortsForHelp() {
-        Set<String> filterShorts = new HashSet<String>();
+    public static Set<String> getProteinFilterShortsForHelp() {
+        Set<String> filterShorts = new HashSet<>();
 
         filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
 
-        for (RegisteredFilters filter : getProteinFilters()) {
-            filterShorts.add(filter.getShortName());
-        }
+        filterShorts.addAll(getProteinFilters().stream().map(RegisteredFilters::getShortName).collect(Collectors.toList()));
 
         return filterShorts;
     }
@@ -1612,13 +1514,13 @@ public enum RegisteredFilters {
 
 
     /**
-     * Returns the filter specified by the given shortName or null, if no such
+     * Returns the filter specified by the given SHORT_NAME or null, if no such
      * filter was found.
      *
      * @param filterShort
      * @return
      */
-    public static final RegisteredFilters getFilterByShortname(String filterShort) {
+    public static RegisteredFilters getFilterByShortname(String filterShort) {
         if (filterShort == null) {
             return null;
         }

@@ -123,7 +123,7 @@ public class ProteinInferenceFactory {
      * @return
      */
     public static Map<String, String> getAllProteinInferenceNames() {
-        Map<String, String> inferenceMap = new HashMap<String, String>(ProteinInferenceMethod.values().length);
+        Map<String, String> inferenceMap = new HashMap<>(ProteinInferenceMethod.values().length);
 
         for (ProteinInferenceMethod filter : ProteinInferenceMethod.values()) {
             inferenceMap.put(filter.getShortName(), filter.getName());

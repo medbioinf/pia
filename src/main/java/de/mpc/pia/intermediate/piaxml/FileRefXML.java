@@ -33,7 +33,6 @@ public class FileRefXML {
 	
 	/**
 	 * Sets the value of the file_ref attribute.
-	 * @param id
 	 */
 	public void setFile_ref(Long file_ref) {
 		this.file_ref = file_ref;

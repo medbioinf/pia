@@ -2,6 +2,7 @@ package de.mpc.pia.intermediate.piaxml;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -9,9 +10,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Group;
-import de.mpc.pia.intermediate.Peptide;
 
 
 @XmlRootElement(name = "group")
@@ -49,31 +48,24 @@ public class GroupXML {
 	
 	/**
 	 * Basic constructor setting the data from the given peptide.
-	 * @param psm
 	 */
 	public GroupXML(Group group) {
 		id = group.getID();
 		treeId = group.getTreeID();
 		
 		if (group.getAccessions().size() > 0) {
-			accessionsRefList = new ArrayList<AccessionRefXML>();
-			for (Accession accession : group.getAccessions().values()) {
-				accessionsRefList.add(new AccessionRefXML(accession.getID()));
-			}
+			accessionsRefList = new ArrayList<>();
+			accessionsRefList.addAll(group.getAccessions().values().stream().map(accession -> new AccessionRefXML(accession.getID())).collect(Collectors.toList()));
 		}
 		
 		if (group.getPeptides() != null) {
-			peptidesRefList = new ArrayList<PeptideRefXML>();
-			for (Peptide pep : group.getPeptides().values()) {
-				peptidesRefList.add(new PeptideRefXML(pep.getID()));
-			}
+			peptidesRefList = new ArrayList<>();
+			peptidesRefList.addAll(group.getPeptides().values().stream().map(pep -> new PeptideRefXML(pep.getID())).collect(Collectors.toList()));
 		}
 		
 		if (group.getChildren().size() > 0) {
-			childrenRefList = new ArrayList<ChildRefXML>();
-			for (Long childId : group.getChildren().keySet()) {
-				childrenRefList.add(new ChildRefXML(childId));
-			}
+			childrenRefList = new ArrayList<>();
+			childrenRefList.addAll(group.getChildren().keySet().stream().map(ChildRefXML::new).collect(Collectors.toList()));
 		}
 	}
 	
@@ -109,7 +101,6 @@ public class GroupXML {
 	
 	/**
 	 * Sets the value of the treeId attribute.
-	 * @param id
 	 */
 	public void setTreeId(Long treeId) {
 		this.treeId = treeId;
@@ -122,7 +113,7 @@ public class GroupXML {
 	 */
 	public List<AccessionRefXML> getAccessionsRefList() {
 		if (accessionsRefList == null) {
-			accessionsRefList = new ArrayList<AccessionRefXML>();
+			accessionsRefList = new ArrayList<>();
 		}
 		return accessionsRefList;
 	}
@@ -134,7 +125,7 @@ public class GroupXML {
 	 */
 	public List<PeptideRefXML> getPeptidesRefList() {
 		if (peptidesRefList == null) {
-			peptidesRefList = new ArrayList<PeptideRefXML>();
+			peptidesRefList = new ArrayList<>();
 		}
 		return peptidesRefList;
 	}
@@ -146,7 +137,7 @@ public class GroupXML {
 	 */
 	public List<ChildRefXML> getChildrenRefList() {
 		if (childrenRefList == null) {
-			childrenRefList = new ArrayList<ChildRefXML>();
+			childrenRefList = new ArrayList<>();
 		}
 		return childrenRefList;
 	}

@@ -47,7 +47,7 @@ public class RankCalculator {
 		long currRank = 0;
 		Double rankScore = Double.NaN;
 		int nrRankItems = 1;
-		List<T> rankItems = new ArrayList<T>();
+		List<T> rankItems = new ArrayList<>();
 		
 		
 		for (T item : items) {
@@ -60,7 +60,7 @@ public class RankCalculator {
 				currRank += nrRankItems;
 				nrRankItems = 0;
 				rankScore = item.getScore(scoreShortName);
-				rankItems = new ArrayList<T>();
+				rankItems = new ArrayList<>();
 			}
 			
 			rankItems.add(item);

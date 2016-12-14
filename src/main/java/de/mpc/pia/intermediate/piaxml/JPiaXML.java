@@ -33,7 +33,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.Inputs;
         "peptidesList",
         "groupsList"
 })
-public class JPiaXML {
+class JPiaXML {
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(JPiaXML.class);
@@ -43,7 +43,7 @@ public class JPiaXML {
     private String name;
 
     /** the creation date of the compilation/project */
-    protected XMLGregorianCalendar date;
+    private XMLGregorianCalendar date;
 
     /** the input files (the ones in Inputs can not be used, more information needed) */
     private FilesListXML filesList;
@@ -80,7 +80,6 @@ public class JPiaXML {
 
     /**
      * Sets the value of the name property.
-     * @param fileName
      */
     public void setName(String name) {
         this.name = name;
@@ -108,7 +107,6 @@ public class JPiaXML {
 
     /**
      * Sets the value of the date property, given a {@link Date} object.
-     * @param value
      */
     public void setDate(Date d) {
         GregorianCalendar gc = new GregorianCalendar();

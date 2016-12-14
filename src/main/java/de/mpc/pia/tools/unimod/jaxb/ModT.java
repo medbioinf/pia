@@ -62,34 +62,34 @@ import javax.xml.bind.annotation.XmlType;
 public class ModT {
 
     @XmlElement(required = true)
-    protected List<SpecificityT> specificity;
+    private List<SpecificityT> specificity;
     @XmlElement(required = true)
-    protected CompositionT delta;
+    private CompositionT delta;
     @XmlElement(name = "Ignore")
-    protected List<CompositionT> ignore;
+    private List<CompositionT> ignore;
     @XmlElement(name = "alt_name")
-    protected List<String> altName;
-    protected List<XrefT> xref;
+    private List<String> altName;
+    private List<XrefT> xref;
     @XmlElement(name = "misc_notes")
-    protected String miscNotes;
+    private String miscNotes;
     @XmlAttribute(required = true)
-    protected String title;
+    private String title;
     @XmlAttribute(name = "full_name", required = true)
-    protected String fullName;
+    private String fullName;
     @XmlAttribute(name = "username_of_poster", required = true)
-    protected String usernameOfPoster;
+    private String usernameOfPoster;
     @XmlAttribute(name = "group_of_poster")
-    protected String groupOfPoster;
+    private String groupOfPoster;
     @XmlAttribute(name = "date_time_posted", required = true)
-    protected String dateTimePosted;
+    private String dateTimePosted;
     @XmlAttribute(name = "date_time_modified", required = true)
-    protected String dateTimeModified;
+    private String dateTimeModified;
     @XmlAttribute
-    protected Boolean approved;
+    private Boolean approved;
     @XmlAttribute(name = "ex_code_name")
-    protected String exCodeName;
+    private String exCodeName;
     @XmlAttribute(name = "record_id")
-    protected Long recordId;
+    private Long recordId;
 
     /**
      * Gets the value of the specificity property.
@@ -115,7 +115,7 @@ public class ModT {
      */
     public List<SpecificityT> getSpecificity() {
         if (specificity == null) {
-            specificity = new ArrayList<SpecificityT>();
+            specificity = new ArrayList<>();
         }
         return this.specificity;
     }
@@ -168,7 +168,7 @@ public class ModT {
      */
     public List<CompositionT> getIgnore() {
         if (ignore == null) {
-            ignore = new ArrayList<CompositionT>();
+            ignore = new ArrayList<>();
         }
         return this.ignore;
     }
@@ -197,7 +197,7 @@ public class ModT {
      */
     public List<String> getAltName() {
         if (altName == null) {
-            altName = new ArrayList<String>();
+            altName = new ArrayList<>();
         }
         return this.altName;
     }
@@ -226,7 +226,7 @@ public class ModT {
      */
     public List<XrefT> getXref() {
         if (xref == null) {
-            xref = new ArrayList<XrefT>();
+            xref = new ArrayList<>();
         }
         return this.xref;
     }

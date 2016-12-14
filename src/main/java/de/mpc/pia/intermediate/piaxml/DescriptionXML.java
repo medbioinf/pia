@@ -24,7 +24,6 @@ public class DescriptionXML {
 	
 	/**
 	 * Sets the value of the searchDatabase_ref attribute.
-	 * @param id
 	 */
 	public void setFileRefID(Long fileRefID) {
 		this.fileRefID = fileRefID;

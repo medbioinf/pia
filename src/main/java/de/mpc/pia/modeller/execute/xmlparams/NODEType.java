@@ -89,7 +89,7 @@ public class NODEType {
      */
     public List<Object> getITEMOrITEMLISTOrNODE() {
         if (itemOrITEMLISTOrNODE == null) {
-            itemOrITEMLISTOrNODE = new ArrayList<Object>();
+            itemOrITEMLISTOrNODE = new ArrayList<>();
         }
         return this.itemOrITEMLISTOrNODE;
     }

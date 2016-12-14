@@ -46,13 +46,13 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class CliElementType {
 
-    protected List<MappingType> mapping;
+    private List<MappingType> mapping;
     @XmlAttribute
-    protected String optionIdentifier;
+    private String optionIdentifier;
     @XmlAttribute
-    protected Boolean isList;
+    private Boolean isList;
     @XmlAttribute
-    protected Boolean required;
+    private Boolean required;
 
     /**
      * Gets the value of the mapping property.
@@ -78,7 +78,7 @@ public class CliElementType {
      */
     public List<MappingType> getMapping() {
         if (mapping == null) {
-            mapping = new ArrayList<MappingType>();
+            mapping = new ArrayList<>();
         }
         return this.mapping;
     }

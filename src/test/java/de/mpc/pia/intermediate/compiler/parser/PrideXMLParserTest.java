@@ -2,58 +2,44 @@ package de.mpc.pia.intermediate.compiler.parser;
 
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
-import de.mpc.pia.modeller.PIAModeller;
-import de.mpc.pia.modeller.protein.ReportProtein;
-import de.mpc.pia.modeller.protein.inference.SpectrumExtractorInference;
-import de.mpc.pia.modeller.protein.scoring.AbstractScoring;
-import de.mpc.pia.modeller.protein.scoring.MultiplicativeScoring;
-import de.mpc.pia.modeller.protein.scoring.settings.PSMForScoring;
-import de.mpc.pia.modeller.report.filter.FilterComparator;
-import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
-import de.mpc.pia.modeller.score.FDRData;
-import de.mpc.pia.modeller.score.ScoreModelEnum;
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import uk.ac.ebi.pride.jaxb.xml.PrideXmlReader;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
- * @date 15/02/2016
  */
 public class PrideXMLParserTest {
 
     /** logger for this class */
     private static final Logger logger = Logger.getLogger(PrideXMLParser.class);
 
-    File prideXMLFile;
+    private File prideXMLFile;
 
-    PrideXmlReader reader;
+    private PrideXmlReader reader;
 
-    String piaIntermediateFileName = "PrideParser.pia.xml";
+    private final String piaIntermediateFileName = "PrideParser.pia.xml";
 
     @Before
     public void setUp() throws Exception {
-        URI uri = PrideXMLParserTest.class.getClassLoader().getResource("PRIDE_Example.xml").toURI();
+        URI uri = (PrideXMLParserTest.class.getClassLoader().getResource("PRIDE_Example.xml")) != null ? (PrideXMLParserTest.class.getClassLoader().getResource("PRIDE_Example.xml")).toURI(): null;
+
+        if(uri == null)
+            throw new IOException("File not found");
 
         prideXMLFile = new File(uri);
         reader = new PrideXmlReader(uri.toURL());
+
+
     }
 
     @Test
-    public void getDataFromPrideXMLFileTest() throws IOException, JAXBException, XMLStreamException {
+    public void getDataFromPrideXMLFileTest() throws IOException {
         PIACompiler compiler = new PIASimpleCompiler();
 
         compiler.getDataFromFile(prideXMLFile.getName(),
@@ -98,8 +84,4 @@ public class PrideXMLParserTest {
         */
     }
 
-    @After
-    public void tearDown() throws Exception {
-
-    }
 }

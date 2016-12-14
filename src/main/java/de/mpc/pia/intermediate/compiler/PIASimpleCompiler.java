@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -197,13 +198,7 @@ public class PIASimpleCompiler extends PIACompiler {
     public Set<Peptide> getPeptidesFromConnectionMap(String acc) {
         Long accId = accessionStringsToIDs.get(acc);
         if ((accId != null) && accPepMapIDs.containsKey(accId)) {
-            Set<Peptide> pepSet = new HashSet<>();
-
-            for (Long pepId : accPepMapIDs.get(accId)) {
-                pepSet.add(peptides.get(pepId));
-            }
-
-            return pepSet;
+            return accPepMapIDs.get(accId).stream().map(pepId -> peptides.get(pepId)).collect(Collectors.toSet());
         } else {
             return null;
         }
@@ -213,15 +208,8 @@ public class PIASimpleCompiler extends PIACompiler {
     @Override
     public Set<Accession> getAccessionsFromConnectionMap(String pep) {
         Long pepId = peptideSequencesToIDs.get(pep);
-
         if ((pepId != null) && pepAccMapIDs.containsKey(pepId)) {
-            Set<Accession> accSet = new HashSet<>();
-
-            for (Long accId : pepAccMapIDs.get(pepId)) {
-                accSet.add(accessions.get(accId));
-            }
-
-            return accSet;
+            return pepAccMapIDs.get(pepId).stream().map(accId -> accessions.get(accId)).collect(Collectors.toSet());
         } else {
             return null;
         }

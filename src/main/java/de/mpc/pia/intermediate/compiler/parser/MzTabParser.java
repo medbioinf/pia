@@ -57,7 +57,6 @@ public class MzTabParser {
     /**
      * Parse the mzTab into a PIA structure.
      *
-     * @param name
      * @param fileName
      * @param compiler
      * @return
@@ -95,12 +94,12 @@ public class MzTabParser {
 
             SortedMap<Integer, MsRun> msRuns = metadata.getMsRunMap();
 
-            Map<Integer, SpectraData> spectraDataMap = new HashMap<Integer, SpectraData>();
+            Map<Integer, SpectraData> spectraDataMap = new HashMap<>();
 
             // create PIAInputFiles for every single msRun
 
-            Map<MsRun, PIAInputFile> inputFileMap = new HashMap<MsRun, PIAInputFile>();
-            Map<MsRun, SpectrumIdentification> spectrumIDMap = new HashMap<MsRun, SpectrumIdentification>();
+            Map<MsRun, PIAInputFile> inputFileMap = new HashMap<>();
+            Map<MsRun, SpectrumIdentification> spectrumIDMap = new HashMap<>();
 
             for (Map.Entry<Integer, MsRun> runIt : msRuns.entrySet()) {
                 MsRun msRun = runIt.getValue();
@@ -170,7 +169,7 @@ public class MzTabParser {
             }
 
             // maps from the file's ID to the compiler's analysisSoftware
-            Map<Integer, AnalysisSoftware> analysisSoftwareRefs = new HashMap<Integer, AnalysisSoftware>();
+            Map<Integer, AnalysisSoftware> analysisSoftwareRefs = new HashMap<>();
 
             for(Integer softwareKey: metadata.getSoftwareMap().keySet()){
 
@@ -203,13 +202,13 @@ public class MzTabParser {
             // maps from the ID to the DBSequence, this is important and should be filled using the Protein Section
 
             // maps from the ID to the Protein
-            Map<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide> peptides = new HashMap<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide>();
+            Map<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide> peptides = new HashMap<>();
 
             // maps from the SpectrumIdentificationList IDs to the SpectrumIdentification IDs
-            Map<String, String> specIdListIDtoSpecIdID = new HashMap<String, String>();
+            Map<String, String> specIdListIDtoSpecIdID = new HashMap<>();
 
             // maps from the enzyme ID (from the OBO) to the regex, only used, if no siteRegex param is given
-            Map<String, String> enzymesToRegexes = new HashMap<String, String>();
+            Map<String, String> enzymesToRegexes = new HashMap<>();
 
             int accNr = 0;
             int pepNr = 0;
@@ -242,12 +241,12 @@ public class MzTabParser {
 
                 String sequence = mzTabPSM.getSequence();
 
-                Map<Integer, de.mpc.pia.intermediate.Modification> modifications = new HashMap<Integer, de.mpc.pia.intermediate.Modification>();
+                Map<Integer, de.mpc.pia.intermediate.Modification> modifications = new HashMap<>();
                 if (mzTabPSM.getModifications() != null && !mzTabPSM.getModifications().isEmpty()) {
                     sequence = transformModifications(sequence, mzTabPSM.getModifications(), modifications, allModStringMap, compiler);
                 }
 
-                List<ScoreModel> scores = new ArrayList<ScoreModel>();
+                List<ScoreModel> scores = new ArrayList<>();
 
                 //Parse the current Scores to PIA Scores.
                 for(Integer searchEngineScoreKey: metadata.getPsmSearchEngineScoreMap().keySet()){
@@ -335,9 +334,7 @@ public class MzTabParser {
                         psm.addModification(mod.getKey(), mod.getValue());
                     }
 
-                    for(ScoreModel score: scores) {
-                        psm.addScore(score);
-                    }
+                    scores.forEach(psm::addScore);
 
                     String accession = mzTabPSM.getAccession();
                     Accession acc = compiler.getAccession(accession);
@@ -378,7 +375,7 @@ public class MzTabParser {
      * @return
      */
     private static Map<String, String> retrieveStringMod(Metadata metadata) {
-        Map<String, String> mods = new HashMap<String, String>();
+        Map<String, String> mods = new HashMap<>();
 
         if(metadata.getFixedModMap() != null)
             for(FixedMod fixed: metadata.getFixedModMap().values()){
@@ -399,7 +396,7 @@ public class MzTabParser {
      * @return
      */
     private static Map<String, DBSequence> convertDBSequences(Collection<Protein> proteins) {
-        Map<String, DBSequence> dbSequenceMap = new HashMap<String, DBSequence>();
+        Map<String, DBSequence> dbSequenceMap = new HashMap<>();
         if (proteins != null && !proteins.isEmpty()) {
             for(Protein protein: proteins){
                 DBSequence dbSequence = new DBSequence();
@@ -496,7 +493,7 @@ public class MzTabParser {
      */
     private static Map<Integer, de.mpc.pia.intermediate.Modification> transformModifications(String sequence, List<ModificationItem> modificationItem) {
         if (modificationItem != null && !modificationItem.isEmpty()) {
-            Map<Integer, de.mpc.pia.intermediate.Modification> modificationMap = new HashMap<Integer, de.mpc.pia.intermediate.Modification>();
+            Map<Integer, de.mpc.pia.intermediate.Modification> modificationMap = new HashMap<>();
             for (ModificationItem mod: modificationItem) {
                 Double mass = null;
                 if(mod.getModMonoDelta() != null && mod.getModMonoDelta().get(0) != null)
@@ -517,7 +514,6 @@ public class MzTabParser {
      * Transform protocol from pride xml to core data model. For now we will add the Steps in the
      * Data processing into CVparam in protein indentification.
      *
-     * @param rawProt protocol from pride xml.
      * @return Protocol protocol in core data model format.
      */
     public static SpectrumIdentificationProtocol addProtocol(SpectrumIdentificationProtocol protocol, uk.ac.ebi.pride.jaxb.model.Protocol rawProt) {

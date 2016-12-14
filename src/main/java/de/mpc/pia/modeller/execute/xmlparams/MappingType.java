@@ -41,11 +41,11 @@ import javax.xml.bind.annotation.XmlType;
 public class MappingType {
 
     @XmlAttribute
-    protected String referenceName;
+    private String referenceName;
     @XmlAttribute
     @XmlIDREF
     @XmlSchemaType(name = "IDREF")
-    protected Object referenceID;
+    private Object referenceID;
 
     /**
      * Gets the value of the referenceName property.

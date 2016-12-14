@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Group;
@@ -72,9 +73,9 @@ public class ProteinVisualizationGraphHandler {
         this.relationsPeptides = relationsPeptides;
         this.relationsSpectra = relationsSpectra;
 
-        this.expandedAccessionsMap = new HashMap<String, Boolean>();
-        this.expandedPeptidesMap = new HashMap<String, Boolean>();
-        this.showPSMsMap = new HashMap<String, Boolean>();
+        this.expandedAccessionsMap = new HashMap<>();
+        this.expandedPeptidesMap = new HashMap<>();
+        this.showPSMsMap = new HashMap<>();
 
         createGraphFromIntermediateStructure(startGroup);
     }
@@ -125,14 +126,14 @@ public class ProteinVisualizationGraphHandler {
      */
     private void createGraphFromIntermediateStructure(Group startGroup) {
         // initialize the graph to be a directed sparse graph
-        graph = new DirectedSparseGraph<VertexObject, String>();
+        graph = new DirectedSparseGraph<>();
 
-        groupVertices = new HashMap<Long, VertexObject>();
+        groupVertices = new HashMap<>();
 
-        Set<Group> groups = new HashSet<Group>();
+        Set<Group> groups = new HashSet<>();
 
         // get and layer all the groups in the tree
-        Set<Group> toAdd =  new HashSet<Group>();
+        Set<Group> toAdd = new HashSet<>();
         toAdd.add(startGroup);
         while (toAdd.size() > 0) {
             // get a group from the toAdd set
@@ -164,18 +165,10 @@ public class ProteinVisualizationGraphHandler {
             }
 
             // add children to toAdd, if not in groups
-            for (Group childGroup : group.getChildren().values()) {
-                if (!groups.contains(childGroup)) {
-                    toAdd.add(childGroup);
-                }
-            }
+            toAdd.addAll(group.getChildren().values().stream().filter(childGroup -> !groups.contains(childGroup)).collect(Collectors.toList()));
 
             // add parents to toAdd, if not in groups
-            for (Group parentGroup : group.getParents().values()) {
-                if (!groups.contains(parentGroup)) {
-                    toAdd.add(parentGroup);
-                }
-            }
+            toAdd.addAll(group.getParents().values().stream().filter(parentGroup -> !groups.contains(parentGroup)).collect(Collectors.toList()));
         }
     }
 
@@ -186,7 +179,7 @@ public class ProteinVisualizationGraphHandler {
      * the given location.
      */
     private Collection<VertexObject> addAccessionVertices(VertexObject groupV, Boolean collapsed) {
-        List<VertexObject> proteins = new ArrayList<VertexObject>();
+        List<VertexObject> proteins = new ArrayList<>();
         Group group = (Group)groupV.getObject();
 
         if (collapsed && (group.getAccessions().size() > 1)) {
@@ -231,7 +224,7 @@ public class ProteinVisualizationGraphHandler {
      */
     private Collection<VertexObject> addPeptideVertices(VertexObject groupV, Boolean collapsed,
             Boolean showPSMs) {
-        List<VertexObject> peptides = new ArrayList<VertexObject>();
+        List<VertexObject> peptides = new ArrayList<>();
         Group group = (Group)groupV.getObject();
 
         if (collapsed && (group.getPeptides().size() > 1)) {
@@ -276,7 +269,7 @@ public class ProteinVisualizationGraphHandler {
      * null, set the peptides' position to the given location.
      */
     private Collection<VertexObject> addPSMVertices(VertexObject peptideV) {
-        List<VertexObject> psms = new ArrayList<VertexObject>();
+        List<VertexObject> psms = new ArrayList<>();
         Peptide peptide = (Peptide)peptideV.getObject();
 
         // add the PSMs
@@ -327,13 +320,11 @@ public class ProteinVisualizationGraphHandler {
         if ((groupV == null) ||
                 !(groupV.getObject() instanceof Group) ||
                 ((expandedAccessionsMap.get(groupV.getLabel()) != null) && expandedAccessionsMap.get(groupV.getLabel()))) {
-            return new ArrayList<VertexObject>();
+            return new ArrayList<>();
         }
 
         // remove the collapsed proteins
-        Iterator<String> edgeIt = graph.getIncidentEdges(groupV).iterator();
-        while (edgeIt.hasNext()) {
-            String edge = edgeIt.next();
+        for (String edge : graph.getIncidentEdges(groupV)) {
             VertexObject proteinsV = graph.getOpposite(groupV, edge);
             if (proteinsV.getLabel().equals(PROTEINS_OF_PREFIX + groupV.getLabel())) {
                 graph.removeVertex(proteinsV);
@@ -359,13 +350,11 @@ public class ProteinVisualizationGraphHandler {
                 !expandedAccessionsMap.get(groupV.getLabel()) ||
                 (((Group)groupV.getObject()).getAccessions() == null) ||
                 (((Group)groupV.getObject()).getAccessions().size() < 2)) {
-            return new ArrayList<VertexObject>();
+            return new ArrayList<>();
         }
 
         // remove all the protein vertices
-        Iterator<String> edgeIt = graph.getIncidentEdges(groupV).iterator();
-        while (edgeIt.hasNext()) {
-            String edge = edgeIt.next();
+        for (String edge : graph.getIncidentEdges(groupV)) {
             VertexObject proteinV = graph.getOpposite(groupV, edge);
             if (proteinV.getObject() instanceof Accession) {
                 graph.removeVertex(proteinV);
@@ -386,13 +375,11 @@ public class ProteinVisualizationGraphHandler {
         if ((groupV == null) ||
                 !(groupV.getObject() instanceof Group) ||
                 ((expandedPeptidesMap.get(groupV.getLabel()) != null) && expandedPeptidesMap.get(groupV.getLabel()))) {
-            return new ArrayList<VertexObject>();
+            return new ArrayList<>();
         }
 
         // remove the collapsed peptides
-        Iterator<String> edgeIt = graph.getIncidentEdges(groupV).iterator();
-        while (edgeIt.hasNext()) {
-            String edge = edgeIt.next();
+        for (String edge : graph.getIncidentEdges(groupV)) {
             VertexObject peptidesV = graph.getOpposite(groupV, edge);
             if (peptidesV.getLabel().equals(PEPTIDES_OF_PREFIX + groupV.getLabel())) {
                 graph.removeVertex(peptidesV);
@@ -417,13 +404,11 @@ public class ProteinVisualizationGraphHandler {
                 !expandedPeptidesMap.get(groupV.getLabel()) ||
                 (((Group)groupV.getObject()).getPeptides() == null) ||
                 (((Group)groupV.getObject()).getPeptides().size() < 2)) {
-            return new ArrayList<VertexObject>();
+            return new ArrayList<>();
         }
 
         // remove all the peptide and PSM vertices
-        Iterator<String> edgeIt = graph.getIncidentEdges(groupV).iterator();
-        while (edgeIt.hasNext()) {
-            String edge = edgeIt.next();
+        for (String edge : graph.getIncidentEdges(groupV)) {
             VertexObject peptideV = graph.getOpposite(groupV, edge);
             if (peptideV.getObject() instanceof Peptide) {
                 if (isExpandedPSMs(peptideV)) {
@@ -447,7 +432,7 @@ public class ProteinVisualizationGraphHandler {
         if ((peptideV == null) ||
                 !(peptideV.getObject() instanceof Peptide) ||
                 ((showPSMsMap.get(peptideV.getLabel()) != null) && showPSMsMap.get(peptideV.getLabel()))) {
-            return new ArrayList<VertexObject>();
+            return new ArrayList<>();
         }
 
         return addPSMVertices(peptideV);
@@ -468,9 +453,7 @@ public class ProteinVisualizationGraphHandler {
         }
 
         // remove the PSMs from the graph
-        Iterator<String> edgeIt = graph.getIncidentEdges(peptideV).iterator();
-        while (edgeIt.hasNext()) {
-            String edge = edgeIt.next();
+        for (String edge : graph.getIncidentEdges(peptideV)) {
             VertexObject psmV = graph.getOpposite(peptideV, edge);
             if (psmV.getObject() instanceof PeptideSpectrumMatch) {
                 graph.removeVertex(psmV);
@@ -497,10 +480,9 @@ public class ProteinVisualizationGraphHandler {
         Object obj = relatedVertex.getObject();
 
         if (obj instanceof Collection<?>) {
-            Iterator<?> iter = ((Collection<?>)obj).iterator();
 
-            while (iter.hasNext()) {
-                VertexRelation newRelation = getObjectRelation(iter.next());
+            for (Object o : ((Collection<?>) obj)) {
+                VertexRelation newRelation = getObjectRelation(o);
 
                 if (newRelation.ordinal() < relation.ordinal()) {
                     relation = newRelation;

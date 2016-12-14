@@ -65,7 +65,7 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Tool }
+     * Create an instance of {@link CTDTool }
      * 
      */
     public CTDTool createTool() {
@@ -158,7 +158,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "", name = "PARAMETERS")
     public JAXBElement<PARAMETERSType> createPARAMETERS(PARAMETERSType value) {
-        return new JAXBElement<PARAMETERSType>(_PARAMETERS_QNAME, PARAMETERSType.class, null, value);
+        return new JAXBElement<>(_PARAMETERS_QNAME, PARAMETERSType.class, null, value);
     }
 
 }

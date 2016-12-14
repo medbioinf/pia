@@ -344,7 +344,7 @@ public class InputFileParserFactory {
      * Returns a List of the short names of the available {@link InputFileTypes}.
      */
     public static List<String> getAvailableTypeShorts() {
-        List<String> typeList = new ArrayList<String>();
+        List<String> typeList = new ArrayList<>();
 
         for (InputFileTypes type : InputFileTypes.values()) {
             typeList.add(type.getFileTypeShort());
@@ -368,13 +368,11 @@ public class InputFileParserFactory {
         if (fileType == null) {
             String fileSuffix = fileName.substring(fileName.lastIndexOf('.')+1);
 
-            if (fileSuffix != null) {
-                InputFileTypes type = getFileTypeBySuffix(fileSuffix);
-                if (type != null) {
-                    logger.info("'" + fileName + "' seems to be a " +
-                            type.getFileTypeName()+" file");
-                    return type.parseFile(name, fileName, compiler, additionalInfoFileName);
-                }
+            InputFileTypes type = getFileTypeBySuffix(fileSuffix);
+            if (type != null) {
+                logger.info("'" + fileName + "' seems to be a " +
+                        type.getFileTypeName()+" file");
+                return type.parseFile(name, fileName, compiler, additionalInfoFileName);
             }
 
             logger.error("File '" + fileName + "' could not be parsed, " +

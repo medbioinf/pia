@@ -66,7 +66,7 @@ public class ModificationsT {
      */
     public List<ModT> getMod() {
         if (mod == null) {
-            mod = new ArrayList<ModT>();
+            mod = new ArrayList<>();
         }
         return this.mod;
     }

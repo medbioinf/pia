@@ -45,11 +45,10 @@ public class ProteinVertexLabeller
 
     /**
      * Constructor
+     *  @param rc
      *
-     * @param rc
-     * @param margin
      */
-    public ProteinVertexLabeller(RenderContext<VertexObject, String> rc, int margin) {
+    public ProteinVertexLabeller(RenderContext<VertexObject, String> rc) {
         this.rc = rc;
     }
 
@@ -147,11 +146,7 @@ public class ProteinVertexLabeller
 
     @Override
     public Positioner getPositioner() {
-        return new Positioner() {
-            public Position getPosition(float x, float y, Dimension d) {
-                return Position.CNTR;
-            }
-        };
+        return (x, y, d) -> Position.CNTR;
     }
 
 

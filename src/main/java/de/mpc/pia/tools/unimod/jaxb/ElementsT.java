@@ -40,7 +40,7 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class ElementsT {
 
-    protected List<ElemT> elem;
+    private List<ElemT> elem;
 
     /**
      * Gets the value of the elem property.
@@ -66,7 +66,7 @@ public class ElementsT {
      */
     public List<ElemT> getElem() {
         if (elem == null) {
-            elem = new ArrayList<ElemT>();
+            elem = new ArrayList<>();
         }
         return this.elem;
     }

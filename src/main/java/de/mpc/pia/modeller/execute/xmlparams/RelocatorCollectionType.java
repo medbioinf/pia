@@ -40,7 +40,7 @@ import javax.xml.bind.annotation.XmlType;
 public class RelocatorCollectionType {
 
     @XmlElement(required = true)
-    protected RelocatorType relocator;
+    private RelocatorType relocator;
 
     /**
      * Gets the value of the relocator property.

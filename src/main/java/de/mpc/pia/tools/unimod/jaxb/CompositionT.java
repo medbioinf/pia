@@ -49,13 +49,13 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class CompositionT {
 
-    protected List<ElemRefT> element;
+    private List<ElemRefT> element;
     @XmlAttribute(required = true)
-    protected String composition;
+    private String composition;
     @XmlAttribute(name = "mono_mass")
-    protected Double monoMass;
+    private Double monoMass;
     @XmlAttribute(name = "avge_mass")
-    protected Double avgeMass;
+    private Double avgeMass;
 
     /**
      * Gets the value of the element property.
@@ -81,7 +81,7 @@ public class CompositionT {
      */
     public List<ElemRefT> getElement() {
         if (element == null) {
-            element = new ArrayList<ElemRefT>();
+            element = new ArrayList<>();
         }
         return this.element;
     }

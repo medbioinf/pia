@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -100,10 +101,10 @@ public class PIAtoSVG {
             return;
         }
 
-        Set<Group> groups = new HashSet<Group>();
+        Set<Group> groups = new HashSet<>();
 
         // get and layer all the groups in the tree
-        Set<Group> toAdd =  new HashSet<Group>();
+        Set<Group> toAdd = new HashSet<>();
         toAdd.add(startGroup);
         while (!toAdd.isEmpty()) {
             // get a group from the toAdd set
@@ -231,12 +232,7 @@ public class PIAtoSVG {
             }
 
             // add parents to toAdd, if not in groups
-            for (Map.Entry<Long, Group> grIt
-                    : group.getParents().entrySet()) {
-                if (!groups.contains(grIt.getValue())) {
-                    toAdd.add(grIt.getValue());
-                }
-            }
+            toAdd.addAll(group.getParents().entrySet().stream().filter(grIt -> !groups.contains(grIt.getValue())).map(Map.Entry::getValue).collect(Collectors.toList()));
         }
     }
 
@@ -249,7 +245,7 @@ public class PIAtoSVG {
      * @return
      */
     public void createSVG(OutputStream os) {
-        List<String> params = new ArrayList<String>();
+        List<String> params = new ArrayList<>();
 
         params.add("dot");
         params.add("-Kdot");

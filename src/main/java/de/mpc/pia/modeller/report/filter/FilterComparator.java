@@ -267,7 +267,6 @@ public enum FilterComparator {
 	 * gets the FilterArgument given by the CLI short, or null, if the short is
 	 * not found.
 	 * 
-	 * @param name
 	 * @return
 	 */
 	public static FilterComparator getFilterComparatorByCLI(String cliShort) {
@@ -287,7 +286,7 @@ public enum FilterComparator {
 	 * @return
 	 */
 	public static String getComparatorRegexes() {
-		StringBuffer comparatorRegex = new StringBuffer();
+		StringBuilder comparatorRegex = new StringBuilder();
 		// build the regex for the comparators
 		for (FilterComparator fc : FilterComparator.values()) {
 			if (comparatorRegex.length() > 0) {

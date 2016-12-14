@@ -58,7 +58,7 @@ public class OccamsRazorInference extends AbstractProteinInference {
 
     @Override
     public List<RegisteredFilters> getAvailablePSMFilters() {
-        List<RegisteredFilters> filters = new ArrayList<RegisteredFilters>();
+        List<RegisteredFilters> filters = new ArrayList<>();
 
         filters.add(RegisteredFilters.NR_PSMS_PER_PSM_SET_FILTER);
         filters.add(RegisteredFilters.PSM_UNIQUE_FILTER);
@@ -74,7 +74,7 @@ public class OccamsRazorInference extends AbstractProteinInference {
 
     @Override
     public List<RegisteredFilters> getAvailablePeptideFilters() {
-        List<RegisteredFilters> filters = new ArrayList<RegisteredFilters>();
+        List<RegisteredFilters> filters = new ArrayList<>();
 
         filters.add(RegisteredFilters.NR_PSMS_PER_PEPTIDE_FILTER);
         filters.add(RegisteredFilters.NR_SPECTRA_PER_PEPTIDE_FILTER);
@@ -87,7 +87,7 @@ public class OccamsRazorInference extends AbstractProteinInference {
 
     @Override
     public List<RegisteredFilters> getAvailableProteinFilters() {
-        List<RegisteredFilters> filters = new ArrayList<RegisteredFilters>();
+        List<RegisteredFilters> filters = new ArrayList<>();
 
         filters.add(RegisteredFilters.NR_SPECTRA_PER_PROTEIN_FILTER);
         filters.add(RegisteredFilters.NR_PSMS_PER_PROTEIN_FILTER);
@@ -116,14 +116,14 @@ public class OccamsRazorInference extends AbstractProteinInference {
                 "\n\tpsmSetSettings: " + psmSetSettings);
 
         Map<Long, Map<Long, Group>> treeGroupMap =
-                new HashMap<Long, Map<Long,Group>>();
+                new HashMap<>();
         // get the clusters/trees
         for (Map.Entry<Long, Group> groupIt : groupMap.entrySet()) {
             Map<Long, Group> treeGroups =
                     treeGroupMap.get(groupIt.getValue().getTreeID());
 
             if (treeGroups == null) {
-                treeGroups = new HashMap<Long, Group>();
+                treeGroups = new HashMap<>();
                 treeGroupMap.put(groupIt.getValue().getTreeID(), treeGroups);
             }
 
@@ -136,7 +136,7 @@ public class OccamsRazorInference extends AbstractProteinInference {
         Map<String, ReportPeptide> reportPeptidesMap = sortPeptidesInMap(reportPeptides);
 
         // initialize the reported list
-        reportProteins = new ArrayList<ReportProtein>();
+        reportProteins = new ArrayList<>();
 
         // the number of threads used for the inference
         int nrThreads = getAllowedThreads();
@@ -146,7 +146,7 @@ public class OccamsRazorInference extends AbstractProteinInference {
         LOGGER.debug("used threads: " + nrThreads);
 
         List<OccamsRazorWorkerThread> threads =
-                new ArrayList<OccamsRazorWorkerThread>(nrThreads);
+                new ArrayList<>(nrThreads);
 
         // initialize and start  the worker threads
         threads.clear();

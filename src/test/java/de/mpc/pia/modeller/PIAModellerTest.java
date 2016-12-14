@@ -18,7 +18,7 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
 
 public class PIAModellerTest {
 
-    public static File piaFile;
+    private static File piaFile;
 
 
     @BeforeClass

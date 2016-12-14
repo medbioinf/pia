@@ -43,12 +43,9 @@ public class ProteinLayout<E> implements Layout<VertexObject, E> {
     protected Dimension size;
 
     /** locations of the VertexObjects */
-    protected Map<VertexObject, Point2D> locations = LazyMap.decorate(
-            new HashMap<VertexObject, Point2D>(), new Transformer<VertexObject, Point2D>() {
-                @Override
-                public Point2D transform(VertexObject vertex) {
-                    return new Point2D.Double();
-                }
+    protected final Map<VertexObject, Point2D> locations = LazyMap.decorate(
+            new HashMap<>(), vertex -> {
+                return new Point2D.Double();
             });
 
     /** The default horizontal vertex spacing. Initialized to 50. */
@@ -127,45 +124,42 @@ public class ProteinLayout<E> implements Layout<VertexObject, E> {
      * Build the tree-like layout
      */
     private void buildTree() {
-        this.minimalHeight = new HashMap<VertexObject, Integer>(graph.getVertexCount());
-        this.alreadyDone = new HashSet<VertexObject>(graph.getVertexCount());
-        this.treeSize = new HashMap<VertexObject, Integer>(graph.getVertexCount());
+        this.minimalHeight = new HashMap<>(graph.getVertexCount());
+        this.alreadyDone = new HashSet<>(graph.getVertexCount());
+        this.treeSize = new HashMap<>(graph.getVertexCount());
         maxHeight = 0;
         maxWidth = 0;
 
         // list which maps from the depth of the protein-vertices to the vertex
-        TreeMap<Integer, List<VertexObject>> proteinObjects = new TreeMap<Integer, List<VertexObject>>();
+        TreeMap<Integer, List<VertexObject>> proteinObjects = new TreeMap<>();
 
-        for (VertexObject vertex : graph.getVertices()) {
-            if ((vertex.getObject() instanceof Accession) ||
-                    ((vertex.getObject() instanceof Collection) &&
-                            (((Collection<?>)vertex.getObject()).iterator().next() instanceof Accession))) {
-                int depth = calculateDeepestWay(vertex);
+        graph.getVertices().stream().filter(vertex -> (vertex.getObject() instanceof Accession) ||
+                ((vertex.getObject() instanceof Collection) &&
+                        (((Collection<?>) vertex.getObject()).iterator().next() instanceof Accession))).forEach(vertex -> {
+            int depth = calculateDeepestWay(vertex);
 
-                if (!proteinObjects.containsKey(depth)) {
-                    proteinObjects.put(depth, new ArrayList<VertexObject>());
-                }
-                proteinObjects.get(depth).add(vertex);
-
-                if (depth > maxHeight) {
-                    maxHeight = depth;
-                }
+            if (!proteinObjects.containsKey(depth)) {
+                proteinObjects.put(depth, new ArrayList<>());
             }
-        }
+            proteinObjects.get(depth).add(vertex);
+
+            if (depth > maxHeight) {
+                maxHeight = depth;
+            }
+        });
 
         // create the "pseudo root node" with list of protein-vertices as object
-        List<VertexObject> proteins = new ArrayList<VertexObject>();
+        List<VertexObject> proteins = new ArrayList<>();
 
         for (Map.Entry<Integer, List<VertexObject>> verticesIt : proteinObjects.descendingMap().entrySet()) {
             for (VertexObject vertex : verticesIt.getValue()) {
                 int depth = verticesIt.getKey();
                 while (depth < maxHeight) {
                     // add pseudo-vertices until the deepest depth is reached
-                    List<VertexObject> interProteins = new ArrayList<VertexObject>();
+                    List<VertexObject> interProteins = new ArrayList<>();
                     interProteins.add(vertex);
-                    VertexObject interVertex = new VertexObject(PSEUDO_LABEL, interProteins);
 
-                    vertex = interVertex;
+                    vertex = new VertexObject(PSEUDO_LABEL, interProteins);
                     depth++;
                     minimalHeight.put(vertex, depth);
                 }

@@ -36,7 +36,6 @@ public class SpectrumRefXML {
 	
 	/**
 	 * Sets the value of the spectrumRefID attribute.
-	 * @param id
 	 */
 	public void setSpectrumRefID(Long spectrumRefID) {
 		this.spectrumRefID = spectrumRefID;

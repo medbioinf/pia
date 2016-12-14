@@ -44,7 +44,7 @@ public class ITEMLISTType
 {
 
     @XmlElement(name = "LISTITEM")
-    protected List<LISTITEMType> listitem;
+    private List<LISTITEMType> listitem;
 
     /**
      * Gets the value of the listitem property.
@@ -70,7 +70,7 @@ public class ITEMLISTType
      */
     public List<LISTITEMType> getLISTITEM() {
         if (listitem == null) {
-            listitem = new ArrayList<LISTITEMType>();
+            listitem = new ArrayList<>();
         }
         return this.listitem;
     }

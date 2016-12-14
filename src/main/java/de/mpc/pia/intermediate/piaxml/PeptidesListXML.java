@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "peptidesList")
 public class PeptidesListXML {
 	@XmlElement(name = "peptide")
+	private
 	List<PeptideXML> peptides;
 	
 	
@@ -43,7 +44,7 @@ public class PeptidesListXML {
 	 */
 	public List<PeptideXML> getPeptidesList() {
 		if (peptides == null) {
-			peptides = new ArrayList<PeptideXML>();
+			peptides = new ArrayList<>();
 		}
 		return peptides;
 	}

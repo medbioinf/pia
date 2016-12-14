@@ -53,21 +53,21 @@ import javax.xml.bind.annotation.XmlType;
 public class SpecificityT {
 
     @XmlElement(name = "NeutralLoss")
-    protected List<NeutralLossT> neutralLoss;
+    private List<NeutralLossT> neutralLoss;
     @XmlElement(name = "PepNeutralLoss")
-    protected List<PepNeutralLossT> pepNeutralLoss;
+    private List<PepNeutralLossT> pepNeutralLoss;
     @XmlElement(name = "misc_notes")
-    protected String miscNotes;
+    private String miscNotes;
     @XmlAttribute
-    protected Boolean hidden;
+    private Boolean hidden;
     @XmlAttribute(required = true)
-    protected String site;
+    private String site;
     @XmlAttribute(required = true)
-    protected PositionT position;
+    private PositionT position;
     @XmlAttribute(required = true)
-    protected String classification;
+    private String classification;
     @XmlAttribute(name = "spec_group")
-    protected BigInteger specGroup;
+    private BigInteger specGroup;
 
     /**
      * Gets the value of the neutralLoss property.
@@ -93,7 +93,7 @@ public class SpecificityT {
      */
     public List<NeutralLossT> getNeutralLoss() {
         if (neutralLoss == null) {
-            neutralLoss = new ArrayList<NeutralLossT>();
+            neutralLoss = new ArrayList<>();
         }
         return this.neutralLoss;
     }
@@ -122,7 +122,7 @@ public class SpecificityT {
      */
     public List<PepNeutralLossT> getPepNeutralLoss() {
         if (pepNeutralLoss == null) {
-            pepNeutralLoss = new ArrayList<PepNeutralLossT>();
+            pepNeutralLoss = new ArrayList<>();
         }
         return this.pepNeutralLoss;
     }

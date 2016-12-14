@@ -16,14 +16,12 @@ import de.mpc.pia.modeller.IdentificationKeySettings;
 import de.mpc.pia.modeller.PIAModeller;
 import de.mpc.pia.modeller.protein.inference.AbstractProteinInference;
 import de.mpc.pia.modeller.protein.inference.OccamsRazorInference;
-import de.mpc.pia.modeller.protein.inference.SpectrumExtractorInference;
 import de.mpc.pia.modeller.protein.scoring.AbstractScoring;
 import de.mpc.pia.modeller.protein.scoring.MultiplicativeScoring;
 import de.mpc.pia.modeller.protein.scoring.settings.PSMForScoring;
 import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
-import de.mpc.pia.modeller.score.FDRData;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 
 
@@ -118,7 +116,7 @@ public class MzTabExporterForPRIDEReanalysisTest {
         protInference.addFilter(
                 new PeptideScoreFilter(FilterComparator.less_equal, false, fdrThreshold, ScoreModelEnum.PEPTIDE_LEVEL_Q_VALUE.getShortName()));
 
-        protInference.setScoring(new MultiplicativeScoring(new HashMap<String, String>()));
+        protInference.setScoring(new MultiplicativeScoring(new HashMap<>()));
         protInference.getScoring().setSetting(AbstractScoring.scoringSettingID, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
         protInference.getScoring().setSetting(AbstractScoring.scoringSpectraSettingID, PSMForScoring.ONLY_BEST.getShortName());
 

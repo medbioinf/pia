@@ -10,7 +10,7 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
  * @author julian
  *
  */
-public class SimpleTypeFilter<T extends Object> extends AbstractFilter {
+public class SimpleTypeFilter<T> extends AbstractFilter {
 
     /** the actual compared value */
     private T value;

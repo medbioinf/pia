@@ -21,15 +21,15 @@ import javax.xml.bind.annotation.XmlType;
 public class ProteinIdentification {
 
     @XmlElement(name = "ProteinHit")
-    protected List<ProteinHit> proteinHit;
+    private List<ProteinHit> proteinHit;
     @XmlElement(name = "UserParam")
-    protected List<UserParamIdXML> userParam;
+    private List<UserParamIdXML> userParam;
     @XmlAttribute(name = "score_type", required = true)
-    protected String scoreType;
+    private String scoreType;
     @XmlAttribute(name = "higher_score_better", required = true)
-    protected boolean higherScoreBetter;
+    private boolean higherScoreBetter;
     @XmlAttribute(name = "significance_threshold")
-    protected Float significanceThreshold;
+    private Float significanceThreshold;
 
     /**
      * Gets the value of the proteinHit property.
@@ -55,7 +55,7 @@ public class ProteinIdentification {
      */
     public List<ProteinHit> getProteinHit() {
         if (proteinHit == null) {
-            proteinHit = new ArrayList<ProteinHit>();
+            proteinHit = new ArrayList<>();
         }
         return this.proteinHit;
     }
@@ -84,7 +84,7 @@ public class ProteinIdentification {
      */
     public List<UserParamIdXML> getUserParam() {
         if (userParam == null) {
-            userParam = new ArrayList<UserParamIdXML>();
+            userParam = new ArrayList<>();
         }
         return this.userParam;
     }

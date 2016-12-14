@@ -50,7 +50,6 @@ public interface ExecuteModelCommands<T> {
      * Execute the command with the parameters given by the node on the model.
      *
      * @param node
-     * @param model
      */
     public abstract void executeXMLParameters(NODEType node, T modeller, PIAModeller piaModeller);
 

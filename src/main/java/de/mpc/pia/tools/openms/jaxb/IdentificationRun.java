@@ -24,20 +24,20 @@ import javax.xml.datatype.XMLGregorianCalendar;
 public class IdentificationRun {
 
     @XmlElement(name = "ProteinIdentification")
-    protected ProteinIdentification proteinIdentification;
+    private ProteinIdentification proteinIdentification;
     @XmlElement(name = "PeptideIdentification")
-    protected List<PeptideIdentification> peptideIdentification;
+    private List<PeptideIdentification> peptideIdentification;
     @XmlAttribute(name = "search_engine", required = true)
-    protected String searchEngine;
+    private String searchEngine;
     @XmlAttribute(name = "search_engine_version", required = true)
-    protected String searchEngineVersion;
+    private String searchEngineVersion;
     @XmlAttribute(required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar date;
+    private XMLGregorianCalendar date;
     @XmlAttribute(name = "search_parameters_ref", required = true)
     @XmlIDREF
     @XmlSchemaType(name = "IDREF")
-    protected Object searchParametersRef;
+    private Object searchParametersRef;
 
     /**
      * Gets the value of the proteinIdentification property.
@@ -87,7 +87,7 @@ public class IdentificationRun {
      */
     public List<PeptideIdentification> getPeptideIdentification() {
         if (peptideIdentification == null) {
-            peptideIdentification = new ArrayList<PeptideIdentification>();
+            peptideIdentification = new ArrayList<>();
         }
         return this.peptideIdentification;
     }

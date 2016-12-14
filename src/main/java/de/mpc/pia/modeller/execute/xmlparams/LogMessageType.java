@@ -44,11 +44,11 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class LogMessageType {
 
-    protected List<String> logMessage;
+    private List<String> logMessage;
     @XmlAttribute(name = "NODEref")
     @XmlIDREF
     @XmlSchemaType(name = "IDREF")
-    protected Object nodEref;
+    private Object nodEref;
 
     /**
      * Gets the value of the logMessage property.
@@ -74,7 +74,7 @@ public class LogMessageType {
      */
     public List<String> getLogMessage() {
         if (logMessage == null) {
-            logMessage = new ArrayList<String>();
+            logMessage = new ArrayList<>();
         }
         return this.logMessage;
     }

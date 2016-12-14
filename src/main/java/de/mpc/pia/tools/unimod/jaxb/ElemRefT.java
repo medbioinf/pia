@@ -38,9 +38,9 @@ import javax.xml.bind.annotation.XmlType;
 public class ElemRefT {
 
     @XmlAttribute(required = true)
-    protected String symbol;
+    private String symbol;
     @XmlAttribute
-    protected BigInteger number;
+    private BigInteger number;
 
     /**
      * Gets the value of the symbol property.

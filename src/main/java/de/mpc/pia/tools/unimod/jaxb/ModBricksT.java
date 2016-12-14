@@ -40,7 +40,7 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class ModBricksT {
 
-    protected List<BrickT> brick;
+    private List<BrickT> brick;
 
     /**
      * Gets the value of the brick property.
@@ -66,7 +66,7 @@ public class ModBricksT {
      */
     public List<BrickT> getBrick() {
         if (brick == null) {
-            brick = new ArrayList<BrickT>();
+            brick = new ArrayList<>();
         }
         return this.brick;
     }

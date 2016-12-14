@@ -92,7 +92,6 @@ public class ProteinModeller {
      * There will be no inference, but only initialization.
      *
      * @param groups
-     * @param considerModifications
      */
     public ProteinModeller(PSMModeller psmModeller,
             PeptideModeller peptideModeller, Map<Long, Group> groups) {
@@ -121,7 +120,7 @@ public class ProteinModeller {
         this.fdrData = new FDRData(defaultDecoyStrategy, defaultDecoyPattern,
                 defaultFDRThreshold);
 
-        this.reportFilters = new ArrayList<AbstractFilter>();
+        this.reportFilters = new ArrayList<>();
     }
 
 
@@ -141,15 +140,11 @@ public class ProteinModeller {
      * @return
      */
     public List<String> getAllScoreShortNames() {
-        List<String> scoreShortNames = new ArrayList<String>();
+        List<String> scoreShortNames = new ArrayList<>();
 
         // get the scores from the files
         for (Long fileID : psmModeller.getFiles().keySet()) {
-            for (String scoreShort : psmModeller.getScoreShortNames(fileID)) {
-                if (!scoreShortNames.contains(scoreShort)) {
-                    scoreShortNames.add(scoreShort);
-                }
-            }
+            psmModeller.getScoreShortNames(fileID).stream().filter(scoreShort -> !scoreShortNames.contains(scoreShort)).forEach(scoreShortNames::add);
         }
 
         return scoreShortNames;
@@ -158,7 +153,6 @@ public class ProteinModeller {
 
     /**
      * Returns the Score name, given the scoreShortName.
-     * @param fileID
      * @param shortName
      * @return
      */
@@ -209,7 +203,7 @@ public class ProteinModeller {
      * inference.
      */
     public void infereProteins(AbstractProteinInference proteinInference) {
-        reportProteins = new ArrayList<ReportProtein>();
+        reportProteins = new ArrayList<>();
 
         if (proteinInference != null) {
             appliedProteinInference = proteinInference;
@@ -229,7 +223,7 @@ public class ProteinModeller {
                 defaultFDRThreshold);
 
         // create the protein map
-        reportProteinsMap = new HashMap<Long, ReportProtein>();
+        reportProteinsMap = new HashMap<>();
         for (ReportProtein protein : reportProteins) {
             reportProteinsMap.put(protein.getID(), protein);
 
@@ -285,8 +279,6 @@ public class ProteinModeller {
      * Calculates the ranking. If the filter List is not null or empty, the
      * Report is filtered before ranking.
      *
-     * @param fileID
-     * @param rankableShortName
      * @param filters
      */
     public void calculateRanking(List<AbstractFilter> filters) {
@@ -319,7 +311,7 @@ public class ProteinModeller {
             Map<String, SortOrder> sortables) {
 
         List<Comparator<ReportProtein>> compares =
-                new ArrayList<Comparator<ReportProtein>>();
+                new ArrayList<>();
 
         for (String sortKey : sortOrders) {
             SortOrder order = sortables.get(sortKey);
@@ -368,7 +360,6 @@ public class ProteinModeller {
      * Returns, whether there are any PSMs in the PIA XML file, which are
      * flagged as decoys.
      *
-     * @param fileID
      * @return
      */
     public Boolean getInternalDecoysExist() {
@@ -385,7 +376,6 @@ public class ProteinModeller {
     /**
      * Updates the {@link FDRData} for the protein FDR
      *
-     * @param fileID
      * @return
      */
     public void updateFDRData(DecoyStrategy decoyStrategy,
@@ -426,7 +416,6 @@ public class ProteinModeller {
     /**
      * Calculate the protein FDR
      *
-     * @param fileID
      */
     public void calculateFDR() {
         // calculate the FDR values
@@ -436,12 +425,11 @@ public class ProteinModeller {
 
     /**
      * Returns the report filters.
-     * @param fileID
      * @return
      */
     public List<AbstractFilter> getReportFilters() {
         if (reportFilters == null) {
-            reportFilters = new ArrayList<AbstractFilter>();
+            reportFilters = new ArrayList<>();
         }
 
         return reportFilters;
@@ -452,17 +440,12 @@ public class ProteinModeller {
      * Add a new filter to the report filters.
      */
     public boolean addReportFilter(AbstractFilter newFilter) {
-        if (newFilter != null) {
-            return getReportFilters().add(newFilter);
-        } else {
-            return false;
-        }
+        return newFilter != null && getReportFilters().add(newFilter);
     }
 
 
     /**
      * Removes the report filter at the given index.
-     * @param fileID
      * @param removingIndex
      * @return
      */
@@ -480,12 +463,11 @@ public class ProteinModeller {
     /**
      * Returns the list of inference filters. These are not the currently set
      * filters, but a list of filters which may be used for inference.
-     * @param fileID
      * @return
      */
     public List<AbstractFilter> getInferenceFilters() {
         if (inferenceFilters == null) {
-            inferenceFilters = new ArrayList<AbstractFilter>();
+            inferenceFilters = new ArrayList<>();
         }
 
         return inferenceFilters;
@@ -497,11 +479,7 @@ public class ProteinModeller {
      * set filters, but a list of filters which may be used for inference.
      */
     public boolean addInferenceFilter(AbstractFilter newFilter) {
-        if (newFilter != null) {
-            return getInferenceFilters().add(newFilter);
-        } else {
-            return false;
-        }
+        return newFilter != null && getInferenceFilters().add(newFilter);
     }
 
 
@@ -911,7 +889,6 @@ public class ProteinModeller {
     /**
      * Processes the command line on the protein level.
      *
-     * @param model
      * @param commands
      * @return
      */

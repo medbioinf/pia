@@ -41,7 +41,7 @@ public class Peptide implements Serializable {
         this.sequence = seq;
         this.spectra = null;
         this.pGroup = null;
-        this.occurrences = new HashSet<AccessionOccurrence>();
+        this.occurrences = new HashSet<>();
     }
 
 
@@ -121,7 +121,7 @@ public class Peptide implements Serializable {
      */
     public void addSpectrum(PeptideSpectrumMatch spectrum) {
         if (spectra == null) {
-            spectra = new ArrayList<PeptideSpectrumMatch>();
+            spectra = new ArrayList<>();
         } else {
             for (PeptideSpectrumMatch s : spectra) {
                 if (s.equals(spectrum)) {

@@ -129,7 +129,7 @@ public class SpectrumMatchXML {
 		this.isDecoy = psm.getIsDecoy();
 		this.title = psm.getSpectrumTitle();
 		
-		scores = new ArrayList<ScoreXML>(psm.getScores().size());
+		scores = new ArrayList<>(psm.getScores().size());
 		for (ScoreModel score : psm.getScores()) {
 			ScoreXML scoreXML = new ScoreXML();
 			scoreXML.setCvAccession(score.getAccession());
@@ -138,7 +138,7 @@ public class SpectrumMatchXML {
 			scores.add(scoreXML);
 		}
 		
-		modifications = new ArrayList<ModificationXML>(psm.getModifications().size());
+		modifications = new ArrayList<>(psm.getModifications().size());
 		for (Map.Entry<Integer, Modification> modIt : psm.getModifications().entrySet()) {
 			ModificationXML modXML = new ModificationXML();
 			modXML.setLocation(modIt.getKey());
@@ -184,7 +184,6 @@ public class SpectrumMatchXML {
 	
 	/**
 	 * Sets the value of the charge property.
-	 * @param fileName
 	 */
 	public void setCharge(int charge) {
 		this.charge = charge;
@@ -203,7 +202,6 @@ public class SpectrumMatchXML {
 	
 	/**
 	 * Sets the value of the massToCharge property.
-	 * @param fileName
 	 */
 	public void setMassToCharge(double massToCharge) {
 		this.massToCharge = massToCharge;
@@ -222,7 +220,6 @@ public class SpectrumMatchXML {
 	
 	/**
 	 * Sets the value of the deltaMass property.
-	 * @param fileName
 	 */
 	public void setDeltaMass(double deltaMass) {
 		this.deltaMass = deltaMass;
@@ -241,7 +238,6 @@ public class SpectrumMatchXML {
 	
 	/**
 	 * Sets the value of the retentionTime property.
-	 * @param fileName
 	 */
 	public void setRetentionTime(Double retentionTime) {
 		this.retentionTime = retentionTime;
@@ -260,7 +256,6 @@ public class SpectrumMatchXML {
 	
 	/**
 	 * Sets the value of the sequence property.
-	 * @param fileName
 	 */
 	public void setSequence(String sequence) {
 		this.sequence = sequence;
@@ -279,7 +274,6 @@ public class SpectrumMatchXML {
 	
 	/**
 	 * Sets the value of the missed property.
-	 * @param fileName
 	 */
 	public void setMissed(int missed) {
 		this.missed = missed;
@@ -297,7 +291,6 @@ public class SpectrumMatchXML {
 	
 	/**
 	 * Sets the value of the sourceID property.
-	 * @param fileName
 	 */
 	public void setSourceID(String sourceID) {
 		this.sourceID = sourceID;
@@ -316,7 +309,6 @@ public class SpectrumMatchXML {
 	
 	/**
 	 * Sets the value of the fileRefID property.
-	 * @param fileName
 	 */
 	public void setFileRef(Long fileRef) {
 		this.fileRef = fileRef;
@@ -335,7 +327,6 @@ public class SpectrumMatchXML {
 	
 	/**
 	 * Sets the value of the spectrumIdentificationRef property.
-	 * @param fileName
 	 */
 	public void setSpectrumIdentificationRef(String spectrumIdentificationRef) {
 		this.spectrumIdentificationRef = spectrumIdentificationRef;
@@ -354,7 +345,6 @@ public class SpectrumMatchXML {
 	
 	/**
 	 * Sets the value of the isUnique property.
-	 * @param fileName
 	 */
 	public void setIsUnique(Boolean isUnique) {
 		this.isUnique = isUnique;
@@ -373,7 +363,6 @@ public class SpectrumMatchXML {
 	
 	/**
 	 * Sets the value of the isDecoy property.
-	 * @param fileName
 	 */
 	public void setIsDecoy(Boolean isDecoy) {
 		this.isDecoy = isDecoy;
@@ -392,7 +381,6 @@ public class SpectrumMatchXML {
 	
 	/**
 	 * Sets the value of the spectrumTitle property.
-	 * @param fileName
 	 */
 	public void setTitle(String title) {
 		this.title = title;
@@ -405,7 +393,7 @@ public class SpectrumMatchXML {
 	 */
 	public List<ScoreXML> getScores() {
 		if (scores == null) {
-			scores = new ArrayList<ScoreXML>();
+			scores = new ArrayList<>();
 		}
 		return scores;
 	}
@@ -417,7 +405,7 @@ public class SpectrumMatchXML {
 	 */
 	public List<ModificationXML> getModification() {
 		if (modifications == null) {
-			modifications = new ArrayList<ModificationXML>();
+			modifications = new ArrayList<>();
 		}
 		return modifications;
 	}
@@ -430,7 +418,7 @@ public class SpectrumMatchXML {
 	 */
 	public List<AbstractParam> getParamList() {
 		if (paramList == null) {
-			paramList = new ArrayList<AbstractParam>();
+			paramList = new ArrayList<>();
 		}
 		return paramList;
 	}

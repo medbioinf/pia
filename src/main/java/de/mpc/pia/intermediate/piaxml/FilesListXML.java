@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "filesList")
 public class FilesListXML {
 	@XmlElement(name = "file")
+	private
 	List<PIAInputFileXML> files;
 	
 	
@@ -43,7 +44,7 @@ public class FilesListXML {
 	 */
 	public List<PIAInputFileXML> getFiles() {
 		if (files == null) {
-			files = new ArrayList<PIAInputFileXML>();
+			files = new ArrayList<>();
 		}
 		return files;
 	}

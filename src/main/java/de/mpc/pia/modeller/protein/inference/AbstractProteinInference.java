@@ -1,16 +1,10 @@
 package de.mpc.pia.modeller.protein.inference;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
-import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Group;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
@@ -55,7 +49,7 @@ public abstract class AbstractProteinInference {
 
 
     public AbstractProteinInference() {
-        filters = new ArrayList<AbstractFilter>();
+        filters = new ArrayList<>();
         currentScoring = null;
         allowedThreads = 0;
     }
@@ -85,8 +79,6 @@ public abstract class AbstractProteinInference {
      * @param considerModifications whether to consider modifications when
      * infering peptides
      * @param psmSetSettings settings to create PSM sets
-     * @param reportPeptideMap the infered peptides for the overview (may or may
-     * not be used by the protein inference)
      * @return
      */
     public abstract List<ReportProtein> calculateInference(
@@ -133,7 +125,7 @@ public abstract class AbstractProteinInference {
      * @return
      */
     public final List<RegisteredFilters> getAllAvailableFilters() {
-        List<RegisteredFilters> availableFilters = new ArrayList<RegisteredFilters>();
+        List<RegisteredFilters> availableFilters = new ArrayList<>();
         availableFilters.addAll(getAvailablePSMFilters());
         availableFilters.addAll(getAvailablePeptideFilters());
         availableFilters.addAll(getAvailableProteinFilters());
@@ -152,21 +144,21 @@ public abstract class AbstractProteinInference {
      */
     @Deprecated
     public final List<LabelValueContainer<String>> getFilterTypes() {
-        List<LabelValueContainer<String>> availableFilters = new ArrayList<LabelValueContainer<String>>();
+        List<LabelValueContainer<String>> availableFilters = new ArrayList<>();
 
         // PSM filters
-        availableFilters.add(new LabelValueContainer<String>(null, "--- PSM ---"));
+        availableFilters.add(new LabelValueContainer<>(null, "--- PSM ---"));
 
         for (RegisteredFilters filter : getAvailablePSMFilters()) {
             if (!filter.equals(RegisteredFilters.PSM_SCORE_FILTER)) {
-                availableFilters.add(new LabelValueContainer<String>(
+                availableFilters.add(new LabelValueContainer<>(
                         filter.getShortName(), filter.getFilteringListName()));
             } else {
                 for (Map.Entry<String, String>  scoreIt : getAvailableScoreShorts().entrySet()) {
                     String[] filterNames = PSMScoreFilter.getShortAndFilteringName(
                             scoreIt.getKey(), scoreIt.getValue());
                     if (filterNames != null) {
-                        availableFilters.add(new LabelValueContainer<String>(
+                        availableFilters.add(new LabelValueContainer<>(
                                 filterNames[0], filterNames[1]));
                     }
                 }
@@ -174,18 +166,18 @@ public abstract class AbstractProteinInference {
         }
 
         // peptide filters
-        availableFilters.add(new LabelValueContainer<String>(null, "--- Peptide ---"));
+        availableFilters.add(new LabelValueContainer<>(null, "--- Peptide ---"));
 
         for (RegisteredFilters filter : getAvailablePeptideFilters()) {
             if (!filter.equals(RegisteredFilters.PEPTIDE_SCORE_FILTER)) {
-                availableFilters.add(new LabelValueContainer<String>(
+                availableFilters.add(new LabelValueContainer<>(
                         filter.getShortName(), filter.getFilteringListName()));
             } else {
                 for (Map.Entry<String, String> scoreIt : getAvailableScoreShorts().entrySet()) {
                     String[] filterNames = PeptideScoreFilter.getShortAndFilteringName(
                             scoreIt.getKey(), scoreIt.getValue());
                     if (filterNames != null) {
-                        availableFilters.add(new LabelValueContainer<String>(
+                        availableFilters.add(new LabelValueContainer<>(
                                 filterNames[0], filterNames[1]));
                     }
                 }
@@ -193,12 +185,10 @@ public abstract class AbstractProteinInference {
         }
 
         // protein filters
-        availableFilters.add(new LabelValueContainer<String>(null, "--- Protein ---"));
+        availableFilters.add(new LabelValueContainer<>(null, "--- Protein ---"));
 
-        for (RegisteredFilters filter : getAvailableProteinFilters()) {
-            availableFilters.add(new LabelValueContainer<String>(
-                    filter.getShortName(), filter.getFilteringListName()));
-        }
+        availableFilters.addAll(getAvailableProteinFilters().stream().map(filter -> new LabelValueContainer<>(
+                filter.getShortName(), filter.getFilteringListName())).collect(Collectors.toList()));
 
         return availableFilters;
     }
@@ -284,7 +274,6 @@ public abstract class AbstractProteinInference {
 
     /**
      * Getter for the allowed number of threads, smaller 1 means all available.
-     * @param threads
      */
     public int getAllowedThreads() {
         return allowedThreads;
@@ -303,10 +292,10 @@ public abstract class AbstractProteinInference {
     public Map<Long, List<ReportPeptide>> createFilteredReportPeptides(Map<Long, Group> groupMap,
             Map<String, ReportPSMSet> reportPSMSetMap, boolean considerModifications,
             Map<String, Boolean> psmSetSettings, Map<String, ReportPeptide> reportPeptideMap) {
-        Map<Long, List<ReportPeptide>> peptidesMap = new HashMap<Long, List<ReportPeptide>>(groupMap.size() / 2);
+        Map<Long, List<ReportPeptide>> peptidesMap = new HashMap<>(groupMap.size() / 2);
 
         for (Map.Entry<Long, Group> gIt : groupMap.entrySet()) {
-            Map<String, ReportPeptide> gPepsMap = new HashMap<String, ReportPeptide>();
+            Map<String, ReportPeptide> gPepsMap = new HashMap<>();
 
             if (gIt.getValue().getPeptides() == null) {
                 // no peptides in the group -> go on
@@ -411,7 +400,7 @@ public abstract class AbstractProteinInference {
                                     boolean found = false;
 
                                     for (ReportPSM q : checkSet.getPSMs()) {
-                                        if (p.getId() == q.getId()) {
+                                        if (Objects.equals(p.getId(), q.getId())) {
                                             found = true;
                                             break;
                                         }
@@ -477,11 +466,7 @@ public abstract class AbstractProteinInference {
     public Map<String, ReportPeptide> sortPeptidesInMap(Collection<ReportPeptide> reportPeptides) {
         Map<String, ReportPeptide> peptideMap = new HashMap<>();
 
-        for (ReportPeptide peptide : reportPeptides) {
-            if (peptideMap.put(peptide.getStringID(), peptide) != null) {
-                LOGGER.warn("Added a peptide with identical ID into the map: " + peptide.getStringID());
-            }
-        }
+        reportPeptides.stream().filter(peptide -> peptideMap.put(peptide.getStringID(), peptide) != null).forEach(peptide -> LOGGER.warn("Added a peptide with identical ID into the map: " + peptide.getStringID()));
 
         return peptideMap;
     }
@@ -521,7 +506,7 @@ public abstract class AbstractProteinInference {
     /**
      * Tests for the given group, if it has any direct {@link ReportPeptide}s,
      * in the given Map. This Map should by created by
-     * {@link AbstractProteinInference#createFilteredReportPeptides(Map, Map, boolean)}
+     *
      * prior to calling this function.
      *
      * @param group
@@ -538,7 +523,7 @@ public abstract class AbstractProteinInference {
     /**
      * Tests for the given group, if it has any {@link ReportPeptide}s, whether
      * direct or in the peptideChildren, in the given Map. This Map should be
-     * created by {@link AbstractProteinInference#createFilteredReportPeptides(Map, Map, boolean)}
+     * created by
      * prior to calling this function.
      *
      * @param group
@@ -588,34 +573,18 @@ public abstract class AbstractProteinInference {
 
         // add direct peptides
         if (reportPeptidesMap.containsKey(id)) {
-            for (ReportPeptide pep : reportPeptidesMap.get(id)) {
-                protein.addPeptide(pep);
-            }
+            reportPeptidesMap.get(id).forEach(protein::addPeptide);
         }
 
         // add children's peptides
-        for (Group child : groupMap.get(id).getAllPeptideChildren().values()) {
-            if (reportPeptidesMap.containsKey(child.getID())) {
-                for (ReportPeptide pep : reportPeptidesMap.get(child.getID())) {
-                    protein.addPeptide(pep);
-                }
-            }
-        }
+        groupMap.get(id).getAllPeptideChildren().values().stream().filter(child -> reportPeptidesMap.containsKey(child.getID())).forEach(child -> reportPeptidesMap.get(child.getID()).forEach(protein::addPeptide));
 
         // add the direct accessions
-        for (Accession acc : groupMap.get(id).getAccessions().values()) {
-            protein.addAccession(acc);
-        }
+        groupMap.get(id).getAccessions().values().forEach(protein::addAccession);
 
         // add all the accessions from the sameSets
         if ((sameSets != null) &&  sameSets.containsKey(id)) {
-            for (Long sameID : sameSets.get(id)) {
-                if (!sameID.equals(id)) {
-                    for (Accession acc : groupMap.get(sameID).getAccessions().values()) {
-                        protein.addAccession(acc);
-                    }
-                }
-            }
+            sameSets.get(id).stream().filter(sameID -> !sameID.equals(id)).forEach(sameID -> groupMap.get(sameID).getAccessions().values().forEach(protein::addAccession));
         }
 
         // add the subProteins
@@ -646,6 +615,6 @@ public abstract class AbstractProteinInference {
      * @return
      */
     public Long getProgressValue() {
-        return Long.valueOf(101);
+        return 101L;
     }
 }

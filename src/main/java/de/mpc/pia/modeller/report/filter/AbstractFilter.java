@@ -37,8 +37,6 @@ public abstract class AbstractFilter {
 
     /**
      * Return the {@link RegisteredFilters} this filter is based on
-     *
-     * @return
      */
     public final RegisteredFilters getRegisteredFilter() {
         return filter;
@@ -47,7 +45,6 @@ public abstract class AbstractFilter {
 
     /**
      * returns the machine readable name of the filter
-     * @return
      */
     public final String getShortName() {
         return filter.getShortName();
@@ -56,7 +53,6 @@ public abstract class AbstractFilter {
 
     /**
      * returns the human readable long name of the filter
-     * @return
      */
     public final String getName() {
         return filter.getLongName();
@@ -65,7 +61,6 @@ public abstract class AbstractFilter {
 
     /**
      * returns the name, which should be displayed at a filter list
-     * @return
      */
     public final String getFilteringListName() {
         return filter.getFilteringListName();
@@ -74,14 +69,12 @@ public abstract class AbstractFilter {
 
     /**
      * returns the value, against which is filtered
-     * @return
      */
     public abstract Object getFilterValue();
 
 
     /**
      * returns the type of the filter, i.e. the kind of comparison
-     * @return
      */
     public final FilterType getFilterType() {
         return filter.getFilterType();
@@ -90,17 +83,12 @@ public abstract class AbstractFilter {
 
     /**
      * returns, whether this filter is negating or not
-     * @return
      */
     public final boolean getFilterNegate() {
         return negate;
     }
 
 
-    /**
-     * getter for the filter's comparator
-     * @return
-     */
     public final FilterComparator getFilterComparator() {
         return comparator;
     }
@@ -125,7 +113,6 @@ public abstract class AbstractFilter {
      * of this filter.
      *
      * @param obj
-     * @return
      */
     public boolean supportsClass(Object obj) {
         return filter.supportsClass(obj);
@@ -137,7 +124,6 @@ public abstract class AbstractFilter {
      * and thus returns, whether the object satisfies the filter.
      *
      * @param o
-     * @return
      */
     @SuppressWarnings("unchecked")
     public boolean satisfiesFilter(Object o, Long fileID) {
@@ -149,86 +135,78 @@ public abstract class AbstractFilter {
 
         if (objValue != null) {
             switch (getFilterType()) {
-            case bool:
-                if (objValue instanceof Boolean) {
-                    return satisfiesBooleanFilter((Boolean)objValue);
-                } else if (objValue instanceof Collection<?>) {
-                    for (Object obj : (Collection<?>)objValue) {
-                        // if any of the objects in the collection does not satisfy the filter or is not numerical, return false
-                        if (obj instanceof Boolean) {
-                            if (!satisfiesBooleanFilter((Boolean)obj)) {
+                case bool:
+                    if (objValue instanceof Boolean) {
+                        return satisfiesBooleanFilter((Boolean) objValue);
+                    } else if (objValue instanceof Collection<?>) {
+                        for (Object obj : (Collection<?>) objValue) {
+                            // if any of the objects in the collection does not satisfy the filter or is not numerical, return false
+                            if (obj instanceof Boolean) {
+                                if (!satisfiesBooleanFilter((Boolean) obj)) {
+                                    return false;
+                                }
+                            } else {
                                 return false;
                             }
-                        } else {
-                            return false;
                         }
+                        // all objects in collection satisfy the filter, return true
+                        return true;
+                    } else {
+                        // TODO: throw exception or something
+                        return false;
                     }
-                    // all objects in collection satisfy the filter, return true
-                    return true;
-                } else {
-                    // TODO: throw exception or something
-                    return false;
-                }
 
-            case numerical:
-                if (objValue instanceof Number) {
-                    return satisfiesNumericalFilter((Number)objValue);
-                } else if (objValue instanceof Collection<?>) {
-                    for (Object obj : (Collection<?>)objValue) {
-                        // if any of the objects in the collection does not satisfy the filter or is not numerical, return false
-                        if (obj instanceof Number) {
-                            if (!satisfiesNumericalFilter((Number)obj)) {
+                case numerical:
+                    if (objValue instanceof Number) {
+                        return satisfiesNumericalFilter((Number) objValue);
+                    } else if (objValue instanceof Collection<?>) {
+                        for (Object obj : (Collection<?>) objValue) {
+                            // if any of the objects in the collection does not satisfy the filter or is not numerical, return false
+                            if (obj instanceof Number) {
+                                if (!satisfiesNumericalFilter((Number) obj)) {
+                                    return false;
+                                }
+                            } else {
                                 return false;
                             }
-                        } else {
-                            return false;
                         }
+                        // all objects in collection satisfy the filter, return true
+                        return true;
+                    } else {
+                        // TODO: throw exception or something
+                        return false;
                     }
-                    // all objects in collection satisfy the filter, return true
-                    return true;
-                } else {
-                    // TODO: throw exception or something
-                    return false;
-                }
 
-            case literal:
-                if (objValue instanceof String) {
-                    return satisfiesLiteralFilter((String)objValue);
-                } else if(objValue instanceof Collection<?>) {
-                    for (Object obj : (Collection<?>)objValue) {
-                        // if any of the objects in the collection does not satisfy the filter or is no String, return false
-                        if (obj instanceof String) {
-                            if (!satisfiesLiteralFilter((String)obj)) {
+                case literal:
+                    if (objValue instanceof String) {
+                        return satisfiesLiteralFilter((String) objValue);
+                    } else if (objValue instanceof Collection<?>) {
+                        for (Object obj : (Collection<?>) objValue) {
+                            // if any of the objects in the collection does not satisfy the filter or is no String, return false
+                            if (obj instanceof String) {
+                                if (!satisfiesLiteralFilter((String) obj)) {
+                                    return false;
+                                }
+                            } else {
                                 return false;
                             }
-                        } else {
-                            return false;
                         }
+                        // all objects in collection satisfy the filter, return true
+                        return true;
+                    } else {
+                        // TODO: throw exception or something
+                        return false;
                     }
-                    // all objects in collection satisfy the filter, return true
-                    return true;
-                } else {
-                    // TODO: throw exception or something
-                    return false;
-                }
 
-            case literal_list:
-                if (objValue instanceof List<?>) {
-                    return satisfiesLiteralListFilter((List<String>)objValue);
-                } else {
-                    // TODO: throw exception or something
-                    return false;
-                }
+                case literal_list:
+                    return objValue instanceof List<?> && satisfiesLiteralListFilter((List<String>) objValue);
+// TODO: throw exception or something
 
-            case modification:
-                if (objValue instanceof List<?>) {
-                    return satisfiesModificationFilter((List<Modification>)objValue);
-                } else {
-                    // TODO: throw exception or something
+                case modification:
+                    return objValue instanceof List<?> && satisfiesModificationFilter((List<Modification>) objValue);
+// TODO: throw exception or something
+                default:
                     return false;
-                }
-            default:
-                return false;
             }
         }
 
@@ -239,8 +217,7 @@ public abstract class AbstractFilter {
     /**
      * checks whether the given Boolean satisfies a boolean filter
      *
-     * @param o
-     * @return
+     * @param o Comparator Object
      */
     private boolean satisfiesBooleanFilter(Boolean o) {
         switch (getFilterComparator()) {
@@ -257,7 +234,6 @@ public abstract class AbstractFilter {
      * checks whether the given Number satisfies a numerical filter
      *
      * @param o
-     * @return
      */
     private boolean satisfiesNumericalFilter(Number o) {
         boolean retVal;
@@ -328,7 +304,7 @@ public abstract class AbstractFilter {
             boolean contains = false;
             if (o != null) {
                 for (String objStr : o) {
-                    if (objStr.equals((String)getFilterValue())) {
+                    if (objStr.equals(getFilterValue())) {
                         contains = true;
                         break;
                     }
@@ -341,12 +317,12 @@ public abstract class AbstractFilter {
             boolean containsOnly = false;
 
             if ((o != null) && !o.isEmpty()
-                    && o.get(0).equals((String)getFilterValue())) {
+                    && o.get(0).equals(getFilterValue())) {
                 // ok, the first one is our string
                 containsOnly = true;
                 // but are all the others?
                 for (String objStr : o) {
-                    if (!objStr.equals((String)getFilterValue())) {
+                    if (!objStr.equals(getFilterValue())) {
                         containsOnly = false;
                         break;
                     }
@@ -416,7 +392,7 @@ public abstract class AbstractFilter {
                 for (Modification mod : o) {
 
                     if ((mod.getDescription() != null) &&
-                            (mod.getDescription().equals((String)getFilterValue()))) {
+                            (mod.getDescription().equals(getFilterValue()))) {
                         has_description = true;
                         break;
                     }

@@ -23,7 +23,7 @@ public class PeptideScoreFilter extends AbstractFilter {
 
     private String scoreShortName;
 
-    public static final String prefix = "peptide_score_filter_";
+    public static final String PREFIX = "peptide_score_filter_";
 
 
     public PeptideScoreFilter(FilterComparator arg, boolean negate, Double value,
@@ -59,7 +59,7 @@ public class PeptideScoreFilter extends AbstractFilter {
         if (modelName != null) {
             shortAndName = new String[2];
 
-            shortAndName[0] = prefix + scoreShort;
+            shortAndName[0] = PREFIX + scoreShort;
             shortAndName[1] = modelName + " (Peptide)";
 
         }
@@ -99,7 +99,7 @@ public class PeptideScoreFilter extends AbstractFilter {
     public String toString() {
         StringBuilder str = new StringBuilder(getShortName());
 
-        str.append(" (" + getScoreShortName() + ")");
+        str.append(" (").append(getScoreShortName()).append(")");
         if (getFilterNegate()) {
             str.append(" not");
         }

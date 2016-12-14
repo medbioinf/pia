@@ -95,7 +95,7 @@ public class PIACachedCompilerTest {
         seInference.addFilter(
                 new PSMScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName()));
 
-        seInference.setScoring(new MultiplicativeScoring(new HashMap<String, String>()));
+        seInference.setScoring(new MultiplicativeScoring(new HashMap<>()));
         seInference.getScoring().setSetting(AbstractScoring.scoringSettingID, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
         seInference.getScoring().setSetting(AbstractScoring.scoringSpectraSettingID, PSMForScoring.ONLY_BEST.getShortName());
 
@@ -106,13 +106,13 @@ public class PIACachedCompilerTest {
         piaModeller.getProteinModeller().calculateFDR();
 
 
-        List<AbstractFilter> filters = new ArrayList<AbstractFilter>();
+        List<AbstractFilter> filters = new ArrayList<>();
         filters.add(RegisteredFilters.NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER.newInstanceOf(
                         FilterComparator.greater_equal, 2, false));
 
 
         // get the expected values
-        Map<String, List<Object>> expectedValues = new HashMap<String, List<Object>>(426);
+        Map<String, List<Object>> expectedValues = new HashMap<>(426);
 
         BufferedReader br = new BufferedReader(new FileReader(idXMLexpectedFile));
         String line;
@@ -123,7 +123,7 @@ public class PIACachedCompilerTest {
             }
 
             String split[] = line.split("\",\"");
-            List<Object> entries = new ArrayList<Object>();
+            List<Object> entries = new ArrayList<>();
 
             entries.add(Double.parseDouble(split[1]));
             entries.add(Integer.parseInt(split[2]));
@@ -139,7 +139,7 @@ public class PIACachedCompilerTest {
 
         // compare the values
         for (ReportProtein prot : piaModeller.getProteinModeller().getFilteredReportProteins(filters)) {
-            StringBuffer accSb = new StringBuffer();
+            StringBuilder accSb = new StringBuilder();
             for (Accession acc : prot.getAccessions()) {
                 accSb.append(acc.getAccession());
                 accSb.append(",");
@@ -150,10 +150,10 @@ public class PIACachedCompilerTest {
             assertNotNull("These accessions are not expected: " + accSb.toString(), values);
 
             assertEquals("Wrong score for " + accSb.toString(), (Double)(values.get(0)), prot.getScore(), scoreDelta);
-            assertEquals("Wrong number of peptides for " + accSb.toString(), (Integer)(values.get(1)), prot.getNrPeptides());
-            assertEquals("Wrong number of PSMs for " + accSb.toString(), (Integer)(values.get(2)), prot.getNrPSMs());
-            assertEquals("Wrong number of spectra for " + accSb.toString(), (Integer)(values.get(3)), prot.getNrSpectra());
-            assertEquals("Wrong decoy state for " + accSb.toString(), (Boolean)(values.get(4)), prot.getIsDecoy());
+            assertEquals("Wrong number of peptides for " + accSb.toString(), values.get(1), prot.getNrPeptides());
+            assertEquals("Wrong number of PSMs for " + accSb.toString(), values.get(2), prot.getNrPSMs());
+            assertEquals("Wrong number of spectra for " + accSb.toString(), values.get(3), prot.getNrSpectra());
+            assertEquals("Wrong decoy state for " + accSb.toString(), values.get(4), prot.getIsDecoy());
             assertEquals("Wrong FDR for " + accSb.toString(), (Double)(values.get(5)), prot.getFDR(), scoreDelta);
             assertEquals("Wrong q-value for " + accSb.toString(), (Double)(values.get(6)), prot.getQValue(), scoreDelta);
         }

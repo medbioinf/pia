@@ -44,7 +44,7 @@ public class PSMFiltersTest {
 
     @Test
     public void testChargeFilter() {
-        ArrayList<AbstractFilter> filters = new ArrayList<AbstractFilter>();
+        ArrayList<AbstractFilter> filters = new ArrayList<>();
 
         List<ReportPSM> psmList = piaModeller.getPSMModeller().getFilteredReportPSMs(1L, filters);
         int nrAllPSMs = psmList.size();
@@ -74,7 +74,7 @@ public class PSMFiltersTest {
 
     @Test
     public void testPSMAccessionsFilter() {
-        ArrayList<AbstractFilter> filters = new ArrayList<AbstractFilter>();
+        ArrayList<AbstractFilter> filters = new ArrayList<>();
 
         filters.add(RegisteredFilters.PSM_ACCESSIONS_FILTER.newInstanceOf(FilterComparator.contains_only, "psu|NC_LIV_020800", false));
         List<ReportPSM> psmList = piaModeller.getPSMModeller().getFilteredReportPSMs(1L, filters);
@@ -108,7 +108,7 @@ public class PSMFiltersTest {
 
     @Test
     public void testTopIdentificationTests() {
-        ArrayList<AbstractFilter> filters = new ArrayList<AbstractFilter>();
+        ArrayList<AbstractFilter> filters = new ArrayList<>();
 
         try {
             filters.add(RegisteredFilters.PSM_TOP_IDENTIFICATION_FILTER.newInstanceOf(FilterComparator.less_equal, 3, false));
@@ -150,7 +150,7 @@ public class PSMFiltersTest {
 
     @Test
     public void testPSMScoreFilter() {
-        ArrayList<AbstractFilter> filters = new ArrayList<AbstractFilter>();
+        ArrayList<AbstractFilter> filters = new ArrayList<>();
 
         try {
             filters.add(RegisteredFilters.PSM_SCORE_FILTER.newInstanceOf(FilterComparator.less_equal, 10, false));

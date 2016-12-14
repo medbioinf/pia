@@ -133,7 +133,7 @@ public class SpectrumVisualizer {
         Map<Integer, List<PTModification>> pepsMods = new HashMap<>();
 
         for (Map.Entry<Integer, Modification> modIt : modifications.entrySet()) {
-            List<Double> monoMassDeltas = new ArrayList<Double>();
+            List<Double> monoMassDeltas = new ArrayList<>();
             monoMassDeltas.add(modIt.getValue().getMass());
             PTModification mod = new PTModification(null, null, null, monoMassDeltas, null);
 

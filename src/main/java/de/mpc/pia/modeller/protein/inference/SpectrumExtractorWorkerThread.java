@@ -9,10 +9,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
-import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.modeller.peptide.ReportPeptide;
@@ -142,10 +142,10 @@ public class SpectrumExtractorWorkerThread extends Thread {
 
         // maps from the peptideKeys to the reportPeptides of the protein
         Map<String, ReportPeptide> peptideMap =
-                new HashMap<String, ReportPeptide>();
+                new HashMap<>();
 
         // the peptides in this list where blacklisted by filter settings
-        Set<String> peptideBlacklist = new HashSet<String>();
+        Set<String> peptideBlacklist = new HashSet<>();
         boolean iterate = true;
 
         ScoreModelEnum scoreModel =
@@ -164,7 +164,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
             // all possible peptides with their PSMs are given for the protein
             for (Peptide peptide : groupsPeptides.get(protein.getID())) {
                 // holds the getPeptideStringIDs, which are done
-                Set<String> modificationsDone = new HashSet<String>();
+                Set<String> modificationsDone = new HashSet<>();
 
                 for (PeptideSpectrumMatch psm : peptide.getSpectra()) {
                     String peptideKey =
@@ -187,10 +187,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
                                                     peptideKey + " in the peptideMap!");
                                 }
 
-                                for (ReportPSMSet psmSet
-                                        : peptidesSpectra.get(peptideKey)) {
-                                    reportPeptide.addPSM(psmSet);
-                                }
+                                peptidesSpectra.get(peptideKey).forEach(reportPeptide::addPSM);
 
                                 // this peptide is done
                                 modificationsDone.add(peptideKey);
@@ -218,7 +215,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
             //   [1] the best score (as ScoreModel)
             //   [2] the key of (one of) the peptide(s) with the highest score
             Map<String, Object[]> spectraToPeptides =
-                    new HashMap<String, Object[]>();
+                    new HashMap<>();
 
                     Iterator<ReportPeptide> pepIt = peptideMap.values().iterator();
                     while (pepIt.hasNext()) {
@@ -228,43 +225,42 @@ public class SpectrumExtractorWorkerThread extends Thread {
                             // if not a PSM set score is used, get additional information for the
                             // PSMSets now and filter the sets
 
-                            for (PSMReportItem psmSet : peptide.getPSMs()) {
-                                if (psmSet instanceof ReportPSMSet) {
+                            // try to get FDRScore values (if they are not yet set)
+// get the ReportPSMSet, which was build by the PSM Viewer
+// add the used spectra to the set
+// FDR is calculated, so get the scores for it
+// remove the PSMSet from the peptide
+// psmSet can only be ReportPSMSet
+                            peptide.getPSMs().stream().filter(psmSet -> psmSet instanceof ReportPSMSet).forEach(psmSet -> {
 
-                                    // try to get FDRScore values (if they are not yet set)
-                                    if (psmSet.getFDRScore() == null) {
-                                        // get the ReportPSMSet, which was build by the PSM Viewer
-                                        String key = ((ReportPSMSet) psmSet).getIdentificationKey(psmSetSettings);
-                                        ReportPSMSet givenSet = reportPSMSetMap.get(key);
-                                        if ((givenSet != null) &&
-                                                (givenSet.getFDRScore() != null)) {
-                                            Set<Long> psmIDs = new HashSet<Long>();
-                                            // add the used spectra to the set
-                                            for (ReportPSM psm : ((ReportPSMSet) psmSet).getPSMs()) {
-                                                psmIDs.add(psm.getSpectrum().getID());
-                                            }
+                                // try to get FDRScore values (if they are not yet set)
+                                if (psmSet.getFDRScore() == null) {
+                                    // get the ReportPSMSet, which was build by the PSM Viewer
+                                    String key = psmSet.getIdentificationKey(psmSetSettings);
+                                    ReportPSMSet givenSet = reportPSMSetMap.get(key);
+                                    if ((givenSet != null) &&
+                                            (givenSet.getFDRScore() != null)) {
+                                        Set<Long> psmIDs = new HashSet<>();
+                                        // add the used spectra to the set
+                                        psmIDs.addAll(((ReportPSMSet) psmSet).getPSMs().stream().map(psm -> psm.getSpectrum().getID()).collect(Collectors.toList()));
 
-                                            // FDR is calculated, so get the scores for it
-                                            Set<Long> givenPSMids = new HashSet<Long>();
-                                            for (ReportPSM psm : givenSet.getPSMs()) {
-                                                givenPSMids.add(psm.getSpectrum().getID());
-                                            }
+                                        // FDR is calculated, so get the scores for it
+                                        Set<Long> givenPSMids = givenSet.getPSMs().stream().map(psm -> psm.getSpectrum().getID()).collect(Collectors.toSet());
 
-                                            if (psmIDs.equals(givenPSMids)) {
-                                                psmSet.setFDRScore(givenSet.getFDRScore().getValue());
-                                                psmSet.setFDR(givenSet.getFDR());
-                                            }
+                                        if (psmIDs.equals(givenPSMids)) {
+                                            psmSet.setFDRScore(givenSet.getFDRScore().getValue());
+                                            psmSet.setFDR(givenSet.getFDR());
                                         }
                                     }
+                                }
 
-                                    if (!FilterFactory.satisfiesFilterList(
-                                            psmSet, 0L, filters)) {
-                                        // remove the PSMSet from the peptide
-                                        peptide.removeReportPSMSet((ReportPSMSet)psmSet,
-                                                psmSetSettings);
-                                    }
-                                } // psmSet can only be ReportPSMSet
-                            }
+                                if (!FilterFactory.satisfiesFilterList(
+                                        psmSet, 0L, filters)) {
+                                    // remove the PSMSet from the peptide
+                                    peptide.removeReportPSMSet((ReportPSMSet) psmSet,
+                                            psmSetSettings);
+                                }
+                            } );
                         }
 
                         // if the peptide became empty, remove it
@@ -326,7 +322,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
 
                     // the set of spectra with the corresponding peptides
                     // Object[] = [Set<spectraIDs>, Set<peptideKeys>]
-                    Set<Object[]> spectraAndPeptides = new HashSet<Object[]>();
+                    Set<Object[]> spectraAndPeptides = new HashSet<>();
 
                     // check, if a spectrum is in multiple peptides of the protein and
                     // remove any no longer questionable spectra from the map
@@ -347,7 +343,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
 
                             // the peptides in this set can be removed from the peptideIDs,
                             // as the spectrum does no longer score in them
-                            Set<String> peptidesToRemove = new HashSet<String>();
+                            Set<String> peptidesToRemove = new HashSet<>();
 
                             if ((score != null) &&
                                     !score.getValue().equals(Double.NaN)) {
@@ -407,27 +403,18 @@ public class SpectrumExtractorWorkerThread extends Thread {
                         Set<String> peptides = (Set<String>) tuple[1];
 
                         // get also the other, fixed scoring spectra for the peptides
-                        Set<String> allSpectra = new HashSet<String>(spectra);
+                        Set<String> allSpectra = new HashSet<>(spectra);
                         for (String peptideKey : peptides) {
                             ReportPeptide peptide = peptideMap.get(peptideKey);
 
-                            for (PSMReportItem repPSM : peptide.getPSMs()) {
-                                if (repPSM instanceof ReportPSMSet) {
-                                    for (ReportPSM psm
-                                            : ((ReportPSMSet)repPSM).getPSMs()) {
-                                        if (!peptide.getNonScoringPSMIDs().contains(
-                                                psm.getId())) {
-                                            allSpectra.add(psm.getSpectrum().
-                                                    getSpectrumIdentificationKey(
-                                                            psmSetSettings));
-                                        }
-                                    }
-                                }
-                            }
+                            peptide.getPSMs().stream().filter(repPSM -> repPSM instanceof ReportPSMSet).forEach(repPSM -> allSpectra.addAll(((ReportPSMSet) repPSM).getPSMs().stream().filter(psm -> !peptide.getNonScoringPSMIDs().contains(
+                                    psm.getId())).map(psm -> psm.getSpectrum().
+                                    getSpectrumIdentificationKey(
+                                            psmSetSettings)).collect(Collectors.toList())));
                         }
 
                         // check for all peptides, if they have all spectra
-                        Set<String> peptidesWithAllSpectra = new HashSet<String>();
+                        Set<String> peptidesWithAllSpectra = new HashSet<>();
                         for (String peptideKey : peptides) {
                             ReportPeptide peptide = peptideMap.get(peptideKey);
 
@@ -451,17 +438,13 @@ public class SpectrumExtractorWorkerThread extends Thread {
                             // peptide score. these peptides should for now only use
                             // spectra NOT in the questionable set
                             List<ReportProtein> reportProteins =
-                                    new ArrayList<ReportProtein>(peptides.size());
+                                    new ArrayList<>(peptides.size());
                             Long fakeId = 1L;
                             for (String peptideKey : peptides) {
                                 ReportProtein fakeProtein = new ReportProtein(fakeId);
-                                for (Accession acc : protein.getAccessions()) {
-                                    fakeProtein.addAccession(acc);
-                                }
+                                protein.getAccessions().forEach(fakeProtein::addAccession);
                                 ReportPeptide fakePeptide = peptideMap.get(peptideKey);
-                                for (String specIdKey : spectra) {
-                                    fakePeptide.addToNonScoringSpectra(specIdKey);
-                                }
+                                spectra.forEach(fakePeptide::addToNonScoringSpectra);
                                 fakeProtein.addPeptide(fakePeptide);
                                 fakeProtein.setScore(
                                         scoring.calculateProteinScore(fakeProtein));
@@ -470,21 +453,21 @@ public class SpectrumExtractorWorkerThread extends Thread {
                             }
 
                             Set<String> alreadyScoringSpectra =
-                                    new HashSet<String>(spectra.size());
+                                    new HashSet<>(spectra.size());
 
                             Comparator<ReportProtein> comparator =
                                     ReportProteinComparatorFactory.CompareType.SCORE_SORT.getNewInstance();
                             Collections.sort(reportProteins, comparator);
 
                             Set<ReportPeptide> sameScorePeptides =
-                                    new HashSet<ReportPeptide>();
+                                    new HashSet<>();
                             Double sameScore = reportProteins.iterator().next().getScore();
 
                             while (!reportProteins.isEmpty()) {
                                 // stores all the combinations of spectra for this score's
                                 // peptides
                                 Map<String, List<String>> peptidesScoringSpectraKeys =
-                                        new HashMap<String, List<String>>();
+                                        new HashMap<>();
 
                                 // get all peptides / fake proteins with the same score
                                 Iterator<ReportProtein> proteinIt =
@@ -509,9 +492,9 @@ public class SpectrumExtractorWorkerThread extends Thread {
 
                                 // all peptides with the score are assembled
                                 Set<String> newScoringSpectra =
-                                        new HashSet<String>(spectra.size());
+                                        new HashSet<>(spectra.size());
                                 Set<List<String>> sameScoringSpectraKeys =
-                                        new HashSet<List<String>>();
+                                        new HashSet<>();
                                 for (ReportPeptide peptide : sameScorePeptides) {
                                     boolean scoreNone = false;
                                     List<String> scoringSpectraKeys =
@@ -610,12 +593,8 @@ public class SpectrumExtractorWorkerThread extends Thread {
 
         if (peptideMap.size() > 0) {
             // now add the (remaining) peptides from peptideMap to the protein, if they satisfy the filters
-            for (ReportPeptide peptide : peptideMap.values()) {
-                if (FilterFactory.
-                        satisfiesFilterList(peptide, 0L, filters)) {
-                    protein.addPeptide(peptide);
-                }
-            }
+            peptideMap.values().stream().filter(peptide -> FilterFactory.
+                    satisfiesFilterList(peptide, 0L, filters)).forEach(protein::addPeptide);
 
             // and finally score the protein
             protein.setScore(scoring.calculateProteinScore(protein));
@@ -831,11 +810,11 @@ public class SpectrumExtractorWorkerThread extends Thread {
                     // generate a new tuple for the spectrum
                     spectrumTuple = new Object[2];
 
-                    Set<String> spectra = new HashSet<String>();
+                    Set<String> spectra = new HashSet<>();
                     spectra.add(specIDKey);
                     spectrumTuple[0] = spectra;
 
-                    Set<String> peptides = new HashSet<String>();
+                    Set<String> peptides = new HashSet<>();
                     peptides.add(peptideKey);
                     spectrumTuple[1] = peptides;
 
@@ -860,25 +839,15 @@ public class SpectrumExtractorWorkerThread extends Thread {
             Set<String> allPeptides, Set<String> questionableSpectra,
             Map<String, ReportPeptide> peptideMap) {
 
-        for (String peptideKey : allPeptides) {
-            if (!peptideKey.equals(scoringPeptideKey)) {
-                // remove the questionable spectra from scoring
-                ReportPeptide peptide = peptideMap.get(peptideKey);
+        // remove the questionable spectra from scoring
+        allPeptides.stream().filter(peptideKey -> !peptideKey.equals(scoringPeptideKey)).forEach(peptideKey -> {
+            // remove the questionable spectra from scoring
+            ReportPeptide peptide = peptideMap.get(peptideKey);
 
-                for (PSMReportItem reportPSM : peptide.getPSMs()) {
-                    if (reportPSM instanceof ReportPSMSet) {
-                        for (ReportPSM psm
-                                : ((ReportPSMSet)reportPSM).getPSMs()) {
-                            if (questionableSpectra.contains(
-                                    psm.getSpectrum().
-                                    getSpectrumIdentificationKey(
-                                            psmSetSettings))) {
-                                peptide.addToNonScoringPSMs(psm.getId());
-                            }
-                        }
-                    }
-                }
-            }
-        }
+            peptide.getPSMs().stream().filter(reportPSM -> reportPSM instanceof ReportPSMSet).forEach(reportPSM -> ((ReportPSMSet) reportPSM).getPSMs().stream().filter(psm -> questionableSpectra.contains(
+                    psm.getSpectrum().
+                            getSpectrumIdentificationKey(
+                                    psmSetSettings))).forEach(psm -> peptide.addToNonScoringPSMs(psm.getId())));
+        });
     }
 }

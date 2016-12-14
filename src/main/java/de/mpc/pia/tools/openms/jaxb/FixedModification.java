@@ -19,9 +19,9 @@ import javax.xml.bind.annotation.XmlType;
 public class FixedModification {
 
     @XmlElement(name = "UserParam")
-    protected List<UserParamIdXML> userParam;
+    private List<UserParamIdXML> userParam;
     @XmlAttribute(required = true)
-    protected String name;
+    private String name;
 
     /**
      * Gets the value of the userParam property.
@@ -47,7 +47,7 @@ public class FixedModification {
      */
     public List<UserParamIdXML> getUserParam() {
         if (userParam == null) {
-            userParam = new ArrayList<UserParamIdXML>();
+            userParam = new ArrayList<>();
         }
         return this.userParam;
     }

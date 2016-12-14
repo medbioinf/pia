@@ -1,6 +1,7 @@
 package de.mpc.pia.tools;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,10 +30,8 @@ public enum CleavageAgent {
 
         @Override
         public List<String> getAlternativeNames() {
-            return Arrays.asList(new String[]{
-                    getName(),
-                    "Trypsin (Full)"
-            });
+            return Arrays.asList(getName(),
+                    "Trypsin (Full)");
         }
     },
 
@@ -159,10 +158,8 @@ public enum CleavageAgent {
 
         @Override
         public List<String> getAlternativeNames() {
-            return Arrays.asList(new String[]{
-                    getName(),
-                    "Formic Acid"
-            });
+            return Arrays.asList(getName(),
+                    "Formic Acid");
         }
     },
 
@@ -315,9 +312,7 @@ public enum CleavageAgent {
      * @return
      */
     public List<String> getAlternativeNames() {
-        return Arrays.asList(new String[]{
-                getName()
-        });
+        return Collections.singletonList(getName());
     }
 
 

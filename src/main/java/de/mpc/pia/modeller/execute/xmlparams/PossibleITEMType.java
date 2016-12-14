@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;enumeration value="string"/>
  *     &lt;enumeration value="int-pair"/>
  *     &lt;enumeration value="double-pair"/>
- *     &lt;enumeration value="output-prefix"/>
+ *     &lt;enumeration value="output-PREFIX"/>
  *     &lt;enumeration value="input-file"/>
  *     &lt;enumeration value="output-file"/>
  *   &lt;/restriction>
@@ -51,8 +51,8 @@ public enum PossibleITEMType {
     INT_PAIR("int-pair"),
     @XmlEnumValue("double-pair")
     DOUBLE_PAIR("double-pair"),
-    @XmlEnumValue("output-prefix")
-    OUTPUT_PREFIX("output-prefix"),
+    @XmlEnumValue("output-PREFIX")
+    OUTPUT_PREFIX("output-PREFIX"),
     @XmlEnumValue("input-file")
     INPUT_FILE("input-file"),
     @XmlEnumValue("output-file")

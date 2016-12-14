@@ -113,24 +113,24 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_FILTERNAME);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_COMPARISON);
             for (FilterComparator comp : FilterComparator.values()) {
                 param.add(comp.getCliShort());
             }
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_VALUE);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_NEGATE);
             param.add("no");
             param.add("yes");
@@ -234,24 +234,24 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_FILTERNAME);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_COMPARISON);
             for (FilterComparator comp : FilterComparator.values()) {
                 param.add(comp.getCliShort());
             }
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_VALUE);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_NEGATE);
             param.add("no");
             param.add("yes");
@@ -312,14 +312,12 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
                 if (inference != null) {
                     // add any filters
-                    for (AbstractFilter filter : proteinModeller.getInferenceFilters()) {
-                        inference.addFilter(filter);
-                    }
+                    proteinModeller.getInferenceFilters().forEach(inference::addFilter);
 
                     // set the scoring
                     AbstractScoring scoring;
                     scoring = ProteinScoringFactory.getNewInstanceByName(
-                            scoringName, new HashMap<String, String>());
+                            scoringName, new HashMap<>());
                     // set the scoring settings
                     if ((params.length > 2) && (params[2] != null)) {
                         for (String param : params[2].split(";")) {
@@ -355,27 +353,27 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_INFERENCE_METHOD);
             param.add(ProteinInferenceFactory.ProteinInferenceMethod.REPORT_SPECTRUM_EXTRACTOR.getShortName());
             param.add(ProteinInferenceFactory.ProteinInferenceMethod.REPORT_ALL.getShortName());
             param.add(ProteinInferenceFactory.ProteinInferenceMethod.REPORT_OCCAMS_RAZOR.getShortName());
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_SCORING_METHOD);
             for (ScoringType type : ProteinScoringFactory.ScoringType.values()) {
                 param.add(type.getShortName());
             }
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_USED_SCORE);
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_USED_SPECTRA);
             for (PSMForScoring psmScoring : PSMForScoring.values()) {
                 param.add(psmScoring.getShortName());
@@ -447,56 +445,20 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                         fileName = commandParams[0];
                     }
                 } else if ("oneAccessionPerLine".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            oneAccessionPerLine = true;
-                        } else {
-                            oneAccessionPerLine = false;
-                        }
-                    } else {
-                        // only setting the flag is equivalent to true
-                        oneAccessionPerLine = true;
-                    }
+                    oneAccessionPerLine = !((commandParams != null) &&
+                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
+// only setting the flag is equivalent to true
                 } else if ("exportPeptides".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            exportPeptides = true;
-                        } else {
-                            exportPeptides = false;
-                        }
-                    } else {
-                        // only setting the flag is equivalent to true
-                        exportPeptides = true;
-                    }
+                    exportPeptides = !((commandParams != null) &&
+                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
+// only setting the flag is equivalent to true
                 } else if ("exportPSMSets".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            exportPSMSets = true;
-                        } else {
-                            exportPSMSets = false;
-                        }
-                    } else {
-                        // only setting the flag is equivalent to true
-                        exportPSMSets = true;
-                    }
+                    exportPSMSets = !((commandParams != null) &&
+                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
+// only setting the flag is equivalent to true
                 } else if ("exportPSMs".equals(command)) {
-                    if ((commandParams != null) && (commandParams.length > 0)) {
-                        if ("yes".equals(commandParams[0]) ||
-                                "true".equals(commandParams[0])) {
-                            exportPSMs = true;
-                        } else {
-                            exportPSMs = false;
-                        }
-                    } else {
-                        // only setting the flag is equivalent to true
-                        exportPSMs = true;
-                    }
+                    exportPSMs = !((commandParams != null) && (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
+// only setting the flag is equivalent to true
                 }
             }
 
@@ -620,15 +582,15 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public List<List<String>> neededXMLParameters() {
-            List<List<String>> params = new ArrayList<List<String>>();
+            List<List<String>> params = new ArrayList<>();
 
-            List<String> param = new ArrayList<String>();
+            List<String> param = new ArrayList<>();
             param.add(ID_DECOY_STRATEGY);
             param.add(FDRData.DecoyStrategy.ACCESSIONPATTERN.toString());
             param.add(FDRData.DecoyStrategy.INHERIT.toString());
             params.add(param);
 
-            param = new ArrayList<String>();
+            param = new ArrayList<>();
             param.add(ID_DECOY_PATTERN);
             params.add(param);
 

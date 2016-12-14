@@ -165,9 +165,9 @@ public abstract class PIACompiler {
 
         files = new HashMap<>();
 
-        spectraDataMap = new HashMap<String, SpectraData>();
-        searchDatabasesMap = new HashMap<String, SearchDatabase>();
-        softwareMap = new HashMap<String, AnalysisSoftware>();
+        spectraDataMap = new HashMap<>();
+        searchDatabasesMap = new HashMap<>();
+        softwareMap = new HashMap<>();
 
         unimodParser = null;
 
@@ -275,10 +275,9 @@ public abstract class PIACompiler {
     /**
      * Returns the {@link PIAInputFile} given by the id
      *
-     * @param acc
      * @return
      */
-    public final PIAInputFile getFile(Long fileId) {
+    private PIAInputFile getFile(Long fileId) {
         return files.get(fileId);
     }
 
@@ -286,7 +285,6 @@ public abstract class PIACompiler {
     /**
      * Returns all {@link PIAInputFile} IDs in the compilation
      *
-     * @param acc
      * @return
      */
     public final Set<Long> getAllFileIDs() {
@@ -314,7 +312,7 @@ public abstract class PIACompiler {
 
     /**
      * Inserts a new accession into the map of accessions.
-     * @param accession new protein assession
+     * @param accession new protein accession
      * @param dbSequence sequence
      * @return
      */
@@ -326,7 +324,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    public abstract int getNrAccessions();
+    protected abstract int getNrAccessions();
 
 
     /**
@@ -334,7 +332,7 @@ public abstract class PIACompiler {
      *
      * @return
      */
-    public abstract Collection<Long> getAllAccessionIDs();
+    protected abstract Collection<Long> getAllAccessionIDs();
 
 
     /**
@@ -349,7 +347,6 @@ public abstract class PIACompiler {
     /**
      * Returns the peptide given by the peptide ID
      *
-     * @param sequence
      * @return
      */
     public abstract Peptide getPeptide(Long peptideID);
@@ -383,7 +380,6 @@ public abstract class PIACompiler {
     /**
      * Returns the {@link SpectrumMatch} given by the ID
      *
-     * @param sequence
      * @return
      */
     public abstract PeptideSpectrumMatch getPeptideSpectrumMatch(Long psmId);
@@ -460,7 +456,6 @@ public abstract class PIACompiler {
      * Returns the List of {@link Accession} IDs from the connection map for the
      * given peptide ID.
      *
-     * @param pep
      * @return
      */
     public abstract Collection<Long> getAccIDsFromConnectionMap(Long pepId);
@@ -469,8 +464,6 @@ public abstract class PIACompiler {
     /**
      * Puts the given connection from an accession to a peptide into the map.
      *
-     * @param acc
-     * @param peps
      * @return
      */
     public abstract void addAccessionPeptideConnection(Accession accession, Peptide peptide);
@@ -499,7 +492,7 @@ public abstract class PIACompiler {
                     swIt.getValue().getSoftwareName())) {
                 boolean equal = true;
 
-                equal &= PIATools.bothNullOrEqual(swIt.getValue().getName(),
+                equal = PIATools.bothNullOrEqual(swIt.getValue().getName(),
                         software.getName());
 
                 equal &= PIATools.bothNullOrEqual(swIt.getValue().getUri(),
@@ -541,7 +534,7 @@ public abstract class PIACompiler {
             if (dbIt.getValue().getLocation().equals(database.getLocation())) {
                 boolean equal = true;
 
-                equal &= PIATools.bothNullOrEqual(dbIt.getValue().getName(),
+                equal = PIATools.bothNullOrEqual(dbIt.getValue().getName(),
                         database.getName());
 
                 equal &= PIATools.bothNullOrEqual(dbIt.getValue().getNumDatabaseSequences(),
@@ -627,7 +620,7 @@ public abstract class PIACompiler {
             if (spectraIt.getValue().getLocation().equals(spectra.getLocation())) {
                 boolean equal = true;
 
-                equal &= PIATools.bothNullOrEqual(spectraIt.getValue().getName(),
+                equal = PIATools.bothNullOrEqual(spectraIt.getValue().getName(),
                         spectra.getName());
 
                 equal &= PIATools.bothNullOrEqual(
@@ -670,20 +663,20 @@ public abstract class PIACompiler {
         Set<Long> accessionsDone = new HashSet<>(getNrAccessions());
         clusteredPepAccMap = new ArrayList<>();
 
-        for (Long accID : getAllAccessionIDs()) {
-            if (!accessionsDone.contains(accID)) {
-                // this accession is not yet clustered, so start a new cluster
-                // and insert all the "connected" peptides and accessions
-                Map<Long, Collection<Long>> pepAccMapCluster =
+        // this accession is not yet clustered, so start a new cluster
+// and insert all the "connected" peptides and accessions
+        getAllAccessionIDs().stream().filter(accID -> !accessionsDone.contains(accID)).forEach(accID -> {
+            // this accession is not yet clustered, so start a new cluster
+            // and insert all the "connected" peptides and accessions
+            Map<Long, Collection<Long>> pepAccMapCluster =
                     createCluster(accID, peptidesDone, accessionsDone);
 
-                if (pepAccMapCluster != null) {
-                    clusteredPepAccMap.add(pepAccMapCluster);
-                } else {
-                    LOGGER.error("cluster could not be created!");
-                }
+            if (pepAccMapCluster != null) {
+                clusteredPepAccMap.add(pepAccMapCluster);
+            } else {
+                LOGGER.error("cluster could not be created!");
             }
-        }
+        });
 
         // the maps are no longer needed
         clearConnectionMap();
@@ -697,7 +690,7 @@ public abstract class PIACompiler {
      * map cluster.<br/>
      * This method should only be called by {@link PIACompiler#buildClusterList()}.
      *
-     * @param accession
+     * @param accessionID
      * @param peptidesDone
      * @param accessionsDone
      * @return
@@ -782,7 +775,7 @@ public abstract class PIACompiler {
         }
 
         // initialize the groups map
-        groups = new HashMap<Long, Group>();
+        groups = new HashMap<>();
 
         // initialize the clusterIterator
         clusterIterator = clusteredPepAccMap.listIterator();
@@ -790,7 +783,7 @@ public abstract class PIACompiler {
         clusterOffset = 0L;
 
         // start the threads
-        threads = new ArrayList<CompilerWorkerThread>(nrThreads);
+        threads = new ArrayList<>(nrThreads);
         for (int i = 0; i < nrThreads; i++) {
             CompilerWorkerThread thread = new CompilerWorkerThread(i+1, this);
             threads.add(thread);
@@ -926,7 +919,6 @@ public abstract class PIACompiler {
     /**
      * Write out the intermediate structure into an XML file.
      *
-     * @param fileName
      */
     public final void writeOutXML(OutputStream outputStream) {
         try (Writer out = new OutputStreamWriter(outputStream, encoding)) {
@@ -991,7 +983,6 @@ public abstract class PIACompiler {
     /**
      * Creates a marshaller for PIA XML for the given class.
      *
-     * @param context
      * @return
      * @throws JAXBException
      */
@@ -1034,13 +1025,13 @@ public abstract class PIACompiler {
      *
      * @throws JAXBException
      */
-    private static <T extends Object> void marshalToFormattedFragmentMarshaller(
+    private static <T> void marshalToFormattedFragmentMarshaller(
             XMLStreamWriter xmlOut, T object) throws JAXBException {
         QName aQName = ModelConstants.getQNameForClass(object.getClass());
 
         @SuppressWarnings("unchecked")
         Class<T> classCast = (Class<T>)object.getClass();
-        JAXBElement<T> jaxbElement = new JAXBElement<T>(aQName, classCast, object);
+        JAXBElement<T> jaxbElement = new JAXBElement<>(aQName, classCast, object);
 
         marshalToFormattedFragmentMarshaller(xmlOut, jaxbElement, classCast);
     }
@@ -1200,7 +1191,7 @@ public abstract class PIACompiler {
         Option nameOpt = Option.builder("name")
                 .argName("name")
                 .hasArg()
-                .desc("name of the PIA compilation")
+                .desc("NAME of the PIA compilation")
                 .build();
         options.addOption(nameOpt);
 
@@ -1229,7 +1220,7 @@ public abstract class PIACompiler {
         }
 
         String outFileName = null;
-        String piaName = null;
+        String piaName;
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
         // parse the command line arguments

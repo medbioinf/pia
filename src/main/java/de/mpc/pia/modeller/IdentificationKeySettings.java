@@ -150,7 +150,7 @@ public enum IdentificationKeySettings {
      * failure tolerant ones.
      */
     public static Map<String, Boolean> noRedundantSettings(Map<String, Boolean> psmSetSettings) {
-        Map<String, Boolean> settings =         new HashMap<String, Boolean>(psmSetSettings);
+        Map<String, Boolean> settings = new HashMap<>(psmSetSettings);
 
         if (settings.containsKey(IdentificationKeySettings.SOURCE_ID.toString()) &&
                 settings.get(IdentificationKeySettings.SOURCE_ID.toString())) {

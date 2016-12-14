@@ -38,7 +38,7 @@ public class ITEMType
 {
 
     @XmlAttribute(required = true)
-    protected String value;
+    private String value;
 
     /**
      * Gets the value of the value property.

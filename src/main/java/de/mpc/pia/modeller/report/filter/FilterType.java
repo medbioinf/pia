@@ -10,7 +10,7 @@ public enum FilterType {
 	bool {
 		@Override
 		public List<FilterComparator> getAvailableComparators() {
-			List<FilterComparator> arguments = new ArrayList<FilterComparator>();
+			List<FilterComparator> arguments = new ArrayList<>();
 			
 			arguments.add(FilterComparator.equal);
 			
@@ -23,7 +23,7 @@ public enum FilterType {
 	numerical {
 		@Override
 		public List<FilterComparator> getAvailableComparators() {
-			List<FilterComparator> arguments = new ArrayList<FilterComparator>();
+			List<FilterComparator> arguments = new ArrayList<>();
 			
 			arguments.add(FilterComparator.less);
 			arguments.add(FilterComparator.less_equal);
@@ -32,8 +32,8 @@ public enum FilterType {
 			arguments.add(FilterComparator.greater);
 			
 			return arguments;
-		};
-		
+		}
+
 	},
 	/**
 	 * the literal filter type compares strings for filtering
@@ -41,7 +41,7 @@ public enum FilterType {
 	literal {
 		@Override
 		public List<FilterComparator> getAvailableComparators() {
-			List<FilterComparator> arguments = new ArrayList<FilterComparator>();
+			List<FilterComparator> arguments = new ArrayList<>();
 			
 			arguments.add(FilterComparator.equal);
 			arguments.add(FilterComparator.contains);
@@ -56,7 +56,7 @@ public enum FilterType {
 	literal_list {
 		@Override
 		public List<FilterComparator> getAvailableComparators() {
-			List<FilterComparator> arguments = new ArrayList<FilterComparator>();
+			List<FilterComparator> arguments = new ArrayList<>();
 			
 			arguments.add(FilterComparator.contains);
 			arguments.add(FilterComparator.contains_only);
@@ -74,7 +74,7 @@ public enum FilterType {
 	modification {
 		@Override
 		public List<FilterComparator> getAvailableComparators() {
-			List<FilterComparator> arguments = new ArrayList<FilterComparator>();
+			List<FilterComparator> arguments = new ArrayList<>();
 			
 			arguments.add(FilterComparator.has_any_modification);
 			arguments.add(FilterComparator.has_description);
@@ -93,7 +93,7 @@ public enum FilterType {
 	 * @return
 	 */
 	public List<FilterComparator> getAvailableComparators() {
-		return new ArrayList<FilterComparator>();
+		return new ArrayList<>();
 	}
 
 }

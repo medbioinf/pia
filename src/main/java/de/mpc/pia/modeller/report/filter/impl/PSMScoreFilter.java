@@ -108,17 +108,9 @@ public class PSMScoreFilter extends AbstractFilter {
         if (c instanceof PSMReportItem) {
             // it also depends on the score ("average FDR score" and "combined fdr score" is PSMSet, all other are PSM)
             if (c instanceof ReportPSM) {
-                if (!ReportPSMSet.isPSMSetScore(scoreShortName)) {
-                    supports = true;
-                } else {
-                    supports = false;
-                }
+                supports = !ReportPSMSet.isPSMSetScore(scoreShortName);
             } else if (c instanceof ReportPSMSet) {
-                if (ReportPSMSet.isPSMSetScore(scoreShortName)) {
-                    supports = true;
-                } else {
-                    supports = false;
-                }
+                supports = ReportPSMSet.isPSMSetScore(scoreShortName);
             }
         }
 

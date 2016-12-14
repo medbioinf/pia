@@ -27,10 +27,7 @@ import de.mpc.pia.modeller.score.comparator.Rankable;
 
 /**
  * This class holds the information of a protein, as it will be reported in the
- * {@link ProteinViewer}
- *
  * @author julian
- *
  */
 public class ReportProtein implements Rankable, Filterable, FDRComputable {
 
@@ -91,15 +88,15 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
         fdrValue = Double.POSITIVE_INFINITY;
         qValue = Double.POSITIVE_INFINITY;
         isFDRGood = false;
-        accMap = new TreeMap<String, Accession>();
-        accessionDecoyStateMap = new TreeMap<String, Boolean>();
-        peptideMap = new TreeMap<String, ReportPeptide>();
-        subSetProteins = new ArrayList<ReportProtein>(1);
+        accMap = new TreeMap<>();
+        accessionDecoyStateMap = new TreeMap<>();
+        peptideMap = new TreeMap<>();
+        subSetProteins = new ArrayList<>(1);
 
         // the coverage maps will be initialised while adding accessions
-        coverageMaps = new HashMap<String, TreeMap<Integer, Integer>>();
+        coverageMaps = new HashMap<>();
         // the coverages will be initialised when they are called
-        coverages = new HashMap<String, Double>();
+        coverages = new HashMap<>();
 
         representativeRef = null;
     }
@@ -131,7 +128,7 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
      * @return
      */
     public List<Accession> getAccessions() {
-        return new ArrayList<Accession>(accMap.values());
+        return new ArrayList<>(accMap.values());
     }
 
 
@@ -174,7 +171,7 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
      * @return
      */
     public List<ReportPeptide> getPeptides() {
-        return new ArrayList<ReportPeptide>(peptideMap.values());
+        return new ArrayList<>(peptideMap.values());
     }
 
 
@@ -182,7 +179,6 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
      * Puts the given peptide with its stringID into the peptide map, if there
      * is no peptide with this key in the map yet.
      *
-     * @param acc
      */
     public void addPeptide(ReportPeptide pep) {
         if(!peptideMap.containsKey(pep.getStringID())) {
@@ -202,7 +198,7 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
         TreeMap<Integer, Integer> coverageMap =
                 coverageMaps.get(accession);
         if (coverageMap == null) {
-            coverageMap = new TreeMap<Integer, Integer>();
+            coverageMap = new TreeMap<>();
             coverageMaps.put(accession, coverageMap);
         }
 
@@ -245,7 +241,7 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
 
                 // remove all coverages between start and end
                 Set<Integer> remKeys =
-                        new HashSet<Integer>(
+                        new HashSet<>(
                                 coverageMap.subMap(start, true, end, true).keySet());
                 for (Integer key : remKeys) {
                     coverageMap.remove(key);
@@ -288,9 +284,9 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
      * @return
      */
     public Integer getNrSpectra() {
-        Set<String> spectraIdentificationKeys = new HashSet<String>();
+        Set<String> spectraIdentificationKeys = new HashSet<>();
 
-        Map<String, Boolean> maximalSpectraIdentificationSettings = new HashMap<String, Boolean>(5);
+        Map<String, Boolean> maximalSpectraIdentificationSettings = new HashMap<>(5);
         maximalSpectraIdentificationSettings.put(
                 IdentificationKeySettings.MASSTOCHARGE.name(), true);
         maximalSpectraIdentificationSettings.put(
@@ -306,7 +302,7 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
         for (ReportPeptide pep : peptideMap.values()) {
             Map<String, Boolean> pepAvailables = pep.getAvailableIdentificationKeySettings();
 
-            Set<String> setAvailables = new HashSet<String>(maximalSpectraIdentificationSettings.keySet());
+            Set<String> setAvailables = new HashSet<>(maximalSpectraIdentificationSettings.keySet());
 
             for (String setting : setAvailables) {
                 if (!pepAvailables.containsKey(setting) || !pepAvailables.get(setting) ) {
@@ -528,7 +524,7 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
         case SEARCHENGINE:
             // go through all the spectra, if there is one not flagged as decoy, the protein is no decoy
             isDecoy = true;
-            Set<Accession> targetAccs = new HashSet<Accession>();
+            Set<Accession> targetAccs = new HashSet<>();
 
             for (ReportPeptide pep : peptideMap.values()) {
                 for (PSMReportItem psmSet : pep.getPSMs()) {

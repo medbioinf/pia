@@ -36,7 +36,6 @@ public class AccessionRefXML {
 	
 	/**
 	 * Sets the value of the accRefID attribute.
-	 * @param id
 	 */
 	public void setAccRefID(Long accRefID) {
 		this.accRefID = accRefID;

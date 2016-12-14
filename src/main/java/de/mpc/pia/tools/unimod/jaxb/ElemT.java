@@ -39,13 +39,13 @@ import javax.xml.bind.annotation.XmlType;
 public class ElemT {
 
     @XmlAttribute(required = true)
-    protected String title;
+    private String title;
     @XmlAttribute(name = "full_name", required = true)
-    protected String fullName;
+    private String fullName;
     @XmlAttribute(name = "avge_mass", required = true)
-    protected double avgeMass;
+    private double avgeMass;
     @XmlAttribute(name = "mono_mass", required = true)
-    protected double monoMass;
+    private double monoMass;
 
     /**
      * Gets the value of the title property.

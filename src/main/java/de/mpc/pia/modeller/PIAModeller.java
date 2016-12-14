@@ -131,7 +131,7 @@ public class PIAModeller {
         this();
 
         if (fileName == null) {
-            throw new IllegalArgumentException("No file name given.");
+            throw new IllegalArgumentException("No file NAME given.");
         }
 
         if (!loadFileName(fileName, null)) {
@@ -279,7 +279,7 @@ public class PIAModeller {
     public Map<String, Set<Long>> getPSMSetSettingsWarnings() {
         return (intermediateHandler != null) ?
                 intermediateHandler.getPSMSetSettingsWarnings() :
-                    new HashMap<String, Set<Long>>(1);
+                new HashMap<>(1);
     }
 
 
@@ -305,7 +305,6 @@ public class PIAModeller {
      * Parses in the intermediate structure from the given file.<br/>
      * The progress gets increased by 100.
      *
-     * @param progress the first entry in this array holds the progress
      * @param notifier progress is notified on this object
      *
      * @throws IOException
@@ -432,7 +431,7 @@ public class PIAModeller {
         if (intermediateHandler != null) {
             return intermediateHandler.getFiles();
         } else {
-            return new HashMap<Long, PIAInputFile>(1);
+            return new HashMap<>(1);
         }
     }
 
@@ -447,7 +446,7 @@ public class PIAModeller {
         if (intermediateHandler != null) {
             return intermediateHandler.getSearchDatabase();
         } else {
-            return new HashMap<String, SearchDatabase>(0);
+            return new HashMap<>(0);
         }
     }
 
@@ -462,7 +461,7 @@ public class PIAModeller {
         if (intermediateHandler != null) {
             return intermediateHandler.getAnalysisSoftware();
         } else {
-            return new HashMap<String, AnalysisSoftware>(0);
+            return new HashMap<>(0);
         }
     }
 
@@ -477,7 +476,7 @@ public class PIAModeller {
         if (intermediateHandler != null) {
             return intermediateHandler.getSpectraData();
         } else {
-            return new HashMap<String, SpectraData>(0);
+            return new HashMap<>(0);
         }
     }
 
@@ -491,7 +490,7 @@ public class PIAModeller {
         if (intermediateHandler != null) {
             return intermediateHandler.getGroups();
         } else {
-            return new HashMap<Long, Group>(1);
+            return new HashMap<>(1);
         }
     }
 
@@ -564,7 +563,7 @@ public class PIAModeller {
     /**
      * This method initialises a new pipeline XML file with only the name
      * given. This file then can be filled by pipeline modeling procedures and
-     * finally be executed by {@link #processPipelineFile(String)}.
+     * finally be executed by .
      *
      * @param fileName
      */
@@ -613,7 +612,7 @@ public class PIAModeller {
 
             // add the new node
             NODEType node = null;
-            // the first param's prefix always specifies the level for execution
+            // the first param's PREFIX always specifies the level for execution
             if (params[0].startsWith(PSMExecuteCommands.getPrefix())) {
                 PSMExecuteCommands execute = PSMExecuteCommands.valueOf(
                         params[0].substring(PSMExecuteCommands.getPrefix().length()));
@@ -722,7 +721,7 @@ public class PIAModeller {
                 .argName("name")
                 .hasArg()
                 .desc("Initialize the parameter file given by paramFile, giving "
-                        + "the pipeline the specified name. This is mainly used "
+                        + "the pipeline the specified NAME. This is mainly used "
                         + "to build a pipeline via KNIME and not intended to be "
                         + "called on the command line." )
                 .build();
@@ -731,7 +730,7 @@ public class PIAModeller {
         Option appendOpt = Option.builder(APPEND_OPTION)
                 .desc("All free arguments together are appended as one command "
                         + "to the param file. The first argument specifies the "
-                        + "command with prefix (e.g. psm_add_filter), all "
+                        + "command with PREFIX (e.g. psm_add_filter), all "
                         + "following arguments are passed to the execution of "
                         + "the command. This is mainly used to build a pipeline "
                         + "via KNIME and not intended to be called on the command line." )
@@ -894,12 +893,8 @@ public class PIAModeller {
         }
 
         if ((informationFileName != null) && !informationFileName.trim().isEmpty()) {
-            try {
-                model.getPSMModeller().writePSMInformation(informationFileName, calculateInfo);
-                // TODO: write information from other layers...
-            } catch (IOException e) {
-                LOGGER.error("Error writing PSM information", e);
-            }
+            model.getPSMModeller().writePSMInformation(informationFileName, calculateInfo);
+            // TODO: write information from other layers...
         }
     }
 
@@ -911,7 +906,7 @@ public class PIAModeller {
      * @param model
      */
     private static void processPSMExport(String[] params, PIAModeller model) {
-        List<String> paramList = new ArrayList<String>();
+        List<String> paramList = new ArrayList<>();
 
         if ((params.length > 0)
                 && !params[0].trim().isEmpty()) {
@@ -943,7 +938,7 @@ public class PIAModeller {
      * @param model
      */
     private static void processPeptideExport(String[] params, PIAModeller model) {
-        List<String> paramList = new ArrayList<String>();
+        List<String> paramList = new ArrayList<>();
 
         if ((params.length > 0)
                 && !params[0].trim().isEmpty()) {
@@ -981,7 +976,7 @@ public class PIAModeller {
      * @param model
      */
     private static void processProteinExport(String[] params, PIAModeller model) {
-        List<String> paramList = new ArrayList<String>();
+        List<String> paramList = new ArrayList<>();
 
         if ((params.length > 0) &&
                 (params[0].trim().length() > 0)) {

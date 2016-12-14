@@ -18,7 +18,7 @@ import de.mpc.pia.modeller.score.comparator.RankComparator;
 public class ReportProteinComparatorFactory {
 
     /**
-     * the types of sorting available for a {@link ReportPeptide}
+     * the types of sorting available for a {@link de.mpc.pia.modeller.peptide.ReportPeptide}
      *
      * @author julian
      *
@@ -30,7 +30,7 @@ public class ReportProteinComparatorFactory {
         RANK_SORT {
             @Override
             public Comparator<ReportProtein> getNewInstance() {
-                return new RankComparator<ReportProtein>();
+                return new RankComparator<>();
             }
 
             @Override
@@ -45,12 +45,7 @@ public class ReportProteinComparatorFactory {
         NR_SPECTRA_SORT {
             @Override
             public Comparator<ReportProtein> getNewInstance() {
-                return new Comparator<ReportProtein>() {
-                    @Override
-                    public int compare(ReportProtein o1, ReportProtein o2) {
-                        return o1.getNrSpectra().compareTo(o2.getNrSpectra());
-                    }
-                };
+                return (o1, o2) -> o1.getNrSpectra().compareTo(o2.getNrSpectra());
             }
 
             @Override
@@ -64,12 +59,7 @@ public class ReportProteinComparatorFactory {
         NR_PSMS_SORT {
             @Override
             public Comparator<ReportProtein> getNewInstance() {
-                return new Comparator<ReportProtein>() {
-                    @Override
-                    public int compare(ReportProtein o1, ReportProtein o2) {
-                        return o1.getNrPSMs().compareTo(o2.getNrPSMs());
-                    }
-                };
+                return (o1, o2) -> o1.getNrPSMs().compareTo(o2.getNrPSMs());
             }
 
             @Override
@@ -83,12 +73,7 @@ public class ReportProteinComparatorFactory {
         NR_PEPTIDES_SORT {
             @Override
             public Comparator<ReportProtein> getNewInstance() {
-                return new Comparator<ReportProtein>() {
-                    @Override
-                    public int compare(ReportProtein o1, ReportProtein o2) {
-                        return o1.getNrPeptides().compareTo(o2.getNrPeptides());
-                    }
-                };
+                return (o1, o2) -> o1.getNrPeptides().compareTo(o2.getNrPeptides());
             }
 
             @Override
@@ -162,12 +147,7 @@ public class ReportProteinComparatorFactory {
      * @return
      */
     public static Comparator<ReportProtein> descending(final Comparator<ReportProtein> other) {
-        return new Comparator<ReportProtein>() {
-            @Override
-            public int compare(ReportProtein o1, ReportProtein o2) {
-                return other.compare(o2, o1);
-            }
-        };
+        return (o1, o2) -> other.compare(o2, o1);
     }
 
 
@@ -178,19 +158,16 @@ public class ReportProteinComparatorFactory {
      * @return
      */
     public static Comparator<ReportProtein> getComparator(final List<Comparator<ReportProtein>> multipleOptions) {
-        return new Comparator<ReportProtein>() {
-            @Override
-            public int compare(ReportProtein o1, ReportProtein o2) {
-                int result;
-                // check all options, the first not returning 0 (equal) gets returned
-                for (Comparator<ReportProtein> option : multipleOptions) {
-                    result = option.compare(o1, o2);
-                    if (result != 0) {
-                        return result;
-                    }
+        return (o1, o2) -> {
+            int result;
+            // check all options, the first not returning 0 (equal) gets returned
+            for (Comparator<ReportProtein> option : multipleOptions) {
+                result = option.compare(o1, o2);
+                if (result != 0) {
+                    return result;
                 }
-                return 0;
             }
+            return 0;
         };
     }
 
@@ -222,7 +199,7 @@ public class ReportProteinComparatorFactory {
      * @return
      */
     public static Map<String, SortOrder> getInitialSortOrders() {
-        Map<String, SortOrder> orders = new HashMap<String, SortOrder>();
+        Map<String, SortOrder> orders = new HashMap<>();
 
         for (ReportProteinComparatorFactory.CompareType comp : CompareType.values()) {
             orders.put(comp.toString(), SortOrder.unsorted);

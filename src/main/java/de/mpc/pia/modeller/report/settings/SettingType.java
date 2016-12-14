@@ -17,7 +17,7 @@ public enum SettingType {
 		
 		@Override
 		public Map<String, String> getTypedParams(Object params) {
-			Map<String, String> items = new HashMap<String, String>();
+			Map<String, String> items = new HashMap<>();
 			
 			if (params instanceof Map<?, ?>) {
 				for (Map.Entry<?, ?> paramIt : ((Map<?, ?>) params).entrySet()) {

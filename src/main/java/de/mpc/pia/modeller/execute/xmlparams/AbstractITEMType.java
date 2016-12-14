@@ -54,21 +54,21 @@ import javax.xml.bind.annotation.XmlType;
 public abstract class AbstractITEMType {
 
     @XmlAttribute(required = true)
-    protected String name;
+    private String name;
     @XmlAttribute(required = true)
-    protected PossibleITEMType type;
+    private PossibleITEMType type;
     @XmlAttribute
-    protected String description;
+    private String description;
     @XmlAttribute
-    protected String tags;
+    private String tags;
     @XmlAttribute
-    protected String restrictions;
+    private String restrictions;
     @XmlAttribute(name = "supported_formats")
-    protected String supportedFormats;
+    private String supportedFormats;
     @XmlAttribute
-    protected Boolean required;
+    private Boolean required;
     @XmlAttribute
-    protected Boolean advanced;
+    private Boolean advanced;
 
     /**
      * Gets the value of the name property.

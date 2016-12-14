@@ -96,7 +96,7 @@ public class IdXMLExporter {
 
             // <SearchParameters                one for each IdentificationRun
 
-            Map<Long, String> inputFileIDToSearchParameter = new HashMap<Long, String>();
+            Map<Long, String> inputFileIDToSearchParameter = new HashMap<>();
             if (proteinLevel || (fileID < 1)) {
                 // use basic settings for this case
                 // TODO: get the real settings
@@ -236,7 +236,7 @@ public class IdXMLExporter {
 
 
         // no filtering at the moment
-        List<AbstractFilter> filters = new ArrayList<AbstractFilter>();
+        List<AbstractFilter> filters = new ArrayList<>();
 
         // mapping from the spectra to the identifications / PSMs
         Map<String, List<PSMReportItem>> peptideIdentifications =
@@ -255,28 +255,23 @@ public class IdXMLExporter {
             streamWriter.writeAttribute("significance_threshold", proteinScoreSignificanceThreshold.toString());
         }
 
-        Map<String, String> accessionToPH = new HashMap<String, String>();
+        Map<String, String> accessionToPH = new HashMap<>();
 
-        List<Object[]> indistinguishableList = new ArrayList<Object[]>();
+        List<Object[]> indistinguishableList = new ArrayList<>();
 
         if (proteinLevel) {
-            ListIterator<ReportProtein> proteinIt =
-                    piaModeller.getProteinModeller().getFilteredReportProteins(filters).listIterator();
 
-            while (proteinIt.hasNext()) {
-                ReportProtein protein = proteinIt.next();
-
+            for (ReportProtein protein : piaModeller.getProteinModeller().getFilteredReportProteins(filters)) {
                 Double qvalue = null;
 
-                List<String> phIDs = writeAccessionsToXML(streamWriter,
-                        protein.getAccessions(), protein.getScore(), qvalue, fileID, accessionToPH);
+                List<String> phIDs = writeAccessionsToXML(streamWriter, protein.getAccessions(), protein.getScore(), qvalue, fileID, accessionToPH);
 
                 Object[] indisObject = new Object[protein.getAccessions().size() + 1];
 
                 indisObject[0] = protein.getScore();
-                for (int idx=0; idx < phIDs.size(); idx++) {
-                    indisObject[idx+1] = phIDs.get(idx);
-                }
+
+                for (int idx = 0; idx < phIDs.size(); idx++)
+                    indisObject[idx + 1] = phIDs.get(idx);
 
                 indistinguishableList.add(indisObject);
             }
@@ -284,10 +279,9 @@ public class IdXMLExporter {
 
         Iterator<List<PSMReportItem>> peptideHitIter = peptideIdentifications.values().iterator();
         while (peptideHitIter.hasNext()) {
-            ListIterator<PSMReportItem> psmIter = peptideHitIter.next().listIterator();
 
-            while (psmIter.hasNext()) {
-                writeAccessionsToXML(streamWriter, psmIter.next().getAccessions(), 0.0,
+            for (PSMReportItem psmReportItem : peptideHitIter.next()) {
+                writeAccessionsToXML(streamWriter, psmReportItem.getAccessions(), 0.0,
                         null, fileID, accessionToPH);
             }
         }
@@ -398,12 +392,10 @@ public class IdXMLExporter {
                 // TODO: add aa_before and aa_after
 
                 StringBuilder sbProteinRefs = new StringBuilder();
-                for (Accession acc : psm.getAccessions()) {
-                    if (accessionToPH.containsKey(acc.getAccession())) {
-                        sbProteinRefs.append(accessionToPH.get(acc.getAccession()));
-                        sbProteinRefs.append(" ");
-                    }
-                }
+                psm.getAccessions().stream().filter(acc -> accessionToPH.containsKey(acc.getAccession())).forEach(acc -> {
+                    sbProteinRefs.append(accessionToPH.get(acc.getAccession()));
+                    sbProteinRefs.append(" ");
+                });
                 if (sbProteinRefs.length() > 0) {
                     streamWriter.writeAttribute("protein_refs", sbProteinRefs.toString().trim());
                 }
@@ -457,7 +449,7 @@ public class IdXMLExporter {
      * @return
      */
     private String getSearchDatabase(Long fileID) {
-        String db = null;
+        String db;
         try {
             String sdbRef = piaModeller.getFiles().get(fileID).getAnalysisCollection().getSpectrumIdentification().get(0).getSearchDatabaseRef().get(0).getSearchDatabaseRef();
             db = piaModeller.getSearchDatabases().get(sdbRef).getLocation();
@@ -538,7 +530,7 @@ public class IdXMLExporter {
      */
     private Map<String, List<PSMReportItem>> getPSMsForPeptideIdentifications(
             boolean proteinLevel, Long fileID, List<AbstractFilter> filters) {
-        Map<String, List<PSMReportItem>> peptideIdentifications = new HashMap<String, List<PSMReportItem>>();
+        Map<String, List<PSMReportItem>> peptideIdentifications = new HashMap<>();
 
         Map<String, Boolean> psmSetSettings = piaModeller.getPSMModeller().getPSMSetSettings();
 
@@ -561,7 +553,7 @@ public class IdXMLExporter {
             }
 
             if (!peptideIdentifications.containsKey(spectrumIdKey)) {
-                peptideIdentifications.put(spectrumIdKey, new ArrayList<PSMReportItem>());
+                peptideIdentifications.put(spectrumIdKey, new ArrayList<>());
             }
 
             peptideIdentifications.get(spectrumIdKey).add(psm);
@@ -623,7 +615,7 @@ public class IdXMLExporter {
             Double score, Double qvalue, Long fileID, Map<String, String> accessionToPH)
             throws XMLStreamException {
         ListIterator<Accession> accIt = accessionsList.listIterator();
-        List<String> writtenPHs = new ArrayList<String>(accessionsList.size());
+        List<String> writtenPHs = new ArrayList<>(accessionsList.size());
         while (accIt.hasNext()) {
             Accession acc = accIt.next();
             String accStr = acc.getAccession();

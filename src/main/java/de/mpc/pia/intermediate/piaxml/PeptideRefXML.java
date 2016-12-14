@@ -36,7 +36,6 @@ public class PeptideRefXML {
 	
 	/**
 	 * Sets the value of the pepRefID attribute.
-	 * @param id
 	 */
 	public void setPepRefID(Long pepRefID) {
 		this.pepRefID = pepRefID;

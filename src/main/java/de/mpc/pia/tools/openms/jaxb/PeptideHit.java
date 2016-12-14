@@ -23,21 +23,21 @@ import javax.xml.bind.annotation.XmlType;
 public class PeptideHit {
 
     @XmlElement(name = "UserParam")
-    protected List<UserParamIdXML> userParam;
+    private List<UserParamIdXML> userParam;
     @XmlAttribute(required = true)
-    protected String sequence;
+    private String sequence;
     @XmlAttribute(required = true)
-    protected BigInteger charge;
+    private BigInteger charge;
     @XmlAttribute(required = true)
-    protected float score;
+    private float score;
     @XmlAttribute(name = "aa_before")
-    protected String aaBefore;
+    private String aaBefore;
     @XmlAttribute(name = "aa_after")
-    protected String aaAfter;
+    private String aaAfter;
     @XmlAttribute(name = "protein_refs")
     @XmlIDREF
     @XmlSchemaType(name = "IDREFS")
-    protected List<Object> proteinRefs;
+    private List<Object> proteinRefs;
 
     /**
      * Gets the value of the userParam property.
@@ -63,7 +63,7 @@ public class PeptideHit {
      */
     public List<UserParamIdXML> getUserParam() {
         if (userParam == null) {
-            userParam = new ArrayList<UserParamIdXML>();
+            userParam = new ArrayList<>();
         }
         return this.userParam;
     }
@@ -167,18 +167,20 @@ public class PeptideHit {
      */
     public String getAaBefore(String protRef) {
         int idx = findProteinHitIndexById(protRef);
-        if (idx > -1) {
+        return getAaByIndex(idx);
+    }
+
+    private String getAaByIndex(int index){
+        if (index > -1) {
             String[] aaArr = aaBefore.split(" ");
             if (aaArr.length > 1) {
-                return aaAfter.split(" ")[idx];
+                return aaAfter.split(" ")[index];
             } else {
                 return aaArr[0];
             }
-        } else {
-            return null;
         }
+        return null;
     }
-
     /**
      * Sets the value of the aaBefore property.
      *
@@ -201,16 +203,7 @@ public class PeptideHit {
      */
     public String getAaAfter(String protRef) {
         int idx = findProteinHitIndexById(protRef);
-        if (idx > -1) {
-            String[] aaArr = aaAfter.split(" ");
-            if (aaArr.length > 1) {
-                return aaAfter.split(" ")[idx];
-            } else {
-                return aaArr[0];
-            }
-        } else {
-            return null;
-        }
+        return getAaByIndex(idx);
     }
 
     /**
@@ -249,7 +242,7 @@ public class PeptideHit {
      */
     public List<Object> getProteinRefs() {
         if (proteinRefs == null) {
-            proteinRefs = new ArrayList<Object>();
+            proteinRefs = new ArrayList<>();
         }
         return this.proteinRefs;
     }
