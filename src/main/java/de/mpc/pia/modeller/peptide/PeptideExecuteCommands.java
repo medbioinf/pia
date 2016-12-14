@@ -156,7 +156,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
         public String describe() {
             return "Adds a peptide level filter to a specified file. The file"
                     + " is given by the first parameter, which has to be the"
-                    + " file ID. Filters are added by their NAME, an"
+                    + " file ID. Filters are added by their name, an"
                     + " abbreviation for the camparison, the compared value and"
                     + " (optional), whether the comparison should be negated,"
                     + " e.g. \"" + name() + "=1,charge_filter,EQ,2,no\". \n"
@@ -319,7 +319,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                     "valid parameters are:" +
                     "\nformat: csv [default]" +
                     "\nfileID: default 0 (overview)" +
-                    "\nfileName: the report file NAME [report.peptide.csv]" +
+                    "\nfileName: the report file name [report.peptide.csv]" +
                     "\noneAccessionPerLine: write one accession per line " +
                     "(useful for spectral counting), defaults to false" +
                     "\nexportPSMSets: defaults to false" +
@@ -346,7 +346,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
     /** informative preambel of logging */
     private static final String LOGGING_PREAMBEL = "execute CLI command ";
 
-    /** the PREFIX for this level's execute commands */
+    /** the prefix for this level's execute commands */
     private static final String PREFIX = "Peptide";
 
 
