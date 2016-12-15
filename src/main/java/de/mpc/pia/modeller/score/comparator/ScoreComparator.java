@@ -44,9 +44,7 @@ public class ScoreComparator<T extends ScoreComparable> implements Comparator<T>
 
     @Override
     public int compare(T o1, T o2) {
-
         ScoreModel score1, score2;
-        int compRet;
 
         if (o1 != null) {
             score1 = o1.getCompareScore(scoreModelName);
@@ -60,9 +58,12 @@ public class ScoreComparator<T extends ScoreComparable> implements Comparator<T>
             score2 = null;
         }
 
-        // both PSMs don't have the score with given index
-        if ((score1 == null) && (score2 == null)) compRet = 0;
-        else if (score1 == null) {
+        int compRet;
+        if ((score1 == null) &&
+                (score2 == null)) {
+            // both PSMs don't have the score with given index
+            compRet = 0;
+        } else if (score1 == null) {
             // score1 does not have the score with given index, but score2 does
             compRet = 1;
         } else if (score2 == null) {

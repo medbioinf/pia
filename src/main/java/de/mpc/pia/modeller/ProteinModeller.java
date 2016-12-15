@@ -219,7 +219,8 @@ public class ProteinModeller {
             reportProteins = null;
         }
 
-        this.fdrData = new FDRData(defaultDecoyStrategy, defaultDecoyPattern, defaultFDRThreshold);
+        this.fdrData = new FDRData(defaultDecoyStrategy, defaultDecoyPattern,
+                defaultFDRThreshold);
 
         // create the protein map
         reportProteinsMap = new HashMap<>();
@@ -296,7 +297,10 @@ public class ProteinModeller {
         Comparator<ReportProtein> comparator =
                 ReportProteinComparatorFactory.CompareType.SCORE_SORT.getNewInstance();
 
-        RankCalculator.calculateRanking(ScoreModelEnum.PROTEIN_SCORE.getShortName(), FilterFactory.applyFilters(reportProteins, filters), comparator);
+        RankCalculator.calculateRanking(
+                ScoreModelEnum.PROTEIN_SCORE.getShortName(),
+                FilterFactory.applyFilters(reportProteins, filters),
+                comparator);
     }
 
 
@@ -338,7 +342,8 @@ public class ProteinModeller {
         LOGGER.info("scoring done");
         appliedScoringMethod = scoring;
 
-        this.fdrData = new FDRData(defaultDecoyStrategy, defaultDecoyPattern, defaultFDRThreshold);
+        this.fdrData = new FDRData(defaultDecoyStrategy, defaultDecoyPattern,
+                defaultFDRThreshold);
     }
 
 

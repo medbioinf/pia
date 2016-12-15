@@ -89,7 +89,6 @@ public class PIAtoSVG {
     }
 
 
-    @SuppressWarnings("StringConcatenationInsideStringBufferAppend")
     public PIAtoSVG(Group startGroup, String name,
                     Set<Long> thisAccessions, Set<Long> otherAccessions,
                     Set<Long> thisPeptides, Set<Long> otherPeptides,

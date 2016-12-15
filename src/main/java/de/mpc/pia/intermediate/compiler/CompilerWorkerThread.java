@@ -88,7 +88,7 @@ class CompilerWorkerThread extends Thread {
      * @param accessionIDs
      * @param subGroups
      */
-    private void insertIntoMap(Peptide peptide, Collection<Long> accessionIDs, Map<Long, Group> subGroups) {
+    public void insertIntoMap(Peptide peptide, Collection<Long> accessionIDs, Map<Long, Group> subGroups) {
         Map<Long, Map<String, Accession>> groupAccMap;  // the accessions, grouped by their groups
         Map<String, Accession> accessions = new TreeMap<>();
 

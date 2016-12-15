@@ -230,8 +230,10 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         for (ReportPSMSet psmSet : reportPSMSetMap.values()) {
             for (ReportPSM reportPSM : psmSet.getPSMs()) {
                 // if this PSM satisfies the filters, cache it
-                if (FilterFactory.satisfiesFilterList(reportPSM, 0L, filters)) {
-                    String psmIdKey = reportPSM.getSpectrum().getSpectrumIdentificationKey(psmSetSettings);
+                if (FilterFactory.
+                        satisfiesFilterList(reportPSM, 0L, filters)) {
+                    String psmIdKey = reportPSM.getSpectrum().
+                            getSpectrumIdentificationKey(psmSetSettings);
 
                     reportPSMMap.put(reportPSM.getSpectrum().getID(), reportPSM);
                     usedSpectra.add(psmIdKey);
@@ -350,11 +352,13 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         Set<Long> leftGroupIDs = new HashSet<>(groupMap.keySet());
 
         for (Map.Entry<Long, Set<Long>> splitIt : splitIdReportPSMid.entrySet()) {
-            // maps from groupID / proteinID to the peptides, for re-scoring / scoring
-            Map<Long, Set<Peptide>> groupsPeptides = new HashMap<>(groupMap.size());
+            // maps from groupID / proteinID to the peptides, for rescoring / scoring
+            Map<Long, Set<Peptide>> groupsPeptides =
+                    new HashMap<>(groupMap.size());
 
             // the (remaining) proteins
-            List<ReportProtein> proteinList = new ArrayList<>(groupMap.size());
+            List<ReportProtein> proteinList =
+                    new ArrayList<>(groupMap.size());
 
             Set<Long> splitAccessions = splitIdAccessions.get(splitIt.getKey());
 
