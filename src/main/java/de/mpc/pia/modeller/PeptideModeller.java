@@ -410,15 +410,14 @@ public class PeptideModeller implements Serializable {
         String separator = ",";
 
         // write header information
-        if (includes) {
-            writer.append("\"COLS_PEPTIDES\"" + separator);
-        }
+        if (includes)
+            writer.append("\"COLS_PEPTIDES\"").append(separator);
 
-        writer.append("\"sequence\"" + separator);
+        writer.append("\"sequence\"").append(separator);
 
-        if (considerModifications) {
+        if (considerModifications)
             writer.append("\"modifications\"" + separator);
-        }
+
 
         if (oneAccessionPerLine) {
             writer.append("\"accession\"" + separator);
