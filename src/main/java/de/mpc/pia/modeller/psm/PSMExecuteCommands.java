@@ -312,7 +312,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
         public String describe() {
             return "Adds a PSM level filter to a specified file. The file is"
                     + " given by the first parameter, which has to be the file"
-                    + " id. Filters are added by their NAME, an abbreviation"
+                    + " id. Filters are added by their name, an abbreviation"
                     + " for the camparison, the compared value and (optional),"
                     + " whether the comparison should be negated, e.g. "
                     + "\"" + name() + "=1,charge_filter,EQ,2,no\". \n"
@@ -551,7 +551,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     /** informative preambel of logging */
     private static final String LOGGING_PREAMBEL = "execute CLI command ";
 
-    /** the prfix for this level's execute commands */
+    /** the prefix for this level's execute commands */
     private static final String PREFIX = "PSM";
 
 

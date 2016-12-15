@@ -490,7 +490,7 @@ public abstract class PIACompiler {
         for (Map.Entry<String, AnalysisSoftware> swIt : softwareMap.entrySet()) {
             if (MzIdentMLTools.paramsEqual(software.getSoftwareName(),
                     swIt.getValue().getSoftwareName())) {
-                boolean equal = true;
+                boolean equal;
 
                 equal = PIATools.bothNullOrEqual(swIt.getValue().getName(),
                         software.getName());
@@ -532,7 +532,7 @@ public abstract class PIACompiler {
         // go through the databases and check, if any equals the given database
         for (Map.Entry<String, SearchDatabase> dbIt : searchDatabasesMap.entrySet()) {
             if (dbIt.getValue().getLocation().equals(database.getLocation())) {
-                boolean equal = true;
+                boolean equal;
 
                 equal = PIATools.bothNullOrEqual(dbIt.getValue().getName(),
                         database.getName());
@@ -618,7 +618,7 @@ public abstract class PIACompiler {
         // go through the databases and check, if any equals the given database
         for (Map.Entry<String, SpectraData> spectraIt : spectraDataMap.entrySet()) {
             if (spectraIt.getValue().getLocation().equals(spectra.getLocation())) {
-                boolean equal = true;
+                boolean equal;
 
                 equal = PIATools.bothNullOrEqual(spectraIt.getValue().getName(),
                         spectra.getName());
@@ -1193,7 +1193,7 @@ public abstract class PIACompiler {
         Option nameOpt = Option.builder("name")
                 .argName("name")
                 .hasArg()
-                .desc("NAME of the PIA compilation")
+                .desc("name of the PIA compilation")
                 .build();
         options.addOption(nameOpt);
 

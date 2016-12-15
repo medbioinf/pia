@@ -625,7 +625,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
     /** informative preambel of logging */
     private static final String LOGGING_PREAMBEL = "execute CLI command ";
 
-    /** the prfix for this level's execute commands */
+    /** the prefix for this level's execute commands */
     private static final String PREFIX = "Protein";
 
 
