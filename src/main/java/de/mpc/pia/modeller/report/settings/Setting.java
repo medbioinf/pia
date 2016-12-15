@@ -3,7 +3,7 @@ package de.mpc.pia.modeller.report.settings;
 import java.io.Serializable;
 
 
-public class Setting implements Serializable {
+public class Setting<T extends Serializable> implements Serializable {
 
     private static final long serialVersionUID = -7082040433660636316L;
 
@@ -24,19 +24,18 @@ public class Setting implements Serializable {
     private SettingType type;
 
     /** additional params for this setting */
-    private Object params;
+    private T params;
 
 
 
     /**
      * Basic constructor for the setting.
      *
-     * @param shortName	the unique machine readable name
+     * @param shortName the unique machine readable name
      * @param name the human readable name
      * @param defaultValue the default value
      */
-    public Setting(String shortName, String name, String defaultValue,
-            String typeName, Object params) {
+    public Setting(String shortName, String name, String defaultValue, String typeName, T params) {
         this.name = name;
         this.shortName = shortName;
         this.defaultValue = defaultValue;
@@ -105,7 +104,7 @@ public class Setting implements Serializable {
      *
      * @param params
      */
-    public void updateParams(Object params) {
+    public void updateParams(T params) {
         this.params = params;
     }
 
