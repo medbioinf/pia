@@ -505,8 +505,8 @@ public class MzIdentMLTools {
                                     Set<Triple> tripleSet = oboMapper.getTriples(oboTerm, null, null);
 
                                     for (Triple triple : tripleSet) {
-                                        if (triple.getPredicate().getName().equals(OBOMapper.obo_relationship) &&
-                                                triple.getObject().getName().startsWith(OBOMapper.obo_has_regexp)) {
+                                        if (triple.getPredicate().getName().equals(OBOMapper.OBO_RELATIONSHIP) &&
+                                                triple.getObject().getName().startsWith(OBOMapper.OBO_HAS_REGEXP)) {
                                             String regExpID = triple.getObject().getName().substring(11).trim();
                                             Term regExpTerm = oboMapper.getTerm(regExpID);
                                             if (regExpTerm != null) {

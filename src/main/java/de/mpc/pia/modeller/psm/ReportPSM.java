@@ -27,10 +27,13 @@ import de.mpc.pia.tools.PIAConstants;
 
 /**
  *
- * @author julian
+ * @author julianu
  *
  */
 public class ReportPSM  implements PSMReportItem {
+
+    private static final long serialVersionUID = 4553213161575220358L;
+
 
     /** unique ID of the item */
     private Long id;
@@ -78,7 +81,7 @@ public class ReportPSM  implements PSMReportItem {
     public ReportPSM(Long id, PeptideSpectrumMatch spectrum) {
         this.id = id;
         this.spectrum = spectrum;
-        isDecoy = ((spectrum.getIsDecoy() != null) && spectrum.getIsDecoy());
+        isDecoy = (spectrum.getIsDecoy() != null) && spectrum.getIsDecoy();
         isFDRGood = false;
         accessions = new TreeMap<>();
         qValue = null;

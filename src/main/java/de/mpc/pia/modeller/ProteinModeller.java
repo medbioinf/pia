@@ -1,6 +1,7 @@
 package de.mpc.pia.modeller;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,10 +39,13 @@ import de.mpc.pia.modeller.score.comparator.RankCalculator;
 /**
  * Modeller for protein related stuff.
  *
- * @author julian
+ * @author julianu
  *
  */
-public class ProteinModeller {
+public class ProteinModeller  implements Serializable {
+
+    private static final long serialVersionUID = 7091587185721765287L;
+
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(ProteinModeller.class);
@@ -534,7 +538,7 @@ public class ProteinModeller {
                     writer.append("\"modifications\"" + separator);
                 }
 
-                writer.append(	"\"accessions\"" + separator +
+                writer.append("\"accessions\"" + separator +
                         "\"#spectra\"" + separator +
                         "\"#PSMSets\"" + separator +
                         "\"bestScores\"" +
@@ -641,7 +645,7 @@ public class ProteinModeller {
         }
 
         for (ReportProtein protein : report) {
-            // Accessions	Score	Coverage	#Peptides	#PSMs	#Spectra
+            // Accessions   Score   Coverage   #Peptides   #PSMs   #Spectra
 
             StringBuilder accSB = new StringBuilder();
             for (Accession accession : protein.getAccessions()) {

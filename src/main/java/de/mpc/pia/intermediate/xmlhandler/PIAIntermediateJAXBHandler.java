@@ -2,6 +2,7 @@ package de.mpc.pia.intermediate.xmlhandler;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,7 +59,10 @@ import de.mpc.pia.modeller.IdentificationKeySettings;
 import de.mpc.pia.modeller.score.ScoreModel;
 
 
-public class PIAIntermediateJAXBHandler {
+public class PIAIntermediateJAXBHandler implements Serializable {
+
+    private static final long serialVersionUID = -8416334186918951733L;
+
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(PIAIntermediateJAXBHandler.class);

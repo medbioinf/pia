@@ -178,15 +178,15 @@ public class FilterFactory {
             FilterComparator comparator, boolean negate, Number value) {
         AbstractFilter filter = null;
 
-        if (filterShort.startsWith(PSMScoreFilter.prefix)) {
+        if (filterShort.startsWith(PSMScoreFilter.PREFIX)) {
             filter = new PSMScoreFilter(comparator, negate, value.doubleValue(),
-                    filterShort.substring(PSMScoreFilter.prefix.length()));
+                    filterShort.substring(PSMScoreFilter.PREFIX.length()));
         } else if (filterShort.startsWith(PeptideScoreFilter.PREFIX)) {
             filter = new PeptideScoreFilter(comparator, negate, value.doubleValue(),
                     filterShort.substring(PeptideScoreFilter.PREFIX.length()));
-        } else if (filterShort.startsWith(PSMTopIdentificationFilter.prefix)) {
+        } else if (filterShort.startsWith(PSMTopIdentificationFilter.PREFIX)) {
             filter = new PSMTopIdentificationFilter(comparator, value.intValue(), negate,
-                    filterShort.substring(PSMTopIdentificationFilter.prefix.length()));
+                    filterShort.substring(PSMTopIdentificationFilter.PREFIX.length()));
         }
 
         return filter;
@@ -206,11 +206,11 @@ public class FilterFactory {
 
         FilterType type = null;
 
-        if (filterShort.startsWith(PSMScoreFilter.prefix)) {
+        if (filterShort.startsWith(PSMScoreFilter.PREFIX)) {
             type = PSMScoreFilter.filterType;
         } else if (filterShort.startsWith(PeptideScoreFilter.PREFIX)) {
             type = PeptideScoreFilter.filterType;
-        } else if (filterShort.startsWith(PSMTopIdentificationFilter.prefix)) {
+        } else if (filterShort.startsWith(PSMTopIdentificationFilter.PREFIX)) {
             type = PSMTopIdentificationFilter.filterType;
         } else {
             RegisteredFilters filter = RegisteredFilters.getFilterByShortname(filterShort);

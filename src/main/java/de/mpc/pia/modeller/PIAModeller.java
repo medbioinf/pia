@@ -1,15 +1,24 @@
 package de.mpc.pia.modeller;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.NotActiveException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -45,25 +54,43 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 /**
  * The main modeller class for PIA.
  *
- * @author julian
+ * @author julianu
  *
  */
-public class PIAModeller {
+public class PIAModeller implements Serializable {
 
-    /** the modeller for everything PSM related */
+    private static final long serialVersionUID = -1215457917976166137L;
+
+
+    /**
+     * the modeller for everything PSM related
+     * @serial
+     */
     private PSMModeller psmModeller;
 
-    /** the modeller for everything peptide related */
+    /**
+     * the modeller for everything peptide related
+     * @serial
+     */
     private PeptideModeller peptideModeller;
 
-    /** the modeller for everything protein related */
+    /**
+     * the modeller for everything protein related
+     * @serial
+     */
     private ProteinModeller proteinModeller;
 
 
-    /** name of the used file */
+    /**
+     * name of the used file
+     * @serial
+     */
     private String fileName;
 
-    /** handler for the intermediate file */
+    /**
+     * handler for the intermediate file
+     * @serial
+     */
     private PIAIntermediateJAXBHandler intermediateHandler;
 
 
@@ -1057,5 +1084,87 @@ public class PIAModeller {
         } catch (Exception e) {
             LOGGER.error("Error while processing parameters directly from command line", e);
         }
+    }
+
+
+    /**
+     * Writes the complete processed model to the file given by the name.
+     *
+     * @param piaModeller
+     * @param fileName
+     * @throws IOException
+     */
+    public static void serializeToFile(PIAModeller piaModeller, String fileName) throws IOException {
+        File file = new File(fileName);
+        serializeToFile(piaModeller, file);
+    }
+
+
+    /**
+     * Writes the complete processed model to the given file.
+     *
+     * @param piaModeller
+     * @param file
+     * @throws IOException
+     */
+    public static void serializeToFile(PIAModeller piaModeller, File file) throws IOException {
+        LOGGER.info("Serializing data to " + file.getAbsolutePath());
+        try (FileOutputStream fos = new FileOutputStream(file);
+                GZIPOutputStream gzo = new GZIPOutputStream(fos);
+                ObjectOutputStream oos = new ObjectOutputStream(gzo); ) {
+            oos.writeObject(piaModeller);
+        } catch (IOException e) {
+            LOGGER.error("Could not write whole PIA model to " + file.getAbsolutePath(), e);
+            throw e;
+        }
+    }
+
+
+    /**
+     * Reads a modeller from the file given by the name.
+     *
+     * @param fileName
+     * @throws IOException
+     *
+     * @throws ClassNotFoundException
+     */
+    public static PIAModeller deSerializeFromFile(String fileName) throws IOException {
+        File file = new File(fileName);
+        return deSerializeFromFile(file);
+    }
+
+
+    /**
+     * Reads a modeller from the given file
+     *
+     * @param file
+     * @throws IOException
+     */
+    public static PIAModeller deSerializeFromFile(File file) throws IOException {
+        LOGGER.info("reading modeller from " + file.getAbsolutePath());
+
+        PIAModeller piaModeller = null;
+
+        try (FileInputStream fin = new FileInputStream(file);
+                GZIPInputStream gzi = new GZIPInputStream(fin);
+                ObjectInputStream ois = new ObjectInputStream(gzi);) {
+            Object readObject = ois.readObject();
+            if (readObject instanceof PIAModeller) {
+                piaModeller = (PIAModeller) readObject;
+            } else {
+                String msg = "Could not read a PIAModeller from the file " + file.getAbsolutePath();
+                LOGGER.error(msg);
+                throw new IOException(msg);
+            }
+        } catch (IOException e) {
+            LOGGER.error("Could not write whole PIA model to " + file.getAbsolutePath(), e);
+            throw e;
+        } catch (ClassNotFoundException e) {
+            String msg = "Could not write whole PIA model to " + file.getAbsolutePath();
+            LOGGER.error(msg, e);
+            throw new IOException(msg, e);
+        }
+
+        return piaModeller;
     }
 }

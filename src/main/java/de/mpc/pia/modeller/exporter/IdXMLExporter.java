@@ -319,7 +319,7 @@ public class IdXMLExporter {
             if (proteinLevel) {
                 AbstractProteinInference protInference = piaModeller.getProteinModeller().getAppliedProteinInference();
                 for (Setting setting : protInference.getScoring().getSettings()) {
-                    if (setting.getShortName().equals(AbstractScoring.scoringSettingID)) {
+                    if (setting.getShortName().equals(AbstractScoring.SCORING_SETTING_ID)) {
                         mainScoreShort = setting.getValue();
                         mainScore = piaModeller.getPSMModeller().getScoreName(mainScoreShort);
                         mainScoreHigherBetter = piaModeller.getPSMModeller().getHigherScoreBetter(mainScoreShort);

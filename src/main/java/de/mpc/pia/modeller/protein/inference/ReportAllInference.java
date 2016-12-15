@@ -23,6 +23,9 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
  */
 public class ReportAllInference extends AbstractProteinInference {
 
+    private static final long serialVersionUID = 6145753203892636883L;
+
+
     /** the human readable name of this filter */
     protected static final String NAME = "Report All";
 
@@ -129,7 +132,7 @@ public class ReportAllInference extends AbstractProteinInference {
         }
 
         // check for sameSets (if there were active filters)
-        if (!filters.isEmpty()) {
+        if (!getFilters().isEmpty()) {
             sameSets = new HashMap<>(groupsAllPeptides.size());
             Set<Long> newReportGroups = new HashSet<>(reportGroupsIDs.size());
 
@@ -200,7 +203,7 @@ public class ReportAllInference extends AbstractProteinInference {
             ReportProtein protein = createProtein(gID, proteins,
                     reportPeptidesMap, groupMap, sameSets, null);
 
-            if (FilterFactory.satisfiesFilterList(protein, 0L, filters)) {
+            if (FilterFactory.satisfiesFilterList(protein, 0L, getFilters())) {
                 // if all the filters are satisfied, add the protein to the reportProteinList
                 reportProteinList.add(protein);
             }

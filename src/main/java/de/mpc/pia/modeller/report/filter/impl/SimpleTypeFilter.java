@@ -1,5 +1,7 @@
 package de.mpc.pia.modeller.report.filter.impl;
 
+import java.io.Serializable;
+
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.RegisteredFilters;
@@ -10,7 +12,9 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
  * @author julian
  *
  */
-public class SimpleTypeFilter<T> extends AbstractFilter {
+public class SimpleTypeFilter<T extends Serializable> extends AbstractFilter {
+
+    private static final long serialVersionUID = -8868249952475993200L;
 
     /** the actual compared value */
     private T value;

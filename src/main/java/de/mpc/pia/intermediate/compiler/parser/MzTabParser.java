@@ -267,7 +267,7 @@ public class MzTabParser {
                                 // the score is in the OBO file, get the relations etc.
                                 Set<Triple> tripleSet = compiler.getOBOMapper().getTriples(oboTerm, null, null);
                                 for (Triple triple : tripleSet) {
-                                    if (triple.getPredicate().getName().equals(OBOMapper.obo_is_a) &&
+                                    if (triple.getPredicate().getName().equals(OBOMapper.OBO_IS_A) &&
                                             triple.getObject().getName().equals(OntologyConstants.SEARCH_ENGINE_PSM_SCORE.getPsiAccession())) {
                                         piaScore = new ScoreModel(mzTabPSM.getSearchEngineScore(searchEngineScoreKey), cvAccession, param.getName());
                                         scores.add(piaScore);

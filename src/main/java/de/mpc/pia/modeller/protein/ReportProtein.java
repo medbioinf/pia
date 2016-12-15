@@ -1,11 +1,13 @@
 package de.mpc.pia.modeller.protein;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,10 +31,13 @@ import de.mpc.pia.modeller.score.comparator.Rankable;
  * This class holds the information of a protein, as it will be reported in the
  * @author julian
  */
-public class ReportProtein implements Rankable, Filterable, FDRComputable {
+public class ReportProtein implements Rankable, Filterable, FDRComputable, Serializable {
+
+    private static final long serialVersionUID = -8360479444137408349L;
+
 
     /** identifier for the peptide, for internal use only */
-    private Long ID;
+    private Long id;
 
     /** the rank of this peptide (if calculated) */
     private Long rank;
@@ -81,7 +86,7 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
 
 
     public ReportProtein(Long id) {
-        this.ID = id;
+        this.id = id;
         rank = null;
         score = new ScoreModel(Double.NaN, ScoreModelEnum.PROTEIN_SCORE);
         isDecoy = false;
@@ -108,7 +113,7 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
      * @return
      */
     public Long getID() {
-        return ID;
+        return id;
     }
 
 
@@ -383,7 +388,7 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable {
      * Getter for the coverage map of the given accession
      * @return
      */
-    public TreeMap<Integer, Integer> getCoverageMap(String accession) {
+    public SortedMap<Integer, Integer> getCoverageMap(String accession) {
         return coverageMaps.get(accession);
     }
 

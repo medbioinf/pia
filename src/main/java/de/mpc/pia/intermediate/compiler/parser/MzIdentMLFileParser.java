@@ -178,8 +178,8 @@ class MzIdentMLFileParser {
                                     if (oboTerm != null) {
                                         Set<Triple> tripleSet = compiler.getOBOMapper().getTriples(oboTerm, null, null);
 
-                                        tripleSet.stream().filter(triple -> triple.getPredicate().getName().equals(OBOMapper.obo_relationship) &&
-                                                triple.getObject().getName().startsWith(OBOMapper.obo_has_regexp)).forEach(triple -> {
+                                        tripleSet.stream().filter(triple -> triple.getPredicate().getName().equals(OBOMapper.OBO_RELATIONSHIP) &&
+                                                triple.getObject().getName().startsWith(OBOMapper.OBO_HAS_REGEXP)).forEach(triple -> {
                                             String regExpID = triple.getObject().getName().substring(11).trim();
                                             Term regExpTerm = compiler.getOBOMapper().getTerm(regExpID);
 
@@ -483,7 +483,7 @@ class MzIdentMLFileParser {
                             Set<Triple> tripleSet = compiler.getOBOMapper().getTriples(oboTerm, null, null);
 
                             for (Triple triple : tripleSet) {
-                                if (triple.getPredicate().getName().equals(OBOMapper.obo_is_a) &&
+                                if (triple.getPredicate().getName().equals(OBOMapper.OBO_IS_A) &&
                                         triple.getObject().getName().equals(OntologyConstants.SEARCH_ENGINE_PSM_SCORE.getPsiAccession())) {
                                     // subject is a "search engine specific score for PSM"
                                     isScore = true;

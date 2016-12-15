@@ -1,11 +1,15 @@
 package de.mpc.pia.modeller.score.comparator;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import de.mpc.pia.modeller.score.ScoreModel;
 
 
-public class ScoreComparator<T extends ScoreComparable> implements Comparator<T> {
+public class ScoreComparator<T extends ScoreComparable> implements Comparator<T>, Serializable {
+
+    private static final long serialVersionUID = 3640095411432489213L;
+
 
     /** the index of the compared score model of the spectrum */
     private String scoreModelName;
@@ -44,18 +48,15 @@ public class ScoreComparator<T extends ScoreComparable> implements Comparator<T>
 
     @Override
     public int compare(T o1, T o2) {
-        ScoreModel score1, score2;
+        ScoreModel score1 = null;
+        ScoreModel score2 = null;
 
         if (o1 != null) {
             score1 = o1.getCompareScore(scoreModelName);
-        } else {
-            score1 = null;
         }
 
         if (o2 != null) {
             score2 = o2.getCompareScore(scoreModelName);
-        } else {
-            score2 = null;
         }
 
         int compRet;

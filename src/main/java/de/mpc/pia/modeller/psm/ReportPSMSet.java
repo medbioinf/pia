@@ -24,6 +24,10 @@ import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 
 
 public class ReportPSMSet implements PSMReportItem {
+
+    private static final long serialVersionUID = -1392636658449738523L;
+
+
     /** the {@link IdentificationKeySettings} used for creating this set */
     private Map<String, Boolean> psmSetSettings;
 

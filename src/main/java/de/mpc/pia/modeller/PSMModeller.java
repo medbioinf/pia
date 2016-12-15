@@ -2,6 +2,7 @@ package de.mpc.pia.modeller;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,10 +49,13 @@ import de.mpc.pia.tools.obo.OBOMapper;
 /**
  * Modeller for the PSM related stuff.
  *
- * @author julian
+ * @author julianu
  *
  */
-public class PSMModeller {
+public class PSMModeller implements Serializable {
+
+    private static final long serialVersionUID = 5958133586889325193L;
+
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(PSMModeller.class);
@@ -109,7 +113,7 @@ public class PSMModeller {
 
 
     /** the OBO mapper, to get additional data */
-    private OBOMapper oboMapper;
+    private transient OBOMapper oboMapper = null;
 
     /** maps from the scoreShort to the scoreName */
     private Map<String, String> scoreShortToScoreName;
@@ -335,8 +339,7 @@ public class PSMModeller {
         fileHasInternalDecoy = new HashMap<>(inputFiles.size());
         inputFiles.keySet().stream().filter(fileID -> fileID > 0).forEach(fileID -> fileHasInternalDecoy.put(fileID, false));
 
-        scoreShortToComparator =
-                new HashMap<>();
+        scoreShortToComparator = new HashMap<>();
 
         scoreShortToHigherScoreBetter = new HashMap<>();
 
@@ -450,17 +453,14 @@ public class PSMModeller {
                                 }
 
                                 // get comparators for all the PSM scores
-                                if (!scoreShortToComparator.containsKey(
-                                        score.getShortName())) {
+                                if (!scoreShortToComparator.containsKey(score.getShortName())) {
 
                                     String scoreSortName =
                                             PSMReportItemComparator.getScoreSortName(score.getShortName());
                                     Comparator<PSMReportItem> comp;
                                     if (scoreSortName != null) {
                                         // this score is hard coded
-                                        comp = PSMReportItemComparator.getComparatorByName(
-                                                scoreSortName,
-                                                SortOrder.ascending);
+                                        comp = PSMReportItemComparator.getComparatorByName(scoreSortName, SortOrder.ascending);
 
                                         scoreShortToHigherScoreBetterChangeable.put(
                                                 score.getShortName(), false);
@@ -477,16 +477,16 @@ public class PSMModeller {
                                             Set<Triple> tripleSet = getOBOMapper().getTriples(oboTerm, null, null);
 
                                             for (Triple triple : tripleSet) {
-                                                if (triple.getPredicate().getName().equals(OBOMapper.obo_is_a)) {
+                                                if (triple.getPredicate().getName().equals(OBOMapper.OBO_IS_A)) {
                                                     if (triple.getObject().getName().equals("MS:1001868") || // MS:1001868 ! distinct peptide-level q-value
                                                             triple.getObject().getName().equals("MS:1001870") || // MS:1001870 ! distinct peptide-level p-value
                                                             triple.getObject().getName().equals("MS:1001872")) { // MS:1001872 ! distinct peptide-level e-value
                                                         higherscorebetter = false;
                                                     }
-                                                } else if (triple.getPredicate().getName().equals(OBOMapper.obo_relationship)) {
-                                                    if (triple.getObject().getName().equals(OBOMapper.obo_has_order_higherscorebetter)) {
+                                                } else if (triple.getPredicate().getName().equals(OBOMapper.OBO_RELATIONSHIP)) {
+                                                    if (triple.getObject().getName().equals(OBOMapper.OBO_HAS_ORDER_HIGHERSCOREBETTER)) {
                                                         higherscorebetter = true;
-                                                    } else if (triple.getObject().getName().equals(OBOMapper.obo_has_order_lowerscorebetter)) {
+                                                    } else if (triple.getObject().getName().equals(OBOMapper.OBO_HAS_ORDER_LOWERSCOREBETTER)) {
                                                         higherscorebetter = false;
                                                     }
                                                 }
@@ -506,15 +506,12 @@ public class PSMModeller {
                                         scoreShortToHigherScoreBetter.put(
                                                 score.getShortName(),
                                                 higherscorebetter);
-                                        comp = new ScoreComparator<>(
-                                                score.getShortName(),
-                                                higherscorebetter);
+                                        comp = new ScoreComparator<>(score.getShortName(), higherscorebetter);
                                     }
 
                                     LOGGER.debug("adding score comparator for " + score.getShortName() + ": " + comp);
 
-                                    scoreShortToComparator.put(
-                                            score.getShortName(), comp);
+                                    scoreShortToComparator.put(score.getShortName(), comp);
                                 }
 
                                 ArrayList<ReportPSM> psmsOfSpectrum =
@@ -554,8 +551,7 @@ public class PSMModeller {
                 for (Map.Entry<String, ArrayList<ReportPSM>> scoreToPSMsIt
                         : scoreshortsToPSMs.entrySet()) {
                     String scoreShort = scoreToPSMsIt.getKey();
-                    Comparator<PSMReportItem> comp =
-                            scoreShortToComparator.get(scoreShort);
+                    Comparator<PSMReportItem> comp = scoreShortToComparator.get(scoreShort);
 
                     // only sort and rank, if we know how
                     if (comp != null) {
@@ -1221,7 +1217,7 @@ public class PSMModeller {
                     scoreShortToHigherScoreBetter.get(fdrData.getScoreShortName()));
 
             addPSMLevelFDRSCoreToFilesScores(fileID);
-            
+
             if (!createPSMSets) {
                 // if no PSM sets are created, add FDRScore to the overview
                 addPSMLevelFDRSCoreToFilesScores(0L);
