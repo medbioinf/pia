@@ -10,11 +10,14 @@ import de.mpc.pia.modeller.score.ScoreModel;
 
 public class MultiplicativeScoring extends AbstractScoring {
 
+    private static final long serialVersionUID = 3805443330101114308L;
+
+
     /** the human readable score */
-    public static final  String name = "Multiplicative Scoring";
+    public static final  String NAME = "Multiplicative Scoring";
 
     /** the machine readable score */
-    public static final String shortName = "scoring_multiplicative";
+    public static final String SHORT_NAME = "scoring_multiplicative";
 
 
     public MultiplicativeScoring(Map<String, String> scoreNameMap) {
@@ -24,13 +27,13 @@ public class MultiplicativeScoring extends AbstractScoring {
 
     @Override
     public String getName() {
-        return name;
+        return NAME;
     }
 
 
     @Override
     public String getShortName() {
-        return shortName;
+        return SHORT_NAME;
     }
 
 
@@ -40,7 +43,7 @@ public class MultiplicativeScoring extends AbstractScoring {
                 getPSMForScoringSetting().getValue(), protein,
                 getScoreSetting().getValue());
 
-        if (scores.size() < 1) {
+        if (scores.isEmpty()) {
             // no scores found -> no scoring possible
             return Double.NaN;
         }
@@ -48,30 +51,62 @@ public class MultiplicativeScoring extends AbstractScoring {
         Double proteinScore = Double.NaN;
 
         for (ScoreModel score : scores) {
-
             Double signum = 1.0;
             if ((score.getType().higherScoreBetter() != null) &&
                     !score.getType().higherScoreBetter()) {
                 signum = -1.0;
             }
 
-            if ((score != null) && !score.getValue().equals(Double.NaN)) {
+            if (!score.getValue().equals(Double.NaN)) {
                 if (!proteinScore.equals(Double.NaN)) {
-                    if (signum < 0) {
-                        proteinScore -= Math.log10(score.getValue());
-                    } else {
-                        proteinScore *= score.getValue();
-                    }
+                    proteinScore = addToScore(proteinScore, signum, score.getValue());
                 } else {
-                    if (signum < 0) {
-                        proteinScore = -Math.log10(score.getValue());
-                    } else {
-                        proteinScore = score.getValue();
-                    }
+                    proteinScore = initializeScore(signum, score.getValue());
                 }
             }
         }
 
         return proteinScore;
     }
+
+
+    /**
+     * Initializes the protein score with the given valuescore
+     *
+     * @param signum
+     * @param value
+     * @return
+     */
+    private static Double initializeScore(Double signum, Double value) {
+        Double ret = value;
+
+        if (signum < 0) {
+            ret = -Math.log10(value);
+        }
+
+        return ret;
+    }
+
+
+    /**
+     * Adds the given value to the protein score
+     *
+     * @param score
+     * @param signum
+     * @param value
+     * @return
+     */
+    private static Double addToScore(Double score, Double signum, Double value) {
+        Double ret = score;
+
+        if (signum < 0) {
+            ret -= Math.log10(value);
+        } else {
+            ret *= value;
+        }
+
+        return ret;
+    }
 }
+
+
