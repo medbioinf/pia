@@ -17,6 +17,9 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
  */
 public class PSMTopIdentificationFilter extends AbstractFilter {
 
+    private static final long serialVersionUID = 880481749210410364L;
+
+
     protected final String shortName;
 
     protected final String name;
@@ -29,7 +32,7 @@ public class PSMTopIdentificationFilter extends AbstractFilter {
 
     private final String scoreShortName;
 
-    public static final String prefix = "psm_top_identification_filter_";
+    public static final String PREFIX = "psm_top_identification_filter_";
 
 
     public PSMTopIdentificationFilter(FilterComparator arg, Integer value,
@@ -44,7 +47,7 @@ public class PSMTopIdentificationFilter extends AbstractFilter {
         if (modelName != null) {
             name = modelName + " Top Identifications for PSM";
             filteringName = modelName + " (PSM Top Identifications)";
-            shortName = prefix + scoreShort;
+            shortName = PREFIX + scoreShort;
         } else {
             name = null;
             filteringName = null;
@@ -76,7 +79,7 @@ public class PSMTopIdentificationFilter extends AbstractFilter {
         if (modelName != null) {
             shortAndName = new String[2];
 
-            shortAndName[0] = prefix + scoreShort;
+            shortAndName[0] = PREFIX + scoreShort;
             shortAndName[1] = modelName + " (PSM Top Identifications)";
         }
 

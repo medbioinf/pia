@@ -1,6 +1,7 @@
 package de.mpc.pia.modeller.peptide;
 
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +31,10 @@ import de.mpc.pia.modeller.score.comparator.Rankable;
  * @author julian
  *
  */
-public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRScoreComputable {
+public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRScoreComputable, Serializable {
+
+    private static final long serialVersionUID = 9105064478786629608L;
+
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(ReportPeptide.class);
@@ -46,7 +50,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
     private Long rank;
 
     /** the PSMs in this peptide */
-    private List<PSMReportItem> psmList;
+    private ArrayList<PSMReportItem> psmList;
 
     /** list of ReportPSM IDs, which do not score in this peptide */
     private Set<Long> nonScoringPSMIDs;
@@ -163,7 +167,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * @return
      */
     public int getMissedCleavages() {
-        if (psmList.size() > 0) {
+        if (!psmList.isEmpty()) {
             return psmList.get(0).getMissedCleavages();
         }
 
@@ -206,21 +210,22 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
 
     /**
      * Adds the PSM with the given ID to the non scoring PSMs of this peptide.
-     * @param ID
+     *
+     * @param id
      */
-    public void addToNonScoringPSMs(Long ID) {
-        nonScoringPSMIDs.add(ID);
+    public void addToNonScoringPSMs(Long id) {
+        nonScoringPSMIDs.add(id);
     }
 
 
     /**
-     * Removes the PSM with the given ID from the non scoring PSMs of this
-     * peptide.
-     * @param ID
+     * Removes the PSM with the given ID from the non scoring PSMs of this peptide.
+     *
+     * @param id
      * @return true, if the ID was in the set
      */
-    public boolean removeFromNonScoringPSMs(Long ID) {
-        return nonScoringPSMIDs.remove(ID);
+    public boolean removeFromNonScoringPSMs(Long id) {
+        return nonScoringPSMIDs.remove(id);
     }
 
 
@@ -295,12 +300,11 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
         while (psmIter.hasNext()) {
             PSMReportItem psm = psmIter.next();
 
-            if (psm instanceof ReportPSMSet) {
-                if (remIdKey.equals(psm.getIdentificationKey(psmSetSettings))) {
-                    // the PSM is found, remove it from List and return it
-                    psmIter.remove();
-                    return (ReportPSMSet)psm;
-                }
+            if ((psm instanceof ReportPSMSet)
+                    &&  remIdKey.equals(psm.getIdentificationKey(psmSetSettings))) {
+                // the PSM is found, remove it from List and return it
+                psmIter.remove();
+                return (ReportPSMSet)psm;
             }
         }
 
@@ -507,8 +511,9 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      *
      */
     public Map<Integer, Modification> getModifications() {
-        if(psmList != null && psmList.size() > 0)
+        if(psmList != null && !psmList.isEmpty()) {
             return psmList.iterator().next().getModifications();
+        }
         return Collections.emptyMap();
     }
 
@@ -546,19 +551,19 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      *
      */
     public List<String> getSpectraIdentificationKeys(Map<String, Boolean> maximalKeySettings) {
-        Set<String> SpectraKeySet = new HashSet<>();
+        Set<String> spectraKeySet = new HashSet<>();
 
         for (PSMReportItem psm : psmList) {
             if (psm instanceof ReportPSM) {
-                SpectraKeySet.add(((ReportPSM) psm).getSpectrum().
+                spectraKeySet.add(((ReportPSM) psm).getSpectrum().
                         getSpectrumIdentificationKey(maximalKeySettings));
             } else if (psm instanceof ReportPSMSet) {
-                SpectraKeySet.addAll(((ReportPSMSet) psm).getPSMs().stream().map(reportPSM -> reportPSM.getSpectrum().
+                spectraKeySet.addAll(((ReportPSMSet) psm).getPSMs().stream().map(reportPSM -> reportPSM.getSpectrum().
                         getSpectrumIdentificationKey(maximalKeySettings)).collect(Collectors.toList()));
             }
         }
 
-        return new ArrayList<>(SpectraKeySet);
+        return new ArrayList<>(spectraKeySet);
     }
 
 

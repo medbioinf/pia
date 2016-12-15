@@ -1,5 +1,6 @@
 package de.mpc.pia.modeller.report.filter;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -16,7 +17,10 @@ import de.mpc.pia.tools.unimod.UnimodParser;
  * @author julian
  *
  */
-public abstract class AbstractFilter {
+public abstract class AbstractFilter implements Serializable {
+
+    private static final long serialVersionUID = 2824489987059326893L;
+
 
     /** the used comparator */
     private FilterComparator comparator;

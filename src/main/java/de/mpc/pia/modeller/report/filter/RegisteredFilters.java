@@ -1455,8 +1455,8 @@ public enum RegisteredFilters {
     public static final List<String> getPSMFilterShortsForHelp() {
         List<String> filterShorts = new ArrayList<>();
 
-        filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
-        filterShorts.add(PSMTopIdentificationFilter.prefix + "[scoreShort]");
+        filterShorts.add(PSMScoreFilter.PREFIX + "[scoreShort]");
+        filterShorts.add(PSMTopIdentificationFilter.PREFIX + "[scoreShort]");
 
         filterShorts.addAll(getPSMFilters().stream().map(RegisteredFilters::getShortName).collect(Collectors.toList()));
 
@@ -1479,8 +1479,8 @@ public enum RegisteredFilters {
     public static final Set<String> getPeptideFilterShortsForHelp() {
         Set<String> filterShorts = new HashSet<>();
 
-        filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
-        filterShorts.add(PSMTopIdentificationFilter.prefix + "[scoreShort]");
+        filterShorts.add(PSMScoreFilter.PREFIX + "[scoreShort]");
+        filterShorts.add(PSMTopIdentificationFilter.PREFIX + "[scoreShort]");
         filterShorts.add(PeptideScoreFilter.PREFIX + "[scoreShort]");
 
         filterShorts.addAll(getPeptideFilters().stream().map(RegisteredFilters::getShortName).collect(Collectors.toList()));
@@ -1504,7 +1504,7 @@ public enum RegisteredFilters {
     public static Set<String> getProteinFilterShortsForHelp() {
         Set<String> filterShorts = new HashSet<>();
 
-        filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
+        filterShorts.add(PSMScoreFilter.PREFIX + "[scoreShort]");
 
         filterShorts.addAll(getProteinFilters().stream().map(RegisteredFilters::getShortName).collect(Collectors.toList()));
 

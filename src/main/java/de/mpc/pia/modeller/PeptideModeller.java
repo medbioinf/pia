@@ -1,6 +1,7 @@
 package de.mpc.pia.modeller;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -40,10 +41,13 @@ import de.mpc.pia.modeller.score.comparator.ScoreComparator;
 /**
  * Modeller for peptide related stuff.
  *
- * @author julian
+ * @author julianu
  *
  */
-public class PeptideModeller {
+public class PeptideModeller implements Serializable {
+
+    private static final long serialVersionUID = -5899342615041591821L;
+
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(PeptideModeller.class);

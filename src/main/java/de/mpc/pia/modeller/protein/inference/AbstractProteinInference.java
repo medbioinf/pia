@@ -1,5 +1,6 @@
 package de.mpc.pia.modeller.protein.inference;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,10 +31,13 @@ import de.mpc.pia.tools.LabelValueContainer;
  * @author julian
  *
  */
-public abstract class AbstractProteinInference {
+public abstract class AbstractProteinInference implements Serializable {
+
+    private static final long serialVersionUID = 8698947456669713838L;
+
 
     /** list of the settings. */
-    protected List<AbstractFilter> filters;
+    private List<AbstractFilter> filters;
 
     /** the available scores for the inference, maps from the scoreShort to the shown name */
     private Map<String, String> availableScoreShorts;

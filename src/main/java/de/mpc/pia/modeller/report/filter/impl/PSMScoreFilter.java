@@ -19,6 +19,9 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
  */
 public class PSMScoreFilter extends AbstractFilter {
 
+    private static final long serialVersionUID = -759288282471703034L;
+
+
     public static final FilterType filterType = FilterType.numerical;
 
     private Double value;
@@ -27,7 +30,7 @@ public class PSMScoreFilter extends AbstractFilter {
 
     private String modelName;
 
-    public static final String prefix = "psm_score_filter_";
+    public static final String PREFIX = "psm_score_filter_";
 
 
     public PSMScoreFilter(FilterComparator arg, boolean negate, Double value,
@@ -50,7 +53,7 @@ public class PSMScoreFilter extends AbstractFilter {
      * programmed in the {@link ScoreModelEnum}
      * @return an array of two Strings, containing the short and filtering name, or null, if scoreShort is invalid
      */
-    static public String[] getShortAndFilteringName(String scoreShort,
+    public static String[] getShortAndFilteringName(String scoreShort,
             String defaultName) {
         String modelName = ScoreModelEnum.getName(scoreShort);
 
@@ -62,7 +65,7 @@ public class PSMScoreFilter extends AbstractFilter {
         if (modelName != null) {
             String[] shortAndName = new String[2];
 
-            shortAndName[0] = prefix + scoreShort;
+            shortAndName[0] = PREFIX + scoreShort;
             shortAndName[1] = modelName + " (PSM)";
 
             return shortAndName;

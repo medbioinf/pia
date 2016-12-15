@@ -117,8 +117,8 @@ public class MzTabExporterForPRIDEReanalysisTest {
                 new PeptideScoreFilter(FilterComparator.less_equal, false, fdrThreshold, ScoreModelEnum.PEPTIDE_LEVEL_Q_VALUE.getShortName()));
 
         protInference.setScoring(new MultiplicativeScoring(new HashMap<>()));
-        protInference.getScoring().setSetting(AbstractScoring.scoringSettingID, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
-        protInference.getScoring().setSetting(AbstractScoring.scoringSpectraSettingID, PSMForScoring.ONLY_BEST.getShortName());
+        protInference.getScoring().setSetting(AbstractScoring.SCORING_SETTING_ID, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
+        protInference.getScoring().setSetting(AbstractScoring.SCORING_SPECTRA_SETTING_ID, PSMForScoring.ONLY_BEST.getShortName());
 
         piaModeller.getProteinModeller().infereProteins(protInference);
 

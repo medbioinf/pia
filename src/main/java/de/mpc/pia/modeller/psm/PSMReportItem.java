@@ -1,5 +1,6 @@
 package de.mpc.pia.modeller.psm;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -11,13 +12,14 @@ import de.mpc.pia.modeller.score.FDRComputable;
 import de.mpc.pia.modeller.score.FDRScoreComputable;
 import de.mpc.pia.modeller.score.comparator.Rankable;
 
+
 /**
  * Interface to specify report items shown by the PSM Viewer.
  *
  * @author julian
  *
  */
-public interface PSMReportItem extends PSMItem, FDRComputable, FDRScoreComputable, Rankable, Filterable {
+public interface PSMReportItem extends PSMItem, FDRComputable, FDRScoreComputable, Rankable, Filterable, Serializable {
 
     /**
      * Returns a identification String for the PSM.

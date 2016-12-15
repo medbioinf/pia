@@ -17,6 +17,9 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
  */
 public class PeptideScoreFilter extends AbstractFilter {
 
+    private static final long serialVersionUID = -8231939953117264570L;
+
+
     public static final FilterType filterType = FilterType.numerical;
 
     private Double value;

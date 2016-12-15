@@ -25,7 +25,6 @@ import de.mpc.pia.modeller.protein.ReportProteinComparatorFactory;
 import de.mpc.pia.modeller.psm.PSMReportItem;
 import de.mpc.pia.modeller.psm.ReportPSM;
 import de.mpc.pia.modeller.psm.ReportPSMSet;
-import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterFactory;
 import de.mpc.pia.modeller.report.filter.RegisteredFilters;
 
@@ -106,6 +105,9 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
  */
 public class SpectrumExtractorInference extends AbstractProteinInference {
 
+    private static final long serialVersionUID = -2967838251458923246L;
+
+
     /** the human readable name of this filter */
     protected static final String NAME = "Spectrum Extractor";
 
@@ -113,7 +115,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
     protected static final String SHORT_NAME = "inference_spectrum_extractor";
 
     /** the list iterator used to give the reportProteins to the working threads */
-    private ListIterator<ReportProtein> proteinListIt;
+    private transient ListIterator<ReportProtein> proteinListIt = null;
 
     /** the number of all spectra */
     private int nrSpectra;
@@ -198,9 +200,10 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         LOGGER.info("calculateInference started...");
 
         StringBuilder filterSB = new StringBuilder();
-
-        filters.stream().forEach(filter -> {
-            if(filterSB.length() > 0) filterSB.append(", ");
+        getFilters().stream().forEach(filter -> {
+            if(filterSB.length() > 0) {
+                filterSB.append(", ");
+            }
             filterSB.append(filter.toString());
         });
 
@@ -231,7 +234,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
             for (ReportPSM reportPSM : psmSet.getPSMs()) {
                 // if this PSM satisfies the filters, cache it
                 if (FilterFactory.
-                        satisfiesFilterList(reportPSM, 0L, filters)) {
+                        satisfiesFilterList(reportPSM, 0L, getFilters())) {
                     String psmIdKey = reportPSM.getSpectrum().
                             getSpectrumIdentificationKey(psmSetSettings);
 
@@ -428,7 +431,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                 for (int i=0; i < nrThreads; i++) {
                     SpectrumExtractorWorkerThread workerThread =
                             new SpectrumExtractorWorkerThread(i+1, this,
-                                    getScoring(), filters, groupsPeptides,
+                                    getScoring(), getFilters(), groupsPeptides,
                                     reportPSMSetMap, splitReportPSMMap, peptidesSpectra,
                                     usedSpectra, scoreShort, considerModifications,
                                     psmSetSettings);
@@ -529,7 +532,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                     proteinList.remove(0);
 
 
-                    if (FilterFactory.satisfiesFilterList(protein, 0L, filters)) {
+                    if (FilterFactory.satisfiesFilterList(protein, 0L, getFilters())) {
                         // TODO: insert something like "needs X new spectra/PSMs/Peptides per protein". for now it is set to 1 new peptide
 
                         // check for subprotein

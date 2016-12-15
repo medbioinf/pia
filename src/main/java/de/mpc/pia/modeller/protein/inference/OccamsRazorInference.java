@@ -36,6 +36,9 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
  */
 public class OccamsRazorInference extends AbstractProteinInference {
 
+    private static final long serialVersionUID = -1119741000057934596L;
+
+
     /** the human readable name of this filter */
     protected static final String NAME = "Occam's Razor";
 
@@ -47,7 +50,7 @@ public class OccamsRazorInference extends AbstractProteinInference {
 
 
     /** this iterator iterates over the mapping from the tree ID to its groups*/
-    private Iterator<Map.Entry<Long,Map<Long,Group>>> treeGroupsIterator;
+    private transient Iterator<Map.Entry<Long,Map<Long,Group>>> treeGroupsIterator = null;
 
     /** this list holds the reported proteins */
     private List<ReportProtein> reportProteins;
@@ -154,7 +157,7 @@ public class OccamsRazorInference extends AbstractProteinInference {
             OccamsRazorWorkerThread workerThread =
                     new OccamsRazorWorkerThread(i+1,
                             this,
-                            filters,
+                            getFilters(),
                             reportPSMSetMap,
                             considerModifications,
                             psmSetSettings,

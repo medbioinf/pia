@@ -29,11 +29,11 @@ public class OBOMapper {
     private Ontology shippedOntology;
 
     // some statics
-    public static final String obo_relationship = "relationship";
-    public static final String obo_is_a = "is_a";
-    public static final String obo_has_regexp = "has_regexp";
-    public static final String obo_has_order_higherscorebetter = "has_order MS:1002108";
-    public static final String obo_has_order_lowerscorebetter = "has_order MS:1002109";
+    public static final String OBO_RELATIONSHIP = "relationship";
+    public static final String OBO_IS_A = "is_a";
+    public static final String OBO_HAS_REGEXP = "has_regexp";
+    public static final String OBO_HAS_ORDER_HIGHERSCOREBETTER = "has_order MS:1002108";
+    public static final String OBO_HAS_ORDER_LOWERSCOREBETTER = "has_order MS:1002109";
 
     /**
      * Constructor for the OBOMapper. Uses the online OBO file (if accessible)
