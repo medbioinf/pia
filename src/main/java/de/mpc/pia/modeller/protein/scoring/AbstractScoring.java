@@ -27,10 +27,10 @@ public abstract class AbstractScoring implements Serializable {
 
 
     /** the score used for this scoring method */
-    private Setting scoreSetting;
+    private Setting<HashMap<String, String>> scoreSetting;
 
     /** which PSMs of the peptide should be used for scoring */
-    private Setting psmForScoringSetting;
+    private Setting<HashMap<String, String>> psmForScoringSetting;
 
 
     public static final String SCORING_SETTING_ID = "used_score";
@@ -44,27 +44,25 @@ public abstract class AbstractScoring implements Serializable {
      *
      * @param scoreNameMap
      */
-    public AbstractScoring(Map<String, String> scoreNameMap) {
+    public AbstractScoring(Map<String, String> aScoreNameMap) {
         String initialKey = null;
 
-        if ((scoreNameMap != null) && (scoreNameMap.size() > 0)) {
+        HashMap<String, String> scoreNameMap = new HashMap<>();
+        if ((aScoreNameMap != null) && !aScoreNameMap.isEmpty()) {
+            scoreNameMap.putAll(aScoreNameMap);
             initialKey = scoreNameMap.keySet().iterator().next();
         }
 
-        scoreSetting = new Setting(SCORING_SETTING_ID, "Score for scoring",
-                initialKey, SettingType.SELECT_ONE_RADIO.getShortName(),
-                scoreNameMap);
+        scoreSetting = new Setting<HashMap<String,String>>(SCORING_SETTING_ID, "Score for scoring",
+                initialKey, SettingType.SELECT_ONE_RADIO.getShortName(), scoreNameMap);
 
-        Map<String, String> psmSettingsMap = new HashMap<>();
+        HashMap<String, String> psmSettingsMap = new HashMap<>();
         for (PSMForScoring psmForScoring : PSMForScoring.values()) {
             psmSettingsMap.put(psmForScoring.getShortName(),
                     psmForScoring.getName());
         }
-        psmForScoringSetting = new Setting(SCORING_SPECTRA_SETTING_ID,
-                "PSMs used for scoring",
-                PSMForScoring.ONLY_BEST.getShortName(),
-                SettingType.SELECT_ONE_RADIO.getShortName(),
-                psmSettingsMap);
+        psmForScoringSetting = new Setting<HashMap<String,String>>(SCORING_SPECTRA_SETTING_ID, "PSMs used for scoring",
+                PSMForScoring.ONLY_BEST.getShortName(), SettingType.SELECT_ONE_RADIO.getShortName(), psmSettingsMap);
     }
 
 
@@ -72,8 +70,8 @@ public abstract class AbstractScoring implements Serializable {
      * Returns a List of the available settings for this scoring.
      * @return
      */
-    public List<Setting> getSettings() {
-        List<Setting> settingsList = new ArrayList<>(2);
+    public List<Setting<HashMap<String,String>>> getSettings() {
+        List<Setting<HashMap<String,String>>> settingsList = new ArrayList<>(2);
 
         settingsList.add(getScoreSetting());
         settingsList.add(psmForScoringSetting);
@@ -89,7 +87,7 @@ public abstract class AbstractScoring implements Serializable {
      * @return the setting with the new value or null, if no such setting was
      * found
      */
-    public Setting setSetting(String settingName, String value) {
+    public Setting<HashMap<String,String>> setSetting(String settingName, String value) {
         if (SCORING_SETTING_ID.equals(settingName)) {
             scoreSetting.setValue(value);
             return scoreSetting;
@@ -143,7 +141,7 @@ public abstract class AbstractScoring implements Serializable {
      * Getter for the score setting of this scoring.
      * @return
      */
-    public Setting getScoreSetting() {
+    public Setting<HashMap<String,String>> getScoreSetting() {
         return scoreSetting;
     }
 
@@ -152,7 +150,7 @@ public abstract class AbstractScoring implements Serializable {
      * Getter for the PSM for scoring setting of this scoring.
      * @return
      */
-    public Setting getPSMForScoringSetting() {
+    public Setting<HashMap<String,String>> getPSMForScoringSetting() {
         return psmForScoringSetting;
     }
 
@@ -164,7 +162,12 @@ public abstract class AbstractScoring implements Serializable {
      *
      * @param scoreNameMap map of the {@link de.mpc.pia.modeller.score.ScoreModel}s shortNames to its corresponding name
      */
-    public void updateAvailableScores(Map<String, String> scoreNameMap) {
+    public void updateAvailableScores(Map<String, String> aScoreNameMap) {
+        HashMap<String, String> scoreNameMap = new HashMap<>();
+        if ((aScoreNameMap != null) && !aScoreNameMap.isEmpty()) {
+            scoreNameMap.putAll(aScoreNameMap);
+        }
+
         scoreSetting.updateParams(scoreNameMap);
     }
 

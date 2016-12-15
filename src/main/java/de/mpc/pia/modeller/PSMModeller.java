@@ -119,7 +119,7 @@ public class PSMModeller implements Serializable {
     private Map<String, String> scoreShortToScoreName;
 
     /** maps from the scoreShort to the comparator */
-    private Map<String, Comparator<PSMReportItem>> scoreShortToComparator;
+    private HashMap<String, Comparator<PSMReportItem>> scoreShortToComparator;
 
     /** maps from the score short to whether the higher score is better (probably current setting) */
     private Map<String, Boolean> scoreShortToHigherScoreBetter;
