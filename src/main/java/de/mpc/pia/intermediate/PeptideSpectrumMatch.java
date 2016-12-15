@@ -289,8 +289,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
         StringBuilder modificationSB = new StringBuilder(sequence);
         for (Map.Entry<Integer, Modification> modIt : modifications.entrySet()) {
             modificationSB.append("(");
-            modificationSB.append(modIt.getKey() + ";" +
-                    modIt.getValue().getMassString() );
+            modificationSB.append(modIt.getKey()).append(";").append(modIt.getValue().getMassString());
             modificationSB.append(")");
         }
         peptideStringID = modificationSB.toString();
@@ -334,7 +333,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
             if (!first) {
                 modSb.append('|');
             }
-            modSb.append("[" + modIt.getKey() + ",");
+            modSb.append("[").append(modIt.getKey()).append(",");
 
             modSb.append(modIt.getValue().getMassString());
             modSb.append("]");

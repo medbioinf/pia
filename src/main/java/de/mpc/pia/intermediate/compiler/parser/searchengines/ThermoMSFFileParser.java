@@ -103,9 +103,9 @@ public class ThermoMSFFileParser {
         jdbc.connectToExistingDB(fileName);
         fileConnectionParams.setJDBCAccess(jdbc);
 
-        Map<Long, SpectrumIdentification> nodeNumbersToIdentifications = Collections.EMPTY_MAP;
-        Map<Long, SpectrumIdentificationProtocol> nodeNumbersToProtocols = Collections.EMPTY_MAP;
-        Map<Long, AnalysisSoftware> nodeNumbersToSoftwares = Collections.EMPTY_MAP;
+        Map<Long, SpectrumIdentification> nodeNumbersToIdentifications = Collections.emptyMap();
+        Map<Long, SpectrumIdentificationProtocol> nodeNumbersToProtocols = Collections.emptyMap();
+        Map<Long, AnalysisSoftware> nodeNumbersToSoftwares = Collections.emptyMap();
 
         // iterate through the ProcessingNodes and get the settings etc.
         for (Map.Entry<Object, Object> nodeObjectIt

@@ -663,19 +663,22 @@ public abstract class PIACompiler {
         Set<Long> accessionsDone = new HashSet<>(getNrAccessions());
         clusteredPepAccMap = new ArrayList<>();
 
-        // this accession is not yet clustered, so start a new cluster
-// and insert all the "connected" peptides and accessions
-        getAllAccessionIDs().stream().filter(accID -> !accessionsDone.contains(accID)).forEach(accID -> {
-            // this accession is not yet clustered, so start a new cluster
-            // and insert all the "connected" peptides and accessions
-            Map<Long, Collection<Long>> pepAccMapCluster =
-                    createCluster(accID, peptidesDone, accessionsDone);
 
-            if (pepAccMapCluster != null) {
-                clusteredPepAccMap.add(pepAccMapCluster);
-            } else {
-                LOGGER.error("cluster could not be created!");
-            }
+        /**
+           this accession is not yet clustered, so start a new cluster
+           and insert all the "connected" peptides and accessions
+         */
+        getAllAccessionIDs().stream().filter(accID -> !accessionsDone.contains(accID)).forEach(accID -> {
+            /**
+               this accession is not yet clustered, so start a new cluster
+               and insert all the "connected" peptides and accessions
+             */
+
+            Map<Long, Collection<Long>> pepAccMapCluster = createCluster(accID, peptidesDone, accessionsDone);
+
+            if (pepAccMapCluster != null) clusteredPepAccMap.add(pepAccMapCluster);
+            else LOGGER.error("cluster could not be created!");
+
         });
 
         // the maps are no longer needed
@@ -734,7 +737,6 @@ public abstract class PIACompiler {
                             newPeptides++;
                         }
                     }
-
                     accessionsDone.add(accId);
                 }
             }

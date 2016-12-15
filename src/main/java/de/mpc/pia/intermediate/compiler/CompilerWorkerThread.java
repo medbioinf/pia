@@ -58,11 +58,7 @@ class CompilerWorkerThread extends Thread {
         cluster = parent.getNextCluster();
         while (cluster != null) {
             Map<Long, Group> subGroups = new HashMap<>();
-
-            for (Map.Entry<Long, Collection<Long>> pepIt : cluster.entrySet()) {
-                Peptide peptide = parent.getPeptide(pepIt.getKey());
-                insertIntoMap(peptide, pepIt.getValue(), subGroups);
-            }
+            cluster.entrySet().stream().forEach( pepIt -> insertIntoMap(parent.getPeptide(pepIt.getKey()), pepIt.getValue(), subGroups));
 
             // merge the groups into the thread groups
             workedClusters++;
@@ -73,7 +69,6 @@ class CompilerWorkerThread extends Thread {
                 threadGroups.put(nrThreadGroups, group);
             }
             threadGroupOffset = nrThreadGroups;
-
             parent.increaseBuildProgress();
             cluster = parent.getNextCluster();
         }
@@ -93,7 +88,7 @@ class CompilerWorkerThread extends Thread {
      * @param accessionIDs
      * @param subGroups
      */
-    public void insertIntoMap(Peptide peptide, Collection<Long> accessionIDs, Map<Long, Group> subGroups) {
+    private void insertIntoMap(Peptide peptide, Collection<Long> accessionIDs, Map<Long, Group> subGroups) {
         Map<Long, Map<String, Accession>> groupAccMap;  // the accessions, grouped by their groups
         Map<String, Accession> accessions = new TreeMap<>();
 

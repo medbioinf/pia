@@ -1,11 +1,8 @@
 package de.mpc.pia.modeller.score;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -394,8 +391,12 @@ public class FDRData {
 		List<T> rankItems;
 		
 		// sort the items with the given comparator
-		Collections.sort(reportItems, comparator);
-		
+	//	Collections.sort(reportItems, comparator);
+
+        reportItems = reportItems.parallelStream()
+                .sorted((m1, m2) -> comparator.compare(m1, m2))
+                .collect(Collectors.toList());
+
 		nrTargets = 0;
 		nrDecoys = 0;
 		
