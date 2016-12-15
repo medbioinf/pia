@@ -395,7 +395,7 @@ public class FDRData {
 		
 		// sort the items with the given comparator
 		Collections.sort(reportItems, comparator);
-		
+
 		nrTargets = 0;
 		nrDecoys = 0;
 		

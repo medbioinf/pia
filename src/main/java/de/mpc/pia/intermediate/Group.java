@@ -191,13 +191,9 @@ public class Group implements Serializable {
 	 */
 	public void addChild(Group child) {
 		children.put(child.getID(), child);
-		
-		if (allAccessions != null) {
-			for (Map.Entry<String, Accession> acc : allAccessions.entrySet()) {
-				child.addToAllAccessions(acc.getValue());
-			}
-		}
-	}
+		if (allAccessions != null)
+            allAccessions.values().stream().forEach(child::addToAllAccessions);
+    }
 	
 	
 	/**
@@ -215,7 +211,7 @@ public class Group implements Serializable {
 	 * children and so on.
 	 */
 	public Map<Long, Group> getAllChildren(){
-		Map<Long, Group> allChildren = new HashMap<Long, Group>();
+		Map<Long, Group> allChildren = new HashMap<>();
 		
 		for (Map.Entry<Long, Group> cIt : children.entrySet()) {
 			allChildren.put(cIt.getKey(), cIt.getValue());
@@ -263,11 +259,8 @@ public class Group implements Serializable {
 	 */
 	public void addParent(Group parent) {
 		parents.put(parent.getID(), parent);
-		if (parent.getAllAccessions() != null) {
-			for (Map.Entry<String, Accession> acc : parent.getAllAccessions().entrySet()) {
-				addToAllAccessions(acc.getValue());
-			}
-		}
+		if (parent.getAllAccessions() != null)
+			parent.getAllAccessions().values().stream().forEach(this::addToAllAccessions);
 	}
 	
 	
@@ -310,11 +303,8 @@ public class Group implements Serializable {
 	 */
 	protected void addToAllAccessions(Accession accession) {
 		allAccessions.put(accession.getAccession(), accession);
-		
-		for (Map.Entry<Long, Group> child : children.entrySet()) {
-			child.getValue().addToAllAccessions(accession);
-		}
-	}
+        children.values().stream().forEach(child -> child.addToAllAccessions(accession));
+    }
 	
 	
 	/**
@@ -334,13 +324,8 @@ public class Group implements Serializable {
 	 */
 	public String getAccessionsStr() {
 		StringBuilder sb = new StringBuilder();
-		
-		if (accessions != null) {
-			for (Map.Entry<String, Accession> acc : accessions.entrySet()) {
-				sb.append(acc.getKey()).append(" ");
-			}
-		}
-		
+        if (accessions != null)
+			accessions.keySet().stream().forEach( key -> sb.append(key).append(" "));
 		return sb.toString();
 	}
 	
@@ -372,11 +357,11 @@ public class Group implements Serializable {
 	 * @return
 	 */
 	public String getPeptidesStr() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		
 		if (peptides != null) {
 			for (Map.Entry<String, Peptide> pep : peptides.entrySet()) {
-				sb.append(pep.getKey() + " ");
+				sb.append(pep.getKey()).append(" ");
 			}
 		}
 		

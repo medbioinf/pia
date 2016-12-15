@@ -1453,7 +1453,7 @@ public enum RegisteredFilters {
      * These are only used to print the help.
      */
     public static final List<String> getPSMFilterShortsForHelp() {
-        List<String> filterShorts = new ArrayList<String>();
+        List<String> filterShorts = new ArrayList<>();
 
         filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
         filterShorts.add(PSMTopIdentificationFilter.prefix + "[scoreShort]");
@@ -1477,7 +1477,7 @@ public enum RegisteredFilters {
      * These are only used to print the help.
      */
     public static final Set<String> getPeptideFilterShortsForHelp() {
-        Set<String> filterShorts = new HashSet<String>();
+        Set<String> filterShorts = new HashSet<>();
 
         filterShorts.add(PSMScoreFilter.prefix + "[scoreShort]");
         filterShorts.add(PSMTopIdentificationFilter.prefix + "[scoreShort]");
