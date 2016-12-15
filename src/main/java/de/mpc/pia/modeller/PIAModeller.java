@@ -1141,7 +1141,7 @@ public class PIAModeller implements Serializable {
     public static PIAModeller deSerializeFromFile(File file) throws IOException {
         LOGGER.info("reading modeller from " + file.getAbsolutePath());
 
-        PIAModeller piaModeller = null;
+        PIAModeller piaModeller;
 
         try (FileInputStream fin = new FileInputStream(file);
                 GZIPInputStream gzi = new GZIPInputStream(fin);

@@ -53,7 +53,7 @@ public abstract class AbstractScoring implements Serializable {
             initialKey = scoreNameMap.keySet().iterator().next();
         }
 
-        scoreSetting = new Setting<HashMap<String,String>>(SCORING_SETTING_ID, "Score for scoring",
+        scoreSetting = new Setting<>(SCORING_SETTING_ID, "Score for scoring",
                 initialKey, SettingType.SELECT_ONE_RADIO.getShortName(), scoreNameMap);
 
         HashMap<String, String> psmSettingsMap = new HashMap<>();
@@ -61,7 +61,7 @@ public abstract class AbstractScoring implements Serializable {
             psmSettingsMap.put(psmForScoring.getShortName(),
                     psmForScoring.getName());
         }
-        psmForScoringSetting = new Setting<HashMap<String,String>>(SCORING_SPECTRA_SETTING_ID, "PSMs used for scoring",
+        psmForScoringSetting = new Setting<>(SCORING_SPECTRA_SETTING_ID, "PSMs used for scoring",
                 PSMForScoring.ONLY_BEST.getShortName(), SettingType.SELECT_ONE_RADIO.getShortName(), psmSettingsMap);
     }
 

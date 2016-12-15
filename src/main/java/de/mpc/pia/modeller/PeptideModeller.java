@@ -416,75 +416,62 @@ public class PeptideModeller implements Serializable {
         writer.append("\"sequence\"").append(separator);
 
         if (considerModifications)
-            writer.append("\"modifications\"" + separator);
+            writer.append("\"modifications\"").append(separator);
 
 
         if (oneAccessionPerLine) {
-            writer.append("\"accession\"" + separator);
+            writer.append("\"accession\"").append(separator);
         } else {
-            writer.append("\"accessions\"" + separator);
+            writer.append("\"accessions\"").append(separator);
         }
 
-        writer.append(
-                "\"#spectra\"" + separator +
-                "\"#PSM sets\"" + separator);
+        writer.append("\"#spectra\"").append(separator).append("\"#PSM sets\"").append(separator);
 
         if (fileID > 0) {
-            writer.append("\"missed\"" + separator);
+            writer.append("\"missed\"").append(separator);
         }
 
         writer.append("\"unique\"");
 
         for (String scoreShort : scoreShorts) {
-            writer.append(separator + "\"best_" + scoreShort + "\"");
+            writer.append(separator).append("\"best_").append(scoreShort).append("\"");
         }
 
         writer.append("\n");
 
         if (includePSMSets) {
-            writer.append(
-                    "\"COLS_PSMSET\"" + separator +
-                    "\"sequence\"" + separator);
+            writer.append("\"COLS_PSMSET\"").append(separator).append("\"sequence\"").append(separator);
 
             if (considerModifications) {
-                writer.append("\"modifications\"" + separator);
+                writer.append("\"modifications\"").append(separator);
             }
 
-            writer.append("\"#identifications\"" + separator +
-                    "\"charge\"" + separator +
-                    "\"m/z\"" + separator +
-                    "\"dMass\"" + separator +
-                    "\"ppm\"" + separator +
-                    "\"RT\"" + separator +
-                    "\"missed\"" + separator +
-                    "\"sourceID\"" + separator +
-                    "\"spectrumTitle\"" + separator +
-                    "\"scores\"" +
-                    "\n"
-                    );
+            writer.append("\"#identifications\"").
+                    append(separator).append("\"charge\"").
+                    append(separator).append("\"m/z\"").
+                    append(separator).append("\"dMass\"").
+                    append(separator).append("\"ppm\"").
+                    append(separator).append("\"RT\"").
+                    append(separator).append("\"missed\"").
+                    append(separator).append("\"sourceID\"").
+                    append(separator).append("\"spectrumTitle\"").
+                    append(separator).append("\"scores\"").
+                    append("\n");
         }
 
         if (includePSMs) {
-            writer.append(
-                    "\"COLS_PSM\"" + separator +
-                    "\"filename\"" + separator +
-                    "\"sequence\"" + separator);
+            writer.append("\"COLS_PSM\"").append(separator).append("\"filename\"").append(separator).append("\"sequence\"").append(separator);
 
             if (considerModifications) {
-                writer.append("\"modifications\"" + separator);
+                writer.append("\"modifications\"").append(separator);
             }
 
-            writer.append("\"charge\"" + separator +
-                    "\"m/z\"" + separator +
-                    "\"dMass\"" + separator +
-                    "\"ppm\"" + separator +
-                    "\"RT\"" + separator +
-                    "\"missed\"" + separator +
-                    "\"sourceID\"" + separator +
-                    "\"spectrumTitle\"" + separator +
-                    "\"scores\"" +
-                    "\n"
-                    );
+            writer.append("\"charge\"").append(separator).append("\"m/z\"").
+                    append(separator).append("\"dMass\"").append(separator).
+                    append("\"ppm\"").append(separator).append("\"RT\"").
+                    append(separator).append("\"missed\"").append(separator).
+                    append("\"sourceID\"").append(separator).append("\"spectrumTitle\"").
+                    append(separator).append("\"scores\"").append("\n");
         }
 
         // write out peptide information
@@ -492,25 +479,28 @@ public class PeptideModeller implements Serializable {
             StringBuilder lineFirst = new StringBuilder(64);    // first part of the line, up to the accession(s)
             StringBuilder lineLast = new StringBuilder(64);     // last part of the line, from the accession(s) to end
             if (includes) {
-                lineFirst.append("\"PEPTIDE\"" + separator);
+                lineFirst.append("\"PEPTIDE\"").append(separator);
             }
 
-            lineFirst.append("\"" + peptide.getSequence() + "\"" + separator);
+            lineFirst.append("\"").append(peptide.getSequence()).append("\"").append(separator);
 
-            if (considerModifications) {
-                lineFirst.append("\"" +
-                        peptide.getPSMs().get(0).getModificationsString() +
-                        "\"" + separator);
-            }
-
-            lineLast.append(
-                    "\"" + peptide.getNrSpectra() + "\"" + separator +
-                    "\"" + peptide.getNrPSMs() + "\"" + separator);
+            if (considerModifications)
+                lineFirst.append("\"").
+                        append(peptide.getPSMs().get(0).getModificationsString()).
+                        append("\"").append(separator);
 
 
-            if (fileID > 0) {
-                lineLast.append("\"" + peptide.getMissedCleavages() + "\"" + separator);
-            }
+            lineLast.append("\"").append(peptide.getNrSpectra()).append("\"").
+                    append(separator).append("\"").
+                    append(peptide.getNrPSMs()).
+                    append("\"").append(separator);
+
+
+            if (fileID > 0)
+                lineLast.append("\"").append(peptide.getMissedCleavages()).
+                        append("\"").
+                        append(separator);
+
 
             if (peptide.getAccessions().size() > 1) {
                 lineLast.append("\"false\"");
@@ -518,15 +508,19 @@ public class PeptideModeller implements Serializable {
                 lineLast.append("\"true\"");
             }
 
-            for (String scoreShort : scoreShorts) {
-                lineLast.append(separator + "\"" + peptide.getBestScore(scoreShort) + "\"");
-            }
+            for (String scoreShort : scoreShorts)
+                lineLast.append(separator).
+                        append("\"").append(peptide.getBestScore(scoreShort)).
+                        append("\"");
+
 
             // either cumulate the accessions or write out one line per accession
             if (oneAccessionPerLine) {
                 for (Accession acc : peptide.getAccessions()) {
                     writer.append(lineFirst);
-                    writer.append("\"" + acc.getAccession() + "\"" + separator);
+                    writer.append("\"").
+                            append(acc.getAccession()).
+                            append("\"").append(separator);
                     writer.append(lineLast);
                     writer.append("\n");
                 }
@@ -543,7 +537,7 @@ public class PeptideModeller implements Serializable {
                 }
 
                 writer.append(lineFirst);
-                writer.append("\"" + accessionsSB + "\"" + separator);
+                writer.append("\"").append(accessionsSB).append("\"").append(separator);
                 writer.append(lineLast);
                 writer.append("\n");
             }
@@ -553,39 +547,29 @@ public class PeptideModeller implements Serializable {
                 for (PSMReportItem psm : peptide.getPSMs()) {
                     StringBuilder row = new StringBuilder();
 
-                    row.append("\"" + psm.getSequence() + "\"" + separator);
+                    row.append("\"").append(psm.getSequence()).append("\"").append(separator);
 
                     if (considerModifications) {
-                        row.append("\""  + psm.getModificationsString() + "\"" + separator);
+                        row.append("\"").append(psm.getModificationsString()).append("\"").append(separator);
                     }
 
                     if (psm instanceof ReportPSMSet) {
-                        row.append("\"" +
-                                ((ReportPSMSet) psm).getPSMs().size() + "\"" + separator);
+                        row.append("\"").append(((ReportPSMSet) psm).getPSMs().size()).append("\"").append(separator);
                     }
 
-                    row.append("\"" + psm.getCharge() + "\"" + separator +
-                            "\"" + psm.getMassToCharge() + "\"" + separator +
-                            "\"" + psm.getDeltaMass() + "\"" + separator +
-                            "\"" + psm.getDeltaPPM() + "\"" + separator +
-                            "\"" + psm.getRetentionTime() + "\"" + separator +
-                            "\"" + psm.getMissedCleavages() + "\"" + separator +
-                            "\"" + psm.getSourceID() + "\"" + separator +
-                            "\"" + psm.getSpectrumTitle() + "\"" + separator +
-                            "\"" + psm.getScoresString() + "\"");
+                    row.append("\"").append(psm.getCharge()).append("\"").append(separator).append("\"").append(psm.getMassToCharge()).append("\"").append(separator).append("\"").append(psm.getDeltaMass()).append("\"").append(separator).append("\"").append(psm.getDeltaPPM()).append("\"").append(separator).append("\"").append(psm.getRetentionTime()).append("\"").append(separator).append("\"").append(psm.getMissedCleavages()).append("\"").append(separator).append("\"").append(psm.getSourceID()).append("\"").append(separator).append("\"").append(psm.getSpectrumTitle()).append("\"").append(separator).append("\"").append(psm.getScoresString()).append("\"");
 
 
                     if (psm instanceof ReportPSM) {
                         // write the input file name before the remaining row
                         if (includePSMs) {
-                            writer.append("\"PSM\"" + separator + "\"" +
-                                    ((ReportPSM) psm).getInputFileName() + "\"" + separator);
+                            writer.append("\"PSM\"").append(separator).append("\"").append(((ReportPSM) psm).getInputFileName()).append("\"").append(separator);
                             writer.append(row.toString());
                             writer.append("\n");
                         }
                     } else if (psm instanceof ReportPSMSet) {
                         if (includePSMSets) {
-                            writer.append("\"PSMSET\"" + separator);
+                            writer.append("\"PSMSET\"").append(separator);
                             writer.append(row.toString());
                             writer.append("\n");
                         }
@@ -593,13 +577,19 @@ public class PeptideModeller implements Serializable {
                         // include the PSMs, if set
                         if (includePSMs) {
                             for (ReportPSM p : ((ReportPSMSet) psm).getPSMs()) {
-                                writer.append("\"PSM\"" + separator + "\""
-                                        + p.getInputFileName() + "\"" + separator
-                                        + "\"" + p.getSequence() + "\"" + separator);
+                                writer.append("\"PSM\"").
+                                        append(separator).
+                                        append("\"").
+                                        append(p.getInputFileName()).
+                                        append("\"").append(separator).
+                                        append("\"").append(p.getSequence()).
+                                        append("\"").append(separator);
 
-                                if (considerModifications) {
-                                    writer.append("\""  + p.getModificationsString() + "\"" + separator);
-                                }
+                                if (considerModifications)
+                                    writer.append("\"").
+                                            append(p.getModificationsString()).
+                                            append("\"").append(separator);
+
 
                                 writer.append("\"" + p.getCharge() + "\"" + separator
                                         + "\"" + p.getMassToCharge() + "\"" + separator
