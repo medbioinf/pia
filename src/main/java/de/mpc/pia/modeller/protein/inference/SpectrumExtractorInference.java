@@ -25,7 +25,6 @@ import de.mpc.pia.modeller.protein.ReportProteinComparatorFactory;
 import de.mpc.pia.modeller.psm.PSMReportItem;
 import de.mpc.pia.modeller.psm.ReportPSM;
 import de.mpc.pia.modeller.psm.ReportPSMSet;
-import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterFactory;
 import de.mpc.pia.modeller.report.filter.RegisteredFilters;
 
@@ -201,12 +200,13 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         LOGGER.info("calculateInference started...");
 
         StringBuilder filterSB = new StringBuilder();
-        for (AbstractFilter filter : getFilters()) {
-            if (filterSB.length() > 0) {
+        getFilters().stream().forEach(filter -> {
+            if(filterSB.length() > 0) {
                 filterSB.append(", ");
             }
             filterSB.append(filter.toString());
-        }
+        });
+
 
         String scoreShort = getScoring().getScoreSetting().getValue();
         LOGGER.info("scoring: " + getScoring().getName() + " with " +

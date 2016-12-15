@@ -90,9 +90,9 @@ public class PIAtoSVG {
 
 
     public PIAtoSVG(Group startGroup, String name,
-            Set<Long> thisAccessions, Set<Long> otherAccessions,
-            Set<Long> thisPeptides, Set<Long> otherPeptides,
-            Set<Long> thisSpectra, Set<Long> otherSpectra) {
+                    Set<Long> thisAccessions, Set<Long> otherAccessions,
+                    Set<Long> thisPeptides, Set<Long> otherPeptides,
+                    Set<Long> thisSpectra, Set<Long> otherSpectra) {
         this();
 
         graphName = name;
@@ -116,13 +116,11 @@ public class PIAtoSVG {
 
 
             // create the node representing the group
-            nodes.append("grp" + group.getID() +
-                    " [shape=ellipse color=\"#0000FF\" fillcolor=\"#0000FF\" style=filled label=\"\" width=.2 height=.2];\n");
+            nodes.append("grp").append(group.getID()).append(" [shape=ellipse color=\"#0000FF\" fillcolor=\"#0000FF\" style=filled label=\"\" width=.2 height=.2];\n");
 
             // create accession nodes and edges
             for (Accession acc : group.getAccessions().values()) {
-                nodes.append("acc" + acc.getID() +
-                        " [shape=box ");
+                nodes.append("acc").append(acc.getID()).append(" [shape=box ");
 
                 if ((thisAccessions != null) && (otherAccessions != null)) {
                     if (thisAccessions.contains(acc.getID())) {
@@ -136,18 +134,14 @@ public class PIAtoSVG {
                     nodes.append("color=\"#008000\"");
                 }
 
-                nodes.append(" label=\"" +
-                        acc.getAccession() +
-                        "\" width=.5 height=.2 margin=.05];\n");
+                nodes.append(" label=\"").append(acc.getAccession()).append("\" width=.5 height=.2 margin=.05];\n");
 
-                edges.append("acc" + acc.getID() + " -> " +
-                        "grp" + group.getID() + ";\n");
+                edges.append("acc").append(acc.getID()).append(" -> ").append("grp").append(group.getID()).append(";\n");
             }
 
             // create peptide nodes and edges
             for (Peptide pep : group.getPeptides().values()) {
-                nodes.append("pep" + pep.getID() +
-                        " [shape=box ");
+                nodes.append("pep").append(pep.getID()).append(" [shape=box ");
 
                 if ((thisPeptides != null) && (otherPeptides != null)) {
                     if (thisPeptides.contains(pep.getID())) {
@@ -166,12 +160,9 @@ public class PIAtoSVG {
                     }
                 }
 
-                nodes.append(" label=\"" +
-                        pep.getSequence() +
-                        "\" width=.5 height=.2 margin=.05];\n");
+                nodes.append(" label=\"").append(pep.getSequence()).append("\" width=.5 height=.2 margin=.05];\n");
 
-                edges.append("grp" + group.getID() + " -> " +
-                        "pep" + pep.getID() + ";\n");
+                edges.append("grp").append(group.getID()).append(" -> ").append("pep").append(pep.getID()).append(";\n");
 
                 for (PeptideSpectrumMatch psm : pep.getSpectra()) {
                     StringBuilder label = new StringBuilder();
@@ -189,8 +180,7 @@ public class PIAtoSVG {
                         }
                     }
 
-                    nodes.append("psm" + psm.getID() +
-                            " [shape=box ");
+                    nodes.append("psm").append(psm.getID()).append(" [shape=box ");
 
                     if ((thisSpectra != null) && (otherSpectra != null)) {
                         if (thisSpectra.contains(psm.getID())) {
@@ -209,12 +199,9 @@ public class PIAtoSVG {
                         }
                     }
 
-                    nodes.append(" label=\"" +
-                            label +
-                            "\" width=.3 height=.1 margin=.025 fontsize=7];\n");
+                    nodes.append(" label=\"").append(label).append("\" width=.3 height=.1 margin=.025 fontsize=7];\n");
 
-                    edges.append("pep" + pep.getID() + " -> " +
-                            "psm" + psm.getID() + ";\n");
+                    edges.append("pep").append(pep.getID()).append(" -> ").append("psm").append(psm.getID()).append(";\n");
                 }
             }
 
@@ -227,8 +214,7 @@ public class PIAtoSVG {
                 }
 
                 // add the edges to the child
-                edges.append("grp" + group.getID() + " -> " +
-                        "grp" + grIt.getValue().getID() + ";\n");
+                edges.append("grp").append(group.getID()).append(" -> ").append("grp").append(grIt.getValue().getID()).append(";\n");
             }
 
             // add parents to toAdd, if not in groups

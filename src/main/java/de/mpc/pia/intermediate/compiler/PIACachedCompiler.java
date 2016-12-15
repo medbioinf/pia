@@ -248,15 +248,9 @@ public class PIACachedCompiler extends PIACompiler {
 
         if ((accId != null) && accPepMapIDs.containsKey(accId)) {
             Set<Peptide> pepSet = new HashSet<>();
-
-            for (Long pepId : accPepMapIDs.get(accId)) {
-                int pepIdx = pepId.intValue() - 1;
-                pepSet.add(peptides.get(pepIdx));
-            }
-
+            accPepMapIDs.get(accId).stream().forEach( pepId -> pepSet.add(peptides.get(pepId.intValue() -1)));
             return pepSet;
         }
-
         return null;
     }
 
@@ -264,18 +258,11 @@ public class PIACachedCompiler extends PIACompiler {
     @Override
     public Set<Accession> getAccessionsFromConnectionMap(String pep) {
         Long pepId = peptideIDsToSequences.getKey(pep);
-
         if ((pepId != null) && pepAccMapIDs.containsKey(pepId)) {
             Set<Accession> accSet = new HashSet<>();
-
-            for (Long accId : pepAccMapIDs.get(pepId)) {
-                int accIdx = accId.intValue() - 1;
-                accSet.add(accessions.get(accIdx));
-            }
-
+            pepAccMapIDs.get(pepId).stream().forEach( accId -> accSet.add(accessions.get(accId.intValue() - 1)));
             return accSet;
         }
-
         return null;
     }
 
@@ -322,14 +309,11 @@ public class PIACachedCompiler extends PIACompiler {
         }
 
         List<Long> pepIds = accPepMapIDs.get(accId);
-        if (!pepIds.contains(pepId)) {
-            pepIds.add(pepId);
-        }
+        if (!pepIds.contains(pepId)) pepIds.add(pepId);
 
         List<Long> accIds = pepAccMapIDs.get(pepId);
-        if (!accIds.contains(accId)) {
-            accIds.add(accId);
-        }
+        if (!accIds.contains(accId)) accIds.add(accId);
+
     }
 
 

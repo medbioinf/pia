@@ -178,11 +178,8 @@ public class Accession implements Serializable {
 
             if (!differentDescriptions.isEmpty()) {
                 StringBuilder descSB = new StringBuilder();
-                for (String description : differentDescriptions) {
-                    descSB.append(description);
-                    descSB.append(";");
-                }
-
+                differentDescriptions.stream().forEach(description ->
+                        descSB.append(description).append(";"));
                 desc = descSB.substring(0, descSB.length()-1);
             }
         }
