@@ -534,9 +534,10 @@ public class ProteinModeller  implements Serializable {
                         "\"COLS_PEPTIDE\"" + separator +
                         "\"sequence\"" + separator);
 
-                if (considermodifications) {
-                    writer.append("\"modifications\"" + separator);
-                }
+                if (considermodifications)
+                    writer.append("\"modifications\"").
+                            append(separator);
+
 
                 writer.append("\"accessions\"" + separator +
                         "\"#spectra\"" + separator +
@@ -547,9 +548,9 @@ public class ProteinModeller  implements Serializable {
             }
 
             if (includePSMSets) {
-                writer.append(
-                        "\"COLS_PSMSET\"" + separator +
-                        "\"sequence\"" + separator);
+                writer.append("\"COLS_PSMSET\"").append(separator).
+                        append("\"sequence\"").
+                        append(separator);
 
                 if (considermodifications) {
                     writer.append("\"modifications\"" + separator);
@@ -576,7 +577,7 @@ public class ProteinModeller  implements Serializable {
                         "\"sequence\"" + separator);
 
                 if (considermodifications) {
-                    writer.append("\"modifications\"" + separator);
+                    writer.append("\"modifications\"").append(separator);
                 }
 
                 writer.append("\"charge\"" + separator +
@@ -714,12 +715,12 @@ public class ProteinModeller  implements Serializable {
                                     peptide.getBestScoreModel(scoreShort);
 
                             if (model != null) {
-                                if (scoresSB.length() > 0) {
+                                if (scoresSB.length() > 0)
                                     scoresSB.append(",");
-                                }
 
-                                scoresSB.append(model.getName() + ":" +
-                                        model.getValue());
+                                scoresSB.append(model.getName()).
+                                        append(":").
+                                        append(model.getValue());
                             }
 
                         }
@@ -728,9 +729,12 @@ public class ProteinModeller  implements Serializable {
                                 "\"PEPTIDE\"" + separator +
                                 "\"" + peptide.getSequence() + "\"" + separator);
 
-                        if (considermodifications) {
-                            writer.append("\"" + modStringBuffer.toString() + "\"" + separator);
-                        }
+                        if (considermodifications)
+                            writer.append("\"").
+                                    append(modStringBuffer.toString()).
+                                    append("\"").
+                                    append(separator);
+
 
                         writer.append("\"" + accSB.toString() + "\"" + separator +
                                 "\"" + peptide.getNrSpectra() + "\"" + separator +
@@ -763,13 +767,17 @@ public class ProteinModeller  implements Serializable {
                                         spectrumTitle = "";
                                     }
 
-                                    writer.append(
-                                            "\"PSMSET\"" + separator +
-                                            "\"" + psmSet.getSequence() +"\"" + separator);
+                                    writer.append("\"PSMSET\"").
+                                            append(separator).
+                                            append("\"").
+                                            append(psmSet.getSequence()).
+                                            append("\"").append(separator);
 
-                                    if (considermodifications) {
-                                        writer.append("\"" + modStringBuffer.toString() + "\"" + separator);
-                                    }
+                                    if (considermodifications)
+                                        writer.append("\"").
+                                                append(modStringBuffer.toString()).
+                                                append("\"").append(separator);
+
 
                                     writer.append("\"" + ((ReportPSMSet)psmSet).getPSMs().size() + "\"" + separator +
                                             "\"" + psmSet.getCharge() + "\"" + separator +

@@ -147,7 +147,7 @@ public class MzIdentMLTools {
     public static boolean userParamsEqualOrNull(UserParam x, UserParam y) {
         if ((x != null) && (y != null)) {
             // both are not null
-            boolean equal = true;
+            boolean equal;
 
             // required
             equal = x.getName().equals(y.getName());
