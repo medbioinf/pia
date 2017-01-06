@@ -79,7 +79,7 @@ import uk.ac.ebi.pride.jmztab.model.VariableMod;
 /**
  * This exporter will enable to export the results to mzTab files.
  *
- * @author julian
+ * @author julianu
  */
 public class MzTabExporter {
 
@@ -194,8 +194,9 @@ public class MzTabExporter {
                 + "\n\tpepLevelStats " + peptideLevelStatistics
                 + "\n\tfiltered " + filterExport);
 
-        outWriter = new BufferedWriter(exportWriter);
-        try {
+        try (BufferedWriter writer = new BufferedWriter(exportWriter)) {
+            outWriter = writer;
+
             unimodParser = new UnimodParser();
 
             piaParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
@@ -273,23 +274,12 @@ public class MzTabExporter {
             // write out the PSMs
             outWriter.append(MZTabConstants.NEW_LINE);
             writePSMs(reportPSMs, exportReliabilitycolumn, peptideLevelStatistics, filterExport);
-
-            outWriter.flush();
-            outWriter.close();
-
-            LOGGER.debug("exportToMzTab done");
         } catch (IOException ex) {
             LOGGER.error("Error exporting mzTab", ex);
             error = true;
-        } finally {
-            try {
-                outWriter.close();
-            } catch (IOException e) {
-                LOGGER.error("Could not close the file while writing mzTab", e);
-                error = true;
-            }
         }
 
+        outWriter = null;
         LOGGER.info("finished mzTab export " + (error ? "with" : "without") + " errors");
         return !error;
     }
@@ -333,7 +323,7 @@ public class MzTabExporter {
                     SpectrumIdentification specID = file.getAnalysisCollection().
                             getSpectrumIdentification().get(0);
                     List<InputSpectra> inputSpectras = specID.getInputSpectra();
-                    if ((inputSpectras != null) && (inputSpectras.size() > 0)) {
+                    if ((inputSpectras != null) && !inputSpectras.isEmpty()) {
                         List<String> spectraDataRefs = inputSpectras.stream().map(InputSpectra::getSpectraDataRef).collect(Collectors.toList());
                         spectrumIdentificationToSpectraData.put( specID.getId(),
                                 spectraDataRefs);
@@ -387,7 +377,7 @@ public class MzTabExporter {
             SpectrumIdentification specID = piaModeller.getFiles().get(fileID).
                     getAnalysisCollection().getSpectrumIdentification().get(0);
             List<InputSpectra> inputSpectras = specID.getInputSpectra();
-            if ((inputSpectras != null) && (inputSpectras.size() > 0)) {
+            if ((inputSpectras != null) && !inputSpectras.isEmpty()) {
                 List<String> spectraDataRefs = inputSpectras.stream().map(InputSpectra::getSpectraDataRef).collect(Collectors.toList());
                 spectrumIdentificationToSpectraData.put(specID.getId(), spectraDataRefs);
 
@@ -494,7 +484,7 @@ public class MzTabExporter {
             String modName = null;
 
             if ((searchMod.getCvParam() != null) &&
-                    (searchMod.getCvParam().size() > 0)) {
+                    !searchMod.getCvParam().isEmpty()) {
                 modAccession = searchMod.getCvParam().get(0).getAccession();
                 modName = searchMod.getCvParam().get(0).getName();
             }
@@ -519,7 +509,7 @@ public class MzTabExporter {
                     }
                 }
             }
-            if (positions.size() < 1) {
+            if (positions.isEmpty()) {
                 positions.add("Anywhere");
             }
 
@@ -550,15 +540,15 @@ public class MzTabExporter {
 
                     mod.setParam(cvParam);
 
-                    if (!position.equals("Anywhere")) {
+                    if (!"Anywhere".equals(position)) {
                         if (position.contains("N-term")) {
-                            if (site.equals(".")) {
+                            if (".".equals(site)) {
                                 site = "N-term";
                             } else {
                                 site = "N-term " + site;
                             }
                         } else if (position.contains("C-term")) {
-                            if (site.equals(".")) {
+                            if (".".equals(site)) {
                                 site = "C-term";
                             } else {
                                 site = "C-term " + site;
@@ -612,13 +602,11 @@ public class MzTabExporter {
             SpectrumIdentificationProtocol specIdProtocol =
                     protocol.getSpectrumIdentificationProtocol().get(0);
 
-            // adding the software(s)
-            AnalysisSoftware software;
+            // adding/getting the software(s)
             if (softwareMap.containsKey(specIdProtocol.getAnalysisSoftwareRef())) {
-                software = softwareMap.get(specIdProtocol.getAnalysisSoftwareRef());
                 softwareID = softwareToID.get(specIdProtocol.getAnalysisSoftwareRef());
             } else {
-                software = piaModeller.getAnalysisSoftwares().get(
+                AnalysisSoftware software = piaModeller.getAnalysisSoftwares().get(
                         specIdProtocol.getAnalysisSoftwareRef());
                 softwareID = softwareMap.size()+1;
 
@@ -1197,7 +1185,7 @@ public class MzTabExporter {
                     }
                 }
 
-                String occData[] = getPeptideOccurrences(psmItem.getPeptide(), accession.getAccession());
+                String[] occData = getPeptideOccurrences(psmItem.getPeptide(), accession.getAccession());
                 if (occData != null) {
                     mztabPsm.setPre(occData[0]);
                     mztabPsm.setPost(occData[1]);
