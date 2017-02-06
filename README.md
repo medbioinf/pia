@@ -53,7 +53,7 @@ Download the latest released version [here](https://github.com/mpc-bioinformatic
 
 ## Tutorial
 
-The tutorial as PDF can be downloaded [here](https://github.com/mpc-bioinformatics/pia/wiki/pia_tutorial.pdf), the required data as zip file [here](https://github.com/mpc-bioinformatics/pia/wiki/pia_tutorial_data.zip).
+The tutorial as PDF can be downloaded [here](https://github.com/julianu/pia-tutorial/blob/master/pia_tutorial.pdf), the required data are available [here](https://github.com/julianu/pia-tutorial/tree/master/data) and the workflows [here](https://github.com/julianu/pia-tutorial/tree/master/workflows) (all are in the tutorial repository at https://github.com/julianu/pia-tutorial/).
 
 
 ## Documentation
