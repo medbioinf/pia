@@ -196,17 +196,6 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
      * @return
      */
     public int hashCodeWithoutID() {
-        return hashCodeBuilderWithoutID().
-                toHashCode();
-    }
-
-
-    /**
-     * Creates a {@link HashCodeBuilder} on all fields except for the ID
-     *
-     * @return
-     */
-    private HashCodeBuilder hashCodeBuilderWithoutID() {
         return new HashCodeBuilder(23, 31).
                 append(scores).
                 append(charge).
@@ -220,7 +209,8 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
                 append(spectrumTitle).
                 append(pFile).
                 append(isUnique).
-                append(spectrumID);
+                append(spectrumID).
+                toHashCode();
     }
 
 
