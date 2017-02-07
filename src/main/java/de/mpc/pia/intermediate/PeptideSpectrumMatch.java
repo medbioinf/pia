@@ -141,6 +141,28 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
 
         return new EqualsBuilder().
                 append(id, objSpectrum.id).
+                appendSuper(equalsWithoutID(obj)).
+                isEquals();
+    }
+
+
+    /**
+     * Tests whether this PeptideSpectrumMatch equals the given object without comparing the ID
+     *
+     * @param obj
+     * @return
+     */
+    public boolean equalsWithoutID(Object obj) {
+        if (!(obj instanceof PeptideSpectrumMatch)) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+
+        PeptideSpectrumMatch objSpectrum = (PeptideSpectrumMatch)obj;
+
+        return new EqualsBuilder().
                 append(scores, objSpectrum.scores).
                 append(charge, objSpectrum.charge).
                 append(massToCharge, objSpectrum.massToCharge).
@@ -163,6 +185,18 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
     public int hashCode() {
         return new HashCodeBuilder(23, 31).
                 append(id).
+                appendSuper(hashCodeWithoutID()).
+                toHashCode();
+    }
+
+
+    /**
+     * Calculates the hash code without using the id
+     *
+     * @return
+     */
+    public int hashCodeWithoutID() {
+        return new HashCodeBuilder(23, 31).
                 append(scores).
                 append(charge).
                 append(massToCharge).
