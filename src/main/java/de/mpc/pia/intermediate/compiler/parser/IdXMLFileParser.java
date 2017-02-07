@@ -364,7 +364,11 @@ public class IdXMLFileParser {
                     }
                 }
 
+                // the distinct PSMs in this pepID
+                List<PeptideSpectrumMatch> hitsPSMs = new ArrayList<>();
+
                 for (PeptideHit pepHit : pepID.getPeptideHit()) {
+
                     if (pepHit.getProteinRefs().isEmpty()) {
                         // identifications without proteins have no value (for now)
                         LOGGER.error("No protein linked to the peptide " +
@@ -405,17 +409,6 @@ public class IdXMLFileParser {
                             file,
                             spectrumID);
                     specNr++;
-
-                    // get the peptide from the compiler or, if need be, add it
-                    Peptide peptide;
-                    peptide = compiler.getPeptide(sequence);
-                    if (peptide == null) {
-                        peptide = compiler.insertNewPeptide(sequence);
-                        pepNr++;
-                    }
-
-                    // add the spectrum to the peptide
-                    peptide.addSpectrum(psm);
 
                     // the first score is the "main" score
                     ScoreModel score;
@@ -495,7 +488,22 @@ public class IdXMLFileParser {
                         psm.addModification(modIt.getKey(), modIt.getValue());
                     }
 
-                    compiler.insertCompletePeptideSpectrumMatch(psm);
+                    // get the peptide from the compiler or, if need be, add it
+                    Peptide peptide;
+                    peptide = compiler.getPeptide(sequence);
+                    if (peptide == null) {
+                        peptide = compiler.insertNewPeptide(sequence);
+                        pepNr++;
+                    }
+
+                    // there is a bug in OpenMS which creates sometimes multiple peptideHits with identical values originating from the same spectra
+                    if (!listContainsPSM(hitsPSMs, psm)) {
+                        compiler.insertCompletePeptideSpectrumMatch(psm);
+                        hitsPSMs.add(psm);
+
+                        // add the spectrum to the peptide
+                        peptide.addSpectrum(psm);
+                    }
 
                     for (Object protRef : pepHit.getProteinRefs()) {
                         if (!(protRef instanceof ProteinHit)) {
@@ -784,5 +792,21 @@ public class IdXMLFileParser {
         }
 
         return startSites;
+    }
+
+
+    /**
+     * Check whether the list of PSMs already contains the PSMs, without comparing the IDs
+     *
+     * @param psmList
+     * @param psm
+     * @return
+     */
+    private static boolean listContainsPSM(List<PeptideSpectrumMatch> psmList, PeptideSpectrumMatch psm) {
+        int psmHash = psm.hashCodeWithoutID();
+
+        // evaluate for same hashcodes and equality
+        return psmList.stream().
+                anyMatch(s -> (psmHash == s.hashCodeWithoutID()) ? psm.equalsWithoutID(s) : false);
     }
 }
