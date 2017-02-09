@@ -44,7 +44,7 @@ public class TideTXTFileParser {
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(TideTXTFileParser.class);
 
-    /** the seperator in the TSV/CSV file */
+    /** the separator in the TSV/CSV file */
     public static final String SEPARATOR_STRING = "\t";
 
 
