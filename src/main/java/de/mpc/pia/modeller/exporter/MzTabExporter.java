@@ -105,6 +105,9 @@ public class MzTabExporter {
     /** mapping from the score's short_name to the score's ID in the Metadata */
     private Map<String, Integer> psmScoreShortToId;
 
+    /** the ID for the protein score */
+    private Integer piaProteinScoreID;
+
     /** the mzTab {@link Metadata} for the exported file */
     private Metadata metadata;
 
@@ -120,6 +123,9 @@ public class MzTabExporter {
 
     /** mapping from the peptide sequence to the accessions and occurrences [pre, post, start, stop]*/
     private Map<String, Map<String, String[]>> peptideOccurrences;
+
+
+    // TODO: best_search_engine_score[] on protein level
 
 
     /**
@@ -298,13 +304,12 @@ public class MzTabExporter {
      *
      * @throws MalformedURLException
      */
-    private Metadata createMetadataForMzTab(Long fileID,
-            boolean proteinLevel,
-            boolean filterExport,
+    private Metadata createMetadataForMzTab(Long fileID, boolean proteinLevel, boolean filterExport,
             MZTabDescription tabDescription)
                     throws MalformedURLException {
         Metadata mtd = new Metadata(tabDescription);
         mtd.setDescription("PIA export of " + piaModeller.getFileName());
+        mtd.setTitle(mtd.getDescription());
 
         List<InputSpectra> inputSpectraList = new ArrayList<>();
         // all needed search modifications
@@ -318,109 +323,12 @@ public class MzTabExporter {
                 new HashMap<>();
 
         if (fileID == 0) {
-            for (PIAInputFile file : piaModeller.getPSMModeller().getFiles().values()) {
-                if (file.getID() > 0) {
-                    SpectrumIdentification specID = file.getAnalysisCollection().
-                            getSpectrumIdentification().get(0);
-                    List<InputSpectra> inputSpectras = specID.getInputSpectra();
-                    if ((inputSpectras != null) && !inputSpectras.isEmpty()) {
-                        List<String> spectraDataRefs = inputSpectras.stream().map(InputSpectra::getSpectraDataRef).collect(Collectors.toList());
-                        spectrumIdentificationToSpectraData.put( specID.getId(),
-                                spectraDataRefs);
-
-                        inputSpectraList.addAll(inputSpectras);
-                    }
-
-                    ModificationParams modParams =
-                            file.getAnalysisProtocolCollection().
-                            getSpectrumIdentificationProtocol().get(0).
-                            getModificationParams();
-                    if ((modParams != null) && (modParams.getSearchModification() != null)) {
-                        searchModifications.addAll(modParams.getSearchModification());
-                    }
-
-                    if (file.getAnalysisProtocolCollection() != null) {
-                        analysisProtocols.add(file.getAnalysisProtocolCollection());
-                    }
-                }
-
-                // add the scores of each file
-                for (String scoreShort : piaModeller.getPSMModeller().getScoreShortNames(file.getID())) {
-                    if (!psmScoreShortToId.containsKey(scoreShort)) {
-                        Integer scoreID = psmScoreShortToId.size() + 1;
-                        ScoreModelEnum scoreType =
-                                ScoreModelEnum.getModelByDescription(scoreShort);
-
-                        uk.ac.ebi.pride.jmztab.model.Param scoreParam;
-
-                        // do NOT add the PSM-level FDR for the overview
-                        if (scoreType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
-                            scoreParam = new uk.ac.ebi.pride.jmztab.model.UserParam(
-                                    piaModeller.getPSMModeller().getScoreName(scoreShort),
-                                    "");
-                        } else {
-                            scoreParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
-                                    scoreType.getCvAccession(),
-                                    scoreType.getCvName(),
-                                    "");
-                        }
-
-                        if (!scoreType.equals(ScoreModelEnum.PSM_LEVEL_FDR_SCORE)
-                                || !piaModeller.getCreatePSMSets()) {
-                            mtd.addPsmSearchEngineScoreParam(scoreID, scoreParam);
-                            psmScoreShortToId.put(scoreShort, scoreID);
-                        }
-                    }
-                }
-            }
+            addMetadataForOverview(mtd, inputSpectraList, searchModifications, analysisProtocols,
+                    spectrumIdentificationToSpectraData);
         } else {
-            SpectrumIdentification specID = piaModeller.getFiles().get(fileID).
-                    getAnalysisCollection().getSpectrumIdentification().get(0);
-            List<InputSpectra> inputSpectras = specID.getInputSpectra();
-            if ((inputSpectras != null) && !inputSpectras.isEmpty()) {
-                List<String> spectraDataRefs = inputSpectras.stream().map(InputSpectra::getSpectraDataRef).collect(Collectors.toList());
-                spectrumIdentificationToSpectraData.put(specID.getId(), spectraDataRefs);
-
-                inputSpectraList.addAll(inputSpectras);
-            }
-
-            ModificationParams modParams =
-                    piaModeller.getFiles().get(fileID).getAnalysisProtocolCollection().
-                    getSpectrumIdentificationProtocol().get(0).
-                    getModificationParams();
-            if ((modParams != null) && (modParams.getSearchModification() != null)) {
-                searchModifications.addAll(
-                        modParams.getSearchModification());
-            }
-
-            if (piaModeller.getFiles().get(fileID).getAnalysisProtocolCollection() != null) {
-                analysisProtocols.add(piaModeller.getFiles().get(fileID).getAnalysisProtocolCollection());
-            }
-
-            // the the file's scores
-            for (String scoreShort : piaModeller.getPSMModeller().getScoreShortNames(fileID)) {
-                if (!psmScoreShortToId.containsKey(scoreShort)) {
-                    Integer scoreID = psmScoreShortToId.size() + 1;
-                    ScoreModelEnum scoreType =
-                            ScoreModelEnum.getModelByDescription(scoreShort);
-
-                    uk.ac.ebi.pride.jmztab.model.Param scoreParam;
-
-                    if (scoreType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
-                        scoreParam = new uk.ac.ebi.pride.jmztab.model.UserParam(
-                                piaModeller.getPSMModeller().getScoreName(scoreShort),
-                                "");
-                    } else {
-                        scoreParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
-                                scoreType.getCvAccession(),
-                                scoreType.getCvName(),
-                                "");
-                    }
-
-                    mtd.addPsmSearchEngineScoreParam(scoreID, scoreParam);
-                    psmScoreShortToId.put(scoreShort, scoreID);
-                }
-            }
+            addSpectraModsAndProtocolsForFileID(fileID, inputSpectraList, searchModifications, analysisProtocols,
+                    spectrumIdentificationToSpectraData);
+            addFilesScoresToMetadata(mtd, fileID);
         }
 
         // associate the spectraData (msRuns) to integer IDs
@@ -739,7 +647,8 @@ public class MzTabExporter {
                     + "taken into account for peptide distinction");
 
             // add the PIA protein score
-            mtd.addProteinSearchEngineScoreParam(1, new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+            piaProteinScoreID = 1;
+            mtd.addProteinSearchEngineScoreParam(piaProteinScoreID, new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
                     OntologyConstants.PIA_PROTEIN_SCORE.getPsiAccession(),
                     OntologyConstants.PIA_PROTEIN_SCORE.getPsiName(),
                     null));
@@ -788,6 +697,106 @@ public class MzTabExporter {
 
         return mtd;
     }
+
+
+
+    /**
+     * Add the specific metaData for an export of the overview.
+     *
+     * @param mtd
+     * @param inputSpectraList
+     * @param searchModifications
+     * @param analysisProtocols
+     * @param spectrumIdentificationToSpectraData
+     */
+    private void addMetadataForOverview(Metadata mtd,
+            List<InputSpectra> inputSpectraList, List<SearchModification> searchModifications,
+            List<AnalysisProtocolCollection> analysisProtocols,
+            Map<String, List<String>> spectrumIdentificationToSpectraData) {
+
+        for (PIAInputFile file : piaModeller.getPSMModeller().getFiles().values()) {
+            if (file.getID() > 0) {
+                addSpectraModsAndProtocolsForFileID(file.getID(),
+                        inputSpectraList, searchModifications, analysisProtocols,
+                        spectrumIdentificationToSpectraData);
+            }
+
+            addFilesScoresToMetadata(mtd, file.getID());
+        }
+    }
+
+
+    /**
+     * Add the inputSpectra (with maps), modifications and analysisProtocols for the given file
+     *
+     * @param fileID
+     * @param inputSpectraList
+     * @param searchModifications
+     * @param analysisProtocols
+     * @param spectrumIdentificationToSpectraData
+     */
+    private void addSpectraModsAndProtocolsForFileID(Long fileID,
+            List<InputSpectra> inputSpectraList, List<SearchModification> searchModifications,
+            List<AnalysisProtocolCollection> analysisProtocols,
+            Map<String, List<String>> spectrumIdentificationToSpectraData) {
+        SpectrumIdentification specID = piaModeller.getFiles().get(fileID).
+                getAnalysisCollection().getSpectrumIdentification().get(0);
+        List<InputSpectra> inputSpectras = specID.getInputSpectra();
+
+        if ((inputSpectras != null) && !inputSpectras.isEmpty()) {
+            List<String> spectraDataRefs = inputSpectras.stream().map(InputSpectra::getSpectraDataRef).collect(Collectors.toList());
+            spectrumIdentificationToSpectraData.put(specID.getId(), spectraDataRefs);
+
+            inputSpectraList.addAll(inputSpectras);
+        }
+
+        ModificationParams modParams =
+                piaModeller.getFiles().get(fileID).getAnalysisProtocolCollection().
+                getSpectrumIdentificationProtocol().get(0).
+                getModificationParams();
+        if ((modParams != null) && (modParams.getSearchModification() != null)) {
+            searchModifications.addAll(
+                    modParams.getSearchModification());
+        }
+
+        if (piaModeller.getFiles().get(fileID).getAnalysisProtocolCollection() != null) {
+            analysisProtocols.add(piaModeller.getFiles().get(fileID).getAnalysisProtocolCollection());
+        }
+    }
+
+
+    /**
+     * Add the scores of the given file to the MetaData
+     *
+     * @param mtd
+     * @param fileID
+     */
+    private void addFilesScoresToMetadata(Metadata mtd, Long fileID) {
+        for (String scoreShort : piaModeller.getPSMModeller().getScoreShortNames(fileID)) {
+            if (!psmScoreShortToId.containsKey(scoreShort)) {
+                Integer scoreID = psmScoreShortToId.size() + 1;
+                ScoreModelEnum scoreType =
+                        ScoreModelEnum.getModelByDescription(scoreShort);
+
+                uk.ac.ebi.pride.jmztab.model.Param scoreParam;
+
+                if (scoreType.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+                    scoreParam = new uk.ac.ebi.pride.jmztab.model.UserParam(
+                            piaModeller.getPSMModeller().getScoreName(scoreShort),
+                            "");
+                } else {
+                    scoreParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                            scoreType.getCvAccession(),
+                            scoreType.getCvName(),
+                            "");
+                }
+
+                mtd.addPsmSearchEngineScoreParam(scoreID, scoreParam);
+                psmScoreShortToId.put(scoreShort, scoreID);
+            }
+        }
+    }
+
 
 
     /**
@@ -1310,10 +1319,9 @@ public class MzTabExporter {
     private void writeProteins(List<ReportProtein> report,
             Map<String, PSMReportItem> reportPSMs) throws IOException {
         // initialize the columns
-        MZTabColumnFactory columnFactory =
-                MZTabColumnFactory.getInstance(Section.Protein_Header);
-
+        MZTabColumnFactory columnFactory = MZTabColumnFactory.getInstance(Section.Protein_Header);
         columnFactory.addDefaultStableColumns();
+        columnFactory.addBestSearchEngineScoreOptionalColumn(ProteinColumn.BEST_SEARCH_ENGINE_SCORE, piaProteinScoreID);
 
         Map<String, Boolean> psmSetSettings = piaModeller.getPSMModeller().getPSMSetSettings();
 
@@ -1330,14 +1338,6 @@ public class MzTabExporter {
             columnFactory.addOptionalColumn(ProteinColumn.NUM_PSMS, msRun);
             columnFactory.addOptionalColumn(ProteinColumn.NUM_PEPTIDES_DISTINCT, msRun);
         }
-
-        // add the PIA protein score
-        CVParam proteinScoreColumnParam =
-                new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
-                        OntologyConstants.PIA_PROTEIN_SCORE.getPsiAccession(),
-                        OntologyConstants.PIA_PROTEIN_SCORE.getPsiName(),
-                        null);
-        columnFactory.addOptionalColumn(proteinScoreColumnParam, Double.class);
 
         // add FDR value, if calculated
         CVParam fdrColumnParam = null;
@@ -1359,201 +1359,220 @@ public class MzTabExporter {
         }
 
         // add custom column for nr_peptides
-        CVParam nrPeptidesColumnParam =
-                new CVParam("MS", "MS:1001097", "distinct peptide sequences", null);
+        CVParam nrPeptidesColumnParam = new CVParam("MS", "MS:1001097", "distinct peptide sequences", null);
         columnFactory.addOptionalColumn(nrPeptidesColumnParam, Integer.class);
 
         // add custom column for nr_psms
-        columnFactory.addOptionalColumn(
-                PIAConstants.MZTAB_NR_PSMS_COLUMN_NAME, Integer.class);
+        columnFactory.addOptionalColumn(PIAConstants.MZTAB_NR_PSMS_COLUMN_NAME, Integer.class);
 
         // add custom column for nr_spectra
-        columnFactory.addOptionalColumn(
-                PIAConstants.MZTAB_NR_SPECTRA_COLUMN_NAME, Integer.class);
+        columnFactory.addOptionalColumn(PIAConstants.MZTAB_NR_SPECTRA_COLUMN_NAME, Integer.class);
 
         outWriter.append(columnFactory.toString());
         outWriter.append(MZTabConstants.NEW_LINE);
 
         // cache the databaseRefs to an array with name and version
-        Map<String, String[]> dbRefToDbNameAndVersion =
-                new HashMap<>();
+        Map<String, String[]> dbRefToDbNameAndVersion = new HashMap<>();
 
         for (ReportProtein reportProtein : report) {
-            Protein mzTabProtein = new Protein(columnFactory);
-
-            Accession representative = reportProtein.getRepresentative();
-            mzTabProtein.setAccession(representative.getAccession());
-
-            // just take one description
-            for (String desc : representative.getDescriptions().values()) {
-                if (desc.trim().length() > 0) {
-                    mzTabProtein.setDescription(desc);
-                    break;
-                }
-            }
-
-            // set the first available dbName and dbVersion of the representative
-            for (String dbRef : representative.getSearchDatabaseRefs()) {
-                String[] nameAndVersion = dbRefToDbNameAndVersion.get(dbRef);
-                // cache the name and version of databases
-                if (nameAndVersion == null) {
-                    SearchDatabase sDB = piaModeller.getSearchDatabases().get(dbRef);
-
-                    if (sDB.getDatabaseName() != null) {
-                        nameAndVersion = new String[2];
-                        if (sDB.getDatabaseName().getCvParam() != null) {
-                            nameAndVersion[0] =
-                                    sDB.getDatabaseName().getCvParam().getName();
-                        } else if (sDB.getDatabaseName().getUserParam() != null) {
-                            nameAndVersion[0] =
-                                    sDB.getDatabaseName().getUserParam().getName();
-                        }
-                        nameAndVersion[1] = sDB.getVersion();
-
-                    } else if (sDB.getName() != null) {
-                        nameAndVersion = new String[2];
-                        nameAndVersion[0] = sDB.getName();
-                        nameAndVersion[1] = sDB.getVersion();
-                    } else {
-                        nameAndVersion = new String[1];
-                        nameAndVersion[0] = null;
-                    }
-
-                    dbRefToDbNameAndVersion.put(dbRef, nameAndVersion);
-                }
-
-                if (nameAndVersion[0] != null) {
-                    mzTabProtein.setDatabase(nameAndVersion[0]);
-                    mzTabProtein.setDatabaseVersion(nameAndVersion[1]);
-                }
-            }
-
-            Set<String> usedSoftwareRefs = new HashSet<>();
-
-            Map<Integer, Integer> msRunIdToNumPSMs =
-                    new HashMap<>();
-
-            Map<Integer, Set<String>> msRunIdToDistinctPeptides =
-                    new HashMap<>();
-
-            // go through each peptide and PSM of the protein and collect information
-            for (ReportPeptide reportPeptide : reportProtein.getPeptides()) {
-                for (PSMReportItem reportItem : reportPeptide.getPSMs()) {
-                    if (reportItem instanceof ReportPSMSet) {
-
-                        for (ReportPSM reportPSM
-                                : ((ReportPSMSet) reportItem).getPSMs()) {
-                            // get the used search engine for this PSM
-                            usedSoftwareRefs.add(reportPSM.getFile().
-                                    getAnalysisProtocolCollection().
-                                    getSpectrumIdentificationProtocol().get(0).
-                                    getAnalysisSoftwareRef());
-
-                            String specIdRef = reportPSM.getSpectrum().
-                                    getSpectrumIdentification().getId();
-
-                            if (specIdRefToMsRuns.get(specIdRef) != null) {
-                                // increase the numPSMs of the the msRun(s)
-                                for (MsRun msRun : specIdRefToMsRuns.get(specIdRef)) {
-                                    Integer id = msRun.getId();
-
-                                    if (msRunIdToNumPSMs.containsKey(id)) {
-                                        msRunIdToNumPSMs.put(id, msRunIdToNumPSMs.get(id) + 1);
-                                    } else {
-                                        msRunIdToNumPSMs.put(id, 0);
-                                    }
-
-                                    Set<String> disctinctPeptides =
-                                            msRunIdToDistinctPeptides.get(msRun.getId());
-                                    if (disctinctPeptides == null) {
-                                        disctinctPeptides = new HashSet<>(
-                                                reportProtein.getNrPeptides());
-                                        msRunIdToDistinctPeptides.put(
-                                                msRun.getId(), disctinctPeptides);
-                                    }
-                                    disctinctPeptides.add(reportPSM.getSequence());
-                                }
-                            }
-                        }
-
-                        // add the PSM set to the PSM map
-                        String psmKey = reportItem.getIdentificationKey(psmSetSettings);
-                        if (!reportPSMs.containsKey(psmKey)) {
-                            reportPSMs.put(psmKey, reportItem);
-                        }
-                    } else {
-                        LOGGER.error(
-                                "item in ReportPeptide should NOT be ReportPSM");
-                    }
-                }
-            }
-
-            // add the search engines, which is always PIA
-            mzTabProtein.addSearchEngineParam(piaParam);
-
-            // set the PIA protein score
-            mzTabProtein.setOptionColumnValue(proteinScoreColumnParam, reportProtein.getScore());
-
-            // the protein score for each search engine's identification is not collected
-            //mzTabProtein.addSearchEngineScoreParam(msRun, param)
-
-            // get the protein FDR, if calculated, and set the reliability
-            if (fdrColumnParam != null) {
-                if (reportProtein.getQValue() <= 0.01) {
-                    mzTabProtein.setReliability(Reliability.High);
-                } else if (reportProtein.getQValue() <= 0.05) {
-                    mzTabProtein.setReliability(Reliability.Medium);
-                } else {
-                    mzTabProtein.setReliability(Reliability.Poor);
-                }
-
-                mzTabProtein.setOptionColumnValue(fdrColumnParam, reportProtein.getFDR());
-                mzTabProtein.setOptionColumnValue(qvalueColumnParam, reportProtein.getQValue());
-            }
-
-            for (Map.Entry<Integer, MsRun> msRunIt : msRunMap.entrySet()) {
-                Integer msRunID = msRunIt.getValue().getId();
-                // set the num_psms_ms_run
-                if (msRunIdToNumPSMs.containsKey(msRunID)) {
-                    mzTabProtein.setNumPSMs(msRunIt.getValue(),
-                            msRunIdToNumPSMs.get(msRunID));
-                } else {
-                    mzTabProtein.setNumPSMs(msRunIt.getValue(), 0);
-                }
-
-                if (msRunIdToDistinctPeptides.containsKey(msRunID)) {
-                    mzTabProtein.setNumPeptidesDistinct(msRunIt.getValue(),
-                            msRunIdToDistinctPeptides.get(msRunID).size());
-                } else {
-                    mzTabProtein.setNumPeptidesDistinct(msRunIt.getValue(), 0);
-                }
-            }
-
-            reportProtein.getAccessions().stream().filter(ambiguityMember -> !ambiguityMember.equals(representative)).forEach(ambiguityMember -> mzTabProtein.addAmbiguityMembers(
-                    ambiguityMember.getAccession()));
-
-            // TODO: perhaps add modifications with mzTabProtein.addModification(modification);
-
-            Double coverage =
-                    reportProtein.getCoverage(representative.getAccession());
-            if (!coverage.equals(Double.NaN)) {
-                mzTabProtein.setProteinConverage(coverage);
-            }
-
-            mzTabProtein.setOptionColumnValue(nrPeptidesColumnParam,
-                    reportProtein.getNrPeptides());
-
-            mzTabProtein.setOptionColumnValue(
-                    PIAConstants.MZTAB_NR_PSMS_COLUMN_NAME,
-                    reportProtein.getNrPSMs());
-
-            mzTabProtein.setOptionColumnValue(
-                    PIAConstants.MZTAB_NR_SPECTRA_COLUMN_NAME,
-                    reportProtein.getNrSpectra());
+            Protein mzTabProtein = createMzTabProtein(reportProtein, columnFactory, dbRefToDbNameAndVersion, reportPSMs,
+                    psmSetSettings, msRunMap,
+                    fdrColumnParam, qvalueColumnParam, nrPeptidesColumnParam);
 
             outWriter.append(mzTabProtein.toString());
             outWriter.append(MZTabConstants.NEW_LINE);
         }
+    }
+
+
+    /**
+     * Create a mzTab protein for the report
+     *
+     * @param reportProtein
+     * @param proteinColumnFactory
+     * @param dbRefToDbNameAndVersion
+     * @param reportPSMs
+     * @param psmSetSettings
+     * @param msRunMap
+     * @param proteinScoreColumnParam
+     * @param fdrColumnParam
+     * @param qvalueColumnParam
+     * @param nrPeptidesColumnParam
+     * @return
+     */
+    private Protein createMzTabProtein(ReportProtein reportProtein, MZTabColumnFactory proteinColumnFactory,
+            Map<String, String[]> dbRefToDbNameAndVersion, Map<String, PSMReportItem> reportPSMs,
+            Map<String, Boolean> psmSetSettings, Map<Integer, MsRun> msRunMap,
+            CVParam fdrColumnParam, CVParam qvalueColumnParam,
+            CVParam nrPeptidesColumnParam) {
+        Protein mzTabProtein = new Protein(proteinColumnFactory);
+
+        Accession representative = reportProtein.getRepresentative();
+        mzTabProtein.setAccession(representative.getAccession());
+
+        // just take one description
+        for (String desc : representative.getDescriptions().values()) {
+            if (desc.trim().length() > 0) {
+                mzTabProtein.setDescription(desc);
+                break;
+            }
+        }
+
+        // set the first available dbName and dbVersion of the representative
+        for (String dbRef : representative.getSearchDatabaseRefs()) {
+            String[] nameAndVersion = dbRefToDbNameAndVersion.get(dbRef);
+            // cache the name and version of databases
+            if (nameAndVersion == null) {
+                SearchDatabase sDB = piaModeller.getSearchDatabases().get(dbRef);
+
+                if (sDB.getDatabaseName() != null) {
+                    nameAndVersion = new String[2];
+                    if (sDB.getDatabaseName().getCvParam() != null) {
+                        nameAndVersion[0] =
+                                sDB.getDatabaseName().getCvParam().getName();
+                    } else if (sDB.getDatabaseName().getUserParam() != null) {
+                        nameAndVersion[0] =
+                                sDB.getDatabaseName().getUserParam().getName();
+                    }
+                    nameAndVersion[1] = sDB.getVersion();
+
+                } else if (sDB.getName() != null) {
+                    nameAndVersion = new String[2];
+                    nameAndVersion[0] = sDB.getName();
+                    nameAndVersion[1] = sDB.getVersion();
+                } else {
+                    nameAndVersion = new String[1];
+                    nameAndVersion[0] = null;
+                }
+
+                dbRefToDbNameAndVersion.put(dbRef, nameAndVersion);
+            }
+
+            if (nameAndVersion[0] != null) {
+                mzTabProtein.setDatabase(nameAndVersion[0]);
+                mzTabProtein.setDatabaseVersion(nameAndVersion[1]);
+            }
+        }
+
+        Set<String> usedSoftwareRefs = new HashSet<>();
+        Map<Integer, Integer> msRunIdToNumPSMs = new HashMap<>();
+        Map<Integer, Set<String>> msRunIdToDistinctPeptides = new HashMap<>();
+
+        // go through each peptide and PSM of the protein and collect information
+        for (ReportPeptide reportPeptide : reportProtein.getPeptides()) {
+            for (PSMReportItem reportItem : reportPeptide.getPSMs()) {
+                if (reportItem instanceof ReportPSMSet) {
+
+                    for (ReportPSM reportPSM
+                            : ((ReportPSMSet) reportItem).getPSMs()) {
+                        // get the used search engine for this PSM
+                        usedSoftwareRefs.add(reportPSM.getFile().
+                                getAnalysisProtocolCollection().
+                                getSpectrumIdentificationProtocol().get(0).
+                                getAnalysisSoftwareRef());
+
+                        String specIdRef = reportPSM.getSpectrum().
+                                getSpectrumIdentification().getId();
+
+                        if (specIdRefToMsRuns.get(specIdRef) != null) {
+                            // increase the numPSMs of the the msRun(s)
+                            for (MsRun msRun : specIdRefToMsRuns.get(specIdRef)) {
+                                Integer id = msRun.getId();
+
+                                if (msRunIdToNumPSMs.containsKey(id)) {
+                                    msRunIdToNumPSMs.put(id, msRunIdToNumPSMs.get(id) + 1);
+                                } else {
+                                    msRunIdToNumPSMs.put(id, 0);
+                                }
+
+                                Set<String> disctinctPeptides =
+                                        msRunIdToDistinctPeptides.get(msRun.getId());
+                                if (disctinctPeptides == null) {
+                                    disctinctPeptides = new HashSet<>(
+                                            reportProtein.getNrPeptides());
+                                    msRunIdToDistinctPeptides.put(
+                                            msRun.getId(), disctinctPeptides);
+                                }
+                                disctinctPeptides.add(reportPSM.getSequence());
+                            }
+                        }
+                    }
+
+                    // add the PSM set to the PSM map
+                    String psmKey = reportItem.getIdentificationKey(psmSetSettings);
+                    if (!reportPSMs.containsKey(psmKey)) {
+                        reportPSMs.put(psmKey, reportItem);
+                    }
+                } else {
+                    LOGGER.error(
+                            "item in ReportPeptide should NOT be ReportPSM");
+                }
+            }
+        }
+
+        // add the search engines, which is always PIA
+        mzTabProtein.addSearchEngineParam(piaParam);
+
+        // set the PIA protein score
+        mzTabProtein.setBestSearchEngineScore(piaProteinScoreID, reportProtein.getScore());
+
+        // the protein score for each search engine's identification is not collected
+        //mzTabProtein.addSearchEngineScoreParam(msRun, param)
+
+        // get the protein FDR, if calculated, and set the reliability
+        if (fdrColumnParam != null) {
+            if (reportProtein.getQValue() <= 0.01) {
+                mzTabProtein.setReliability(Reliability.High);
+            } else if (reportProtein.getQValue() <= 0.05) {
+                mzTabProtein.setReliability(Reliability.Medium);
+            } else {
+                mzTabProtein.setReliability(Reliability.Poor);
+            }
+
+            mzTabProtein.setOptionColumnValue(fdrColumnParam, reportProtein.getFDR());
+            mzTabProtein.setOptionColumnValue(qvalueColumnParam, reportProtein.getQValue());
+        }
+
+        for (Map.Entry<Integer, MsRun> msRunIt : msRunMap.entrySet()) {
+            Integer msRunID = msRunIt.getValue().getId();
+            // set the num_psms_ms_run
+            if (msRunIdToNumPSMs.containsKey(msRunID)) {
+                mzTabProtein.setNumPSMs(msRunIt.getValue(),
+                        msRunIdToNumPSMs.get(msRunID));
+            } else {
+                mzTabProtein.setNumPSMs(msRunIt.getValue(), 0);
+            }
+
+            if (msRunIdToDistinctPeptides.containsKey(msRunID)) {
+                mzTabProtein.setNumPeptidesDistinct(msRunIt.getValue(),
+                        msRunIdToDistinctPeptides.get(msRunID).size());
+            } else {
+                mzTabProtein.setNumPeptidesDistinct(msRunIt.getValue(), 0);
+            }
+        }
+
+        reportProtein.getAccessions().stream().filter(ambiguityMember -> !ambiguityMember.equals(representative)).forEach(ambiguityMember -> mzTabProtein.addAmbiguityMembers(
+                ambiguityMember.getAccession()));
+
+        // TODO: perhaps add modifications with mzTabProtein.addModification(modification);
+
+        Double coverage = reportProtein.getCoverage(representative.getAccession());
+        if (!coverage.equals(Double.NaN)) {
+            mzTabProtein.setProteinConverage(coverage);
+        }
+
+        mzTabProtein.setOptionColumnValue(nrPeptidesColumnParam,
+                reportProtein.getNrPeptides());
+
+        mzTabProtein.setOptionColumnValue(
+                PIAConstants.MZTAB_NR_PSMS_COLUMN_NAME,
+                reportProtein.getNrPSMs());
+
+        mzTabProtein.setOptionColumnValue(
+                PIAConstants.MZTAB_NR_SPECTRA_COLUMN_NAME,
+                reportProtein.getNrSpectra());
+
+        return mzTabProtein;
     }
 
 
