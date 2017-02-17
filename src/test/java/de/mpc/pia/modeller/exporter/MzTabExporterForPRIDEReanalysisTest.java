@@ -70,8 +70,8 @@ public class MzTabExporterForPRIDEReanalysisTest {
         // export to mzTab file
         // and export the peptide level statistics, but no filtering (i.e. peptide level FDR values may be null)
         MzTabExporter exporter = new MzTabExporter(piaModeller);
-        File exportFile = new File("/mnt/data/uniNOBACKUP/PIA/PXD001428/PXD001428_0.01_peptide_level_fdr.mzTab");
-        assertTrue(exporter.exportToMzTab(0L, exportFile, false, true, false));
+        File exportFile = new File("/tmp/PXD001428_0.01_peptide_level_fdr.mzTab");
+        assertTrue(exporter.exportToMzTab(0L, exportFile, false, true, false, true));
 
         //exportFile.delete();
     }
@@ -127,7 +127,7 @@ public class MzTabExporterForPRIDEReanalysisTest {
         // export to mzTab file
         // and export the peptide level statistics, but no filtering (i.e. peptide level FDR values may be null)
         MzTabExporter exporter = new MzTabExporter(piaModeller);
-        File exportFile = new File("/tmp/0.01_pep_level_fdr_occams_razor.mzTab");
-        assertTrue(exporter.exportToMzTab(0L, exportFile, true, true, false));
+        File exportFile = new File("/tmp/PXD001428_0.01_pep_level_fdr_occams_razor.mzTab");
+        assertTrue(exporter.exportToMzTab(0L, exportFile, true, true, false, true));
     }
 }
