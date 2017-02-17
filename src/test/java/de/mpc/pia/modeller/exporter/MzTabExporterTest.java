@@ -79,7 +79,7 @@ public class MzTabExporterTest {
         MzTabExporter exporter = new MzTabExporter(piaModeller);
         File exportFile = File.createTempFile("pia_testMzTabExporter", ".mzTab");
 
-        assertTrue(exporter.exportToMzTab(0L, exportFile, true, true, false));
+        assertTrue(exporter.exportToMzTab(0L, exportFile, true, true, false, false));
 
         exportFile.delete();
     }
@@ -111,7 +111,7 @@ public class MzTabExporterTest {
         // export to mzTab file
         MzTabExporter exporter = new MzTabExporter(piaModeller);
         File exportFile = File.createTempFile("pia_testPeptideLevelExport", ".mzTab");
-        assertTrue(exporter.exportToMzTab(0L, exportFile, false, true, false));
+        assertTrue(exporter.exportToMzTab(0L, exportFile, false, true, false, false));
 
         exportFile.delete();
     }
