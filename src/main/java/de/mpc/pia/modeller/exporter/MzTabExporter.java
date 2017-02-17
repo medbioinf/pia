@@ -124,8 +124,17 @@ public class MzTabExporter {
     /** mapping from the peptide sequence to the accessions and occurrences [pre, post, start, stop]*/
     private Map<String, Map<String, String[]>> peptideOccurrences;
 
+    /** column parameter for FDR column */
+    private CVParam fdrColumnParam;
 
-    // TODO: best_search_engine_score[] on protein level
+    /** column parameter for FDR q-value column */
+    private CVParam qvalueColumnParam;
+
+    /** column parameter for nr peptides (of protein) column */
+    private CVParam nrPeptidesColumnParam;
+
+    /** column parameter for amino acid sequence column */
+    private CVParam aminoAcidSequenceColumnParam;
 
 
     /**
@@ -145,10 +154,17 @@ public class MzTabExporter {
     public boolean exportToMzTab(Long fileID, File exportFile,
             boolean proteinLevel, boolean peptideLevelStatistics,
             boolean filterExport) {
+        return exportToMzTab(fileID, exportFile, proteinLevel, peptideLevelStatistics, filterExport, false);
+    }
+
+
+    public boolean exportToMzTab(Long fileID, File exportFile,
+            boolean proteinLevel, boolean peptideLevelStatistics,
+            boolean filterExport, boolean exportProteinSequences) {
         try {
             FileOutputStream fos;
             fos = new FileOutputStream(exportFile);
-            return exportToMzTab(fileID, fos, proteinLevel, peptideLevelStatistics, filterExport);
+            return exportToMzTab(fileID, fos, proteinLevel, peptideLevelStatistics, filterExport, exportProteinSequences);
         } catch (IOException ex) {
             LOGGER.error("Error writing  mzTab to " + exportFile.getAbsolutePath(), ex);
             return false;
@@ -166,16 +182,28 @@ public class MzTabExporter {
 
     public boolean exportToMzTab(Long fileID, OutputStream exportStream,
             boolean proteinLevel, boolean peptideLevelStatistics, boolean filterExport) {
+        return exportToMzTab(fileID, exportStream, proteinLevel, peptideLevelStatistics, filterExport, false);
+    }
+
+
+    public boolean exportToMzTab(Long fileID, OutputStream exportStream,
+            boolean proteinLevel, boolean peptideLevelStatistics, boolean filterExport, boolean exportProteinSequences) {
         boolean exportOK;
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(exportStream));
-            exportOK = exportToMzTab(fileID, writer, proteinLevel, peptideLevelStatistics, filterExport);
+            exportOK = exportToMzTab(fileID, writer, proteinLevel, peptideLevelStatistics, filterExport, exportProteinSequences);
             writer.close();
         } catch (IOException e) {
             LOGGER.error("Error while exporting to mzTab", e);
             exportOK = false;
         }
         return exportOK;
+    }
+
+
+    public boolean exportToMzTab(Long fileID, Writer exportWriter,
+            boolean proteinLevel, boolean peptideLevelStatistics, boolean filterExport) {
+        return exportToMzTab(fileID, exportWriter, proteinLevel, peptideLevelStatistics, filterExport, false);
     }
 
 
@@ -191,7 +219,8 @@ public class MzTabExporter {
      * @return
      */
     public boolean exportToMzTab(Long fileID, Writer exportWriter,
-            boolean proteinLevel, boolean peptideLevelStatistics, boolean filterExport) {
+            boolean proteinLevel, boolean peptideLevelStatistics, boolean filterExport,
+            boolean exportProteinSequences) {
         boolean error = false;
         exportFileID = fileID;
 
@@ -253,12 +282,11 @@ public class MzTabExporter {
                 if (proteinList == null) {
                     LOGGER.warn("No report protein list, probably inference was not run.");
                 } else {
-                    Map<String, PSMReportItem> reportPSMsMap =
-                            new HashMap<>();
+                    Map<String, PSMReportItem> reportPSMsMap = new HashMap<>();
 
                     // write out the proteins
                     outWriter.append(MZTabConstants.NEW_LINE);
-                    writeProteins(proteinList, reportPSMsMap);
+                    writeProteins(proteinList, reportPSMsMap, exportProteinSequences);
 
                     reportPSMs = new ArrayList<>(reportPSMsMap.values());
                     exportReliabilitycolumn = piaModeller.getPSMModeller().isCombinedFDRScoreCalculated();
@@ -807,8 +835,7 @@ public class MzTabExporter {
      * @param mtd
      * @return
      */
-    private ParamList preprocessAdditionalParams(ParamList paramList,
-                                                 Metadata mtd) {
+    private ParamList preprocessAdditionalParams(ParamList paramList, Metadata mtd) {
         if (paramList == null) {
             return new ParamList();
         }
@@ -1317,13 +1344,17 @@ public class MzTabExporter {
      * @throws IOException
      */
     private void writeProteins(List<ReportProtein> report,
-            Map<String, PSMReportItem> reportPSMs) throws IOException {
+            Map<String, PSMReportItem> reportPSMs, boolean exportSequences) throws IOException {
         // initialize the columns
         MZTabColumnFactory columnFactory = MZTabColumnFactory.getInstance(Section.Protein_Header);
         columnFactory.addDefaultStableColumns();
         columnFactory.addBestSearchEngineScoreOptionalColumn(ProteinColumn.BEST_SEARCH_ENGINE_SCORE, piaProteinScoreID);
 
         Map<String, Boolean> psmSetSettings = piaModeller.getPSMModeller().getPSMSetSettings();
+
+        aminoAcidSequenceColumnParam = null;
+        fdrColumnParam = null;
+        qvalueColumnParam = null;
 
         // cache the msRuns
         Map<Integer, MsRun> msRunMap = new HashMap<>();
@@ -1340,8 +1371,7 @@ public class MzTabExporter {
         }
 
         // add FDR value, if calculated
-        CVParam fdrColumnParam = null;
-        CVParam qvalueColumnParam = null;
+
         if (piaModeller.getProteinModeller().getFDRData().getNrItems() != null) {
             columnFactory.addReliabilityOptionalColumn();
 
@@ -1359,7 +1389,7 @@ public class MzTabExporter {
         }
 
         // add custom column for nr_peptides
-        CVParam nrPeptidesColumnParam = new CVParam("MS", "MS:1001097", "distinct peptide sequences", null);
+        nrPeptidesColumnParam = new CVParam("MS", "MS:1001097", "distinct peptide sequences", null);
         columnFactory.addOptionalColumn(nrPeptidesColumnParam, Integer.class);
 
         // add custom column for nr_psms
@@ -1368,6 +1398,14 @@ public class MzTabExporter {
         // add custom column for nr_spectra
         columnFactory.addOptionalColumn(PIAConstants.MZTAB_NR_SPECTRA_COLUMN_NAME, Integer.class);
 
+        if (exportSequences) {
+            aminoAcidSequenceColumnParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
+                    OntologyConstants.AMINOACID_SEQUENCE.getPsiAccession(),
+                    OntologyConstants.AMINOACID_SEQUENCE.getPsiName(),
+                    null);
+            columnFactory.addOptionalColumn(aminoAcidSequenceColumnParam, String.class);
+        }
+
         outWriter.append(columnFactory.toString());
         outWriter.append(MZTabConstants.NEW_LINE);
 
@@ -1375,9 +1413,8 @@ public class MzTabExporter {
         Map<String, String[]> dbRefToDbNameAndVersion = new HashMap<>();
 
         for (ReportProtein reportProtein : report) {
-            Protein mzTabProtein = createMzTabProtein(reportProtein, columnFactory, dbRefToDbNameAndVersion, reportPSMs,
-                    psmSetSettings, msRunMap,
-                    fdrColumnParam, qvalueColumnParam, nrPeptidesColumnParam);
+            Protein mzTabProtein = createMzTabProtein(reportProtein, columnFactory, dbRefToDbNameAndVersion,
+                    reportPSMs, psmSetSettings, msRunMap);
 
             outWriter.append(mzTabProtein.toString());
             outWriter.append(MZTabConstants.NEW_LINE);
@@ -1402,11 +1439,10 @@ public class MzTabExporter {
      */
     private Protein createMzTabProtein(ReportProtein reportProtein, MZTabColumnFactory proteinColumnFactory,
             Map<String, String[]> dbRefToDbNameAndVersion, Map<String, PSMReportItem> reportPSMs,
-            Map<String, Boolean> psmSetSettings, Map<Integer, MsRun> msRunMap,
-            CVParam fdrColumnParam, CVParam qvalueColumnParam,
-            CVParam nrPeptidesColumnParam) {
+            Map<String, Boolean> psmSetSettings, Map<Integer, MsRun> msRunMap) {
         Protein mzTabProtein = new Protein(proteinColumnFactory);
 
+        // TODO: better choice of representative
         Accession representative = reportProtein.getRepresentative();
         mzTabProtein.setAccession(representative.getAccession());
 
@@ -1551,8 +1587,9 @@ public class MzTabExporter {
             }
         }
 
-        reportProtein.getAccessions().stream().filter(ambiguityMember -> !ambiguityMember.equals(representative)).forEach(ambiguityMember -> mzTabProtein.addAmbiguityMembers(
-                ambiguityMember.getAccession()));
+        reportProtein.getAccessions().stream()
+                .filter(ambiguityMember -> !ambiguityMember.equals(representative))
+                .forEach(ambiguityMember -> mzTabProtein.addAmbiguityMembers(ambiguityMember.getAccession()));
 
         // TODO: perhaps add modifications with mzTabProtein.addModification(modification);
 
@@ -1571,6 +1608,10 @@ public class MzTabExporter {
         mzTabProtein.setOptionColumnValue(
                 PIAConstants.MZTAB_NR_SPECTRA_COLUMN_NAME,
                 reportProtein.getNrSpectra());
+
+        if (aminoAcidSequenceColumnParam != null) {
+            mzTabProtein.setOptionColumnValue(aminoAcidSequenceColumnParam, representative.getDbSequence());
+        }
 
         return mzTabProtein;
     }
