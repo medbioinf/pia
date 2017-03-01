@@ -4,15 +4,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import de.mpc.pia.modeller.PIAModeller;
 import de.mpc.pia.modeller.PeptideModeller;
+import de.mpc.pia.modeller.execute.CommandTools;
 import de.mpc.pia.modeller.execute.ExecuteModelCommands;
 import de.mpc.pia.modeller.execute.xmlparams.ITEMType;
 import de.mpc.pia.modeller.execute.xmlparams.NODEType;
@@ -38,12 +39,11 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
 
         @Override
         public boolean execute(PeptideModeller peptideModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
 
             Boolean considerModifications = null;
 
-            if ((params != null)
-                    && (params.length > 0)
+            if ((params != null) && (params.length > 0)
                     && (params[0] != null)) {
                 considerModifications = "true".equals(params[0]) || "yes".equals(params[0]);
             }
@@ -111,12 +111,11 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
 
         @Override
         public boolean execute(PeptideModeller peptideModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
 
             boolean negate = false;
 
-            if ((params.length >= 5)
-                    && (params[4] != null)
+            if ((params.length >= 5) && (params[4] != null)
                     && ("true".equals(params[4]) || "yes".equals(params[4]))) {
                 negate = true;
             }
@@ -226,89 +225,80 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
 
 
     Export {
+        /** the identification string for the fileName */
+        private static final String ID_FILENAME_STRING = "fileName";
+
+        /** the identification string for the format */
+        private static final String ID_FORMAT_STRING = "format";
+
+        /** the identification string for the format */
+        private static final String ID_FILE_ID = "fileID";
+
         @Override
         public boolean execute(PeptideModeller peptideModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
 
-            String format = "csv";
-            Long fileID = 0L;
-            String fileName = "report.peptide.csv";
-            boolean oneAccessionPerLine = false;
-            boolean exportPSMSets = false;
-            boolean exportPSMs = false;
+            Map<String, String> commandMap = CommandTools.parseCommands(params);
+            String fileName;
+            String format;
+            Long fileID;
 
-            Pattern pattern = Pattern.compile("^([^=]+)=(.*)");
-            Matcher commandParamMatcher;
-
-            for (String command : params) {
-                String[] commandParams = null;
-                commandParamMatcher = pattern.matcher(command);
-
-                if (commandParamMatcher.matches()) {
-                    command = commandParamMatcher.group(1);
-                    commandParams = commandParamMatcher.group(2).split(";");
-                }
-
-                if ("format".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        format = commandParams[0];
-                    }
-                } else if ("fileID".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        fileID = Long.parseLong(commandParams[0]);
-                    }
-                } else if ("fileName".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        fileName = commandParams[0];
-                    }
-                } else if ("oneAccessionPerLine".equals(command)) {
-                    oneAccessionPerLine = !((commandParams != null) &&
-                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
-// only setting the flag is equivalent to true
-                } else if ("exportPSMSets".equals(command)) {
-                    exportPSMSets = !((commandParams != null) &&
-                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
-// only setting the flag is equivalent to true
-                } else if ("exportPSMs".equals(command)) {
-                    exportPSMs = !((commandParams != null) && (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
-                    // only setting the flag is equivalent to true
-                }
+            if (commandMap.containsKey(ID_FORMAT_STRING)) {
+                format = commandMap.get(ID_FORMAT_STRING);
+                commandMap.remove(ID_FORMAT_STRING);
+            } else {
+                format = "csv";
             }
 
-            LOGGER.info("export parameters: " +
-                    "filename: " + fileName +
-                    ", fileID: " + fileID +
-                    ", format: " + format +
-                    ", oneAccessionPerLine: " + oneAccessionPerLine +
-                    ", exportPSMSets: " + exportPSMSets +
-                    ", exportPSMs:" + exportPSMs);
+            if (commandMap.containsKey(ID_FILENAME_STRING)) {
+                fileName = commandMap.get(ID_FILENAME_STRING);
+                commandMap.remove(ID_FILENAME_STRING);
+            } else {
+                fileName = "report-peptides." + format;
+            }
 
-            Writer writer = null;
-            try {
-                writer = new FileWriter(fileName, false);
+            if (commandMap.containsKey(ID_FILE_ID)) {
+                try {
+                    fileID = Long.parseLong(commandMap.get(ID_FILE_ID));
+                } catch (NumberFormatException e) {
+                    LOGGER.error("could not parse " + ID_FILE_ID + "=" + commandMap.get(ID_FILE_ID), e);
+                    fileID = 0L;
+                }
+                commandMap.remove(ID_FILE_ID);
+            } else {
+                fileID = 0L;
+            }
 
-                if ((format == null)
-                        || (format.trim().length() == 0)
-                        || "csv".equalsIgnoreCase(format)) {
+            boolean oneAccessionPerLine = CommandTools.checkYesNoCommand("oneAccessionPerLine", commandMap);
+            boolean exportPSMSets = CommandTools.checkYesNoCommand("exportPSMSets", commandMap);
+            boolean exportPSMs = CommandTools.checkYesNoCommand("exportPSMs", commandMap);
+
+            boolean exportOK = true;
+
+            if ("csv".equalsIgnoreCase(format)) {
+                // export to CSV
+                LOGGER.info("export parameters: " +
+                        "filename: " + fileName +
+                        ", fileID: " + fileID +
+                        ", format: " + format +
+                        ", oneAccessionPerLine: " + oneAccessionPerLine +
+                        ", exportPSMSets: " + exportPSMSets +
+                        ", exportPSMs:" + exportPSMs);
+
+                try (Writer writer = new FileWriter(fileName, false)) {
                     peptideModeller.exportCSV(writer, fileID, true,
                             oneAccessionPerLine, exportPSMSets, exportPSMs);
+                    writer.close();
+                } catch (IOException e) {
+                    LOGGER.error("Cannot write to file " + fileName, e);
+                    exportOK = false;
                 }
-            } catch (IOException e) {
-                LOGGER.error("Cannot write to file " + fileName, e);
-            } finally {
-                if (writer != null) {
-                    try {
-                        writer.close();
-                    } catch (IOException e) {
-                        LOGGER.error("Cannot close file " + fileName, e);
-                    }
-                }
+            } else {
+                LOGGER.error("unsupported format: " + format);
+                exportOK = false;
             }
 
-            return true;
+            return exportOK;
         }
 
         @Override
@@ -391,6 +381,20 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
     @Override
     public String prefix() {
         return getPrefix();
+    }
+
+
+    /**
+     * log the execution parameters
+     *
+     * @param params
+     */
+    protected void logParams(String[] params) {
+        String[] logParams = params;
+        if (logParams == null) {
+            logParams = new String[0];
+        }
+        LOGGER.info(LOGGING_PREAMBEL + name() + " --- " + Arrays.asList(logParams));
     }
 
 

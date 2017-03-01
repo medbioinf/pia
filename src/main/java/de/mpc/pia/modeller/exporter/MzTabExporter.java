@@ -180,6 +180,14 @@ public class MzTabExporter {
     }
 
 
+    public boolean exportToMzTab(Long fileID, String exportFileName,
+            boolean proteinLevel, boolean peptideLevelStatistics,
+            boolean filterExport, boolean exportProteinSequences) {
+        File piaFile = new File(exportFileName);
+        return exportToMzTab(fileID, piaFile, proteinLevel, peptideLevelStatistics, filterExport, exportProteinSequences);
+    }
+
+
     public boolean exportToMzTab(Long fileID, OutputStream exportStream,
             boolean proteinLevel, boolean peptideLevelStatistics, boolean filterExport) {
         return exportToMzTab(fileID, exportStream, proteinLevel, peptideLevelStatistics, filterExport, false);
@@ -227,7 +235,9 @@ public class MzTabExporter {
         LOGGER.info("Start writing mzTab export"
                 + "\n\tproteinLevel " + proteinLevel
                 + "\n\tpepLevelStats " + peptideLevelStatistics
-                + "\n\tfiltered " + filterExport);
+                + "\n\tfiltered " + filterExport
+                + "\n\tproteinSequences " + exportProteinSequences
+                );
 
         try (BufferedWriter writer = new BufferedWriter(exportWriter)) {
             outWriter = writer;
@@ -1660,14 +1670,16 @@ public class MzTabExporter {
      * @return
      */
     private ModT getCachedModification(Modification modification) {
-        ModT uniMod;
+        ModT uniMod = null;
 
         // look in accessions cached modifications
         String acc = modification.getAccession();
-        if (acc.startsWith("UNIMOD:")) {
-            acc = acc.substring(7);
+        if (acc != null) {
+            if (acc.startsWith("UNIMOD:")) {
+                acc = acc.substring(7);
+            }
+            uniMod = accessionsToModifications.get(acc);
         }
-        uniMod = accessionsToModifications.get(acc);
 
         if (uniMod == null) {
             // look in the res-mass-cache
@@ -1696,8 +1708,8 @@ public class MzTabExporter {
 
         ModT uniMod = null;
         if (!possibleMods.isEmpty()) {
-            String name = modification.getDescription().trim();
-            if ((name != null) && !name.isEmpty()) {
+            String name = modification.getDescription();
+            if ((name != null) && !name.trim().isEmpty()) {
                 for (ModT mod : possibleMods) {
                     if (UnimodParser.isAnyName(name, mod)) {
                         uniMod = mod;
@@ -1708,7 +1720,6 @@ public class MzTabExporter {
                 // no name is given, return any of the possible modifications
                 uniMod = possibleMods.iterator().next();
             }
-
         }
 
         return uniMod;

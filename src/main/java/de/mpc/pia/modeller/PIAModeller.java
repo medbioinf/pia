@@ -112,8 +112,6 @@ public class PIAModeller implements Serializable {
     private static final String FILE_NAME_PARAM = "fileName=";
     /** constant for format= */
     private static final String FORMAT_PARAM = "format=";
-    /** constant for fileID= */
-    private static final String FILE_ID_PARAM = "fileID=";
 
 
     /*
@@ -763,7 +761,10 @@ public class PIAModeller implements Serializable {
         options.addOption(appendOpt);
 
         Option psmExportOpt = Option.builder(PSM_EXPORT_OPTION)
-                .argName("outfile format [fileID spectralCount]")
+                .argName("outfile "
+                        + "format "
+                        + "[fileID=ID] "
+                        + "[spectralCount=true/false]")
                 .valueSeparator(' ')
                 .hasArg()
                 .optionalArg(true)
@@ -774,7 +775,12 @@ public class PIAModeller implements Serializable {
         options.addOption(psmExportOpt);
 
         Option peptideExportOpt = Option.builder(PEPTIDE_EXPORT_OPTION)
-                .argName("outfile format [fileID exportPSMs exportPSMSets oneAccessionPerLine]")
+                .argName("outfile "
+                        + "format "
+                        + "[fileID=ID] "
+                        + "[exportPSMs=true/false] "
+                        + "[exportPSMSets=true/false] "
+                        + "[oneAccessionPerLine=true/false]")
                 .valueSeparator(' ')
                 .hasArg()
                 .optionalArg(true)
@@ -785,11 +791,17 @@ public class PIAModeller implements Serializable {
         options.addOption(peptideExportOpt);
 
         Option proteinExportOpt = Option.builder(PROTEIN_EXPORT_OPTION)
-                .argName("outfile format [exportPSMs exportPSMSets exportPeptides oneAccessionPerLine]")
+                .argName("outfile "
+                        + "format "
+                        + "[exportPSMs=true/false] "
+                        + "[exportPSMSets=true/false] "
+                        + "[exportPeptides=true/false] "
+                        + "[oneAccessionPerLine=true/false] "
+                        + "[exportProteinSequences=true/false]")
                 .valueSeparator(' ')
                 .hasArg()
                 .optionalArg(true)
-                .numberOfArgs(6)
+                .numberOfArgs(7)
                 .desc( "Exports on the protein level. Only used in combination "
                         + "with infile and paramFile, which should be executed before exporting." )
                 .build();
@@ -931,28 +943,13 @@ public class PIAModeller implements Serializable {
      * @param model
      */
     private static void processPSMExport(String[] params, PIAModeller model) {
-        List<String> paramList = new ArrayList<>();
+        List<String> paramList = processExportOptions(params);
 
-        if ((params.length > 0)
-                && !params[0].trim().isEmpty()) {
-            paramList.add(FILE_NAME_PARAM + params[0]);
-
-            if (params.length > 1) {
-                paramList.add(FORMAT_PARAM + params[1]);
-
-                if (params.length > 2) {
-                    paramList.add(FILE_ID_PARAM + params[2]);
-                }
-
-                if (params.length > 3) {
-                    paramList.add("spectral_count=" +params[3]);
-                }
-
-                PSMExecuteCommands.Export.execute(
-                        model.getPSMModeller(),
-                        model,
-                        paramList.toArray(params));
-            }
+        if (paramList.size() >= 2) {
+            PSMExecuteCommands.Export.execute(
+                    model.getPSMModeller(),
+                    model,
+                    paramList.toArray(params));
         }
     }
 
@@ -963,33 +960,13 @@ public class PIAModeller implements Serializable {
      * @param model
      */
     private static void processPeptideExport(String[] params, PIAModeller model) {
-        List<String> paramList = new ArrayList<>();
+        List<String> paramList = processExportOptions(params);
 
-        if ((params.length > 0)
-                && !params[0].trim().isEmpty()) {
-            paramList.add(FILE_NAME_PARAM + params[0]);
-
-            if (params.length > 1) {
-                paramList.add(FORMAT_PARAM + params[1]);
-
-                if (params.length > 2) {
-                    paramList.add(FILE_ID_PARAM + params[2]);
-                }
-                if (params.length > 3) {
-                    paramList.add("exportPSMs=" + params[3]);
-                }
-                if (params.length > 4) {
-                    paramList.add("exportPSMSets=" + params[4]);
-                }
-                if (params.length > 5) {
-                    paramList.add("oneAccessionPerLine=" + params[5]);
-                }
-
-                PeptideExecuteCommands.Export.execute(
-                        model.getPeptideModeller(),
-                        model,
-                        paramList.toArray(params));
-            }
+        if (paramList.size() >= 2) {
+            PeptideExecuteCommands.Export.execute(
+                    model.getPeptideModeller(),
+                    model,
+                    paramList.toArray(params));
         }
     }
 
@@ -1001,37 +978,39 @@ public class PIAModeller implements Serializable {
      * @param model
      */
     private static void processProteinExport(String[] params, PIAModeller model) {
+        List<String> paramList = processExportOptions(params);
+
+        if (paramList.size() >= 2) {
+            ProteinExecuteCommands.Export.execute(
+                    model.getProteinModeller(),
+                    model,
+                    paramList.toArray(params));
+        }
+    }
+
+
+    /**
+     * Processes the params for export. The first two are mandatory without key, these are the fileName and the format,
+     * in this order. All others are added as they are.
+     *
+     * @param params
+     * @return
+     */
+    private static List<String> processExportOptions(String[] params) {
         List<String> paramList = new ArrayList<>();
 
-        if ((params.length > 0) &&
-                (params[0].trim().length() > 0)) {
+        if (params.length >= 2) {
             paramList.add(FILE_NAME_PARAM + params[0]);
+            paramList.add(FORMAT_PARAM + params[1]);
 
-            if (params.length > 1) {
-                paramList.add(FORMAT_PARAM + params[1]);
-
-                if (params.length > 2) {
-                    paramList.add("exportPSMs=" + params[2]);
+            if (params.length > 2) {
+                for (int idx = 2; idx < params.length; idx++) {
+                    paramList.add(params[idx]);
                 }
-
-                if (params.length > 3) {
-                    paramList.add("exportPSMSets=" + params[3]);
-                }
-
-                if (params.length > 4) {
-                    paramList.add("exportPeptides=" + params[4]);
-                }
-
-                if (params.length > 5) {
-                    paramList.add("oneAccessionPerLine=" + params[5]);
-                }
-
-                ProteinExecuteCommands.Export.execute(
-                        model.getProteinModeller(),
-                        model,
-                        paramList.toArray(params));
             }
         }
+
+        return paramList;
     }
 
 
