@@ -4,16 +4,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import de.mpc.pia.modeller.PIAModeller;
 import de.mpc.pia.modeller.ProteinModeller;
+import de.mpc.pia.modeller.execute.CommandTools;
 import de.mpc.pia.modeller.execute.ExecuteModelCommands;
 import de.mpc.pia.modeller.execute.xmlparams.ITEMType;
 import de.mpc.pia.modeller.execute.xmlparams.NODEType;
@@ -58,7 +59,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public boolean execute(ProteinModeller proteinModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
 
             boolean negate = false;
 
@@ -181,7 +182,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public boolean execute(ProteinModeller proteinModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
 
             boolean negate = false;
 
@@ -301,14 +302,13 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public boolean execute(ProteinModeller proteinModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
 
             if (params.length >= 2) {
                 String inferenceName = params[0];
                 String scoringName = params[1];
 
-                AbstractProteinInference inference =
-                        ProteinInferenceFactory.createInstanceOf(inferenceName);
+                AbstractProteinInference inference = ProteinInferenceFactory.createInstanceOf(inferenceName);
 
                 if (inference != null) {
                     // add any filters
@@ -316,17 +316,12 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
                     // set the scoring
                     AbstractScoring scoring;
-                    scoring = ProteinScoringFactory.getNewInstanceByName(
-                            scoringName, new HashMap<>());
+                    scoring = ProteinScoringFactory.getNewInstanceByName(scoringName, new HashMap<>());
+
                     // set the scoring settings
+
                     if ((params.length > 2) && (params[2] != null)) {
-                        for (String param : params[2].split(";")) {
-                            String[] settingParams = param.split("=");
-                            if (settingParams.length > 1) {
-                                scoring.setSetting(settingParams[0],
-                                        settingParams[1]);
-                            }
-                        }
+                        setScoringSettingsFromParam(scoring, params[2]);
                     }
                     inference.setScoring(scoring);
 
@@ -408,90 +403,125 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                     new String[] {inferenceName, scoringName,
                             "used_score=" + usedScoreName + ";used_spectra=" + usedSpectraName});
         }
+
+
+        /**
+         * Sets the parameters encoded in the string to the given scoring.
+         *
+         * @param scoring
+         * @param params
+         */
+        private void setScoringSettingsFromParam(AbstractScoring scoring, String params) {
+            for (String param : params.split(";")) {
+                String[] settingParams = param.split("=");
+                if (settingParams.length > 1) {
+                    scoring.setSetting(settingParams[0], settingParams[1]);
+                }
+            }
+        }
     },
 
     Export {
+        /** the identification string for the fileName */
+        private static final String ID_FILENAME_STRING = "fileName";
+
+        /** the identification string for the format */
+        private static final String ID_FORMAT_STRING = "format";
+
         @Override
         public boolean execute(ProteinModeller proteinModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
 
-            String format = null;
-            String fileName = null;
-            boolean oneAccessionPerLine = false;
-            boolean exportPeptides = false;
-            boolean exportPSMSets = false;
-            boolean exportPSMs = false;
+            Map<String, String> commandMap = CommandTools.parseCommands(params);
+            String fileName;
+            String format;
 
-            Pattern pattern = Pattern.compile("^([^=]+)=(.*)");
-            Matcher commandParamMatcher;
-
-            for (String command : params) {
-                String[] commandParams = null;
-                commandParamMatcher = pattern.matcher(command);
-
-                if (commandParamMatcher.matches()) {
-                    command = commandParamMatcher.group(1);
-                    commandParams = commandParamMatcher.group(2).split(";");
-                }
-
-                if ("format".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        format = commandParams[0];
-                    }
-                } else if ("fileName".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        fileName = commandParams[0];
-                    }
-                } else if ("oneAccessionPerLine".equals(command)) {
-                    oneAccessionPerLine = !((commandParams != null) &&
-                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
-// only setting the flag is equivalent to true
-                } else if ("exportPeptides".equals(command)) {
-                    exportPeptides = !((commandParams != null) &&
-                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
-// only setting the flag is equivalent to true
-                } else if ("exportPSMSets".equals(command)) {
-                    exportPSMSets = !((commandParams != null) &&
-                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
-// only setting the flag is equivalent to true
-                } else if ("exportPSMs".equals(command)) {
-                    exportPSMs = !((commandParams != null) && (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
-// only setting the flag is equivalent to true
-                }
-            }
-
-            if ((format == null) || (format.trim().length() == 0)) {
+            if (commandMap.containsKey(ID_FORMAT_STRING)) {
+                format = commandMap.get(ID_FORMAT_STRING);
+                commandMap.remove(ID_FORMAT_STRING);
+            } else {
                 format = "mzTab";
             }
-            if (fileName == null) {
+
+            if (commandMap.containsKey(ID_FILENAME_STRING)) {
+                fileName = commandMap.get(ID_FILENAME_STRING);
+                commandMap.remove(ID_FILENAME_STRING);
+            } else {
                 fileName = "report-proteins." + format;
             }
+
 
             LOGGER.info("export parameters: " +
                     "filename: " + fileName +
                     ", format: " + format +
-                    ", exportPSMs:" + exportPSMs +
-                    ", exportPSMSets: " + exportPSMSets +
-                    ", exportPeptides: " + exportPeptides +
-                    ", oneAccessionPerLine: " + oneAccessionPerLine);
+                    ", commands: " + commandMap);
 
+            return writeExport(piaModeller, format, fileName, commandMap);
+        }
+
+
+        /**
+         * Writes the export to the file with the given parameters
+         *
+         * @param piaModeller
+         * @param format
+         * @param fileName
+         * @param commandMap
+         * @return
+         */
+        private boolean writeExport(PIAModeller piaModeller, String format, String fileName,
+                Map<String, String> commandMap) {
             boolean exportOK = true;
-            try {
-                if ("mzTab".equalsIgnoreCase(format)) {
-                    MzTabExporter exporter = new MzTabExporter(piaModeller);
-                    exportOK = exporter.exportToMzTab(0L, fileName, true, exportPeptides, true);
-                } else if ("mzIdenML".equalsIgnoreCase(format)
-                        || "mzid".equalsIgnoreCase(format)) {
-                    MzIdentMLExporter exporter = new MzIdentMLExporter(piaModeller);
-                    exportOK = exporter.exportToMzIdentML(0L, fileName, true, true);
-                } else if ("csv".equalsIgnoreCase(format)) {
-                    Writer writer = new FileWriter(fileName, false);
-                    proteinModeller.exportCSV(writer, true, exportPeptides,
-                            exportPSMSets, exportPSMs, oneAccessionPerLine);
-                    writer.close();
-                }
+
+            if ("mzTab".equalsIgnoreCase(format)) {
+                MzTabExporter exporter = new MzTabExporter(piaModeller);
+                exportOK = writeMzTab(exporter, fileName, commandMap);
+            } else if ("mzIdenML".equalsIgnoreCase(format) || "mzid".equalsIgnoreCase(format)) {
+                MzIdentMLExporter exporter = new MzIdentMLExporter(piaModeller);
+                exportOK = exporter.exportToMzIdentML(0L, fileName, true, true);
+            } else if ("csv".equalsIgnoreCase(format)) {
+                exportOK = writeCSV(piaModeller.getProteinModeller(), fileName, commandMap);
+            }
+
+            return exportOK;
+        }
+
+
+        /**
+         * Export to mzTab
+         *
+         * @param exporter
+         * @param fileName
+         * @param commandMap
+         * @return
+         */
+        private boolean writeMzTab(MzTabExporter exporter, String fileName, Map<String, String>  commandMap) {
+            boolean exportPeptides = CommandTools.checkYesNoCommand("exportPeptides", commandMap);
+            boolean exportProteinSequences = CommandTools.checkYesNoCommand("exportProteinSequences", commandMap);
+
+            return exporter.exportToMzTab(0L, fileName, true, exportPeptides, true, exportProteinSequences);
+        }
+
+
+        /**
+         * Export to CSV file
+         *
+         * @param exporter
+         * @param fileName
+         * @param commandMap
+         * @return
+         */
+        private boolean writeCSV(ProteinModeller proteinModeller, String fileName, Map<String, String>  commandMap) {
+            boolean exportOK = true;
+            boolean exportPeptides = CommandTools.checkYesNoCommand("exportPeptides", commandMap);
+            boolean exportPSMSets = CommandTools.checkYesNoCommand("exportPSMSets", commandMap);
+            boolean exportPSMs = CommandTools.checkYesNoCommand("exportPSMs", commandMap);
+            boolean oneAccessionPerLine = CommandTools.checkYesNoCommand("oneAccessionPerLine", commandMap);
+
+            try (Writer writer = new FileWriter(fileName, false)) {
+                proteinModeller.exportCSV(writer, true, exportPeptides,
+                        exportPSMSets, exportPSMs, oneAccessionPerLine);
+                writer.close();
             } catch (IOException e) {
                 LOGGER.error("Cannot write to file " + fileName, e);
                 exportOK = false;
@@ -500,20 +530,20 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
             return exportOK;
         }
 
+
         @Override
         public String describe() {
-            return "Exports the report. " +
-                    "Additional parameters may be passed semicolon " +
-                    "separated with the syntax param=arg[;arg2;...]." +
-                    "valid parameters are:" +
-                    "\nformat: csv [default], mzIdentML" +
-                    "\nfileID: default 0 (overview)" +
-                    "\nfileName: the report file name [report.peptide.csv]" +
-                    "\noneAccessionPerLine: write one accession per line " +
-                    "(useful for spectral counting), defaults to false" +
-                    "\nexportPeptides: defaults to false" +
-                    "\nexportPSMSets: defaults to false" +
-                    "\nexportPSMs: defaults to false";
+            return "Exports the report. "
+                    + "Additional parameters may be passed semicolon "
+                    + "separated with the syntax param=arg[;arg2;...]."
+                    + "valid parameters are:"
+                    + "\nformat: csv [default], mzIdentML"
+                    + "\nfileName: the report file name [report.peptide.csv]"
+                    + "\noneAccessionPerLine (CSV): write one accession per line (useful for spectral counting), defaults to false"
+                    + "\nexportPeptides (CSV, mzTab): defaults to false"
+                    + "\nexportPSMSets (CSV): defaults to false"
+                    + "\nexportPSMs (CSV): defaults to false"
+                    + "\nexportProteinSequences (mzTab): defaults to false";
         }
 
         @Override
@@ -537,39 +567,36 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
         @Override
         public boolean execute(ProteinModeller proteinModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
 
+            boolean ok = true;
             if (params.length >= 1) {
                 DecoyStrategy decoyStrategy = DecoyStrategy.getStrategyByString(params[0]);
                 String decoyPattern = null;
 
-                switch (decoyStrategy) {
-                case ACCESSIONPATTERN:
+                if (decoyStrategy == null) {
+                    LOGGER.error("invalid decoy strategy given: " + params[0]);
+                    ok = false;
+                } else if (decoyStrategy.equals(DecoyStrategy.ACCESSIONPATTERN)) {
                     if (params.length >= 2) {
                         decoyPattern = params[1];
                     } else {
                         LOGGER.error("no decoy pattern given!");
-                        return false;
+                        ok = false;
                     }
-                    break;
-
-                case INHERIT:
-                    break;
-
-                default:
-                    LOGGER.error("invalid decoy strategy given: " + params[0]);
-                    return false;
                 }
 
-                proteinModeller.updateFDRData(decoyStrategy, decoyPattern, 0.01);
-                proteinModeller.updateDecoyStates();
-                proteinModeller.calculateFDR();
-
-                return true;
+                if (ok) {
+                    proteinModeller.updateFDRData(decoyStrategy, decoyPattern, 0.01);
+                    proteinModeller.updateDecoyStates();
+                    proteinModeller.calculateFDR();
+                }
+            } else {
+                LOGGER.error("no parameters for FDR calculation given, needs 'decoy strategy [decoy pattern]'");
+                ok = false;
             }
 
-            LOGGER.error("no parameters for FDR calculation given, needs 'decoy strategy [decoy pattern]'");
-            return false;
+            return ok;
         }
 
         @Override
@@ -669,6 +696,20 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
     @Override
     public String prefix() {
         return getPrefix();
+    }
+
+
+    /**
+     * log the execution parameters
+     *
+     * @param params
+     */
+    protected void logParams(String[] params) {
+        String[] logParams = params;
+        if (logParams == null) {
+            logParams = new String[0];
+        }
+        LOGGER.info(LOGGING_PREAMBEL + name() + " --- " + Arrays.asList(logParams));
     }
 
 
