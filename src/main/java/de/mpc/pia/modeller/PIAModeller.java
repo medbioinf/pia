@@ -1134,10 +1134,10 @@ public class PIAModeller implements Serializable {
                 throw new IOException(msg);
             }
         } catch (IOException e) {
-            LOGGER.error("Could not write whole PIA model to " + file.getAbsolutePath(), e);
+            LOGGER.error("Could not read PIA model from " + file.getAbsolutePath(), e);
             throw e;
         } catch (ClassNotFoundException e) {
-            String msg = "Could not write whole PIA model to " + file.getAbsolutePath();
+            String msg = "Could not read PIA model from " + file.getAbsolutePath();
             LOGGER.error(msg, e);
             throw new IOException(msg, e);
         }
