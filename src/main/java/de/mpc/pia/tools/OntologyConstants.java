@@ -1,6 +1,5 @@
 package de.mpc.pia.tools;
 
-import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 
 /**
  * This class contains constants from various used Ontologies.
