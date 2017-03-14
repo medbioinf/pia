@@ -212,6 +212,12 @@ public enum CleavageAgent {
         public String getSiteRegexp() {
             return "(?<=[FL])";
         }
+
+        @Override
+        public List<String> getAlternativeNames() {
+            return Arrays.asList(getName(),
+                    "PEPSIN_A");
+        }
     },
 
     TRYPCHYMO {

@@ -76,33 +76,28 @@ public enum DigestionEnzyme {
      * @return
      */
     public static DigestionEnzyme getFromCleavageAgent(CleavageAgent agent) {
-        if (agent == null) {
-            return UNKNOWN_ENZYME;
+        DigestionEnzyme enzyme = UNKNOWN_ENZYME;
+
+        if (agent != null) {
+            switch (agent) {
+            case PEPSINA:
+                enzyme = PEPSIN_A;
+                break;
+            case CHYMOTRYPSIN:
+                enzyme = CHYMOTRYPSIN;
+                break;
+            case TRYPSIN:
+            case TRYPSIN_TANDEM:
+                enzyme = TRYPSIN;
+                break;
+
+            default:
+                // the above are the only defined enzymes for idXML (at the moment when creating this parser)
+                enzyme = UNKNOWN_ENZYME;
+                break;
+            }
         }
 
-        switch (agent) {
-        case PEPSINA:
-            return PEPSIN_A;
-        case CHYMOTRYPSIN:
-            return CHYMOTRYPSIN;
-        case TRYPSIN:
-        case TRYPSIN_TANDEM:
-            return TRYPSIN;
-
-        case ARGC:
-        case ASPN:
-        case ASPN_AMBIC:
-        case CNBR:
-        case FORMICACID:
-        case LYSC:
-        case LYSCP:
-        case TRYPCHYMO:
-        case TRYPSINP:
-        case V8DE:
-        case V8E:
-            break;
-        }
-
-        return UNKNOWN_ENZYME;
+        return enzyme;
     }
 }

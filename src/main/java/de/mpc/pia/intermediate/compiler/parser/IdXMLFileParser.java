@@ -1,17 +1,18 @@
 package de.mpc.pia.intermediate.compiler.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
-import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
-import uk.ac.ebi.jmzidml.model.mzidml.Cv;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
@@ -24,7 +25,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.SearchModification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.model.mzidml.Tolerance;
-import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.intermediate.PIAInputFile;
@@ -33,8 +33,12 @@ import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
+import de.mpc.pia.tools.CleavageAgent;
+import de.mpc.pia.tools.MzIdentMLTools;
+import de.mpc.pia.tools.OntologyConstants;
 import de.mpc.pia.tools.PIATools;
 import de.mpc.pia.tools.openms.IdXMLParser;
+import de.mpc.pia.tools.openms.jaxb.DigestionEnzyme;
 import de.mpc.pia.tools.openms.jaxb.FixedModification;
 import de.mpc.pia.tools.openms.jaxb.IdentificationRun;
 import de.mpc.pia.tools.openms.jaxb.MassType;
@@ -62,8 +66,30 @@ public class IdXMLFileParser {
     private static final Logger LOGGER = Logger.getLogger(IdXMLFileParser.class);
 
 
+    /** name of the UserParam indicating the target_decoy */
+    private static final String USERPARAM_NAME_TARGET_DECOY = "target_decoy";
+
+    /** value of the UserParam for target_decoy indicating a target */
+    private static final String USERPARAM_TARGET_DECOY_TARGET = "target";
+
+    /** value of the UserParam for target_decoy indicating a decoy */
+    private static final String USERPARAM_TARGET_DECOY_DECOY = "decoy";
+
+    /** value of the UserParam for target_decoy indicating a target+decoy */
+    private static final String USERPARAM_TARGET_DECOY_TARGET_AND_DECOY = "target+decoy";
+
     /** name of the UserParam indicating the delta mass (shift) */
     private static final String USERPARAM_NAME_DELTA_MASS = "delta";
+
+    /** name of the UserParam indicating the protein description */
+    private static final String USERPARAM_NAME_DESCRIPTION = "Description";
+
+
+    /** the modification pattern like "Carbamidomethyl (C)" */
+    private static final Pattern MODIFICATION_PATTERN_NAME_RESIDUE = Pattern.compile("^(.+)\\(([^)]+)\\)$");
+
+    /** the modification pattern like "C+57.0215" */
+    private static final Pattern MODIFICATION_PATTERN_RESIDUE_SHIFT = Pattern.compile("^(.*)([+-]\\d*\\.\\d*)$");
 
 
     /**
@@ -95,12 +121,6 @@ public class IdXMLFileParser {
         int accNr = 0;
         int pepNr = 0;
         int specNr = 0;
-
-        Cv psiMS = new Cv();
-        psiMS.setId("PSI-MS");
-        psiMS.setFullName("PSI-MS");
-        psiMS.setUri("http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
-
         int runCount = 0;
         for (IdentificationRun idRun : idXMLFile.getIdentificationRuns()) {
 
@@ -119,198 +139,77 @@ public class IdXMLFileParser {
             }
 
             if (idRun.getProteinIdentification() == null) {
-                LOGGER.error("This identification has no protein information, " +
-                        "so PIA cannot use it.");
+                LOGGER.error("This identification has no protein information, so PIA cannot use it.");
                 break;
             }
 
             // create the analysis software and add it to the compiler
             AnalysisSoftware topp = new AnalysisSoftware();
-
             topp.setId("topp");
             topp.setName("TOPP software");
             topp.setUri("http://open-ms.sourceforge.net/");
 
-            AbstractParam abstractParam;
             Param param = new Param();
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1000752");
-            ((CvParam)abstractParam).setCv(psiMS);
-            abstractParam.setName("TOPP software");
-            param.setParam(abstractParam);
+            param.setParam(MzIdentMLTools.createPSICvParam(OntologyConstants.TOPP_SOFTWARE, null));
             topp.setSoftwareName(param);
 
             topp = compiler.putIntoSoftwareMap(topp);
 
             // define the spectrumIdentificationProtocol
-            SearchParameters searchParameters =
-                    (SearchParameters)idRun.getSearchParametersRef();
+            SearchParameters searchParameters = (SearchParameters)idRun.getSearchParametersRef();
 
-            SpectrumIdentificationProtocol spectrumIDProtocol =
-                    new SpectrumIdentificationProtocol();
-
+            SpectrumIdentificationProtocol spectrumIDProtocol = new SpectrumIdentificationProtocol();
             spectrumIDProtocol.setId("toppAnalysis");
             spectrumIDProtocol.setAnalysisSoftware(topp);
 
-            // TODO: only supporting "ms-ms search" for now
+            // only supporting "ms-ms search" for now
             param = new Param();
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001083");
-            ((CvParam)abstractParam).setCv(psiMS);
-            abstractParam.setName("ms-ms search");
-            param.setParam(abstractParam);
+            param.setParam(MzIdentMLTools.createPSICvParam(OntologyConstants.MS_MS_SEARCH, null));
             spectrumIDProtocol.setSearchType(param);
 
             spectrumIDProtocol.setAdditionalSearchParams(new ParamList());
             if (searchParameters.getMassType().equals(MassType.MONOISOTOPIC)) {
-                abstractParam = new CvParam();
-                ((CvParam)abstractParam).setAccession("MS:1001256");
-                ((CvParam)abstractParam).setCv(psiMS);
-                abstractParam.setName("fragment mass type mono");
                 spectrumIDProtocol.getAdditionalSearchParams().getCvParam().add(
-                        (CvParam)abstractParam);
-
-                abstractParam = new CvParam();
-                ((CvParam)abstractParam).setAccession("MS:1001211");
-                ((CvParam)abstractParam).setCv(psiMS);
-                abstractParam.setName("parent mass type mono");
+                        MzIdentMLTools.createPSICvParam(OntologyConstants.FRAGMENT_MASS_TYPE_MONO, null));
                 spectrumIDProtocol.getAdditionalSearchParams().getCvParam().add(
-                        (CvParam)abstractParam);
+                        MzIdentMLTools.createPSICvParam(OntologyConstants.PARENT_MASS_TYPE_MONO, null));
             } else {
-                abstractParam = new CvParam();
-                ((CvParam)abstractParam).setAccession("MS:1001255");
-                ((CvParam)abstractParam).setCv(psiMS);
-                abstractParam.setName("fragment mass type average");
                 spectrumIDProtocol.getAdditionalSearchParams().getCvParam().add(
-                        (CvParam)abstractParam);
-
-                abstractParam = new CvParam();
-                ((CvParam)abstractParam).setAccession("MS:1001212");
-                ((CvParam)abstractParam).setCv(psiMS);
-                abstractParam.setName("parent mass type average");
+                        MzIdentMLTools.createPSICvParam(OntologyConstants.FRAGMENT_MASS_TYPE_AVERAGE, null));
                 spectrumIDProtocol.getAdditionalSearchParams().getCvParam().add(
-                        (CvParam)abstractParam);
+                        MzIdentMLTools.createPSICvParam(OntologyConstants.PARENT_MASS_TYPE_AVERAGE, null));
             }
 
-            ModificationParams modParams = new ModificationParams();
-            for (VariableModification variableMod
-                    : searchParameters.getVariableModification()) {
-                SearchModification variableSearchMod = createSearchModification(
-                        variableMod.getName(), false, compiler);
-
-                if (variableSearchMod != null) {
-                    modParams.getSearchModification().add(variableSearchMod);
-                } else {
-                    LOGGER.error("Could not parse variable modification: " +
-                            variableMod.getName());
-                }
-            }
-
-            for (FixedModification fixedMod
-                    : searchParameters.getFixedModification()) {
-                SearchModification fixedSearchMod = createSearchModification(
-                        fixedMod.getName(), true, compiler);
-
-                if (fixedSearchMod != null) {
-                    modParams.getSearchModification().add(fixedSearchMod);
-                } else {
-                    LOGGER.error("Could not parse fixed modification: " +
-                            fixedMod.getName());
-                }
-            }
+            // Modifications
+            ModificationParams modParams = processModifications(compiler,
+                    searchParameters.getVariableModification(),
+                    searchParameters.getFixedModification());
             spectrumIDProtocol.setModificationParams(modParams);
 
-
-            Enzyme enzyme = new Enzyme();
-            enzyme.setId("enzyme");
-            if (searchParameters.getMissedCleavages() != null) {
-                enzyme.setMissedCleavages(
-                        searchParameters.getMissedCleavages().intValue());
-            }
-
-            if (searchParameters.getEnzyme() != null) {
-
-                ParamList paramList = new ParamList();
-                abstractParam = new CvParam();
-                ((CvParam)abstractParam).setCv(psiMS);
-
-                switch (searchParameters.getEnzyme()) {
-                case NO_ENZYME:
-                    ((CvParam)abstractParam).setAccession("MS:1001955");
-                    abstractParam.setName("no cleavage");
-                    paramList.getCvParam().add((CvParam)abstractParam);
-                    break;
-
-                case CHYMOTRYPSIN:
-                    ((CvParam)abstractParam).setAccession("MS:1001306");
-                    abstractParam.setName("Chymotrypsin");
-                    paramList.getCvParam().add((CvParam)abstractParam);
-                    enzyme.setSiteRegexp("(?<=[FYWL])(?!P)");
-                    break;
-
-                case PEPSIN_A:
-                    ((CvParam)abstractParam).setAccession("MS:1001311");
-                    abstractParam.setName("PepsinA");
-                    paramList.getCvParam().add((CvParam)abstractParam);
-                    enzyme.setSiteRegexp("(?<=[FL])");
-                    break;
-
-                case TRYPSIN:
-                    ((CvParam)abstractParam).setAccession("MS:1001251");
-                    abstractParam.setName("Trypsin");
-                    paramList.getCvParam().add((CvParam)abstractParam);
-                    enzyme.setSiteRegexp("(?<=[KR])(?!P)");
-                    break;
-
-                case PROTEINASE_K:
-                case UNKNOWN_ENZYME:
-                default:
-                    LOGGER.warn("Unknown enzyme specification: " +
-                            searchParameters.getEnzyme());
-                    break;
-                }
-
-                if (!paramList.getCvParam().isEmpty()) {
-                    enzyme.setEnzymeName(paramList);
-                }
-            }
+            // Enzymes
+            Enzyme enzyme = parseEnzyme(searchParameters.getEnzyme(), searchParameters.getMissedCleavages());
             Enzymes enzymes = new Enzymes();
             enzymes.getEnzyme().add(enzyme);
             spectrumIDProtocol.setEnzymes(enzymes);
 
 
+            // fragment and peptide tolerances
             Tolerance tolerance = new Tolerance();
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001412");
-            ((CvParam)abstractParam).setCv(psiMS);
-            abstractParam.setName("search tolerance plus value");
-            abstractParam.setValue(Float.toString(searchParameters.getPeakMassTolerance()));
-            tolerance.getCvParam().add((CvParam)abstractParam);
-
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001413");
-            ((CvParam)abstractParam).setCv(psiMS);
-            abstractParam.setName("search tolerance minus value");
-            abstractParam.setValue(Float.toString(searchParameters.getPeakMassTolerance()));
-            tolerance.getCvParam().add((CvParam)abstractParam);
-
+            tolerance.getCvParam().add(
+                    MzIdentMLTools.createPSICvParam(OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE,
+                            Float.toString(searchParameters.getPeakMassTolerance())));
+            tolerance.getCvParam().add(
+                    MzIdentMLTools.createPSICvParam(OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE,
+                            Float.toString(searchParameters.getPeakMassTolerance())));
             spectrumIDProtocol.setFragmentTolerance(tolerance);
 
             tolerance = new Tolerance();
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001412");
-            ((CvParam)abstractParam).setCv(psiMS);
-            abstractParam.setName("search tolerance plus value");
-            abstractParam.setValue(Float.toString(searchParameters.getPrecursorPeakTolerance()));
-            tolerance.getCvParam().add((CvParam)abstractParam);
-
-            abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001413");
-            ((CvParam)abstractParam).setCv(psiMS);
-            abstractParam.setName("search tolerance minus value");
-            abstractParam.setValue(Float.toString(searchParameters.getPrecursorPeakTolerance()));
-            tolerance.getCvParam().add((CvParam)abstractParam);
-
+            tolerance.getCvParam().add(
+                    MzIdentMLTools.createPSICvParam(OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE,
+                            Float.toString(searchParameters.getPrecursorPeakTolerance())));
+            tolerance.getCvParam().add(
+                    MzIdentMLTools.createPSICvParam(OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE,
+                            Float.toString(searchParameters.getPrecursorPeakTolerance())));
             spectrumIDProtocol.setParentTolerance(tolerance);
 
             // add the protocol to the file
@@ -323,19 +222,16 @@ public class IdXMLFileParser {
             searchDatabase.setName(searchParameters.getDb());
             // databaseName
             param = new Param();
-            abstractParam = new UserParam();
-            abstractParam.setName(searchParameters.getDb());
-            param.setParam(abstractParam);
+            param.setParam(MzIdentMLTools.createUserParam(searchParameters.getDb(), null, "string"));
             searchDatabase.setDatabaseName(param);
             // TODO: add taxonomy information
-            //if (searchParameters.getTaxonomy().trim().equals("") || searchParameters.getTaxonomy().trim().equalsIgnoreCase("All Entries")) {}
             // add searchDB to the compiler
             searchDatabase = compiler.putIntoSearchDatabasesMap(searchDatabase);
 
 
             // build the SpectrumIdentification
             SpectrumIdentification spectrumID = new SpectrumIdentification();
-            spectrumID.setId("mascotIdentification");
+            spectrumID.setId("openmsIdentification");
             spectrumID.setSpectrumIdentificationList(null);
             spectrumID.setSpectrumIdentificationProtocol(spectrumIDProtocol);
 
@@ -345,215 +241,14 @@ public class IdXMLFileParser {
 
             file.addSpectrumIdentification(spectrumID);
 
-
             // go through the peptide identifications
             for (PeptideIdentification pepID : idRun.getPeptideIdentification()) {
-
-                Double massToCharge = Double.valueOf(pepID.getMZ());
-                Double retentionTime = Double.valueOf(pepID.getRT());
-
-                String sourceID = null;
-                for (UserParamIdXML userParam : pepID.getUserParam()) {
-                    if (userParam.getName().equals("spectrum_id")) {
-                        try {
-                            sourceID = "index=" + (Integer.parseInt(userParam.getValue())-1);
-                        } catch (NumberFormatException e) {
-                            LOGGER.warn("could not parse sourceID: " + userParam.getValue());
-                            sourceID = null;
-                        }
-                    }
-                }
-
-                // the distinct PSMs in this pepID
-                List<PeptideSpectrumMatch> hitsPSMs = new ArrayList<>();
-
-                for (PeptideHit pepHit : pepID.getPeptideHit()) {
-
-                    if (pepHit.getProteinRefs().isEmpty()) {
-                        // identifications without proteins have no value (for now)
-                        LOGGER.error("No protein linked to the peptide " +
-                                "identification, dropped PeptideHit for " +
-                                pepHit.getSequence());
-                        continue;
-                    }
-
-                    String sequence = pepHit.getSequence();
-                    int charge = pepHit.getCharge().intValue();
-
-                    Map<Integer, Modification> modifications =
-                            new HashMap<>(5);
-
-                    if (sequence.contains("(")) {
-                        sequence = extractModifications(
-                                sequence, modifications, compiler);
-                    }
-
-                    double deltaMass = getDeltaMass(pepHit.getUserParam());
-
-                    int missedCleavages;
-                    if (enzyme.getSiteRegexp() != null) {
-                        missedCleavages = sequence.split(enzyme.getSiteRegexp()).length - 1;
-                    } else {
-                        missedCleavages = -1;
-                    }
-
-                    PeptideSpectrumMatch psm = compiler.createNewPeptideSpectrumMatch(
-                            charge,
-                            massToCharge,
-                            deltaMass,
-                            retentionTime,
-                            sequence,
-                            missedCleavages,
-                            sourceID,
-                            null,
-                            file,
-                            spectrumID);
-                    specNr++;
-
-                    // the first score is the "main" score
-                    ScoreModel score;
-                    ScoreModelEnum scoreModel =
-                            ScoreModelEnum.getModelByDescription(
-                                    pepID.getScoreType() + "_openmsmainscore");
-
-                    if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
-                        score = new ScoreModel(
-                                // looks weird, but so the decimals are correct
-                                Double.parseDouble(
-                                        String.valueOf(pepHit.getScore())),
-                                scoreModel);
-                        psm.addScore(score);
-                    } else {
-
-                        // try another alternative
-                        scoreModel = ScoreModelEnum.getModelByDescription(
-                                pepID.getScoreType());
-
-                        if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
-                            score = new ScoreModel(
-                                    // looks weird, but so the decimals are correct
-                                    Double.parseDouble(
-                                            String.valueOf(pepHit.getScore())),
-                                    scoreModel);
-                            psm.addScore(score);
-                        } else {
-                            score = new ScoreModel(
-                                    Double.parseDouble(String.valueOf(pepHit.getScore())),
-                                    pepID.getScoreType() + "_openmsmainscore",
-                                    pepID.getScoreType());
-                            psm.addScore(score);
-                        }
-                    }
-
-                    // add additional userParams Scores
-                    for (de.mpc.pia.tools.openms.jaxb.UserParamIdXML userParam
-                            : pepHit.getUserParam()) {
-                        // test for any other (known) scores
-                        if (userParam.getType().equals(UserParamType.FLOAT)) {
-                            scoreModel = ScoreModelEnum.getModelByDescription(
-                                    idRun.getSearchEngine() + "_" + userParam.getName());
-
-                            if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
-                                score = new ScoreModel(
-                                        Double.parseDouble(userParam.getValue()),
-                                        scoreModel);
-                                psm.addScore(score);
-                            } else if (userParam.getName().contains("Posterior Error Probability") ||
-                                    userParam.getName().contains("Posterior Probability") ||
-                                    userParam.getName().contains("Consensus_")) {
-                                // look for consensus score separately
-                                scoreModel = ScoreModelEnum.getModelByDescription(userParam.getName());
-                                if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
-                                    score = new ScoreModel(
-                                            Double.parseDouble(userParam.getValue()),
-                                            scoreModel);
-                                    psm.addScore(score);
-                                }
-                            }
-                        }
-
-                        // if the target / decoy is set
-                        if (userParam.getName().equals("target_decoy")) {
-                            if (userParam.getValue().equals("target")) {
-                                psm.setIsDecoy(false);
-                            } else if (userParam.getValue().equals("decoy")) {
-                                psm.setIsDecoy(true);
-                            }
-                        }
-                    }
-
-                    // now add the modifications
-                    for (Map.Entry<Integer, Modification> modIt
-                            : modifications.entrySet()) {
-                        psm.addModification(modIt.getKey(), modIt.getValue());
-                    }
-
-                    // get the peptide from the compiler or, if need be, add it
-                    Peptide peptide;
-                    peptide = compiler.getPeptide(sequence);
-                    if (peptide == null) {
-                        peptide = compiler.insertNewPeptide(sequence);
-                        pepNr++;
-                    }
-
-                    // there is a bug in OpenMS which creates sometimes multiple peptideHits with identical values originating from the same spectra
-                    if (!listContainsPSM(hitsPSMs, psm)) {
-                        compiler.insertCompletePeptideSpectrumMatch(psm);
-                        hitsPSMs.add(psm);
-
-                        // add the spectrum to the peptide
-                        peptide.addSpectrum(psm);
-                    }
-
-                    for (Object protRef : pepHit.getProteinRefs()) {
-                        if (!(protRef instanceof ProteinHit)) {
-                            LOGGER.warn("ProteinRef is not a " +
-                                    ProteinHit.class.getCanonicalName());
-                            continue;
-                        }
-
-                        ProteinHit protHit = (ProteinHit)protRef;
-
-                        FastaHeaderInfos fastaInfo = FastaHeaderInfos.parseHeaderInfos(protHit.getAccession());
-                        if (fastaInfo == null) {
-                            LOGGER.error("Could not parse '" +
-                                    protHit.getAccession() + "'");
-                            continue;
-                        }
-
-                        // add the Accession to the compiler (if not already added)
-                        Accession acc = compiler.getAccession(fastaInfo.getAccession());
-
-                        if (acc == null) {
-                            acc = compiler.insertNewAccession(
-                                    fastaInfo.getAccession(),
-                                    protHit.getSequence());
-                            accNr++;
-                        }
-
-                        acc.addFile(file.getID());
-
-                        if ((fastaInfo.getDescription() != null) &&
-                                (fastaInfo.getDescription().length() > 0)) {
-                            acc.addDescription(file.getID(),
-                                    fastaInfo.getDescription());
-                        }
-
-                        // add the searchDB to the accession
-                        acc.addSearchDatabaseRef(searchDatabase.getId());
-
-                        // get the occurrences of the peptide
-                        if ((acc.getDbSequence() != null) && (acc.getDbSequence().trim().length() > 0)) {
-                            List<Integer> startSites = getStartSites(sequence, acc.getDbSequence());
-                            for (Integer start : startSites) {
-                                peptide.addAccessionOccurrence(acc, start, start + sequence.length() - 1);
-                            }
-                        }
-
-                        // now insert the connection between peptide and accession into the compiler
-                        compiler.addAccessionPeptideConnection(acc, peptide);
-                    }
-                }
+                int[] adds = processPeptideIdentification(pepID, compiler,
+                        enzyme, file, spectrumID, idRun,
+                        searchDatabase.getId());
+                specNr += adds[0];
+                pepNr += adds[1];
+                accNr += adds[2];
             }
         }
 
@@ -567,47 +262,416 @@ public class IdXMLFileParser {
 
 
     /**
+     * Process one peptideIdentification
+     *
+     * @param pepID
+     * @param compiler
+     * @param enzyme
+     * @param file
+     * @param spectrumID
+     * @param idRun
+     * @param searchDbId
+     * @return
+     */
+    private static int[] processPeptideIdentification(PeptideIdentification pepID, PIACompiler compiler,
+            Enzyme enzyme, PIAInputFile file, SpectrumIdentification spectrumID, IdentificationRun idRun,
+            String searchDbId) {
+        int specNr = 0;
+        int pepNr = 0;
+        int accNr = 0;
+
+        Double massToCharge = Double.valueOf(pepID.getMZ());
+        Double retentionTime = Double.valueOf(pepID.getRT());
+
+        // get sourceID, if possible
+        String sourceID = getSpectrumSourceIDFromUserParams(pepID.getUserParam());
+
+        // the distinct PSMs in this pepID
+        List<PeptideSpectrumMatch> hitsPSMs = new ArrayList<>();
+
+        for (PeptideHit pepHit : pepID.getPeptideHit()) {
+            if (pepHit.getProteinRefs().isEmpty()) {
+                // identifications without proteins have no value (for now)
+                LOGGER.error("No protein linked to the peptide identification, dropped PeptideHit for " +
+                        pepHit.getSequence());
+                continue;
+            }
+
+            String sequence = pepHit.getSequence();
+            int charge = pepHit.getCharge().intValue();
+
+            Map<Integer, Modification> modifications = new HashMap<>();
+
+            if (sequence.contains("(")) {
+                sequence = extractModifications(sequence, modifications, compiler);
+            }
+
+            double deltaMass = getDeltaMass(pepHit.getUserParam());
+
+            int missedCleavages;
+            if (enzyme.getSiteRegexp() != null) {
+                missedCleavages = sequence.split(enzyme.getSiteRegexp()).length - 1;
+            } else {
+                missedCleavages = -1;
+            }
+
+            PeptideSpectrumMatch psm = compiler.createNewPeptideSpectrumMatch(
+                    charge,
+                    massToCharge,
+                    deltaMass,
+                    retentionTime,
+                    sequence,
+                    missedCleavages,
+                    sourceID,
+                    null,
+                    file,
+                    spectrumID);
+            specNr++;
+
+            // set the main score
+            parsePeptideHitMainScore(psm, pepID, pepHit);
+
+
+            // add additional userParams Scores
+            parsePeptideHitUserParams(psm, pepHit, idRun);
+
+            // now add the modifications
+            for (Map.Entry<Integer, Modification> modIt : modifications.entrySet()) {
+                psm.addModification(modIt.getKey(), modIt.getValue());
+            }
+
+            // get the peptide from the compiler or, if need be, add it
+            Peptide peptide;
+            peptide = compiler.getPeptide(sequence);
+            if (peptide == null) {
+                peptide = compiler.insertNewPeptide(sequence);
+                pepNr++;
+            }
+
+            // there is a bug in OpenMS which creates sometimes multiple peptideHits with identical values originating from the same spectra
+            if (!listContainsPSM(hitsPSMs, psm)) {
+                compiler.insertCompletePeptideSpectrumMatch(psm);
+                hitsPSMs.add(psm);
+
+                // add the spectrum to the peptide
+                peptide.addSpectrum(psm);
+            }
+
+            accNr += connectProteins(pepHit.getProteinRefs(), compiler, peptide, file.getID(), searchDbId);
+        }
+
+        return new int[]{specNr, pepNr, accNr};
+    }
+
+
+    /**
+     * Tries to get the sourceID from the userPArams of a peptideIdentification.
+     *
+     * @param userParams
+     * @return
+     */
+    private static String getSpectrumSourceIDFromUserParams(List<UserParamIdXML> userParams) {
+        String sourceID = null;
+
+        List<UserParamIdXML> sourceIdParams = userParams.stream()
+                .filter(param -> "spectrum_id".equals(param.getName())).collect(Collectors.toList());
+        for (UserParamIdXML param : sourceIdParams) {
+            try {
+                sourceID = "index=" + (Integer.parseInt(param.getValue())-1);
+            } catch (NumberFormatException e) {
+                LOGGER.warn("could not parse sourceID: " + param.getValue());
+                sourceID = null;
+            }
+        }
+
+        return sourceID;
+    }
+
+
+    /**
+     * Parses the main score of the peptideHit. This is the one in the tag.
+     * @param psm
+     * @param pepID
+     * @param pepHit
+     */
+    private static void parsePeptideHitMainScore(PeptideSpectrumMatch psm, PeptideIdentification pepID,
+            PeptideHit pepHit) {
+        ScoreModel score;
+        ScoreModelEnum scoreModel = ScoreModelEnum.getModelByDescription(pepID.getScoreType() + "_openmsmainscore");
+
+        if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+            score = new ScoreModel(
+                    // looks weird, but so the decimals are correct
+                    Double.parseDouble(String.valueOf(pepHit.getScore())),
+                    scoreModel);
+            psm.addScore(score);
+        } else {
+            // try another way
+            scoreModel = ScoreModelEnum.getModelByDescription(pepID.getScoreType());
+
+            if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+                score = new ScoreModel(
+                        // looks weird, but so the decimals are correct
+                        Double.parseDouble(String.valueOf(pepHit.getScore())),
+                        scoreModel);
+                psm.addScore(score);
+            } else {
+                score = new ScoreModel(
+                        Double.parseDouble(String.valueOf(pepHit.getScore())),
+                        pepID.getScoreType() + "_openmsmainscore",
+                        pepID.getScoreType());
+                psm.addScore(score);
+            }
+        }
+    }
+
+
+    /**
+     * Add the userParams to the PSM.
+     *
+     * @param psm
+     * @param pepHit
+     * @param idRun
+     */
+    private static void parsePeptideHitUserParams(PeptideSpectrumMatch psm, PeptideHit pepHit,
+            IdentificationRun idRun) {
+        for (UserParamIdXML userParam : pepHit.getUserParam()) {
+            // test for any (known) scores, these are always floats
+            if (userParam.getType().equals(UserParamType.FLOAT)) {
+                addFloatValueUserParam(psm, userParam, idRun);
+            }
+
+            // if the target / decoy is set, set it for the PSM according
+            if (USERPARAM_NAME_TARGET_DECOY.equals(userParam.getName())) {
+                if (USERPARAM_TARGET_DECOY_TARGET.equals(userParam.getValue())
+                        || USERPARAM_TARGET_DECOY_TARGET_AND_DECOY.equals(userParam.getValue())) {
+                    psm.setIsDecoy(false);
+                } else if (USERPARAM_TARGET_DECOY_DECOY.equals(userParam.getValue())) {
+                    psm.setIsDecoy(true);
+                }
+            }
+
+            // TODO: add all userParams
+        }
+    }
+
+
+    /**
+     * Adds a userParam with a float value. These are often scores.
+     * @param psm
+     * @param userParam
+     * @param idRun
+     */
+    private static boolean addFloatValueUserParam(PeptideSpectrumMatch psm, UserParamIdXML userParam,
+            IdentificationRun idRun) {
+        boolean paramAdded = false;
+
+        // try to add it as a score
+        ScoreModel score;
+        ScoreModelEnum scoreModel = ScoreModelEnum.getModelByDescription(
+                idRun.getSearchEngine() + "_" + userParam.getName());
+
+        // if the score was not found with this, try another way
+        if (scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)
+                && (userParam.getName().contains("Posterior Error Probability")
+                        || userParam.getName().contains("Posterior Probability")
+                        || userParam.getName().contains("Consensus_"))) {
+            scoreModel = ScoreModelEnum.getModelByDescription(userParam.getName());
+        }
+
+        if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+            // a valid score was found now
+            score = new ScoreModel(
+                    Double.parseDouble(userParam.getValue()),
+                    scoreModel);
+            psm.addScore(score);
+            paramAdded = true;
+        }
+
+        return paramAdded;
+    }
+
+
+    /**
+     * Connect the protein accessions to the peptide. Add the accessions, if necessary.
+     *
+     * @param proteinRefs
+     * @param compiler
+     * @param peptide
+     * @param fileID
+     * @param searchDbID
+     * @return
+     */
+    private static int connectProteins(List<Object> proteinRefs, PIACompiler compiler, Peptide peptide,
+            long fileID, String searchDbID) {
+        AtomicInteger addedAccs = new AtomicInteger(0);
+
+        // filter for correct references and connect them
+        proteinRefs.stream()
+                .filter(ref -> ref instanceof ProteinHit)
+                .forEach(protHit -> addedAccs.addAndGet(connectProtein((ProteinHit)protHit, compiler, peptide, fileID, searchDbID))
+                );
+
+        return addedAccs.intValue();
+    }
+
+
+    /**
+     * Connect the single protein accession to the peptide. Add the accessions, if necessary.
+     *
+     * @param protHit
+     * @param compiler
+     * @param peptide
+     * @param fileID
+     * @param searchDbID
+     * @return
+     */
+    private static int connectProtein(ProteinHit protHit, PIACompiler compiler, Peptide peptide,
+            long fileID, String searchDbID) {
+        FastaHeaderInfos fastaInfo = FastaHeaderInfos.parseHeaderInfos(protHit.getAccession());
+        if (fastaInfo == null) {
+            LOGGER.error("Could not parse '" + protHit.getAccession() + "'");
+            return 0;
+        }
+
+        // add the Accession to the compiler (if not already added)
+        Accession acc = compiler.getAccession(fastaInfo.getAccession());
+        int addedAcc = 0;
+
+        if (acc == null) {
+            acc = compiler.insertNewAccession(
+                    fastaInfo.getAccession(),
+                    protHit.getSequence());
+            addedAcc++;
+        }
+
+        if (!acc.getFiles().contains(fileID)) {
+            addAccessionInformation(acc, protHit, fileID, searchDbID, fastaInfo);
+        }
+
+        // get the occurrences of the peptide
+        if ((acc.getDbSequence() != null)
+                && !acc.getDbSequence().trim().isEmpty()) {
+            String sequence = peptide.getSequence();
+            for (int start : getStartSites(sequence, acc.getDbSequence())) {
+                peptide.addAccessionOccurrence(acc, start, start + sequence.length() - 1);
+            }
+        }
+
+        // now insert the connection between peptide and accession into the compiler
+        compiler.addAccessionPeptideConnection(acc, peptide);
+
+        return addedAcc;
+    }
+
+
+    /**
+     * Add additional information to the accession, like the description. Parses the userParams and, alternatively,
+     * uses the parsed accession.
+     *
+     * @param acc
+     * @param protHit
+     * @param fileID
+     * @param searchDbID
+     * @param fastaInfo
+     */
+    private static void addAccessionInformation(Accession acc, ProteinHit protHit, long fileID, String searchDbID,
+            FastaHeaderInfos fastaInfo) {
+        acc.addFile(fileID);
+
+        // add the searchDB to the accession
+        acc.addSearchDatabaseRef(searchDbID);
+
+        // get further protein description from the userParam
+        List <UserParamIdXML> descriptionParams = protHit.getUserParam().stream()
+                .filter(param -> param.getName().equalsIgnoreCase(USERPARAM_NAME_DESCRIPTION))
+                .collect(Collectors.toList());
+
+        if (!descriptionParams.isEmpty()) {
+            acc.addDescription(fileID, descriptionParams.get(0).getValue());
+        } else {
+            // if there is no description, try the FASTA parser
+            if ((fastaInfo.getDescription() != null)
+                    && (fastaInfo.getDescription().length() > 0)) {
+                acc.addDescription(fileID, fastaInfo.getDescription());
+            }
+        }
+    }
+
+
+    /**
+     * Processes the modifications
+     *
+     * @param compiler
+     * @param variableMods
+     * @param fixedMods
+     * @return
+     */
+    private static ModificationParams processModifications(PIACompiler compiler,
+            List<VariableModification> variableMods, List<FixedModification> fixedMods) {
+        ModificationParams modParams = new ModificationParams();
+        for (VariableModification variableMod : variableMods) {
+            SearchModification variableSearchMod = createSearchModification(variableMod.getName(), false, compiler);
+
+            if (variableSearchMod != null) {
+                modParams.getSearchModification().add(variableSearchMod);
+            } else {
+                LOGGER.error("Could not parse variable modification: " + variableMod.getName());
+            }
+        }
+
+        for (FixedModification fixedMod : fixedMods) {
+            SearchModification fixedSearchMod = createSearchModification(fixedMod.getName(), true, compiler);
+
+            if (fixedSearchMod != null) {
+                modParams.getSearchModification().add(fixedSearchMod);
+            } else {
+                LOGGER.error("Could not parse fixed modification: " + fixedMod.getName());
+            }
+        }
+
+        return modParams;
+    }
+
+
+    /**
      * Creates a {@link SearchModification} from the given encoded modification.
      * The correct unimod-modification will be searched and used.
      *
-     * @param encodedModification the encoded modification, either in the form
-     * "Carbamidomethyl (C)" or "C+57.0215"
+     * @param encodedModification the encoded modification, either in the form "Carbamidomethyl (C)" or "C+57.0215"
      * @param isFixed
      * @return
      */
-    private static SearchModification createSearchModification(
-            String encodedModification, boolean isFixed, PIACompiler compiler) {
+    private static SearchModification createSearchModification(String encodedModification,
+            boolean isFixed, PIACompiler compiler) {
         ModT unimod = null;
 
         SearchModification searchMod = new SearchModification();
         searchMod.setFixedMod(isFixed);
 
-        Pattern pattern = Pattern.compile("^(.+)\\(([^)]+)\\)$");
-        Matcher matcher = pattern.matcher(encodedModification);
+        Matcher matcher = MODIFICATION_PATTERN_NAME_RESIDUE.matcher(encodedModification);
         if (matcher.matches()) {
             // the modification is encoded as e.g. "Carbamidomethyl (C)"
 
-            // add the residues
-            for (String res : matcher.group(2).split(" ")) {
-                if (res.length() > 1) {
-                    if (!searchMod.getResidues().contains(".")) {
-                        searchMod.getResidues().add(".");
-                    }
+            // get unique residues
+            List<String> residues = Arrays.asList(matcher.group(2).split(" ")).stream()
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            for (String res : residues) {
+                if (res.trim().isEmpty()) {
+                    searchMod.getResidues().add(".");
                 } else {
-                    if (!searchMod.getResidues().contains(res)) {
-                        searchMod.getResidues().add(res);
-                    }
+                    searchMod.getResidues().add(res);
                 }
             }
 
             unimod = compiler.getUnimodParser().getModificationByName(
                     matcher.group(1).trim(), searchMod.getResidues());
         } else {
-            // the modification is encoded as e.g. "C+57.0215"
-            pattern = Pattern.compile("^(.*)([+-]\\d*\\.\\d*)$");
-            matcher = pattern.matcher(encodedModification);
-
+            matcher = MODIFICATION_PATTERN_RESIDUE_SHIFT.matcher(encodedModification);
             if (matcher.matches()) {
+                // the modification is encoded as e.g. "C+57.0215"
                 Double massShift = Double.parseDouble(matcher.group(2));
                 String residue = matcher.group(1);
                 if (residue.length() < 1) {
@@ -621,21 +685,20 @@ public class IdXMLFileParser {
         }
 
         if (unimod != null) {
-            CvParam cvParam = new CvParam();
-            cvParam.setAccession("UNIMOD:" + unimod.getRecordId());
-            cvParam.setCv(UnimodParser.getCv());
-            cvParam.setName(unimod.getTitle());
+            CvParam cvParam = MzIdentMLTools.createCvParam(
+                    "UNIMOD:" + unimod.getRecordId(),
+                    UnimodParser.getCv(),
+                    unimod.getTitle(),
+                    null);
+
             searchMod.getCvParam().add(cvParam);
-
             searchMod.getResidues();
-
-            searchMod.setMassDelta(
-                    unimod.getDelta().getMonoMass().floatValue());
-
-            return searchMod;
+            searchMod.setMassDelta(unimod.getDelta().getMonoMass().floatValue());
         } else {
-            return null;
+            searchMod = null;
         }
+
+        return searchMod;
     }
 
 
@@ -676,21 +739,20 @@ public class IdXMLFileParser {
      * "LDC(Carbamidomethyl)SHA", the modifications will be extracted and put
      * into the given map and the raw sequence is returned.
      *
-     * @param modificationsSequence the sequence with encoded modifications
+     * @param modSequence the sequence with encoded modifications
      * @param modifications mapping for the modifications (position to mod)
      * @param compiler
      * @return
      */
-    private static String extractModifications(String modificationsSequence,
-            Map<Integer, Modification> modifications,
+    private static String extractModifications(String modSequence, Map<Integer, Modification> modifications,
             PIACompiler compiler) {
         if (modifications == null) {
             LOGGER.error("Modifications map not initialized!");
             return null;
         }
 
-        StringBuilder sequence =
-                new StringBuilder(modificationsSequence.length());
+        String modificationsSequence = modSequence;
+        StringBuilder sequence = new StringBuilder(modificationsSequence.length());
 
         int pos;
         while ( -1 < (pos = modificationsSequence.indexOf('('))) {
@@ -699,7 +761,7 @@ public class IdXMLFileParser {
 
             String residue;
             if (sequence.length() == 0) {
-                // TODO: how are C-terminal modifications encoded in idXML!
+                // TODO: how are C-terminal modifications encoded in idXML?
                 // N-terminal modification
                 residue = ".";
             } else {
@@ -710,20 +772,21 @@ public class IdXMLFileParser {
             StringBuilder modName = new StringBuilder();
             for (int p=1; p < modificationsSequence.length(); p++) {
                 char c = modificationsSequence.charAt(p);
+
                 if (c == '(') {
                     openBr++;
                 } else if (c == ')') {
                     openBr--;
-                    if (openBr < 0) {
-                        break;
-                    }
+                }
+
+                if (openBr < 0) {
+                    break;
                 }
 
                 modName.append(c);
             }
 
-            ModT unimod = compiler.getUnimodParser().getModificationByName(
-                    modName.toString(), residue);
+            ModT unimod = compiler.getUnimodParser().getModificationByName(modName.toString(), residue);
             if (unimod != null) {
                 Modification mod = new Modification(
                         residue.charAt(0),
@@ -745,17 +808,19 @@ public class IdXMLFileParser {
         return sequence.toString().toUpperCase();
     }
 
+
     /**
-     * Getter for the start sites of a given peptide in the given protein
-     * sequence.
+     * Getter for the start sites of a given peptide in the given protein sequence.
      *
      * @param peptideSeq
      * @param proteinSeq
      * @return
      */
-    private static List<Integer> getStartSites(String peptideSeq, String proteinSeq) {
+    private static List<Integer> getStartSites(String peptide, String protein) {
         List<Integer> startSites = new ArrayList<>();
-        proteinSeq = proteinSeq.toUpperCase();
+
+        String peptideSeq = peptide.toUpperCase();
+        String proteinSeq = protein.toUpperCase();
 
         if (peptideSeq.contains("X")) {
             // replace the X by "." for regular expression matching
@@ -780,11 +845,12 @@ public class IdXMLFileParser {
 
                 if (pos > -1) {
                     pos = subStart + pos;
-                    if (!startSites.contains(pos)) {
-                        startSites.add(pos);
-                    }
+                    startSites.add(pos);
                 }
             }
+
+            // clean the startSites
+            startSites = startSites.stream().distinct().collect(Collectors.toList());
         }
 
         if (startSites.isEmpty()) {
@@ -808,5 +874,52 @@ public class IdXMLFileParser {
         // evaluate for same hashcodes and equality
         return psmList.stream().
                 anyMatch(s -> (psmHash == s.hashCodeWithoutID()) ? psm.equalsWithoutID(s) : false);
+    }
+
+
+
+    /**
+     * Parses the used enzyme from the OpenMS settings to mzIdentML.
+     *
+     * @param openMsEnzyme
+     * @param missedCleavages
+     * @return
+     */
+    private static Enzyme parseEnzyme(DigestionEnzyme openMsEnzyme, Long missedCleavages) {
+        Enzyme enzyme = new Enzyme();
+        enzyme.setId("enzyme");
+        if (missedCleavages != null) {
+            enzyme.setMissedCleavages(missedCleavages.intValue());
+        }
+
+        if (openMsEnzyme != null) {
+            ParamList enzymeNameParamList = new ParamList();
+
+            if (openMsEnzyme.equals(DigestionEnzyme.NO_ENZYME)) {
+                enzymeNameParamList.getCvParam().add(
+                        MzIdentMLTools.createPSICvParam(OntologyConstants.NO_CLEAVAGE, null));
+            } else {
+                CleavageAgent cleavageAgent = CleavageAgent.getByName(openMsEnzyme.name());
+
+                if (cleavageAgent != null) {
+                    enzymeNameParamList.getCvParam().add(
+                            MzIdentMLTools.createCvParam(
+                                    cleavageAgent.getAccession(),
+                                    MzIdentMLTools.getCvPSIMS(),
+                                    cleavageAgent.getName(),
+                                    null));
+
+                    enzyme.setSiteRegexp(cleavageAgent.getSiteRegexp());
+                } else {
+                    LOGGER.warn("Unknown enzyme specification: " + openMsEnzyme);
+                }
+            }
+
+            if (!enzymeNameParamList.getParamGroup().isEmpty()) {
+                enzyme.setEnzymeName(enzymeNameParamList);
+            }
+        }
+
+        return enzyme;
     }
 }

@@ -1,5 +1,6 @@
 package de.mpc.pia.tools;
 
+
 /**
  * This class contains constants from various used Ontologies.
  *
@@ -28,6 +29,7 @@ public enum OntologyConstants {
     SCAN_START_TIME("scan start time", "MS:1000016"),
     DELTA_MZ("delta m/z", "MS:1001975"),
     CLEAVAGE_AGENT_NAME("cleavage agent name", "MS:1001045"),
+    NO_CLEAVAGE("no cleavage", "MS:1001955"),
     SEARCH_TOLERANCE_PLUS_VALUE("search tolerance plus value", "MS:1001412"),
     SEARCH_TOLERANCE_MINUS_VALUE("search tolerance minus value", "MS:1001413"),
     MS_MS_SEARCH("ms-ms search", "MS:1001083"),
@@ -93,6 +95,8 @@ public enum OntologyConstants {
 
     PROTEOMEXCHANGE_ACCESSION_NUMBER("ProteomeXchange accession number", "MS:1001919", "ProteomExchange project accession number", "PRIDE:0000216"),
     PRIDE_PROJECT_NAME(null, null, "Project", "PRIDE:0000097"),
+
+    TOPP_SOFTWARE("TOPP software", "MS:1000752"),
 
     // search engines
     AMANDA("Amanda", "MS:1002336"),
