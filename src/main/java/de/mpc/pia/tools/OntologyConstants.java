@@ -27,6 +27,7 @@ public enum OntologyConstants {
     SEARCH_ENGINE_PSM_SCORE("search engine specific score for PSMs", "MS:1001143"),
     SPECTRUM_TITLE("spectrum title", "MS:1000796"),
     SCAN_START_TIME("scan start time", "MS:1000016"),
+    SCAN_NUMBERS("scan number(s)", "MS:1001115"),
     DELTA_MZ("delta m/z", "MS:1001975"),
     CLEAVAGE_AGENT_NAME("cleavage agent name", "MS:1001045"),
     NO_CLEAVAGE("no cleavage", "MS:1001955"),
