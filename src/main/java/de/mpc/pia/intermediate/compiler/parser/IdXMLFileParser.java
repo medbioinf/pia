@@ -403,12 +403,9 @@ public class IdXMLFileParser {
     private static String getSpectrumSourceIDFromSpectrumReference(String spectrumReference) {
         String sourceID = null;
 
-        LOGGER.debug("parsing " + spectrumReference);
-
         if (spectrumReference != null) {
             Matcher matcher = MzIdentMLTools.patternScanInTitle.matcher(spectrumReference);
             if (matcher.matches()) {
-                LOGGER.debug("\t\tmatch " + matcher.group(1));
                 sourceID = "index=" + matcher.group(1);
             }
         }
