@@ -285,6 +285,9 @@ public class IdXMLFileParser {
 
         // get sourceID, if possible
         String sourceID = getSpectrumSourceIDFromUserParams(pepID.getUserParam());
+        if (sourceID == null) {
+            sourceID = getSpectrumSourceIDFromSpectrumReference(pepID.getSpectrumReference());
+        }
 
         // the distinct PSMs in this pepID
         List<PeptideSpectrumMatch> hitsPSMs = new ArrayList<>();
@@ -365,7 +368,7 @@ public class IdXMLFileParser {
 
 
     /**
-     * Tries to get the sourceID from the userPArams of a peptideIdentification.
+     * Tries to get the sourceID from the userParams of a peptideIdentification.
      *
      * @param userParams
      * @return
@@ -373,14 +376,37 @@ public class IdXMLFileParser {
     private static String getSpectrumSourceIDFromUserParams(List<UserParamIdXML> userParams) {
         String sourceID = null;
 
+        // the userParam with name "spectrum_id" is erronous -> don't used anymore
         List<UserParamIdXML> sourceIdParams = userParams.stream()
-                .filter(param -> "spectrum_id".equals(param.getName())).collect(Collectors.toList());
+                .filter(param -> OntologyConstants.SCAN_NUMBERS.getPsiAccession().equals(param.getName()))
+                .collect(Collectors.toList());
+
         for (UserParamIdXML param : sourceIdParams) {
             try {
-                sourceID = "index=" + (Integer.parseInt(param.getValue())-1);
+                sourceID = "index=" + Long.parseLong(param.getValue());
             } catch (NumberFormatException e) {
                 LOGGER.warn("could not parse sourceID: " + param.getValue());
                 sourceID = null;
+            }
+        }
+
+        return sourceID;
+    }
+
+
+    /**
+     * Tries to parse the sourceID from the spectrumReference of a peptideIdentification
+     *
+     * @param spectrumReference
+     * @return
+     */
+    private static String getSpectrumSourceIDFromSpectrumReference(String spectrumReference) {
+        String sourceID = null;
+
+        if (spectrumReference != null) {
+            Matcher matcher = MzIdentMLTools.patternScanInTitle.matcher(spectrumReference);
+            if (matcher.matches()) {
+                sourceID = "index=" + matcher.group(1);
             }
         }
 

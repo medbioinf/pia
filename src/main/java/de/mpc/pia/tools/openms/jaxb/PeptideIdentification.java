@@ -33,7 +33,7 @@ public class PeptideIdentification {
     private Float significanceThreshold;
     @XmlAttribute(name = "spectrum_reference")
     @XmlSchemaType(name = "unsignedInt")
-    private Long spectrumReference;
+    private String spectrumReference;
     @XmlAttribute(name = "RT")
     private Float rt;
     @XmlAttribute(name = "MZ")
@@ -41,25 +41,25 @@ public class PeptideIdentification {
 
     /**
      * Gets the value of the peptideHit property.
-     * 
+     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the peptideHit property.
-     * 
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getPeptideHit().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link PeptideHit }
-     * 
-     * 
+     *
+     *
      */
     public List<PeptideHit> getPeptideHit() {
         if (peptideHit == null) {
@@ -70,25 +70,25 @@ public class PeptideIdentification {
 
     /**
      * Gets the value of the userParam property.
-     * 
+     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the userParam property.
-     * 
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getUserParam().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link UserParamIdXML }
-     * 
-     * 
+     *
+     *
      */
     public List<UserParamIdXML> getUserParam() {
         if (userParam == null) {
@@ -99,11 +99,11 @@ public class PeptideIdentification {
 
     /**
      * Gets the value of the scoreType property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getScoreType() {
         return scoreType;
@@ -111,11 +111,11 @@ public class PeptideIdentification {
 
     /**
      * Sets the value of the scoreType property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setScoreType(String value) {
         this.scoreType = value;
@@ -123,7 +123,7 @@ public class PeptideIdentification {
 
     /**
      * Gets the value of the higherScoreBetter property.
-     * 
+     *
      */
     public boolean isHigherScoreBetter() {
         return higherScoreBetter;
@@ -131,7 +131,7 @@ public class PeptideIdentification {
 
     /**
      * Sets the value of the higherScoreBetter property.
-     * 
+     *
      */
     public void setHigherScoreBetter(boolean value) {
         this.higherScoreBetter = value;
@@ -139,11 +139,11 @@ public class PeptideIdentification {
 
     /**
      * Gets the value of the significanceThreshold property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link Float }
-     *     
+     *
      */
     public Float getSignificanceThreshold() {
         return significanceThreshold;
@@ -151,11 +151,11 @@ public class PeptideIdentification {
 
     /**
      * Sets the value of the significanceThreshold property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link Float }
-     *     
+     *
      */
     public void setSignificanceThreshold(Float value) {
         this.significanceThreshold = value;
@@ -163,35 +163,35 @@ public class PeptideIdentification {
 
     /**
      * Gets the value of the spectrumReference property.
-     * 
+     *
      * @return
      *     possible object is
-     *     {@link Long }
-     *     
+     *     {@link String }
+     *
      */
-    public Long getSpectrumReference() {
+    public String getSpectrumReference() {
         return spectrumReference;
     }
 
     /**
      * Sets the value of the spectrumReference property.
-     * 
+     *
      * @param value
      *     allowed object is
-     *     {@link Long }
-     *     
+     *     {@link String }
+     *
      */
-    public void setSpectrumReference(Long value) {
+    public void setSpectrumReference(String value) {
         this.spectrumReference = value;
     }
 
     /**
      * Gets the value of the rt property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link Float }
-     *     
+     *
      */
     public Float getRT() {
         return rt;
@@ -199,11 +199,11 @@ public class PeptideIdentification {
 
     /**
      * Sets the value of the rt property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link Float }
-     *     
+     *
      */
     public void setRT(Float value) {
         this.rt = value;
@@ -211,11 +211,11 @@ public class PeptideIdentification {
 
     /**
      * Gets the value of the mz property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link Float }
-     *     
+     *
      */
     public Float getMZ() {
         return mz;
@@ -223,11 +223,11 @@ public class PeptideIdentification {
 
     /**
      * Sets the value of the mz property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link Float }
-     *     
+     *
      */
     public void setMZ(Float value) {
         this.mz = value;
