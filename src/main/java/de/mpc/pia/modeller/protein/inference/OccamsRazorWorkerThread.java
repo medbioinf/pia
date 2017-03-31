@@ -192,10 +192,8 @@ public class OccamsRazorWorkerThread extends Thread {
 
         // check proteins for sub-proteins and intersections. this cannot be
         // done before, because all proteins have to be built beforehand
-        Map<Long, Set<Long>> subProteinMap =
-                new HashMap<>(reportPeptidesMap.size());
-        Map<Long, Set<Long>> intersectingProteinMap =
-                new HashMap<>(reportPeptidesMap.size());
+        Map<Long, Set<Long>> subProteinMap = new HashMap<>(reportPeptidesMap.size());
+        Map<Long, Set<Long>> intersectingProteinMap = new HashMap<>(reportPeptidesMap.size());
         Set<Long> isSubProtein = new HashSet<>();
         Set<String> reportedPeptides = new HashSet<>();
         for (Long proteinID : proteins.keySet()) {

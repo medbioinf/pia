@@ -51,9 +51,14 @@ For how to install and run PIA inside KNIME see [the wiki about PIA in KNIME](ht
 Download the latest released version [here](https://github.com/mpc-bioinformatics/pia/releases/latest).
 
 
+## Tutorial
+
+The tutorial as PDF can be downloaded [here](https://github.com/julianu/pia-tutorial/blob/master/pia_tutorial.pdf), the required data are available [here](https://github.com/julianu/pia-tutorial/tree/master/data) and the workflows [here](https://github.com/julianu/pia-tutorial/tree/master/workflows) (all are in the tutorial repository at https://github.com/julianu/pia-tutorial/).
+
+
 ## Documentation
 
-For documentation please refer to the Wiki (https://github.com/mpc-bioinformatics/pia/wiki) on github.
+For further documentation please refer to the Wiki (https://github.com/mpc-bioinformatics/pia/wiki) on github.
 
 
 ## Problems, Bugs and Issues
