@@ -219,6 +219,10 @@ public class IdXMLFileParser {
             SearchDatabase searchDatabase = new SearchDatabase();
             searchDatabase.setId("toppDB");
             searchDatabase.setLocation(searchParameters.getDbVersion());
+            if ((searchParameters.getDb() == null) || searchParameters.getDb().trim().isEmpty()) {
+                // sometimes the searchdatabase gets lost in idXMLs
+                searchParameters.setDb("unspecified database");
+            }
             searchDatabase.setName(searchParameters.getDb());
             // databaseName
             param = new Param();
@@ -226,6 +230,7 @@ public class IdXMLFileParser {
             searchDatabase.setDatabaseName(param);
             // TODO: add taxonomy information
             // add searchDB to the compiler
+
             searchDatabase = compiler.putIntoSearchDatabasesMap(searchDatabase);
 
 

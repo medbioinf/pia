@@ -147,10 +147,9 @@ public class MzIdentMLTools {
     public static boolean userParamsEqualOrNull(UserParam x, UserParam y) {
         if ((x != null) && (y != null)) {
             // both are not null
-            boolean equal;
 
-            // required
-            equal = x.getName().equals(y.getName());
+            // name is required
+            boolean equal = x.getName().equals(y.getName());
 
             // optional
             equal &= PIATools.bothNullOrEqual(x.getType(),
@@ -211,7 +210,7 @@ public class MzIdentMLTools {
      * The abstractParam's value should be set before, as it is used for the
      * conversion from mmu to Dalton.
      *
-     * @param unit
+     * @param unitStr
      * @param abstractParam
      * @return
      */
@@ -220,46 +219,102 @@ public class MzIdentMLTools {
             return false;
         }
 
-        unit = unit.trim();
+        String unitStr = unit.trim();
 
-        if (unit.equalsIgnoreCase("Da") ||
-                unit.equalsIgnoreCase("Dalton") ||
-                unit.equalsIgnoreCase("amu") ||
-                unit.equalsIgnoreCase("u") ||
-                unit.equalsIgnoreCase("unified atomic mass unit")) {
-            abstractParam.setUnitAccession("UO:0000221");
-            abstractParam.setUnitCv(getUnitOntology());
-            abstractParam.setUnitName("dalton");
-            return true;
-        } else if (unit.equalsIgnoreCase("ppm") ||
-                unit.equalsIgnoreCase("parts per million")) {
-            abstractParam.setUnitAccession("UO:0000169");
-            abstractParam.setUnitCv(getUnitOntology());
-            abstractParam.setUnitName("parts per million");
-            return true;
-        } else if (unit.equalsIgnoreCase("percent") ||
-                unit.equalsIgnoreCase("%")) {
-            abstractParam.setUnitAccession("UO:0000187");
-            abstractParam.setUnitCv(getUnitOntology());
-            abstractParam.setUnitName("percent");
-            return true;
-        } else if (unit.equalsIgnoreCase("mmu")) {
-            // one mmu is 0.001 Da -> calculate it to dalton
-            try {
-                Double value = Double.parseDouble(abstractParam.getValue());
-                value *= 0.001;
-                abstractParam.setValue(value.toString());
-                abstractParam.setUnitAccession("UO:0000221");
-                abstractParam.setUnitCv(getUnitOntology());
-                abstractParam.setUnitName("dalton");
-            } catch (NumberFormatException e) {
-                // could not
-                abstractParam.setUnitName("mmu");
-                return false;
+        String unitAccession = null;
+        Cv unitCv= null;
+        String unitName = null;
+
+        if (isDaltonRepresentative(unitStr)
+                || isAtomicUnitRepresentative(unitStr)
+                || "mmu".equalsIgnoreCase(unitStr)) {
+            unitAccession = "UO:0000221";
+            unitCv = getUnitOntology();
+            unitName = "dalton";
+
+            if ("mmu".equalsIgnoreCase(unitStr)) {
+                Double daltonValue = convertMMUtoDalton(abstractParam.getValue());
+                if (daltonValue != null) {
+                    abstractParam.setValue(daltonValue.toString());
+                } else {
+                    unitAccession = null;
+                    unitCv = null;
+                    unitName = "mmu";
+                }
             }
+        } else if ("ppm".equalsIgnoreCase(unitStr)
+                || "parts per million".equalsIgnoreCase(unitStr)) {
+            unitAccession = "UO:0000169";
+            unitCv = getUnitOntology();
+            unitName = "parts per million";
+        } else if ("percent".equalsIgnoreCase(unitStr)
+                || "%".equalsIgnoreCase(unitStr)) {
+            unitAccession = "UO:0000187";
+            unitCv = getUnitOntology();
+            unitName = "percent";
         }
 
-        return false;
+        abstractParam.setUnitAccession(unitAccession);
+        abstractParam.setUnitCv(unitCv);
+        abstractParam.setUnitName(unitName);
+
+        return (unitAccession != null)
+                && (unitCv != null)
+                && (unitName != null);
+    }
+
+
+    /**
+     * Returns true, if the given String is a representative for Dalton.
+     *
+     * @param unit
+     * @return
+     */
+    private static boolean isDaltonRepresentative(String unit) {
+        String unitStr = unit.trim();
+
+        return "Da".equalsIgnoreCase(unitStr) ||
+                "Dalton".equalsIgnoreCase(unitStr);
+    }
+
+
+    /**
+     * Returns true, if the given String is a representative for atomic mass unit.
+     *
+     * @param unit
+     * @return
+     */
+    private static boolean isAtomicUnitRepresentative(String unit) {
+        String unitStr = unit.trim();
+
+        return "amu".equalsIgnoreCase(unitStr) ||
+                "u".equalsIgnoreCase(unitStr) ||
+                "unified atomic mass unit".equalsIgnoreCase(unitStr);
+    }
+
+
+    /**
+     * Converts the given value from mmu to Dalton
+     *
+     * @param mmuValue
+     * @return
+     */
+    private static Double convertMMUtoDalton(String mmuValue) {
+        Double daltonValue;
+
+        // one mmu is 0.001 Da -> convert it to dalton
+        if (mmuValue != null) {
+            try {
+                daltonValue = Double.parseDouble(mmuValue);
+                daltonValue *= 0.001;
+            } catch (NumberFormatException e) {
+                daltonValue = null;
+            }
+        } else {
+            daltonValue = null;
+        }
+
+        return daltonValue;
     }
 
 
