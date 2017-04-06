@@ -4,15 +4,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import de.mpc.pia.modeller.PIAModeller;
 import de.mpc.pia.modeller.PSMModeller;
+import de.mpc.pia.modeller.execute.CommandTools;
 import de.mpc.pia.modeller.execute.ExecuteModelCommands;
 import de.mpc.pia.modeller.execute.xmlparams.ITEMType;
 import de.mpc.pia.modeller.execute.xmlparams.NODEType;
@@ -40,7 +41,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
             psmModeller.addPreferredFDRScore(params[0]);
             return true;
         }
@@ -66,8 +67,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
             String scoreName = null;
 
             for (Object item : node.getITEMOrITEMLISTOrNODE()) {
-                if ((item instanceof ITEMType)
-                        && ID_SCORE_NAME.equals(((ITEMType) item).getName())) {
+                if ((item instanceof ITEMType) && ID_SCORE_NAME.equals(((ITEMType) item).getName())) {
                     scoreName = ((ITEMType) item).getValue();
                     break;
                 }
@@ -82,17 +82,17 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     AddPreferredFDRScores {
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
-            ArrayList<String> list = new ArrayList<>(params.length);
-            Collections.addAll(list, params);
+            logParams(params);
+            List<String> list = Arrays.asList(params);
             psmModeller.addPreferredFDRScores(list);
+
+            LOGGER.debug("preferred: " + psmModeller.getPreferredFDRScores());
             return true;
         }
 
         @Override
         public String describe() {
-            return "Adds the params to the list of preferred scores for " +
-                    "FDR calculation.";
+            return "Adds the params to the list of preferred scores for FDR calculation.";
         }
 
         @Override
@@ -113,7 +113,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
             Integer topIDs = Integer.parseInt(params[0]);
             psmModeller.setAllTopIdentifications(topIDs);
             return false;
@@ -161,7 +161,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
             psmModeller.setAllDecoyPattern(params[0]);
             return true;
         }
@@ -202,7 +202,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     CalculateAllFDR {
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
             psmModeller.calculateAllFDR();
             return true;
         }
@@ -227,7 +227,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     CalculateCombinedFDRScore {
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
             psmModeller.calculateCombinedFDRScore();
             return true;
         }
@@ -268,7 +268,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
 
             boolean negate = false;
 
@@ -387,7 +387,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
 
             Boolean createSets = null;
 
@@ -439,84 +439,111 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     },
 
     Export {
+        /** the identification string for the fileName */
+        private static final String ID_FILENAME_STRING = "fileName";
+
+        /** the identification string for the format */
+        private static final String ID_FORMAT_STRING = "format";
+
+        /** the identification string for the format */
+        private static final String ID_FILE_ID = "fileID";
+
         @Override
         public boolean execute(PSMModeller psmModeller, PIAModeller piaModeller, String[] params) {
-            LOGGER.info(LOGGING_PREAMBEL + name());
+            logParams(params);
 
-            String format = null;
-            Long fileID = 0L;
-            String fileName = null;
-            Boolean spectralCount = false;
+            Map<String, String> commandMap = CommandTools.parseCommands(params);
 
-            Pattern pattern = Pattern.compile("^([^=]+)=(.*)");
-            Matcher commandParamMatcher;
+            String fileName;
+            String format;
+            Long fileID;
 
-            for (String command : params) {
-                String[] commandParams = null;
-                commandParamMatcher = pattern.matcher(command);
-
-                if (commandParamMatcher.matches()) {
-                    command = commandParamMatcher.group(1);
-                    commandParams = commandParamMatcher.group(2).split(";");
-                }
-
-                if ("format".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        format = commandParams[0];
-                    }
-                } else if ("fileID".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        fileID = Long.parseLong(commandParams[0]);
-                    }
-                } else if ("fileName".equals(command)) {
-                    if ((commandParams != null) &&
-                            (commandParams.length > 0)) {
-                        fileName = commandParams[0];
-                    }
-                } else if ("spectral_count".equals(command)) {
-                    spectralCount = !((commandParams != null) &&
-                            (commandParams.length > 0)) || "yes".equals(commandParams[0]) || "true".equals(commandParams[0]);
-// only setting the flag is equivalent to true
-                }
-            }
-
-            if ((format == null) || (format.trim().length() == 0)) {
+            if (commandMap.containsKey(ID_FORMAT_STRING)) {
+                format = commandMap.get(ID_FORMAT_STRING);
+                commandMap.remove(ID_FORMAT_STRING);
+            } else {
                 format = "mzid";
             }
-            if (fileName == null) {
+
+            if (commandMap.containsKey(ID_FILENAME_STRING)) {
+                fileName = commandMap.get(ID_FILENAME_STRING);
+                commandMap.remove(ID_FILENAME_STRING);
+            } else {
                 fileName = "report-psms." + format;
             }
 
-            LOGGER.info("export parameters: " +
-                    "filename: " + fileName +
-                    ", fileID: " + fileID +
-                    ", format: " + format +
-                    ", spectral_count: " + spectralCount);
+            if (commandMap.containsKey(ID_FILE_ID)) {
+                try {
+                    fileID = Long.parseLong(commandMap.get(ID_FILE_ID));
+                } catch (NumberFormatException e) {
+                    LOGGER.error("could not parse " + ID_FILE_ID + "=" + commandMap.get(ID_FILE_ID), e);
+                    fileID = 0L;
+                }
+                commandMap.remove(ID_FILE_ID);
+            } else {
+                fileID = 0L;
+            }
 
+            return writeExport(piaModeller, format, fileName, fileID, commandMap);
+        }
+
+
+        /**
+         * Writes the export to the file with the given parameters
+         *
+         * @param piaModeller
+         * @param format
+         * @param fileName
+         * @param commandMap
+         * @return
+         */
+        private boolean writeExport(PIAModeller piaModeller, String format, String fileName, Long fileID,
+                Map<String, String> commandMap) {
             boolean exportOK = true;
 
-            try {
-                if ("mzIdentML".equalsIgnoreCase(format) ||
-                        "mzid".equalsIgnoreCase(format)) {
-                    MzIdentMLExporter exporter = new MzIdentMLExporter(piaModeller);
-                    exportOK = exporter.exportToMzIdentML(fileID, fileName, false, true);
-                } else if ("mztab".equalsIgnoreCase(format)) {
-                    MzTabExporter exporter = new MzTabExporter(piaModeller);
-                    exportOK = exporter.exportToMzTab(fileID, fileName, false, false, true);
-                } else if ("csv".equalsIgnoreCase(format)) {
-                    Writer writer = new FileWriter(fileName, false);
-                    psmModeller.exportCSV(writer, fileID, spectralCount, true);
-                    writer.close();
-                }
+            if ("mzIdentML".equalsIgnoreCase(format) || "mzid".equalsIgnoreCase(format)) {
+                MzIdentMLExporter exporter = new MzIdentMLExporter(piaModeller);
+                exportOK = exporter.exportToMzIdentML(fileID, fileName, false, true);
+            } else if ("mztab".equalsIgnoreCase(format)) {
+                MzTabExporter exporter = new MzTabExporter(piaModeller);
+                exportOK = exporter.exportToMzTab(fileID, fileName, false, false, true);
+            } else if ("csv".equalsIgnoreCase(format)) {
+                exportOK = writeCSV(piaModeller.getPSMModeller(), fileName, fileID, commandMap);
+            }
+
+            return exportOK;
+        }
+
+
+        /**
+         * Export to CSV file
+         *
+         * @param exporter
+         * @param fileName
+         * @param commandMap
+         * @return
+         */
+        private boolean writeCSV(PSMModeller psmModeller, String fileName, Long fileID, Map<String, String>  commandMap) {
+            boolean exportOK = true;
+            Boolean spectralCount = CommandTools.checkYesNoCommand("spectral_count", commandMap);
+
+            LOGGER.info("export parameters for CSV: " +
+                    "filename: " + fileName +
+                    ", fileID: " + fileID +
+                    ", spectral_count: " + spectralCount);
+
+            try (Writer writer = new FileWriter(fileName, false)) {
+                psmModeller.exportCSV(writer, fileID, spectralCount, true);
+                writer.close();
             } catch (IOException e) {
-                LOGGER.error("Error writing to file " + fileName, e);
+                LOGGER.error("Error exporting to CSV file " + fileName, e);
                 exportOK = false;
             }
 
             return exportOK;
         }
+
+
 
         @Override
         public String describe() {
@@ -595,6 +622,20 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
     @Override
     public String prefix() {
         return getPrefix();
+    }
+
+
+    /**
+     * log the execution parameters
+     *
+     * @param params
+     */
+    protected void logParams(String[] params) {
+        String[] logParams = params;
+        if (logParams == null) {
+            logParams = new String[0];
+        }
+        LOGGER.info(LOGGING_PREAMBEL + name() + " --- " + Arrays.asList(logParams));
     }
 
 

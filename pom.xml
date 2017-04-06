@@ -4,7 +4,7 @@
 
 	<groupId>de.mpc.pia</groupId>
 	<artifactId>pia</artifactId>
-	<version>1.2.0-SNAPSHOT</version>
+	<version>1.3.0</version>
 	<name>PIA - Protein Inference Algorithms</name>
 	<url>https://github.com/mpc-bioinformatics/pia</url>
 
@@ -39,10 +39,10 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-		<log4j.version>1.2.13</log4j.version>
+		<log4j.version>1.2.17</log4j.version>
 		<junit.version>4.12</junit.version>
-		<commons-cli.version>1.3.1</commons-cli.version>
-		<commons-lang3.version>3.4</commons-lang3.version>
+		<commons-cli.version>1.4</commons-cli.version>
+		<commons-lang3.version>3.5</commons-lang3.version>
 		<commons-collections.version>4.1</commons-collections.version>
 		<jmzidentml.version>1.2.6</jmzidentml.version>
 		<jmztab.version>3.0.5</jmztab.version>
@@ -50,7 +50,7 @@
 		<pride-jaxb.version>1.0.18</pride-jaxb.version>
 		<mascotdatfile.version>3.5.0</mascotdatfile.version>
 		<xtandem-parser.version>1.12.0</xtandem-parser.version>
-		<biojava-ontology.version>4.0.0</biojava-ontology.version>
+		<biojava-ontology.version>4.2.7</biojava-ontology.version>
 		<BaseLib.version>0.0.1-SNAPSHOT</BaseLib.version>
 		<CvtBaseLib.version>0.0.1-SNAPSHOT</CvtBaseLib.version>
 		<PDLibrary.version>0.0.1-SNAPSHOT</PDLibrary.version>
