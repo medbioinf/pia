@@ -201,11 +201,7 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable, Seria
      */
     private void addPeptideToCoverage(String accession, ReportPeptide pep) {
         TreeMap<Integer, Integer> coverageMap =
-                coverageMaps.get(accession);
-        if (coverageMap == null) {
-            coverageMap = new TreeMap<>();
-            coverageMaps.put(accession, coverageMap);
-        }
+                coverageMaps.computeIfAbsent(accession, k -> new TreeMap<>());
 
         String sequence = accMap.get(accession).getDbSequence();
         if (sequence == null) {

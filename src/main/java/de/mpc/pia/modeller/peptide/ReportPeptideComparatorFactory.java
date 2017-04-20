@@ -32,7 +32,7 @@ public class ReportPeptideComparatorFactory {
         SEQUENCE_SORT {
             @Override
             public Comparator<ReportPeptide> getNewInstance() {
-                return (o1, o2) -> o1.getSequence().compareTo(o2.getSequence());
+                return Comparator.comparing(ReportPeptide::getSequence);
             }
 
             @Override
@@ -109,7 +109,7 @@ public class ReportPeptideComparatorFactory {
         NR_SPECTRA_SORT {
             @Override
             public Comparator<ReportPeptide> getNewInstance() {
-                return (o1, o2) -> o1.getNrSpectra().compareTo(o2.getNrSpectra());
+                return Comparator.comparing(ReportPeptide::getNrSpectra);
             }
 
             @Override

@@ -449,7 +449,7 @@ class MzIdentMLFileParser {
             // the sourceID is the same as the scan number in the cvParam
             List<String> scanNumbers = specIdResult.getCvParam().stream()
                     .filter(cvParam -> cvParam.getAccession().equals(OntologyConstants.SCAN_NUMBERS.getPsiAccession()))
-                    .map(cvParam -> cvParam.getValue())
+                    .map(AbstractParam::getValue)
                     .sorted()
                     .distinct()
                     .collect(Collectors.toList());

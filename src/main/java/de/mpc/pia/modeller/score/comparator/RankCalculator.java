@@ -1,7 +1,6 @@
 package de.mpc.pia.modeller.score.comparator;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -42,7 +41,7 @@ public class RankCalculator {
 			return;
 		}
 		
-		Collections.sort(items, comparator);
+		items.sort(comparator);
 		
 		long currRank = 0;
 		Double rankScore = Double.NaN;

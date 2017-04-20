@@ -29,7 +29,7 @@ public class CommandTools {
      * @return
      */
     public static Map<String, String> parseCommands(String[] commands) {
-        Map<String, String> commandMap = new HashMap<String, String>(commands.length);
+        Map<String, String> commandMap = new HashMap<>(commands.length);
         Pattern pattern = Pattern.compile(COMMAND_PATTERN);
         Matcher commandParamMatcher;
 

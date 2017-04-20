@@ -105,11 +105,7 @@ class CompilerWorkerThread extends Thread {
                 groupId = -1L;
             }
 
-            Map<String, Accession> groupsAcc = groupAccMap.get(groupId);
-            if (groupsAcc == null) {
-                groupsAcc = new HashMap<>();
-                groupAccMap.put(groupId, groupsAcc);
-            }
+            Map<String, Accession> groupsAcc = groupAccMap.computeIfAbsent(groupId, k -> new HashMap<>());
 
             groupsAcc.put(accession.getAccession(), accession);
         }

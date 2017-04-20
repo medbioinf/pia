@@ -45,7 +45,7 @@
 		<commons-lang3.version>3.5</commons-lang3.version>
 		<commons-collections.version>4.1</commons-collections.version>
 		<jmzidentml.version>1.2.6</jmzidentml.version>
-		<jmztab.version>3.0.5</jmztab.version>
+		<jmztab.version>3.0.7-SNAPSHOT</jmztab.version>
 		<pride-mod.version>2.1.2</pride-mod.version>
 		<pride-jaxb.version>1.0.18</pride-jaxb.version>
 		<mascotdatfile.version>3.5.0</mascotdatfile.version>

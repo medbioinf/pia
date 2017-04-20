@@ -310,8 +310,8 @@ public class MzTabParser {
 
                     specNr++;
 
-                    if (mzTabPSM.getOptionColumnValue("cv_MS:1002217_decoy_peptide") != null) {
-                        if ("1".equals(mzTabPSM.getOptionColumnValue("cv_MS:1002217_decoy_peptide"))) {
+                    if (mzTabPSM.getOptionColumnValueAsString("cv_MS:1002217_decoy_peptide") != null || mzTabPSM.getOptionColumnValueAsString("cv_MS:1002217_decoy_peptide") != null) {
+                        if ("1".equals(mzTabPSM.getOptionColumnValueAsString("cv_MS:1002217_decoy_peptide"))) {
                             psm.setIsDecoy(true);
                         } else {
                             psm.setIsDecoy(false);

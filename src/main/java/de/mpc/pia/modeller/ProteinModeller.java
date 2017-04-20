@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -324,8 +323,7 @@ public class ProteinModeller  implements Serializable {
                     sortKey, order));
         }
 
-        Collections.sort(reportProteins,
-                ReportProteinComparatorFactory.getComparator(compares));
+        reportProteins.sort(ReportProteinComparatorFactory.getComparator(compares));
     }
 
 
@@ -512,39 +510,23 @@ public class ProteinModeller  implements Serializable {
         String separator = ",";
 
         if (includes && !oneAccessionPerLine) {
-            writer.append(
-                    "\"COLS_PROTEIN\"" + separator +
-                    "\"accessions\"" + separator +
-                    "\"score\"" + separator +
-                    "\"#peptides\"" + separator +
-                    "\"#PSMs\"" + separator +
-                    "\"#spectra\"");
+            writer.append("\"COLS_PROTEIN\"").append(separator).append("\"accessions\"").append(separator).append("\"score\"").append(separator).append("\"#peptides\"").append(separator).append("\"#PSMs\"").append(separator).append("\"#spectra\"");
 
             if (fdrData.getNrItems() != null) {
-                writer.append( separator +
-                        "\"isDecoy\"" + separator +
-                        "\"FDR\"" + separator +
-                        "\"q-value\"" + separator);
+                writer.append(separator).append("\"isDecoy\"").append(separator).append("\"FDR\"").append(separator).append("\"q-value\"").append(separator);
             }
 
             writer.append("\n");
 
             if (includePeptides) {
-                writer.append(
-                        "\"COLS_PEPTIDE\"" + separator +
-                        "\"sequence\"" + separator);
+                writer.append("\"COLS_PEPTIDE\"").append(separator).append("\"sequence\"").append(separator);
 
                 if (considermodifications)
                     writer.append("\"modifications\"").
                             append(separator);
 
 
-                writer.append("\"accessions\"" + separator +
-                        "\"#spectra\"" + separator +
-                        "\"#PSMSets\"" + separator +
-                        "\"bestScores\"" +
-                        "\n"
-                        );
+                writer.append("\"accessions\"").append(separator).append("\"#spectra\"").append(separator).append("\"#PSMSets\"").append(separator).append("\"bestScores\"").append("\n");
             }
 
             if (includePSMSets) {
@@ -553,86 +535,40 @@ public class ProteinModeller  implements Serializable {
                         append(separator);
 
                 if (considermodifications) {
-                    writer.append("\"modifications\"" + separator);
+                    writer.append("\"modifications\"").append(separator);
                 }
 
-                writer.append("\"#identifications\"" + separator +
-                        "\"charge\"" + separator +
-                        "\"m/z\"" + separator +
-                        "\"dMass\"" + separator +
-                        "\"ppm\"" + separator +
-                        "\"RT\"" + separator +
-                        "\"missed\"" + separator +
-                        "\"sourceID\"" + separator +
-                        "\"spectrumTitle\"" + separator +
-                        "\"scores\"" +
-                        "\n"
-                        );
+                writer.append("\"#identifications\"").append(separator).append("\"charge\"").append(separator).append("\"m/z\"").append(separator).append("\"dMass\"").append(separator).append("\"ppm\"").append(separator).append("\"RT\"").append(separator).append("\"missed\"").append(separator).append("\"sourceID\"").append(separator).append("\"spectrumTitle\"").append(separator).append("\"scores\"").append("\n");
             }
 
             if (includePSMs) {
-                writer.append(
-                        "\"COLS_PSM\"" + separator +
-                        "\"filename\"" + separator +
-                        "\"sequence\"" + separator);
+                writer.append("\"COLS_PSM\"").append(separator).append("\"filename\"").append(separator).append("\"sequence\"").append(separator);
 
                 if (considermodifications) {
                     writer.append("\"modifications\"").append(separator);
                 }
 
-                writer.append("\"charge\"" + separator +
-                        "\"m/z\"" + separator +
-                        "\"dMass\"" + separator +
-                        "\"ppm\"" + separator +
-                        "\"RT\"" + separator +
-                        "\"missed\"" + separator +
-                        "\"sourceID\"" + separator +
-                        "\"spectrumTitle\"" + separator +
-                        "\"scores\"" +
-                        "\n"
-                        );
+                writer.append("\"charge\"").append(separator).append("\"m/z\"").append(separator).append("\"dMass\"").append(separator).append("\"ppm\"").append(separator).append("\"RT\"").append(separator).append("\"missed\"").append(separator).append("\"sourceID\"").append(separator).append("\"spectrumTitle\"").append(separator).append("\"scores\"").append("\n");
             }
 
         } else if (!oneAccessionPerLine) {
             // no special includes, no SpectralCounting
-            writer.append(
-                    "\"accessions\"" + separator +
-                    "\"score\"" + separator +
-                    "\"#peptides\"" + separator +
-                    "\"#PSMs\"" + separator +
-                    "\"#spectra\"");
+            writer.append("\"accessions\"").append(separator).append("\"score\"").append(separator).append("\"#peptides\"").append(separator).append("\"#PSMs\"").append(separator).append("\"#spectra\"");
 
             if (fdrData.getNrItems() != null) {
-                writer.append( separator +
-                        "\"isDecoy\"" + separator +
-                        "\"FDR\"" + separator +
-                        "\"q-value\"");
+                writer.append(separator).append("\"isDecoy\"").append(separator).append("\"FDR\"").append(separator).append("\"q-value\"");
             }
 
             writer.append("\n");
         } else {
             // oneAccessionPerLine is set, override everything else
-            writer.append(
-                    "\"accession\"" + separator +
-                    "\"filename\"" + separator +
-                    "\"sequence\"" + separator);
+            writer.append("\"accession\"").append(separator).append("\"filename\"").append(separator).append("\"sequence\"").append(separator);
 
             if (considermodifications) {
-                writer.append("\"modifications\"" + separator);
+                writer.append("\"modifications\"").append(separator);
             }
 
-            writer.append("\"charge\"" + separator +
-                    "\"m/z\"" + separator +
-                    "\"dMass\"" + separator +
-                    "\"ppm\"" + separator +
-                    "\"RT\"" + separator +
-                    "\"missed\"" + separator +
-                    "\"sourceID\"" + separator +
-                    "\"spectrumTitle\"" + separator +
-                    "\"scores\"" + separator +
-                    "\"isUnique\"" +
-                    "\n"
-                    );
+            writer.append("\"charge\"").append(separator).append("\"m/z\"").append(separator).append("\"dMass\"").append(separator).append("\"ppm\"").append(separator).append("\"RT\"").append(separator).append("\"missed\"").append(separator).append("\"sourceID\"").append(separator).append("\"spectrumTitle\"").append(separator).append("\"scores\"").append(separator).append("\"isUnique\"").append("\n");
         }
 
         report = filterExport ? getFilteredReportProteins(getReportFilters()) :
@@ -660,22 +596,13 @@ public class ProteinModeller  implements Serializable {
 
             if (!oneAccessionPerLine) {
                 if (includes) {
-                    writer.append("\"PROTEIN\"" + separator);
+                    writer.append("\"PROTEIN\"").append(separator);
                 }
 
-                writer.append("\"" + accSB.toString() + "\"" + separator +
-                        "\"" + protein.getScore() + "\"" + separator +
-                        "\"" + protein.getNrPeptides() + "\"" + separator +
-                        "\"" + protein.getNrPSMs() + "\"" + separator +
-                        "\"" + protein.getNrSpectra() + "\""
-                        );
+                writer.append("\"").append(accSB.toString()).append("\"").append(separator).append("\"").append(String.valueOf(protein.getScore())).append("\"").append(separator).append("\"").append(String.valueOf(protein.getNrPeptides())).append("\"").append(separator).append("\"").append(String.valueOf(protein.getNrPSMs())).append("\"").append(separator).append("\"").append(String.valueOf(protein.getNrSpectra())).append("\"");
 
                 if (fdrData.getNrItems() != null) {
-                    writer.append( separator +
-                            "\"" + protein.getIsDecoy() + "\"" + separator +
-                            "\"" + protein.getFDR() + "\"" + separator +
-                            "\"" + protein.getQValue() + "\""
-                            );
+                    writer.append(separator).append("\"").append(String.valueOf(protein.getIsDecoy())).append("\"").append(separator).append("\"").append(String.valueOf(protein.getFDR())).append("\"").append(separator).append("\"").append(String.valueOf(protein.getQValue())).append("\"");
                 }
 
                 writer.append("\n");
@@ -689,8 +616,7 @@ public class ProteinModeller  implements Serializable {
                     if (considermodifications) {
                         for (Map.Entry<Integer, Modification> modIt
                                 : peptide.getModifications().entrySet()) {
-                            modStringBuffer.append("[" + modIt.getKey() + "," +
-                                    modIt.getValue().getMass() + ",");
+                            modStringBuffer.append("[").append(modIt.getKey()).append(",").append(modIt.getValue().getMass()).append(",");
                             if (modIt.getValue().getDescription() != null) {
                                 modStringBuffer.append(
                                         modIt.getValue().getDescription());
@@ -725,9 +651,7 @@ public class ProteinModeller  implements Serializable {
 
                         }
 
-                        writer.append(
-                                "\"PEPTIDE\"" + separator +
-                                "\"" + peptide.getSequence() + "\"" + separator);
+                        writer.append("\"PEPTIDE\"").append(separator).append("\"").append(peptide.getSequence()).append("\"").append(separator);
 
                         if (considermodifications)
                             writer.append("\"").
@@ -736,12 +660,7 @@ public class ProteinModeller  implements Serializable {
                                     append(separator);
 
 
-                        writer.append("\"" + accSB.toString() + "\"" + separator +
-                                "\"" + peptide.getNrSpectra() + "\"" + separator +
-                                "\"" + peptide.getNrPSMs() + "\"" + separator +
-                                "\"" + scoresSB.toString() + "\"" +
-                                "\n"
-                                );
+                        writer.append("\"").append(accSB.toString()).append("\"").append(separator).append("\"").append(String.valueOf(peptide.getNrSpectra())).append("\"").append(separator).append("\"").append(String.valueOf(peptide.getNrPSMs())).append("\"").append(separator).append("\"").append(scoresSB.toString()).append("\"").append("\n");
                     }
 
 
@@ -779,18 +698,7 @@ public class ProteinModeller  implements Serializable {
                                                 append("\"").append(separator);
 
 
-                                    writer.append("\"" + ((ReportPSMSet)psmSet).getPSMs().size() + "\"" + separator +
-                                            "\"" + psmSet.getCharge() + "\"" + separator +
-                                            "\"" + psmSet.getMassToCharge() + "\"" + separator +
-                                            "\"" + psmSet.getDeltaMass() + "\"" + separator +
-                                            "\"" + psmSet.getDeltaPPM() + "\"" + separator +
-                                            "\"" + rt + "\"" + separator +
-                                            "\"" + psmSet.getMissedCleavages() + "\"" + separator +
-                                            "\"" + sourceID + "\"" + separator +
-                                            "\"" + spectrumTitle + "\"" + separator +
-                                            "\"" + psmSet.getScoresString() + "\"" +
-                                            "\n"
-                                            );
+                                    writer.append("\"").append(String.valueOf(((ReportPSMSet) psmSet).getPSMs().size())).append("\"").append(separator).append("\"").append(String.valueOf(psmSet.getCharge())).append("\"").append(separator).append("\"").append(String.valueOf(psmSet.getMassToCharge())).append("\"").append(separator).append("\"").append(String.valueOf(psmSet.getDeltaMass())).append("\"").append(separator).append("\"").append(String.valueOf(psmSet.getDeltaPPM())).append("\"").append(separator).append("\"").append(rt).append("\"").append(separator).append("\"").append(String.valueOf(psmSet.getMissedCleavages())).append("\"").append(separator).append("\"").append(sourceID).append("\"").append(separator).append("\"").append(spectrumTitle).append("\"").append(separator).append("\"").append(psmSet.getScoresString()).append("\"").append("\n");
                                 }
 
                                 if (includePSMs || oneAccessionPerLine) {
@@ -819,8 +727,7 @@ public class ProteinModeller  implements Serializable {
                                             if (scoresSB.length() > 0) {
                                                 scoresSB.append(",");
                                             }
-                                            scoresSB.append(model.getName() +
-                                                    ":" + model.getValue());
+                                            scoresSB.append(model.getName()).append(":").append(model.getValue());
                                         }
 
                                         Boolean uniqueness =
@@ -828,54 +735,25 @@ public class ProteinModeller  implements Serializable {
                                                         psm.getSpectrum().getIsUnique() : false;
 
                                                         if (!oneAccessionPerLine) {
-                                                            writer.append(
-                                                                    "\"PSM\"" + separator +
-                                                                    "\"" + psm.getInputFileName() + "\"" + separator +
-                                                                    "\"" + psm.getSequence() + "\"" + separator);
+                                                            writer.append("\"PSM\"").append(separator).append("\"").append(psm.getInputFileName()).append("\"").append(separator).append("\"").append(psm.getSequence()).append("\"").append(separator);
 
                                                             if (considermodifications) {
-                                                                writer.append("\"" + modStringBuffer.toString() + "\"" + separator);
+                                                                writer.append("\"").append(modStringBuffer.toString()).append("\"").append(separator);
                                                             }
 
-                                                            writer.append("\"" + psm.getCharge() + "\"" + separator +
-                                                                    "\"" + psm.getMassToCharge() + "\"" + separator +
-                                                                    "\"" + psm.getDeltaMass() + "\"" + separator +
-                                                                    "\"" + psm.getDeltaPPM() + "\"" + separator +
-                                                                    "\"" + rt + "\"" + separator +
-                                                                    "\"" + psm.getMissedCleavages() + "\"" + separator +
-                                                                    "\"" + sourceID + "\"" + separator +
-                                                                    "\"" + spectrumTitle + "\"" + separator +
-                                                                    "\"" + scoresSB.toString() + "\"" +
-                                                                    "\n"
-                                                                    );
+                                                            writer.append("\"").append(String.valueOf(psm.getCharge())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getMassToCharge())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getDeltaMass())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getDeltaPPM())).append("\"").append(separator).append("\"").append(rt).append("\"").append(separator).append("\"").append(String.valueOf(psm.getMissedCleavages())).append("\"").append(separator).append("\"").append(sourceID).append("\"").append(separator).append("\"").append(spectrumTitle).append("\"").append(separator).append("\"").append(scoresSB.toString()).append("\"").append("\n");
                                                         } else {
                                                             // export for Spectral Counting
                                                             for (Accession acc
                                                                     : protein.getAccessions()) {
 
-                                                                writer.append(
-                                                                        "\"" + acc.getAccession() + "\"" + separator +
-                                                                        "\"" + psm.getInputFileName() + "\"" + separator +
-                                                                        "\"" + psm.getSequence() + "\"" + separator
-                                                                        );
+                                                                writer.append("\"").append(acc.getAccession()).append("\"").append(separator).append("\"").append(psm.getInputFileName()).append("\"").append(separator).append("\"").append(psm.getSequence()).append("\"").append(separator);
 
                                                                 if (considermodifications) {
-                                                                    writer.append(
-                                                                            "\"" + modStringBuffer.toString() + "\"" + separator);
+                                                                    writer.append("\"").append(modStringBuffer.toString()).append("\"").append(separator);
                                                                 }
 
-                                                                writer.append("\"" + psm.getCharge() + "\"" + separator +
-                                                                        "\"" + psm.getMassToCharge() + "\"" + separator +
-                                                                        "\"" + psm.getDeltaMass() + "\"" + separator +
-                                                                        "\"" + psm.getDeltaPPM() + "\"" + separator +
-                                                                        "\"" + rt + "\"" + separator +
-                                                                        "\"" + psm.getMissedCleavages() + "\"" + separator +
-                                                                        "\"" + sourceID + "\"" + separator +
-                                                                        "\"" + spectrumTitle + "\"" + separator +
-                                                                        "\"" + scoresSB.toString() + "\"" + separator +
-                                                                        "\"" + uniqueness  + "\"" +
-                                                                        "\n"
-                                                                        );
+                                                                writer.append("\"").append(String.valueOf(psm.getCharge())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getMassToCharge())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getDeltaMass())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getDeltaPPM())).append("\"").append(separator).append("\"").append(rt).append("\"").append(separator).append("\"").append(String.valueOf(psm.getMissedCleavages())).append("\"").append(separator).append("\"").append(sourceID).append("\"").append(separator).append("\"").append(spectrumTitle).append("\"").append(separator).append("\"").append(scoresSB.toString()).append("\"").append(separator).append("\"").append(String.valueOf(uniqueness)).append("\"").append("\n");
                                                             }
                                                         }
 

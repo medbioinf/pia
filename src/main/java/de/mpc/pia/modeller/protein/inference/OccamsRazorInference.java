@@ -123,12 +123,7 @@ public class OccamsRazorInference extends AbstractProteinInference {
         // get the clusters/trees
         for (Map.Entry<Long, Group> groupIt : groupMap.entrySet()) {
             Map<Long, Group> treeGroups =
-                    treeGroupMap.get(groupIt.getValue().getTreeID());
-
-            if (treeGroups == null) {
-                treeGroups = new HashMap<>();
-                treeGroupMap.put(groupIt.getValue().getTreeID(), treeGroups);
-            }
+                    treeGroupMap.computeIfAbsent(groupIt.getValue().getTreeID(), k -> new HashMap<>());
 
             treeGroups.put(groupIt.getKey(), groupIt.getValue());
         }

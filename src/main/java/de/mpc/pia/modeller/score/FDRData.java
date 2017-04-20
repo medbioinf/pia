@@ -3,7 +3,6 @@ package de.mpc.pia.modeller.score;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
@@ -404,7 +403,7 @@ public class FDRData implements Serializable {
         List<T> rankItems;
 
         // sort the items with the given comparator
-        Collections.sort(reportItems, comparator);
+        reportItems.sort(comparator);
 
         nrTargets = 0;
         nrDecoys = 0;

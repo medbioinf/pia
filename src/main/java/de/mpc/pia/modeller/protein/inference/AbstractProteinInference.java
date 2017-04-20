@@ -594,12 +594,8 @@ public abstract class AbstractProteinInference implements Serializable {
         // add the subProteins
         if ((subGroups != null) && subGroups.containsKey(id)) {
             for (Long subID : subGroups.get(id)) {
-                ReportProtein subProtein = proteins.get(subID);
-                if (subProtein == null) {
-                    subProtein = createProtein(subID, proteins, reportPeptidesMap,
-                            groupMap, sameSets, subGroups);
-                    proteins.put(subID, subProtein);
-                }
+                ReportProtein subProtein = proteins.computeIfAbsent(subID, k -> createProtein(subID, proteins, reportPeptidesMap,
+                        groupMap, sameSets, subGroups));
 
                 protein.addToSubsets(subProtein);
             }

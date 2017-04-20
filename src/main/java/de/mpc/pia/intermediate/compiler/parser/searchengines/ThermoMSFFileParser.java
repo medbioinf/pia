@@ -417,11 +417,7 @@ public class ThermoMSFFileParser {
         for (Object modObj : PeptidesAminoAcidModifications.getObjectMap(fileConnectionParams, PeptidesAminoAcidModifications.class).values()) {
             APeptidesAminoAcidModifications mod = (APeptidesAminoAcidModifications)modObj;
 
-            List<APeptidesAminoAcidModifications> modList = peptidesModifications.get(mod.getPeptideID());
-            if (modList == null) {
-                modList = new ArrayList<>();
-                peptidesModifications.put(mod.getPeptideID(), modList);
-            }
+            List<APeptidesAminoAcidModifications> modList = peptidesModifications.computeIfAbsent(mod.getPeptideID(), k -> new ArrayList<>());
 
             modList.add(mod);
         }
@@ -434,11 +430,7 @@ public class ThermoMSFFileParser {
         for (Object modObj : PeptidesTerminalModifications.getObjectMap(fileConnectionParams, PeptidesTerminalModifications.class).values()) {
             APeptidesTerminalModifications termMod = (APeptidesTerminalModifications)modObj;
 
-            List<AminoAcidModifications> termModList = terminalModifications.get(termMod.getPeptideID());
-            if (termModList == null) {
-                termModList = new ArrayList<>();
-                terminalModifications.put(termMod.getPeptideID(), termModList);
-            }
+            List<AminoAcidModifications> termModList = terminalModifications.computeIfAbsent(termMod.getPeptideID(), k -> new ArrayList<>());
 
             termModList.add((AminoAcidModifications)modificationsMap.get(termMod.getTerminalModificationID()));
         }
@@ -450,11 +442,7 @@ public class ThermoMSFFileParser {
         for (Object pepProtObj : PeptidesProteins.getObjectMap(fileConnectionParams, PeptidesProteins.class).values()) {
             PeptidesProteins pepProt = (PeptidesProteins)pepProtObj;
 
-            List<Long> proteinList = peptidesProteins.get(pepProt.getPeptideID());
-            if (proteinList == null) {
-                proteinList = new ArrayList<>();
-                peptidesProteins.put(pepProt.getPeptideID(), proteinList);
-            }
+            List<Long> proteinList = peptidesProteins.computeIfAbsent(pepProt.getPeptideID(), k -> new ArrayList<>());
 
             proteinList.add(pepProt.getProteinID());
         }
@@ -466,11 +454,7 @@ public class ThermoMSFFileParser {
         for (Object scoreObject : PeptideScores.getObjectMap(fileConnectionParams, PeptideScores.class).values()) {
             PeptideScores score = (PeptideScores)scoreObject;
 
-            List<APeptideScores> scoreList = peptidesScores.get(score.getPeptideID());
-            if (scoreList == null) {
-                scoreList = new ArrayList<>();
-                peptidesScores.put(score.getPeptideID(), scoreList);
-            }
+            List<APeptideScores> scoreList = peptidesScores.computeIfAbsent(score.getPeptideID(), k -> new ArrayList<>());
 
             scoreList.add(score);
         }
@@ -501,11 +485,7 @@ public class ThermoMSFFileParser {
             for (Object modObj : PeptidesAminoAcidModifications_decoy.getObjectMap(fileConnectionParams, PeptidesAminoAcidModifications_decoy.class).values()) {
                 APeptidesAminoAcidModifications mod = (APeptidesAminoAcidModifications)modObj;
 
-                List<APeptidesAminoAcidModifications> modList = peptidesModifications.get(mod.getPeptideID());
-                if (modList == null) {
-                    modList = new ArrayList<>();
-                    peptidesModifications.put(mod.getPeptideID(), modList);
-                }
+                List<APeptidesAminoAcidModifications> modList = peptidesModifications.computeIfAbsent(mod.getPeptideID(), k -> new ArrayList<>());
                 modList.add(mod);
             }
             LOGGER.info("#modified decoy peptides: " + peptidesModifications.size());
@@ -516,11 +496,7 @@ public class ThermoMSFFileParser {
             for (Object modObj : PeptidesTerminalModifications_decoy.getObjectMap(fileConnectionParams, PeptidesTerminalModifications_decoy.class).values()) {
                 APeptidesTerminalModifications termMod = (APeptidesTerminalModifications)modObj;
 
-                List<AminoAcidModifications> termModList = terminalModifications.get(termMod.getPeptideID());
-                if (termModList == null) {
-                    termModList = new ArrayList<>();
-                    terminalModifications.put(termMod.getPeptideID(), termModList);
-                }
+                List<AminoAcidModifications> termModList = terminalModifications.computeIfAbsent(termMod.getPeptideID(), k -> new ArrayList<>());
 
                 termModList.add((AminoAcidModifications)modificationsMap.get(termMod.getTerminalModificationID()));
             }
@@ -532,11 +508,7 @@ public class ThermoMSFFileParser {
             for (Object pepProtObj : PeptidesProteins_decoy.getObjectMap(fileConnectionParams, PeptidesProteins_decoy.class).values()) {
                 PeptidesProteins_decoy pepProt = (PeptidesProteins_decoy)pepProtObj;
 
-                List<Long> proteinList = peptidesProteins.get(pepProt.getPeptideID());
-                if (proteinList == null) {
-                    proteinList = new ArrayList<>();
-                    peptidesProteins.put(pepProt.getPeptideID(), proteinList);
-                }
+                List<Long> proteinList = peptidesProteins.computeIfAbsent(pepProt.getPeptideID(), k -> new ArrayList<>());
 
                 proteinList.add(pepProt.getProteinID());
             }
@@ -548,11 +520,7 @@ public class ThermoMSFFileParser {
             for (Object scoreObject : PeptideScores_decoy.getObjectMap(fileConnectionParams, PeptideScores_decoy.class).values()) {
                 PeptideScores_decoy score = (PeptideScores_decoy)scoreObject;
 
-                List<APeptideScores> scoreList = peptidesScores.get(score.getPeptideID());
-                if (scoreList == null) {
-                    scoreList = new ArrayList<>();
-                    peptidesScores.put(score.getPeptideID(), scoreList);
-                }
+                List<APeptideScores> scoreList = peptidesScores.computeIfAbsent(score.getPeptideID(), k -> new ArrayList<>());
 
                 scoreList.add(score);
             }
@@ -873,11 +841,7 @@ public class ThermoMSFFileParser {
 
             // look, if spectrumID has the needed spectraData, if not, add it
             Set<String> spectraDataIDs =
-                    spectrumIdToSpectraData.get(spectrumID.getId());
-            if (spectraDataIDs == null) {
-                spectraDataIDs = new HashSet<>();
-                spectrumIdToSpectraData.put(spectrumID.getId(), spectraDataIDs);
-            }
+                    spectrumIdToSpectraData.computeIfAbsent(spectrumID.getId(), k -> new HashSet<>());
             if (!spectraDataIDs.contains(spectraData.getId())) {
                 InputSpectra inputSpectra = new InputSpectra();
                 inputSpectra.setSpectraData(spectraData);

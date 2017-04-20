@@ -170,11 +170,7 @@ public class PiaPsmToSpectrum<P extends PSMItem> {
 
         for (Comparable specID : daController.getSpectrumIds()) {
             int mzBin = (int) (daController.getSpectrumPrecursorMz(specID) / BIN_WIDTH);
-            List<Comparable> specIDs = mzToSpectraBins.get(mzBin);
-            if (specIDs == null) {
-                specIDs = new ArrayList<>();
-                mzToSpectraBins.put(mzBin, specIDs);
-            }
+            List<Comparable> specIDs = mzToSpectraBins.computeIfAbsent(mzBin, k -> new ArrayList<>());
 
             specIDs.add(specID);
         }
