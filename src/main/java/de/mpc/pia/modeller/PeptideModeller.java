@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -171,12 +170,8 @@ public class PeptideModeller implements Serializable {
         for (PSMReportItem psm : reportPSMs) {
             String idString =
                     ReportPeptide.createStringID(psm, considerModifications);
-            ReportPeptide repPeptide = peptides.get(idString);
-            if (repPeptide == null) {
-                repPeptide = new ReportPeptide(psm.getSequence(), idString,
-                        psm.getPeptide());
-                peptides.put(idString, repPeptide);
-            }
+            ReportPeptide repPeptide = peptides.computeIfAbsent(idString, k -> new ReportPeptide(psm.getSequence(), idString,
+                    psm.getPeptide()));
             repPeptide.addPSM(psm);
         }
 
@@ -206,11 +201,7 @@ public class PeptideModeller implements Serializable {
      * @return
      */
     public List<AbstractFilter> getFilters(Long fileID) {
-        List<AbstractFilter> filters = fileFiltersMap.get(fileID);
-        if (filters == null) {
-            filters = new ArrayList<>();
-            fileFiltersMap.put(fileID, filters);
-        }
+        List<AbstractFilter> filters = fileFiltersMap.computeIfAbsent(fileID, k -> new ArrayList<>());
 
         return filters;
     }
@@ -336,8 +327,7 @@ public class PeptideModeller implements Serializable {
                         sortables.get(sortKey))).collect(Collectors.toList());
 
         if (fileReportPeptides.get(fileID) != null) {
-            Collections.sort(fileReportPeptides.get(fileID),
-                    ReportPeptideComparatorFactory.getComparator(compares));
+            (fileReportPeptides.get(fileID)).sort(ReportPeptideComparatorFactory.getComparator(compares));
         }
     }
 
@@ -591,15 +581,7 @@ public class PeptideModeller implements Serializable {
                                             append("\"").append(separator);
 
 
-                                writer.append("\"" + p.getCharge() + "\"" + separator
-                                        + "\"" + p.getMassToCharge() + "\"" + separator
-                                        + "\"" + p.getDeltaMass() + "\"" + separator
-                                        + "\"" + p.getDeltaPPM() + "\"" + separator
-                                        + "\"" + p.getRetentionTime() + "\"" + separator
-                                        + "\"" + p.getMissedCleavages() + "\"" + separator
-                                        + "\"" + p.getSourceID() + "\"" + separator
-                                        + "\"" + p.getSpectrumTitle() + "\"" + separator
-                                        + "\"" + p.getScoresString() + "\"");
+                                writer.append("\"").append(String.valueOf(p.getCharge())).append("\"").append(separator).append("\"").append(String.valueOf(p.getMassToCharge())).append("\"").append(separator).append("\"").append(String.valueOf(p.getDeltaMass())).append("\"").append(separator).append("\"").append(String.valueOf(p.getDeltaPPM())).append("\"").append(separator).append("\"").append(String.valueOf(p.getRetentionTime())).append("\"").append(separator).append("\"").append(String.valueOf(p.getMissedCleavages())).append("\"").append(separator).append("\"").append(p.getSourceID()).append("\"").append(separator).append("\"").append(p.getSpectrumTitle()).append("\"").append(separator).append("\"").append(p.getScoresString()).append("\"");
                                 writer.append("\n");
                             }
                         }

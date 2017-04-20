@@ -2,7 +2,6 @@ package de.mpc.pia.modeller.protein.inference;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -242,11 +241,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                     usedSpectra.add(psmIdKey);
 
                     // populate the spectraAccessions map
-                    Set<Long> accessions = spectraAccessions.get(psmIdKey);
-                    if (accessions == null) {
-                        accessions = new HashSet<>();
-                        spectraAccessions.put(psmIdKey, accessions);
-                    }
+                    Set<Long> accessions = spectraAccessions.computeIfAbsent(psmIdKey, k -> new HashSet<>());
                     for (Accession acc : reportPSM.getAccessions()) {
                         accessions.add(acc.getID());
                     }
@@ -459,7 +454,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                 // order the protein list
                 Comparator<ReportProtein> comparator =
                         ReportProteinComparatorFactory.CompareType.SCORE_SORT.getNewInstance();
-                Collections.sort(proteinList, comparator);
+                proteinList.sort(comparator);
 
                 // take the next protein from the list, that can be reported
                 proteinListIt = null;

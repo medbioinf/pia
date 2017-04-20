@@ -475,11 +475,7 @@ public class MzIdentMLExporter {
         for (PIAInputFile file : fileList) {
             AnalysisCollection ac = file.getAnalysisCollection();
             if (ac != null) {
-                List<SpectrumIdentification> specIDs = filesSpecIDs.get(file.getID());
-                if (specIDs == null) {
-                    specIDs = new ArrayList<>();
-                    filesSpecIDs.put(file.getID(), specIDs);
-                }
+                List<SpectrumIdentification> specIDs = filesSpecIDs.computeIfAbsent(file.getID(), k -> new ArrayList<>());
 
                 specIDs.addAll(ac.getSpectrumIdentification());
             }
@@ -490,11 +486,7 @@ public class MzIdentMLExporter {
         for (Map.Entry<Long, List<SpectrumIdentification>> specIDsIt : filesSpecIDs.entrySet()) {
             for (SpectrumIdentification specID : specIDsIt.getValue()) {
                 for (SearchDatabaseRef ref : specID.getSearchDatabaseRef()) {
-                    Set<Long> files = dbsInFiles.get(ref.getSearchDatabaseRef());
-                    if (files == null) {
-                        files = new HashSet<>();
-                        dbsInFiles.put(ref.getSearchDatabaseRef(), files);
-                    }
+                    Set<Long> files = dbsInFiles.computeIfAbsent(ref.getSearchDatabaseRef(), k -> new HashSet<>());
                     files.add(specIDsIt.getKey());
                 }
 
@@ -537,11 +529,7 @@ public class MzIdentMLExporter {
 
             // first build or get the peptide of the PSM
             String pepId = psm.getPeptideStringID(true);
-            Peptide peptide = peptideMap.get(pepId);
-            if (peptide == null) {
-                peptide = createPeptide(psm, PEPTIDE_PREFIX + pepId);
-                peptideMap.put(pepId, peptide);
-            }
+            Peptide peptide = peptideMap.computeIfAbsent(pepId, k -> createPeptide(psm, PEPTIDE_PREFIX + pepId));
 
             // then build the peptide evidences
             for (Accession accession : psm.getAccessions()) {

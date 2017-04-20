@@ -119,11 +119,7 @@ public class ReportAllInference extends AbstractProteinInference {
                 gIt.getValue().getAllPeptideChildren().values().stream().filter(pepGroupIt -> reportPeptidesMap.containsKey(pepGroupIt.getID())).forEach(pepGroupIt -> allPeptidesSet.addAll(reportPeptidesMap.get(pepGroupIt.getID()).stream().map(ReportPeptide::getStringID).collect(Collectors.toList())));
 
                 // fill the treeMap
-                Set<Long> treeSet = treeMap.get(gIt.getValue().getTreeID());
-                if (treeSet == null) {
-                    treeSet = new HashSet<>();
-                    treeMap.put(gIt.getValue().getTreeID(), treeSet);
-                }
+                Set<Long> treeSet = treeMap.computeIfAbsent(gIt.getValue().getTreeID(), k -> new HashSet<>());
                 treeSet.add(gIt.getKey());
 
             }
@@ -141,11 +137,7 @@ public class ReportAllInference extends AbstractProteinInference {
                 Long treeID = groupMap.get(gIt.getKey()).getTreeID();
 
                 // every group gets a sameSet
-                Set<Long> sameSet = sameSets.get(gIt.getKey());
-                if (sameSet == null) {
-                    sameSet = new HashSet<>();
-                    sameSets.put(gIt.getKey(), sameSet);
-                }
+                Set<Long> sameSet = sameSets.computeIfAbsent(gIt.getKey(), k -> new HashSet<>());
 
                 // check against the groups in the tree
                 for (Long checkID : treeMap.get(treeID)) {

@@ -56,8 +56,7 @@ public class PeptideModellerTest {
         piaModeller.getPSMModeller().calculateCombinedFDRScore();
 
         // calculate peptide FDR
-        piaModeller.getPeptideModeller().addFilter(0L,
-                new PSMScoreFilter(FilterComparator.less_equal, false, 0.5, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()));
+        piaModeller.getPeptideModeller().addFilter(0L, new PSMScoreFilter(FilterComparator.less_equal, false, 0.5, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()));
 
         fileID = 0L;
         piaModeller.getPeptideModeller().calculateFDR(fileID);

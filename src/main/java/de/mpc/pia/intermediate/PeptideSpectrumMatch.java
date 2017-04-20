@@ -626,21 +626,16 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
 
         usedSettings.forEach(keyKey::append);
 
-        String key = identificationKeys.get(keyKey.toString());
-
-        if (key == null) {
-            key = getIdentificationKey(
-                    psmSetSettings,
-                    this.getSequence(),
-                    this.getModificationString(),
-                    this.getCharge(),
-                    this.getMassToCharge(),
-                    this.getRetentionTime(),
-                    this.getSourceID(),
-                    this.getSpectrumTitle(),
-                    this.getFile().getID());
-            identificationKeys.put(keyKey.toString(), key);
-        }
+        String key = identificationKeys.computeIfAbsent(keyKey.toString(), k -> getIdentificationKey(
+                psmSetSettings,
+                this.getSequence(),
+                this.getModificationString(),
+                this.getCharge(),
+                this.getMassToCharge(),
+                this.getRetentionTime(),
+                this.getSourceID(),
+                this.getSpectrumTitle(),
+                this.getFile().getID()));
 
         return key;
     }

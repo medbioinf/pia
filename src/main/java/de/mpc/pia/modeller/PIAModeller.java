@@ -9,12 +9,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -1004,9 +999,7 @@ public class PIAModeller implements Serializable {
             paramList.add(FORMAT_PARAM + params[1]);
 
             if (params.length > 2) {
-                for (int idx = 2; idx < params.length; idx++) {
-                    paramList.add(params[idx]);
-                }
+                paramList.addAll(Arrays.asList(params).subList(2, params.length));
             }
         }
 

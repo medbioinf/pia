@@ -1532,13 +1532,8 @@ public class MzTabExporter {
                                 }
 
                                 Set<String> disctinctPeptides =
-                                        msRunIdToDistinctPeptides.get(msRun.getId());
-                                if (disctinctPeptides == null) {
-                                    disctinctPeptides = new HashSet<>(
-                                            reportProtein.getNrPeptides());
-                                    msRunIdToDistinctPeptides.put(
-                                            msRun.getId(), disctinctPeptides);
-                                }
+                                        msRunIdToDistinctPeptides.computeIfAbsent(msRun.getId(), k -> new HashSet<>(
+                                                reportProtein.getNrPeptides()));
                                 disctinctPeptides.add(reportPSM.getSequence());
                             }
                         }
@@ -1744,16 +1739,8 @@ public class MzTabExporter {
             accessionsToModifications.put(uniMod.getRecordId().toString(), uniMod);
 
             String residue = modification.getResidue().toString();
-            Map<Double, Set<ModT>> massToMods = resAndMassToModifications.get(residue);
-            if (massToMods == null) {
-                massToMods = new HashMap<>();
-                resAndMassToModifications.put(residue, massToMods);
-            }
-            Set<ModT> massMods = massToMods.get(uniMod.getDelta().getMonoMass());
-            if (massMods == null) {
-                massMods = new HashSet<>();
-                massToMods.put(uniMod.getDelta().getMonoMass(), massMods);
-            }
+            Map<Double, Set<ModT>> massToMods = resAndMassToModifications.computeIfAbsent(residue, k -> new HashMap<>());
+            Set<ModT> massMods = massToMods.computeIfAbsent(uniMod.getDelta().getMonoMass(), k -> new HashSet<>());
             massMods.add(uniMod);
         }
 

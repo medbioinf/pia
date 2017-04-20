@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -405,31 +404,18 @@ public class PSMModeller implements Serializable {
                             filesPSMList.add(psm);
 
                             // also put the PSM in the psmKey -> ReportPSM map, which is needed for the creation of the ReportPSMSets
-                            List<ReportPSM> psmSets = psmSetsMap.get(psmKey);
-                            if (psmSets == null) {
-                                psmSets = new ArrayList<>();
-                                psmSetsMap.put(psmKey, psmSets);
-                            }
+                            List<ReportPSM> psmSets = psmSetsMap.computeIfAbsent(psmKey, k -> new ArrayList<>());
                             psmSets.add(psm);
 
 
                             // record everything needed for the identification ranking
                             Map<String, Map<String, ArrayList<ReportPSM>>> spectraToPSMs =
-                                    fileToRankings.get(fileID);
-                            if (spectraToPSMs == null) {
-                                spectraToPSMs = new HashMap<>(psmsPerFile);
-                                fileToRankings.put(fileID, spectraToPSMs);
-                            }
+                                    fileToRankings.computeIfAbsent(fileID, k -> new HashMap<>(psmsPerFile));
 
 
                             String psmScoreRankKey = createPSMKeyForScoreRanking(psm);
                             Map<String, ArrayList<ReportPSM>> scoreshortsToPSMs =
-                                    spectraToPSMs.get(psmScoreRankKey);
-                            if (scoreshortsToPSMs == null) {
-                                scoreshortsToPSMs =
-                                        new HashMap<>();
-                                spectraToPSMs.put(psmScoreRankKey, scoreshortsToPSMs);
-                            }
+                                    spectraToPSMs.computeIfAbsent(psmScoreRankKey, k -> new HashMap<>());
 
                             for (ScoreModel score : psm.getScores()) {
                                 // add the scorenames, if not yet done, and take the values for topIdentificationRanking
@@ -515,12 +501,7 @@ public class PSMModeller implements Serializable {
                                 }
 
                                 ArrayList<ReportPSM> psmsOfSpectrum =
-                                        scoreshortsToPSMs.get(score.getShortName());
-                                if (psmsOfSpectrum == null) {
-                                    psmsOfSpectrum = new ArrayList<>(10);
-                                    scoreshortsToPSMs.put(score.getShortName(),
-                                            psmsOfSpectrum);
-                                }
+                                        scoreshortsToPSMs.computeIfAbsent(score.getShortName(), k -> new ArrayList<>(10));
                                 psmsOfSpectrum.add(psm);
                             }
 
@@ -555,7 +536,7 @@ public class PSMModeller implements Serializable {
 
                     // only sort and rank, if we know how
                     if (comp != null) {
-                        Collections.sort(scoreToPSMsIt.getValue(), comp);
+                        (scoreToPSMsIt.getValue()).sort(comp);
 
                         // give the ranks to the PSMs
                         Double lastScore = null;
@@ -955,6 +936,16 @@ public class PSMModeller implements Serializable {
             if (setPattern) {
                 fdrData.setDecoyPattern(pattern);
             }
+        }
+    }
+
+    /**
+     * This function set for all the PIA controllers the method of FDR to inherit from
+     * the original files.
+     */
+    public void setAllInheritedDecoyStrategies(){
+        for(FDRData fdrData: fileFDRData.values()){
+            fdrData.setDecoyStrategy(DecoyStrategy.INHERIT);
         }
     }
 
@@ -1401,8 +1392,7 @@ public class PSMModeller implements Serializable {
         for (Map.Entry<String, List<ReportPSMSet>> seSetIt : fileLists.entrySet()) {
             LOGGER.info("Calculation of Combined FDR Score for " + seSetIt.getKey());
 
-            Collections.sort(seSetIt.getValue(),
-                    new ScoreComparator<>(ScoreModelEnum.AVERAGE_FDR_SCORE.getShortName()));
+            (seSetIt.getValue()).sort(new ScoreComparator<>(ScoreModelEnum.AVERAGE_FDR_SCORE.getShortName()));
 
             FDRData fdrData = fileFDRData.get(0L);
 
@@ -1502,11 +1492,9 @@ public class PSMModeller implements Serializable {
         }
 
         if (fileID > 0) {
-            Collections.sort(fileReportPSMs.get(fileID),
-                    PSMReportItemComparator.getComparator(compares));
+            (fileReportPSMs.get(fileID)).sort(PSMReportItemComparator.getComparator(compares));
         } else {
-            Collections.sort(reportPSMSets,
-                    PSMReportItemComparator.getComparator(compares));
+            reportPSMSets.sort(PSMReportItemComparator.getComparator(compares));
         }
     }
 
@@ -1574,11 +1562,7 @@ public class PSMModeller implements Serializable {
      * @return
      */
     public List<AbstractFilter> getFilters(Long fileID) {
-        List<AbstractFilter> filters = fileFiltersMap.get(fileID);
-        if (filters == null) {
-            filters = new ArrayList<>();
-            fileFiltersMap.put(fileID, filters);
-        }
+        List<AbstractFilter> filters = fileFiltersMap.computeIfAbsent(fileID, k -> new ArrayList<>());
 
         return filters;
     }
@@ -1860,64 +1844,13 @@ public class PSMModeller implements Serializable {
 
         if (!exportForSC) {
             if (fileID > 0) {
-                writer.append(
-                        "\"sequence\"" + separator +
-                        "\"modifications\"" + separator +
-                        "\"charge\"" + separator +
-                        "\"m/z\"" + separator +
-                        "\"delta mass\"" + separator +
-                        "\"delta ppm\"" + separator +
-                        "\"retention time\"" + separator +
-                        "\"missed\"" + separator +
-                        "\"sourceID\"" + separator +
-                        "\"accessions\"" + separator +
-                        "\"scores\"" + separator +
-                        "\"identification ranks\"" + separator +
-                        "\"isDecoy\"" + separator +
-                        "\"isUnique\"" + separator +
-                        "\"isFDRGood\"" +
-                        "\n"
-                        );
+                writer.append("\"sequence\"").append(separator).append("\"modifications\"").append(separator).append("\"charge\"").append(separator).append("\"m/z\"").append(separator).append("\"delta mass\"").append(separator).append("\"delta ppm\"").append(separator).append("\"retention time\"").append(separator).append("\"missed\"").append(separator).append("\"sourceID\"").append(separator).append("\"accessions\"").append(separator).append("\"scores\"").append(separator).append("\"identification ranks\"").append(separator).append("\"isDecoy\"").append(separator).append("\"isUnique\"").append(separator).append("\"isFDRGood\"").append("\n");
             } else {
-                writer.append(
-                        "\"sequence\"" + separator +
-                        "\"modifications\"" + separator +
-                        "\"charge\"" + separator +
-                        "\"m/z\"" + separator +
-                        "\"delta mass\"" + separator +
-                        "\"delta ppm\"" + separator +
-                        "\"retention time\"" + separator +
-                        "\"missed\"" + separator +
-                        "\"sourceID\"" + separator +
-                        "\"accessions\"" + separator +
-                        "\"scores\"" + separator +
-                        "\"identification ranks\"" + separator +
-                        "\"isDecoy\"" + separator +
-                        "\"isFDRGood\"" + separator +
-                        "\n"
-                        );
+                writer.append("\"sequence\"").append(separator).append("\"modifications\"").append(separator).append("\"charge\"").append(separator).append("\"m/z\"").append(separator).append("\"delta mass\"").append(separator).append("\"delta ppm\"").append(separator).append("\"retention time\"").append(separator).append("\"missed\"").append(separator).append("\"sourceID\"").append(separator).append("\"accessions\"").append(separator).append("\"scores\"").append(separator).append("\"identification ranks\"").append(separator).append("\"isDecoy\"").append(separator).append("\"isFDRGood\"").append(separator).append("\n");
             }
         } else {
             // exportForSC is set
-            writer.append(
-                    "\"accession\"" + separator +
-                    "\"filename\"" + separator +
-                    "\"sequence\"" + separator +
-                    "\"modifications\"" + separator +
-                    "\"charge\"" + separator +
-                    "\"m/z\"" + separator +
-                    "\"delta mass\"" + separator +
-                    "\"delta ppm\"" + separator +
-                    "\"retention time\"" + separator +
-                    "\"missed\"" + separator +
-                    "\"sourceID\"" + separator +
-                    "\"spectrumTitle\"" + separator +
-                    "\"scores\"" + separator +
-                    "\"identification ranks\"" + separator +
-                    "\"isDecoy\"" + separator +
-                    "\"isUnique\"" +
-                    "\n"
-                    );
+            writer.append("\"accession\"").append(separator).append("\"filename\"").append(separator).append("\"sequence\"").append(separator).append("\"modifications\"").append(separator).append("\"charge\"").append(separator).append("\"m/z\"").append(separator).append("\"delta mass\"").append(separator).append("\"delta ppm\"").append(separator).append("\"retention time\"").append(separator).append("\"missed\"").append(separator).append("\"sourceID\"").append(separator).append("\"spectrumTitle\"").append(separator).append("\"scores\"").append(separator).append("\"identification ranks\"").append(separator).append("\"isDecoy\"").append(separator).append("\"isUnique\"").append("\n");
         }
 
         for (Object item : report) {
@@ -1933,24 +1866,7 @@ public class PSMModeller implements Serializable {
                         accessionsSB.append(acc.getAccession());
                     }
 
-                    writer.append(
-                            "\"" + psm.getSequence() + "\"" + separator +
-                            "\"" + psm.getModificationsString() + "\"" + separator +
-                            "\"" + psm.getCharge() + "\"" + separator +
-                            "\"" + psm.getMassToCharge() + "\"" + separator +
-                            "\"" + psm.getDeltaMass() + "\"" + separator +
-                            "\"" + psm.getDeltaPPM() + "\"" + separator +
-                            "\"" + psm.getRetentionTime() + "\"" + separator +
-                            "\"" + psm.getMissedCleavages() + "\"" + separator +
-                            "\"" + psm.getSourceID() + "\"" + separator +
-                            "\"" + accessionsSB.toString() + "\"" + separator +
-                            "\"" + psm.getScores() + "\"" + separator +
-                            "\"" + psm.getIdentificationRanks() + "\"" + separator +
-                            "\"" + psm.getIsDecoy() + "\"" + separator +
-                            "\"" + ((psm.getSpectrum().getIsUnique() != null) ? psm.getSpectrum().getIsUnique() : false) + "\"" + separator +
-                            "\"" + psm.getIsFDRGood() + "\"" +
-                            "\n"
-                            );
+                    writer.append("\"").append(psm.getSequence()).append("\"").append(separator).append("\"").append(psm.getModificationsString()).append("\"").append(separator).append("\"").append(String.valueOf(psm.getCharge())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getMassToCharge())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getDeltaMass())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getDeltaPPM())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getRetentionTime())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getMissedCleavages())).append("\"").append(separator).append("\"").append(psm.getSourceID()).append("\"").append(separator).append("\"").append(accessionsSB.toString()).append("\"").append(separator).append("\"").append(String.valueOf(psm.getScores())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getIdentificationRanks())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getIsDecoy())).append("\"").append(separator).append("\"").append(String.valueOf((psm.getSpectrum().getIsUnique() != null) ? psm.getSpectrum().getIsUnique() : false)).append("\"").append(separator).append("\"").append(String.valueOf(psm.getIsFDRGood())).append("\"").append("\n");
                 } else if (item instanceof ReportPSMSet) {
                     ReportPSMSet psm = (ReportPSMSet)item;
 
@@ -1981,23 +1897,7 @@ public class PSMModeller implements Serializable {
                         idRanks.append("]");
                     }
 
-                    writer.append(
-                            "\"" + psm.getSequence() + "\"" + separator +
-                            "\"" + psm.getModificationsString() + "\"" + separator +
-                            "\"" + psm.getCharge() + "\"" + separator +
-                            "\"" + psm.getMassToCharge() + "\"" + separator +
-                            "\"" + psm.getDeltaMass() + "\"" + separator +
-                            "\"" + psm.getDeltaPPM() + "\"" + separator +
-                            "\"" + psm.getRetentionTime() + "\"" + separator +
-                            "\"" + psm.getMissedCleavages() + "\"" + separator +
-                            "\"" + psm.getSourceID() + "\"" + separator +
-                            "\"" + accessionsSB.toString() + "\"" + separator +
-                            "\"" + scores.toString() + "\"" + separator +
-                            "\"" + idRanks.toString() + "\"" + separator +
-                            "\"" + psm.getIsDecoy() + "\"" + separator +
-                            "\"" + psm.getIsFDRGood() + "\"" + separator +
-                            "\n"
-                            );
+                    writer.append("\"").append(psm.getSequence()).append("\"").append(separator).append("\"").append(psm.getModificationsString()).append("\"").append(separator).append("\"").append(String.valueOf(psm.getCharge())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getMassToCharge())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getDeltaMass())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getDeltaPPM())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getRetentionTime())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getMissedCleavages())).append("\"").append(separator).append("\"").append(psm.getSourceID()).append("\"").append(separator).append("\"").append(accessionsSB.toString()).append("\"").append(separator).append("\"").append(scores.toString()).append("\"").append(separator).append("\"").append(idRanks.toString()).append("\"").append(separator).append("\"").append(String.valueOf(psm.getIsDecoy())).append("\"").append(separator).append("\"").append(String.valueOf(psm.getIsFDRGood())).append("\"").append(separator).append("\n");
                 }
             } else {
                 // spectral counting export
@@ -2022,7 +1922,7 @@ public class PSMModeller implements Serializable {
                             "\"" + ((psm.getSpectrum().getIsUnique() != null) ? psm.getSpectrum().getIsUnique() : false) + "\"";
 
                     for (Accession accession : psm.getAccessions()) {
-                        writer.append("\"" + accession.getAccession() + "\"" + separator);
+                        writer.append("\"").append(accession.getAccession()).append("\"").append(separator);
                         writer.append(exportLine);
                         writer.append("\n");
                     }
@@ -2069,7 +1969,7 @@ public class PSMModeller implements Serializable {
         Double originalFDRThreshold;
         String nl = System.getProperty("line.separator");
 
-        writer.append("PSM information about " + fileName + nl);
+        writer.append("PSM information about ").append(fileName).append(nl);
 
         // numbers for each file
         for (Long fileID : inputFiles.keySet()) {
@@ -2078,8 +1978,8 @@ public class PSMModeller implements Serializable {
                 continue;
             }
 
-            writer.append(nl + "PSMs in file #" + fileID + " (" + inputFiles.get(fileID).getName() + ")" + nl);
-            writer.append("==============================" + nl);
+            writer.append(nl).append("PSMs in file #").append(String.valueOf(fileID)).append(" (").append(inputFiles.get(fileID).getName()).append(")").append(nl);
+            writer.append("==============================").append(nl);
             writer.append("#PSMs: ");
             writer.append(Integer.toString(getNrReportPSMs(fileID)));
             writer.append(nl);
@@ -2093,11 +1993,11 @@ public class PSMModeller implements Serializable {
                 originalFDRThreshold = fdrData.getFDRThreshold();
 
                 writer.append(nl);
-                writer.append("FDR is calculated with " + getScoreName(fdrData.getScoreShortName()));
-                writer.append(" using " + getFilesTopIdentifications(fileID) + " top identifications");
+                writer.append("FDR is calculated with ").append(getScoreName(fdrData.getScoreShortName()));
+                writer.append(" using ").append(String.valueOf(getFilesTopIdentifications(fileID))).append(" top identifications");
                 writer.append(nl);
                 if (fdrData.getDecoyStrategy().equals(DecoyStrategy.ACCESSIONPATTERN)) {
-                    writer.append("Regular expression used to identify decoys: " + fdrData.getDecoyPattern());
+                    writer.append("Regular expression used to identify decoys: ").append(fdrData.getDecoyPattern());
                 } else {
                     writer.append("Searchengine internal decoys are used.");
                 }
@@ -2116,15 +2016,15 @@ public class PSMModeller implements Serializable {
 
                 if (!calculate ||
                         !fdrThresholds.contains(fdrData.getFDRThreshold())) {
-                    writer.append("FDR " + fdrData.getFDRThreshold() + ":" + nl);
-                    writer.append("  #targets below " + fdrData.getFDRThreshold() + " threshold: ");
+                    writer.append("FDR ").append(String.valueOf(fdrData.getFDRThreshold())).append(":").append(nl);
+                    writer.append("  #targets below ").append(String.valueOf(fdrData.getFDRThreshold())).append(" threshold: ");
                     writer.append(fdrData.getNrFDRGoodTargets().toString());
                     writer.append(nl);
-                    writer.append("  #decoys below " + fdrData.getFDRThreshold() + " threshold:  ");
+                    writer.append("  #decoys below ").append(String.valueOf(fdrData.getFDRThreshold())).append(" threshold:  ");
                     writer.append(fdrData.getNrFDRGoodDecoys().toString());
                     writer.append(nl);
                     writer.append("  score at threshold: ");
-                    writer.append("" + fdrData.getScoreAtThreshold());
+                    writer.append("").append(String.valueOf(fdrData.getScoreAtThreshold()));
                     writer.append(nl);
                 }
 
@@ -2136,15 +2036,15 @@ public class PSMModeller implements Serializable {
                             calculateFDR(fileID);
                         }
 
-                        writer.append("FDR " + thr + ":" + nl);
-                        writer.append("  #targets below " + thr + " threshold: ");
+                        writer.append("FDR ").append(String.valueOf(thr)).append(":").append(nl);
+                        writer.append("  #targets below ").append(String.valueOf(thr)).append(" threshold: ");
                         writer.append(fdrData.getNrFDRGoodTargets().toString());
                         writer.append(nl);
-                        writer.append("  #decoys below " + thr + " threshold:  ");
+                        writer.append("  #decoys below ").append(String.valueOf(thr)).append(" threshold:  ");
                         writer.append(fdrData.getNrFDRGoodDecoys().toString());
                         writer.append(nl);
                         writer.append("  score at threshold: ");
-                        writer.append("" + fdrData.getScoreAtThreshold());
+                        writer.append("").append(String.valueOf(fdrData.getScoreAtThreshold()));
                         writer.append(nl);
                     }
 
@@ -2156,8 +2056,8 @@ public class PSMModeller implements Serializable {
         }
 
         // numbers for PSMSets
-        writer.append(nl + "PSM sets (create sets = " + createPSMSets + ")" + nl);
-        writer.append("==============================" + nl);
+        writer.append(nl).append("PSM sets (create sets = ").append(String.valueOf(createPSMSets)).append(")").append(nl);
+        writer.append("==============================").append(nl);
         writer.append("#PSM sets: ");
         writer.append(Integer.toString(getNrReportPSMs(0L)));
         writer.append(nl);
@@ -2165,7 +2065,7 @@ public class PSMModeller implements Serializable {
 
 
         if (isCombinedFDRScoreCalculated()) {
-            writer.append("combined FDR score is calculated" + nl);
+            writer.append("combined FDR score is calculated").append(nl);
 
             fdrData = getFileFDRData().get(0L);
             originalFDRThreshold = fdrData.getFDRThreshold();
@@ -2182,15 +2082,15 @@ public class PSMModeller implements Serializable {
 
             if (!calculate ||
                     !fdrThresholds.contains(fdrData.getFDRThreshold())) {
-                writer.append("FDR " + fdrData.getFDRThreshold() + ":" + nl);
-                writer.append("  #targets below " + fdrData.getFDRThreshold() + " threshold: ");
+                writer.append("FDR ").append(String.valueOf(fdrData.getFDRThreshold())).append(":").append(nl);
+                writer.append("  #targets below ").append(String.valueOf(fdrData.getFDRThreshold())).append(" threshold: ");
                 writer.append(fdrData.getNrFDRGoodTargets().toString());
                 writer.append(nl);
-                writer.append("  #decoys below " + fdrData.getFDRThreshold() + " threshold:  ");
+                writer.append("  #decoys below ").append(String.valueOf(fdrData.getFDRThreshold())).append(" threshold:  ");
                 writer.append(fdrData.getNrFDRGoodDecoys().toString());
                 writer.append(nl);
                 writer.append("  score at threshold: ");
-                writer.append("" + fdrData.getScoreAtThreshold());
+                writer.append("").append(String.valueOf(fdrData.getScoreAtThreshold()));
                 writer.append(nl);
             }
 
@@ -2199,18 +2099,18 @@ public class PSMModeller implements Serializable {
                 for (Double thr : fdrThresholds) {
                     fdrData.setFDRThreshold(thr);
                     calculateCombinedFDRScore();
-                    writer.append("FDR " + thr + ":" + nl);
-                    writer.append("  #targets below " + thr + " threshold: ");
+                    writer.append("FDR ").append(String.valueOf(thr)).append(":").append(nl);
+                    writer.append("  #targets below ").append(String.valueOf(thr)).append(" threshold: ");
                     writer.append(fdrData.getNrFDRGoodTargets().toString());
                     writer.append(nl);
-                    writer.append("  #decoys below " + thr + " threshold:  ");
+                    writer.append("  #decoys below ").append(String.valueOf(thr)).append(" threshold:  ");
                     writer.append(fdrData.getNrFDRGoodDecoys().toString());
                     writer.append(nl);
                     int nrPSMs = 0;
-                    writer.append("  #good identifications in sets:" + nl);
+                    writer.append("  #good identifications in sets:").append(nl);
                     for (Integer nrIDs : getNrIdentifications(true)) {
                         nrPSMs++;
-                        writer.append("    " + nrPSMs + " - " + nrIDs + nl);
+                        writer.append("    ").append(String.valueOf(nrPSMs)).append(" - ").append(String.valueOf(nrIDs)).append(nl);
                     }
                 }
 

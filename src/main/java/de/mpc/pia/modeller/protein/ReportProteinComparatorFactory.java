@@ -45,7 +45,7 @@ public class ReportProteinComparatorFactory {
         NR_SPECTRA_SORT {
             @Override
             public Comparator<ReportProtein> getNewInstance() {
-                return (o1, o2) -> o1.getNrSpectra().compareTo(o2.getNrSpectra());
+                return Comparator.comparing(ReportProtein::getNrSpectra);
             }
 
             @Override
@@ -59,7 +59,7 @@ public class ReportProteinComparatorFactory {
         NR_PSMS_SORT {
             @Override
             public Comparator<ReportProtein> getNewInstance() {
-                return (o1, o2) -> o1.getNrPSMs().compareTo(o2.getNrPSMs());
+                return Comparator.comparing(ReportProtein::getNrPSMs);
             }
 
             @Override
@@ -73,7 +73,7 @@ public class ReportProteinComparatorFactory {
         NR_PEPTIDES_SORT {
             @Override
             public Comparator<ReportProtein> getNewInstance() {
-                return (o1, o2) -> o1.getNrPeptides().compareTo(o2.getNrPeptides());
+                return Comparator.comparing(ReportProtein::getNrPeptides);
             }
 
             @Override

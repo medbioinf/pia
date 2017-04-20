@@ -1,7 +1,6 @@
 package de.mpc.pia.modeller.protein.inference;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -457,7 +456,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
 
                             Comparator<ReportProtein> comparator =
                                     ReportProteinComparatorFactory.CompareType.SCORE_SORT.getNewInstance();
-                            Collections.sort(reportProteins, comparator);
+                            reportProteins.sort(comparator);
 
                             Set<ReportPeptide> sameScorePeptides =
                                     new HashSet<>();
@@ -571,7 +570,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
                                 // re-score and order the fake proteins
                                 if (!reportProteins.isEmpty()) {
                                     scoring.calculateProteinScores(reportProteins);
-                                    Collections.sort(reportProteins, comparator);
+                                    reportProteins.sort(comparator);
                                     sameScore =
                                             reportProteins.iterator().next().getScore();
                                     sameScorePeptides.clear();
@@ -629,12 +628,8 @@ public class SpectrumExtractorWorkerThread extends Thread {
             if (!usedSpectra.contains(specIDKey)) {
                 // this spectrum can still be used for this peptide
                 ReportPeptide reportPeptide =
-                        peptideMap.get(peptideKey);
-                if (reportPeptide == null) {
-                    reportPeptide = new ReportPeptide(psm.getSequence(),
-                            peptideKey, psm.getPeptide());
-                    peptideMap.put(peptideKey, reportPeptide);
-                }
+                        peptideMap.computeIfAbsent(peptideKey, k -> new ReportPeptide(psm.getSequence(),
+                                peptideKey, psm.getPeptide()));
 
                 // get the PSMSet for this reportPSM
                 ReportPSMSet psmSet = null;
@@ -703,12 +698,8 @@ public class SpectrumExtractorWorkerThread extends Thread {
             if (!usedSpectra.contains(specIDKey)) {
                 // this spectrum can still be used for this peptide
                 ReportPeptide reportPeptide =
-                        peptideMap.get(peptideKey);
-                if (reportPeptide == null) {
-                    reportPeptide = new ReportPeptide(psm.getSequence(),
-                            peptideKey, psm.getPeptide());
-                    peptideMap.put(peptideKey, reportPeptide);
-                }
+                        peptideMap.computeIfAbsent(peptideKey, k -> new ReportPeptide(psm.getSequence(),
+                                peptideKey, psm.getPeptide()));
 
                 if (!reportPeptide.getSpectraIdentificationKeys().contains(
                         specIDKey)) {

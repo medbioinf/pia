@@ -44,9 +44,7 @@ public class ProteinLayout<E> implements Layout<VertexObject, E> {
 
     /** locations of the VertexObjects */
     protected final Map<VertexObject, Point2D> locations = LazyMap.decorate(
-            new HashMap<>(), vertex -> {
-                return new Point2D.Double();
-            });
+            new HashMap<>(), vertex -> new Point2D.Double());
 
     /** The default horizontal vertex spacing. Initialized to 50. */
     private static final int DEFAULT_DISTX = 100;
