@@ -316,6 +316,8 @@ public class MzTabParser {
                         } else {
                             psm.setIsDecoy(false);
                         }
+                    }else{
+                        psm.setIsDecoy(null);
                     }
 
                     // get the peptide or create it
