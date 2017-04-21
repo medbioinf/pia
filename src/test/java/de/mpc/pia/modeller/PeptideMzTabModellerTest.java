@@ -7,8 +7,9 @@ import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.score.FDRData;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
+import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
+
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -19,17 +20,8 @@ import java.net.URISyntaxException;
 import static org.junit.Assert.assertEquals;
 
 /**
- * This code is licensed under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * ==Overview==
- * <p>
- * This class
- * <p>
- * Created by ypriverol (ypriverol@gmail.com) on 19/04/2017.
+ *
+ * @author ypriverol (ypriverol@gmail.com) on 19/04/2017.
  */
 public class PeptideMzTabModellerTest {
 
@@ -58,11 +50,11 @@ public class PeptideMzTabModellerTest {
 
     @Test
     public void testDecoysAndFDR() {
-        // set everything on PSM level (but not calculating the FDR now)
+        // set everything on PSM level (but don't calculate FDR now)
         piaModeller.setCreatePSMSets(true);
 
-        piaModeller.getPSMModeller().setAllInheritedDecoyStrategies();
-        //piaModeller.getPSMModeller().setAllTopIdentifications(1);
+        piaModeller.getPSMModeller().setAllDecoyPattern("searchengine");
+        piaModeller.getPSMModeller().setAllTopIdentifications(0);
 
         // calculate peptide FDR
         Long fileID = 1L;
@@ -70,27 +62,29 @@ public class PeptideMzTabModellerTest {
 
         FDRData fdrData = piaModeller.getPeptideModeller().getFilesFDRData(fileID);
 
-        assertEquals("Rnd.*", fdrData.getDecoyPattern());
+        assertEquals(DecoyStrategy.SEARCHENGINE, fdrData.getDecoyStrategy());
         assertEquals("mascot_score", fdrData.getScoreShortName());
-        assertEquals(1480, fdrData.getNrDecoys().intValue());
-        assertEquals(2004, fdrData.getNrItems().intValue());
-        assertEquals(524, fdrData.getNrTargets().intValue());
+        assertEquals(2, fdrData.getNrDecoys().intValue());
+        assertEquals(1260, fdrData.getNrItems().intValue());
+        assertEquals(1258, fdrData.getNrTargets().intValue());
+
+
 
         // calculate FDR on PSM level
         piaModeller.getPSMModeller().calculateAllFDR();
         piaModeller.getPSMModeller().calculateCombinedFDRScore();
 
-        // calculate peptide FDR
-        piaModeller.getPeptideModeller().addFilter(0L, new PSMScoreFilter(FilterComparator.less_equal, false, 0.5, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()));
+        // calculate peptide FDR and filter
+        piaModeller.getPeptideModeller().addFilter(0L, new PSMScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName()));
 
-        fileID = 0L;
+        fileID = 1L;
         piaModeller.getPeptideModeller().calculateFDR(fileID);
 
         fdrData = piaModeller.getPeptideModeller().getFilesFDRData(fileID);
 
-        assertEquals("psm_combined_fdr_score", fdrData.getScoreShortName());
-        assertEquals(3, fdrData.getNrDecoys().intValue());
-        assertEquals(8, fdrData.getNrItems().intValue());
-        assertEquals(5, fdrData.getNrTargets().intValue());
+        assertEquals("psm_fdr_score", fdrData.getScoreShortName());
+        assertEquals(2, fdrData.getNrDecoys().intValue());
+        assertEquals(1260, fdrData.getNrItems().intValue());
+        assertEquals(1258, fdrData.getNrTargets().intValue());
     }
 }

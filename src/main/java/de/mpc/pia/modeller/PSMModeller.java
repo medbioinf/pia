@@ -911,11 +911,10 @@ public class PSMModeller implements Serializable {
 
 
     /**
-     * Sets the given pattern as the decoy pattern for all files' FDR data and
-     * sets the FDR decoy strategy to
-     * {@link FDRData.DecoyStrategy}.ACCESSIONPATTERN, unless "searchengine" is
-     * given as pattern, which will set
-     * {@link FDRData.DecoyStrategy}.SEARCHENGINE as decoy strategy.
+     * Sets the given pattern as the decoy pattern for all files' FDR data and sets the FDR decoy strategy to
+     * {@link FDRData.DecoyStrategy}.ACCESSIONPATTERN, unless "searchengine" is given as pattern, which will set
+     * {@link FDRData.DecoyStrategy}.SEARCHENGINE as decoy strategy. The {@link DecoyStrategy}.INHERIT can only be used
+     * for protein or peptide level.
      *
      * @param pattern
      */
@@ -936,16 +935,6 @@ public class PSMModeller implements Serializable {
             if (setPattern) {
                 fdrData.setDecoyPattern(pattern);
             }
-        }
-    }
-
-    /**
-     * This function set for all the PIA controllers the method of FDR to inherit from
-     * the original files.
-     */
-    public void setAllInheritedDecoyStrategies(){
-        for(FDRData fdrData: fileFDRData.values()){
-            fdrData.setDecoyStrategy(DecoyStrategy.INHERIT);
         }
     }
 

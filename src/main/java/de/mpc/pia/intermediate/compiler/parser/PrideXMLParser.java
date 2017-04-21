@@ -41,7 +41,7 @@ import java.util.*;
 public class PrideXMLParser {
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(PrideXMLParser.class);
+    private static final Logger LOGGER = Logger.getLogger(PrideXMLParser.class);
 
     private static final Set<String> chargeAccessions = new HashSet<>(Arrays.asList(new String[]{
             "PSI:1000041",
@@ -82,7 +82,7 @@ public class PrideXMLParser {
         File prideFile = new File(fileName);
 
         if (!prideFile.canRead()) {
-            logger.error("could not read '" + fileName + "' for PRIDE XML parsing.");
+            LOGGER.error("could not read '" + fileName + "' for PRIDE XML parsing.");
             return false;
         }
 
@@ -291,7 +291,7 @@ public class PrideXMLParser {
                     // if the PSM is already in the compiler, the peptide must be there as well
                     peptide = compiler.getPeptide(sequence);
                     if (peptide == null) {
-                        logger.error("The peptide " + sequence + " was not found in the compiler!");
+                        LOGGER.error("The peptide " + sequence + " was not found in the compiler!");
                         continue;
                     }
                 }
@@ -338,13 +338,13 @@ public class PrideXMLParser {
 
         // go through all PSMs and delete decoy information (if none were found)
         if (!decoysFound) {
-            logger.debug("resetting all decoy information, because no decoys were found in the file");
+            LOGGER.debug("resetting all decoy information, because no decoys were found in the file");
             for (PeptideSpectrumMatch psm : keysToPSMs.values()) {
                 psm.setIsDecoy(null);
             }
         }
 
-        logger.info("inserted new: \n\t" +
+        LOGGER.info("inserted new: \n\t" +
                 pepNr + " peptides\n\t" +
                 specNr + " peptide spectrum matches\n\t" +
                 accNr + " accessions");
@@ -707,7 +707,7 @@ public class PrideXMLParser {
             software.setVersion(dataProcessingSection.getSoftware().getVersion());
             software = compiler.putIntoSoftwareMap(software);
         } else {
-            logger.warn("Could not parse software! Please contact developer and ask to implement software '"
+            LOGGER.warn("Could not parse software! Please contact developer and ask to implement software '"
                     + dataProcessingSection.getSoftware().getName() + "'");
         }
 
