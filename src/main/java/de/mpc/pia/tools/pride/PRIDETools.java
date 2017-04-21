@@ -40,6 +40,14 @@ public class PRIDETools {
 
 
     /**
+     * Private constructor to avoid construction
+     */
+    private PRIDETools() {
+        // do nothing
+    }
+
+
+    /**
      * getter for the PRIDE CV
      * @return
      */
@@ -54,15 +62,46 @@ public class PRIDETools {
      * @return
      */
     public static CvParam convertCvParam(Param param) {
-        if(param != null){
-            CvParam cvParam = new CvParam();
-            if(param.getAccession() != null) cvParam.setAccession(param.getAccession());
-            if(param.getName() != null) cvParam.setName(param.getName());
-            if(param.getValue() != null) cvParam.setValue(param.getValue());
-            if(param.getCvLabel() != null) cvParam.setUnitAccession(param.getCvLabel());
-            return cvParam;
+        CvParam cvParam = null;
+
+        if (param != null) {
+            if (param.getCvLabel() != null) {
+                if (MzIdentMLTools.getCvPSIMS().getId().equals(param.getCvLabel())
+                            || "MS".equals(param.getCvLabel())) {
+                    cvParam = MzIdentMLTools.createCvParam(
+                            param.getAccession(),
+                            MzIdentMLTools.getCvPSIMS(),
+                            param.getName(),
+                            param.getValue());
+                } else if (prideCV.getId().equals(param.getCvLabel())) {
+                    cvParam = MzIdentMLTools.createCvParam(
+                            param.getAccession(),
+                            prideCV,
+                            param.getName(),
+                            param.getValue());
+                }
+
+            } else {
+                cvParam = new CvParam();
+
+                if (param.getCvLabel() != null) {
+                    Cv newCv = new Cv();
+                    newCv.setId(param.getCvLabel());
+                    newCv.setFullName(param.getCvLabel());
+                    cvParam.setCv(newCv);
+                }
+                if (param.getAccession() != null) {
+                    cvParam.setAccession(param.getAccession());
+                }
+                if(param.getName() != null) {
+                    cvParam.setName(param.getName());
+                }
+                if(param.getValue() != null) {
+                    cvParam.setValue(param.getValue());
+                }
+            }
         }
-        return null;
+        return cvParam;
     }
 
     /**
