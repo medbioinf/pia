@@ -169,9 +169,6 @@ public class MzTabParser {
 
     /**
      * Checks the given file for readability and initializes the parser
-     *
-     * @param name
-     * @param fileName
      * @return
      */
     private boolean initializeParser() {
@@ -241,7 +238,6 @@ public class MzTabParser {
     /**
      * Parses through the proteins and caches them.
      *
-     * @param proteins
      * @return
      */
     private void cacheProteins() {
@@ -433,8 +429,6 @@ public class MzTabParser {
 
     /**
      * Parse the PSMs of the mzTab file.
-     *
-     * @param metadata
      */
     private void parsePSMs() {
         psmMap = new HashMap<>();
@@ -502,9 +496,6 @@ public class MzTabParser {
      * the methods needs as input the list of mztab modifications and the compiler. The metadata is necesary to
      * get the information of the modifications like names, positions, etc.
      *
-     * @param mzTabMods
-     * @param modifications
-     * @param compiler
      * @return
      */
     private Map<Integer, de.mpc.pia.intermediate.Modification> transformModifications(String sequence,
