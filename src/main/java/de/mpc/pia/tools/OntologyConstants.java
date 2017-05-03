@@ -113,6 +113,8 @@ public enum OntologyConstants {
     MSGF_DENOVOSCORE("MS-GF:DeNovoScore", "MS:1002050"),
     MSGF_SPECEVALUE("MS-GF:SpecEValue", "MS:1002052"),
     MSGF_EVALUE("MS-GF:EValue", "MS:1002053"),
+    MSGF_PEPQVALUE("MS-GF:PepQValue","MS:1002055"),
+    MSGF_QVALUE("MS-GF:QValue","MS:1002054"),
 
     MYRIMATCH_MVH("MyriMatch:MVH", "MS:1001589"),
 

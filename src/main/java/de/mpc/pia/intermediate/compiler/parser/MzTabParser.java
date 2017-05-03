@@ -416,6 +416,8 @@ public class MzTabParser {
             FileFormat newFileFormat = new FileFormat();
             newFileFormat.setCvParam(PRIDETools.convertCvParam(msRun.getFormat()));
             newSpectraData.setFileFormat(newFileFormat);
+            newSpectraData.setId(msRun.getId().toString());
+            newSpectraData.setName(msRun.getReference());
         }
 
         newSpectraData = compiler.putIntoSpectraDataMap(newSpectraData);
