@@ -169,9 +169,6 @@ public class MzTabParser {
 
     /**
      * Checks the given file for readability and initializes the parser
-     *
-     * @param name
-     * @param fileName
      * @return
      */
     private boolean initializeParser() {
@@ -241,7 +238,6 @@ public class MzTabParser {
     /**
      * Parses through the proteins and caches them.
      *
-     * @param proteins
      * @return
      */
     private void cacheProteins() {
@@ -409,6 +405,22 @@ public class MzTabParser {
         spectrumIdentificationMap.put(msRun.getId(), spectrumID);
 
         // create spectraData information
+        SpectraData newSpectraData = convertMsRunSpectraData(msRun);
+        newSpectraData = compiler.putIntoSpectraDataMap(newSpectraData);
+        spectraDataMap.put(msRun.getId(), newSpectraData);
+
+        InputSpectra inputSpectra = new InputSpectra();
+        inputSpectra.setSpectraData(newSpectraData);
+        spectrumID.getInputSpectra().add(inputSpectra);
+    }
+
+    /**
+     * Convert the MsRun to SpectraData
+     * @param msRun representation of spectraData in mzTab
+     * @return SpectraData represented in PIA and mzIdentML
+     */
+    public SpectraData convertMsRunSpectraData(MsRun msRun){
+
         SpectraData newSpectraData = new SpectraData();
         newSpectraData.setLocation(msRun.getLocation().toString());
 
@@ -420,21 +432,14 @@ public class MzTabParser {
             FileFormat newFileFormat = new FileFormat();
             newFileFormat.setCvParam(PRIDETools.convertCvParam(msRun.getFormat()));
             newSpectraData.setFileFormat(newFileFormat);
+            newSpectraData.setId(msRun.getId().toString());
+            newSpectraData.setName(msRun.getReference());
         }
-
-        newSpectraData = compiler.putIntoSpectraDataMap(newSpectraData);
-        spectraDataMap.put(msRun.getId(), newSpectraData);
-
-        InputSpectra inputSpectra = new InputSpectra();
-        inputSpectra.setSpectraData(newSpectraData);
-        spectrumID.getInputSpectra().add(inputSpectra);
+        return newSpectraData;
     }
-
 
     /**
      * Parse the PSMs of the mzTab file.
-     *
-     * @param metadata
      */
     private void parsePSMs() {
         psmMap = new HashMap<>();
@@ -502,9 +507,6 @@ public class MzTabParser {
      * the methods needs as input the list of mztab modifications and the compiler. The metadata is necesary to
      * get the information of the modifications like names, positions, etc.
      *
-     * @param mzTabMods
-     * @param modifications
-     * @param compiler
      * @return
      */
     private Map<Integer, de.mpc.pia.intermediate.Modification> transformModifications(String sequence,
@@ -633,6 +635,7 @@ public class MzTabParser {
             List<ScoreModel> scores, Map<Integer, de.mpc.pia.intermediate.Modification> modifications) {
 
         MsRun msRun = spectraRef.getMsRun();
+        SpectraData spectraData = convertMsRunSpectraData(msRun);
         PIAInputFile piaFile = inputFileMap.get(msRun.getId());
 
         String psmID = createPSMKey(mzTabPSM.getPSM_ID(), modifications, charge, sequence, precursorMZ, rt);
@@ -677,7 +680,6 @@ public class MzTabParser {
                 psm.addScore(score);
             }
         });
-
 
         Accession acc = parsePSMsAccession(mzTabPSM, msRun, piaFile.getID());
 
@@ -727,7 +729,6 @@ public class MzTabParser {
     private static void updatePSMsDecoyState(PeptideSpectrumMatch psm, PSM mzTabPSM) {
         if (mzTabPSM.getOptionColumnValueAsString(OPTIONAL_PEPTIDE_DECOY_COLUMN) != null) {
             boolean mzTabState = "1".equals(mzTabPSM.getOptionColumnValueAsString(OPTIONAL_PEPTIDE_DECOY_COLUMN));
-
             if (psm.getIsDecoy() == null) {
                 psm.setIsDecoy(mzTabState);
             } else {

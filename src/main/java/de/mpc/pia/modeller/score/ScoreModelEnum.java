@@ -996,6 +996,102 @@ public enum ScoreModelEnum {
         }
     },
 
+    /**
+     * The MS-GF+ PepQValue
+     */
+    MSGF_PEPQVALUE {
+        @Override
+        public String getName() {
+            return "MS-GF:PepQValue";
+        }
+
+        @Override
+        public String getShortName() {
+            return "msgf_pepqvalue";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.MSGF_PEPQVALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.MSGF_PEPQVALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+
+            return descs;
+        }
+    },
+
+    /**
+     * The MS-GF+ QValue
+     */
+    MSGF_QVALUE {
+        @Override
+        public String getName() {
+            return "MS-GF:QValue";
+        }
+
+        @Override
+        public String getShortName() {
+            return "msgf_qvalue";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.MSGF_QVALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.MSGF_QVALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+
+            return descs;
+        }
+    },
+
     /** End of MSGF+ Scores **/
 
     /** Beginning of MS-Amanda Scores **/
