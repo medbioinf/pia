@@ -6,6 +6,7 @@ import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.PIACachedCompiler;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
+import de.mpc.pia.intermediate.piaxml.ScoreXML;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.PIATools;
@@ -24,19 +25,9 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
-import uk.ac.ebi.pride.jmztab.model.FixedMod;
-import uk.ac.ebi.pride.jmztab.model.Metadata;
-import uk.ac.ebi.pride.jmztab.model.Modification;
-import uk.ac.ebi.pride.jmztab.model.MsRun;
-import uk.ac.ebi.pride.jmztab.model.PSM;
-import uk.ac.ebi.pride.jmztab.model.PSMSearchEngineScore;
-import uk.ac.ebi.pride.jmztab.model.Param;
-import uk.ac.ebi.pride.jmztab.model.Protein;
-import uk.ac.ebi.pride.jmztab.model.Software;
-import uk.ac.ebi.pride.jmztab.model.SpectraRef;
-import uk.ac.ebi.pride.jmztab.model.SplitList;
-import uk.ac.ebi.pride.jmztab.model.VariableMod;
+import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileParser;
+import uk.ac.ebi.pride.utilities.data.core.Score;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -504,8 +495,10 @@ public class MzTabParser {
 
     /**
      * This file will take a list of mzTab modifications and convert them to intermediate modifications
-     * the methods needs as input the list of mztab modifications and the compiler. The metadata is necesary to
+     * the methods needs as input the list of mztab modifications and the compiler. The metadata is necessary to
      * get the information of the modifications like names, positions, etc.
+     *
+     * The new version also include the probability that this modification is present.
      *
      * @return
      */
@@ -523,17 +516,27 @@ public class MzTabParser {
                         charMod,
                         compiler.getModReader().getPTMbyAccession(oldAccession).getMonoDeltaMass(),
                         prideModAccToName.get(oldAccession),
-                        oldMod.getAccession());
+                        oldMod.getAccession(),
+                        transformScore(oldMod.getPositionMap().get(pos)));
 
                 modifications.put(pos, mod);
             }
-
-
-
-
         }
 
         return modifications;
+    }
+
+    private ScoreXML transformScore(CVParam cvParam) {
+        if(cvParam != null){
+            ScoreXML score = new ScoreXML();
+            score.setCvLabel(cvParam.getCvLabel());
+            score.setCvAccession(cvParam.getAccession());
+            //Todo: We have some risk here for scores that are not double based.
+            score.setValue(Double.parseDouble(cvParam.getValue()));
+            score.setName(cvParam.getName());
+            return score;
+        }
+        return null;
     }
 
 
@@ -651,7 +654,7 @@ public class MzTabParser {
                     deltaMass,
                     rt,
                     sequence,
-                    -1,             // no way to calculate the missed cleavages w/o seqeunces and enzymes
+                    -1,             // no way to calculate the missed cleavages w/o sequences and enzymes
                     sourceID,
                     spectraTitle,
                     piaFile,

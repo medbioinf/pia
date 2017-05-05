@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.List;
 import java.util.Locale;
 
+import de.mpc.pia.intermediate.piaxml.ScoreXML;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -39,6 +41,8 @@ public class Modification implements Serializable {
     /** formatter for the mass as string */
     private static final DecimalFormat df;
 
+    private ScoreXML probability;
+
 
     // initialize some static variables
     static {
@@ -64,6 +68,23 @@ public class Modification implements Serializable {
         this.description = description;
         this.accession = acc;
         this.massString = df.format(mass);
+    }
+
+    /**
+     * Constructor including the probability of the Modification
+     *
+     * @param residue
+     * @param mass
+     * @param description
+     */
+    public Modification(Character residue, Double mass, String description,
+                        String acc, ScoreXML probability) {
+        this.residue = residue;
+        this.mass = mass;
+        this.description = description;
+        this.accession = acc;
+        this.massString = df.format(mass);
+        this.probability = probability;
     }
 
 
@@ -117,6 +138,14 @@ public class Modification implements Serializable {
         return accession;
     }
 
+
+    public ScoreXML getProbability() {
+        return probability;
+    }
+
+    public void setProbability(ScoreXML probability) {
+        this.probability = probability;
+    }
 
     @Override
     public int hashCode() {

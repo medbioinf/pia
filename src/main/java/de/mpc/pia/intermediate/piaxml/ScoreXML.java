@@ -12,6 +12,9 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "Score")
 public class ScoreXML {
+
+	private String cvLabel;
+
 	private String cvAccession;
 	
 	private String name;
@@ -70,5 +73,15 @@ public class ScoreXML {
 	 */
 	public void setValue(Double value) {
 		this.value = value;
+	}
+
+
+	@XmlAttribute(required = false)
+	public String getCvLabel() {
+		return cvLabel;
+	}
+
+	public void setCvLabel(String cvLabel) {
+		this.cvLabel = cvLabel;
 	}
 }
