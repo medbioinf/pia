@@ -641,6 +641,7 @@ public class MzTabParser {
         String psmID = createPSMKey(mzTabPSM.getPSM_ID(), modifications, charge, sequence, precursorMZ, rt);
 
         String sourceID = spectraRef.getReference();
+        String spectraTitle = spectraRef.toString();
 
         PeptideSpectrumMatch psm;
         if (!psmMap.containsKey(psmID)) {
@@ -652,7 +653,7 @@ public class MzTabParser {
                     sequence,
                     -1,             // no way to calculate the missed cleavages w/o seqeunces and enzymes
                     sourceID,
-                    null,
+                    spectraTitle,
                     piaFile,
                     spectrumIdentificationMap.get(msRun.getId()));
 
