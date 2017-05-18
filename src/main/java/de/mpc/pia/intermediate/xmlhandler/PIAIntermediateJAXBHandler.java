@@ -536,7 +536,8 @@ public class PIAIntermediateJAXBHandler implements Serializable {
                     modXML.getResidue().charAt(0),
                     modXML.getMass(),
                     modXML.getDescription(),
-                    modXML.getAccession()
+                    modXML.getAccession(),null,
+                    modXML.getCvLabel(), modXML.getProbability()
                     );
 
             psm.addModification(modXML.getLocation(), mod);

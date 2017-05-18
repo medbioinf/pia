@@ -84,4 +84,9 @@ public class ScoreXML {
 	public void setCvLabel(String cvLabel) {
 		this.cvLabel = cvLabel;
 	}
+
+	@Override
+	public String toString() {
+		return "["+cvLabel + "," + cvAccession + ',' + name + ',' + value + ']';
+	}
 }

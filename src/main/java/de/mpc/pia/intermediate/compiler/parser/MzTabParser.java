@@ -28,6 +28,8 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileParser;
 import uk.ac.ebi.pride.utilities.data.core.Score;
+import uk.ac.ebi.pride.utilities.pridemod.model.AbstractPTM;
+import uk.ac.ebi.pride.utilities.pridemod.model.PTM;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -506,17 +508,20 @@ public class MzTabParser {
             SplitList<uk.ac.ebi.pride.jmztab.model.Modification> mzTabMods) {
         Map<Integer, de.mpc.pia.intermediate.Modification> modifications = new HashMap<>();
 
+        if(sequence.equalsIgnoreCase("EAMKPLNKEYSARYLQLGPNLHKS"))
+            System.out.println("EAMKPLNKEYSARYLQLGPNLHKS");
         for (uk.ac.ebi.pride.jmztab.model.Modification oldMod : mzTabMods) {
             for(Integer pos : oldMod.getPositionMap().keySet()) {
                 String oldAccession = (oldMod.getType() == Modification.Type.MOD
                         && !oldMod.getAccession().startsWith("MOD")) ? "MOD:" + oldMod.getAccession(): oldMod.getAccession();
                 Character charMod = (pos == 0 || pos > sequence.length()) ? '.' : sequence.charAt(pos-1);
-
+                PTM oldPTM = compiler.getModReader().getPTMbyAccession(oldAccession);
                 de.mpc.pia.intermediate.Modification mod = new de.mpc.pia.intermediate.Modification(
                         charMod,
-                        compiler.getModReader().getPTMbyAccession(oldAccession).getMonoDeltaMass(),
-                        prideModAccToName.get(oldAccession),
-                        oldMod.getAccession(),
+                        ((AbstractPTM)oldPTM).getMonoDeltaMass(),
+                        prideModAccToName.get(oldPTM.getAccession()),
+                        oldPTM.getAccession(),
+                        null,oldPTM.getCvLabel(),
                         transformScore(oldMod.getPositionMap().get(pos)));
 
                 modifications.put(pos, mod);
@@ -526,7 +531,8 @@ public class MzTabParser {
         return modifications;
     }
 
-    private ScoreXML transformScore(CVParam cvParam) {
+    private List<ScoreXML> transformScore(CVParam cvParam) {
+        List<ScoreXML> scores = new ArrayList<>();
         if(cvParam != null){
             ScoreXML score = new ScoreXML();
             score.setCvLabel(cvParam.getCvLabel());
@@ -534,9 +540,9 @@ public class MzTabParser {
             //Todo: We have some risk here for scores that are not double based.
             score.setValue(Double.parseDouble(cvParam.getValue()));
             score.setName(cvParam.getName());
-            return score;
+            scores.add(score);
         }
-        return null;
+        return scores;
     }
 
 

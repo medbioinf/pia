@@ -146,6 +146,8 @@ public class SpectrumMatchXML {
 			modXML.setResidue(modIt.getValue().getResidue().toString());
 			modXML.setAccession(modIt.getValue().getAccession());
 			modXML.setDescription(modIt.getValue().getDescription());
+			modXML.setCvLabel(modIt.getValue().getCvLabel());
+			modXML.setProbabilities(modIt.getValue().getProbability());
 			modifications.add(modXML);
 		}
 		

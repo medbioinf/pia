@@ -3,6 +3,7 @@ package de.mpc.pia.intermediate.piaxml;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -25,8 +26,10 @@ public class ModificationXML {
 	
 	private String description;
 
+	private String cvLabel;
+
     @XmlElement(name = "Score")
-	private ScoreXML probability;
+	private List<ScoreXML> probability;
 	
 	/**
 	 * Gets the value of the location property.
@@ -118,9 +121,24 @@ public class ModificationXML {
 	}
 
 
-	public ScoreXML getProbability() {
+	public List<ScoreXML> getProbability() {
 		return this.probability;
 	}
 
+	@XmlAttribute
+	public String getCvLabel() {
+		return cvLabel;
+	}
 
+	public void setCvLabel(String cvLabel) {
+		this.cvLabel = cvLabel;
+	}
+
+	public void setProbabilities(List<ScoreXML> probabilities) {
+		if(probabilities != null && probabilities.size() > 0){
+			this.probability = new ArrayList<>();
+			for(ScoreXML score: probabilities)
+				this.probability.add(score);
+		}
+	}
 }

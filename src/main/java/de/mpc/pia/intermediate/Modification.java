@@ -38,10 +38,12 @@ public class Modification implements Serializable {
     /** the mass shift as formatted string */
     private String massString;
 
+    private String cvLabel = null;
+
     /** formatter for the mass as string */
     private static final DecimalFormat df;
 
-    private ScoreXML probability;
+    private List<ScoreXML> probability;
 
 
     // initialize some static variables
@@ -78,7 +80,7 @@ public class Modification implements Serializable {
      * @param description
      */
     public Modification(Character residue, Double mass, String description,
-                        String acc, ScoreXML probability) {
+                        String acc, List<ScoreXML> probability) {
         this.residue = residue;
         this.mass = mass;
         this.description = description;
@@ -87,6 +89,26 @@ public class Modification implements Serializable {
         this.probability = probability;
     }
 
+    /**
+     * This constructor can handle the post-translational modifications
+     * @param residue
+     * @param mass
+     * @param description
+     * @param accession
+     * @param massString
+     * @param cvLabel
+     * @param probability
+     */
+    public Modification(Character residue, Double mass, String description, String accession, String massString,
+                        String cvLabel, List<ScoreXML> probability) {
+        this.residue = residue;
+        this.mass = mass;
+        this.description = description;
+        this.accession = accession;
+        this.massString = massString;
+        this.cvLabel = cvLabel;
+        this.probability = probability;
+    }
 
     /**
      * Getter for the residue, i.e. the amino acids, where the modification
@@ -139,12 +161,20 @@ public class Modification implements Serializable {
     }
 
 
-    public ScoreXML getProbability() {
+    public List<ScoreXML >getProbability() {
         return probability;
     }
 
-    public void setProbability(ScoreXML probability) {
+    public void setProbability(List<ScoreXML> probability) {
         this.probability = probability;
+    }
+
+    public String getCvLabel() {
+        return cvLabel;
+    }
+
+    public void setCvLabel(String cvLabel) {
+        this.cvLabel = cvLabel;
     }
 
     @Override
