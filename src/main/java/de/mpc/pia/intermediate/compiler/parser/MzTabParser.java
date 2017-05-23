@@ -12,8 +12,10 @@ import de.mpc.pia.tools.PIATools;
 import de.mpc.pia.tools.pride.PRIDETools;
 
 import org.apache.log4j.Logger;
+import org.biojava.nbio.ontology.Term;
 
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
+import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.FileFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.InputSpectra;
 import uk.ac.ebi.jmzidml.model.mzidml.ModificationParams;
@@ -26,6 +28,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.pride.jmztab.model.FixedMod;
 import uk.ac.ebi.pride.jmztab.model.Metadata;
+import uk.ac.ebi.pride.jmztab.model.Mod;
 import uk.ac.ebi.pride.jmztab.model.Modification;
 import uk.ac.ebi.pride.jmztab.model.MsRun;
 import uk.ac.ebi.pride.jmztab.model.PSM;
@@ -41,6 +44,7 @@ import uk.ac.ebi.pride.jmztab.utils.MZTabFileParser;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,8 +57,8 @@ import java.util.Set;
  * This class read the MzTab Files and map the data to the PIA Intermediate data
  * structure
  *
- * @author Yasset Perez-Riverol (ypriverol@gmail.com)
  * @author julianu
+ * @author Yasset Perez-Riverol (ypriverol@gmail.com)
  *
  * @date 08/02/2016
  */
@@ -62,13 +66,6 @@ public class MzTabParser {
 
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(MzTabParser.class);
-
-
-    /** optional column header for protein sequences */
-    public static final String OPTIONAL_SEQUENCE_COLUMN = "protein_sequence";
-
-    /** optional comlunm header for peptide decoy state */
-    public static final String OPTIONAL_PEPTIDE_DECOY_COLUMN = "cv_MS:1002217_decoy_peptide";
 
 
     /** the PIA compiler */
@@ -119,6 +116,16 @@ public class MzTabParser {
     /** all modifications in the file */
     private ModificationParams allModificationParams;
 
+    /** mapping from the accession given in the mzTab file to  possible SearchModifications */
+    private Map<String, List<SearchModification>> mzTabaccessionToSearchModifications;
+
+
+    /** logical position of the PSM decoy state column */
+    private String psmDecoyStateLogicalPosition;
+
+    /** logical position of the protein sequence column */
+    private String proteinSequenceLogicalPosition;
+
 
     /** number of added accessions */
     private int accNr;
@@ -130,6 +137,16 @@ public class MzTabParser {
     private int psmNr;
 
 
+    /** optional column header for protein sequences */
+    public static final String OPTIONAL_SEQUENCE_COLUMN = "protein_sequence";
+
+    /** optional column header for peptide decoy state */
+    public static final String OPTIONAL_PEPTIDE_DECOY_COLUMN = "cv_MS:1002217_decoy_peptide";
+
+    /** Cv label for PSI-MOD */
+    private static final String CV_LABEL_PSI_MOD = "MOD";
+
+
     /**
      * We don't ever want to instantiate this class
      */
@@ -137,6 +154,9 @@ public class MzTabParser {
         this.compiler = compiler;
         this.fileName = fileName;
         this.tabParser = null;
+
+        this.psmDecoyStateLogicalPosition = null;
+        this.proteinSequenceLogicalPosition = null;
     }
 
 
@@ -244,6 +264,12 @@ public class MzTabParser {
         proteinsCache = new  HashMap<>();
         Collection<Protein> proteins = tabParser.getMZTabFile().getProteins();
 
+        tabParser.getMZTabFile().getProteinColumnFactory().getColumnMapping().forEach((key, value) -> {
+            if (value.getHeader().endsWith(OPTIONAL_SEQUENCE_COLUMN)) {
+                proteinSequenceLogicalPosition = value.getLogicPosition();
+            }
+        });
+
         if (proteins != null) {
             proteins.forEach(protein -> proteinsCache.put(protein.getAccession(), protein));
         }
@@ -293,38 +319,62 @@ public class MzTabParser {
      * @return
      */
     private ModificationParams retrieveAllMods(Metadata metadata) {
-
-        // TODO: parse the modifications from unimod, PSI-MOD or chemmod correctly!
-
         ModificationParams modifications = new ModificationParams();
+        mzTabaccessionToSearchModifications = new HashMap<>();
 
         if (metadata.getFixedModMap() != null) {
-            for (FixedMod fixed: metadata.getFixedModMap().values()) {
-                SearchModification searchModification = new SearchModification();
-                searchModification.setFixedMod(true);
-                searchModification.getCvParam().add(PRIDETools.convertCvParam(fixed.getParam()));
-                float valueDeltaMass = (fixed.getParam().getValue()!= null)? new Float(fixed.getParam().getValue()): new Float(-1.0) ;
-                searchModification.setMassDelta(valueDeltaMass);
-                modifications.getSearchModification().add(searchModification);
-                // TODO: here we don't need to specify the specificity but during the export we should be able to annotate that.
-            }
+            metadata.getFixedModMap().forEach((key, mod) -> {
+                createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add);
+            });
         }
 
         if (metadata.getVariableModMap() != null) {
-            for (VariableMod variableMod: metadata.getVariableModMap().values()) {
-                SearchModification searchModification = new SearchModification();
-                searchModification.setFixedMod(false);
-
-                searchModification.getCvParam().add(PRIDETools.convertCvParam(variableMod.getParam()));
-
-                float valueDeltaMass = (variableMod.getParam().getValue()!= null)? new Float(variableMod.getParam().getValue()): new Float(-1.0) ;
-                searchModification.setMassDelta(valueDeltaMass);
-
-                modifications.getSearchModification().add(searchModification);
-            }
+            metadata.getVariableModMap().forEach((key, mod) -> {
+                createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add);
+            });
         }
 
         return modifications;
+    }
+
+
+    /**
+     * Creates a list of {@link SearchModification}s from the params in the mzTab metadata. The created list is added
+     * to the mzTabaccessionToSearchModifications mapping.
+     *
+     * @param modParam
+     * @return
+     */
+    private List<SearchModification> createModificationListFromMzTabParamMod(Mod mod) {
+        Param modParam = mod.getParam();
+        List<SearchModification> searchModificationList;
+
+        if (modParam.getAccession().startsWith(CV_LABEL_PSI_MOD)) {
+            Term psiModTerm = compiler.getPsiModParser().getTerm(modParam.getAccession());
+            searchModificationList =
+                    compiler.getPsiModParser().getUnimodEquivalentSearchModifications(psiModTerm,
+                            compiler.getUnimodParser());
+        } else {
+            // try the PRIDE conversions
+            searchModificationList = new ArrayList<>();
+
+            SearchModification searchModification = new SearchModification();
+            searchModification.setFixedMod(false);
+
+            searchModification.getCvParam().add(PRIDETools.convertCvParam(modParam));
+
+            float valueDeltaMass = (modParam.getValue() != null) ?
+                    new Float(modParam.getValue()) : new Float(-1.0) ;
+            searchModification.setMassDelta(valueDeltaMass);
+
+            searchModificationList.add(searchModification);
+        }
+
+        if (!searchModificationList.isEmpty()) {
+            mzTabaccessionToSearchModifications.put(modParam.getAccession(), searchModificationList);
+        }
+
+        return searchModificationList;
     }
 
 
@@ -395,8 +445,13 @@ public class MzTabParser {
         file.addSpectrumIdentificationProtocol(spectrumIDProtocol);
         spectrumIdentificationProtocolMap.put(msRun.getId(), spectrumIDProtocol);
 
-        // add all modification infromation to all protocols for now
+        // add all modification information to all protocols for now
         spectrumIDProtocol.setModificationParams(allModificationParams);
+
+        // if there is only one software, add it to the protocol
+        if (analysisSoftwareMap.size() == 1) {
+            analysisSoftwareMap.forEach((k,v) -> spectrumIDProtocol.setAnalysisSoftware(v));
+        }
 
         SpectrumIdentification spectrumID = new SpectrumIdentification();
         spectrumID.setId("spectrumIdentification");
@@ -414,8 +469,10 @@ public class MzTabParser {
         spectrumID.getInputSpectra().add(inputSpectra);
     }
 
+
     /**
-     * Convert the MsRun to SpectraData
+     * Converts the MsRun to SpectraData
+     *
      * @param msRun representation of spectraData in mzTab
      * @return SpectraData represented in PIA and mzIdentML
      */
@@ -438,11 +495,18 @@ public class MzTabParser {
         return newSpectraData;
     }
 
+
     /**
      * Parse the PSMs of the mzTab file.
      */
     private void parsePSMs() {
         psmMap = new HashMap<>();
+
+        tabParser.getMZTabFile().getPsmColumnFactory().getColumnMapping().forEach((key, value) -> {
+            if (value.getHeader().endsWith(OPTIONAL_PEPTIDE_DECOY_COLUMN)) {
+                psmDecoyStateLogicalPosition = value.getLogicPosition();
+            }
+        });
 
         for (PSM mzTabPSM : tabParser.getMZTabFile().getPSMs()) {
             parsePSM(mzTabPSM);
@@ -475,7 +539,7 @@ public class MzTabParser {
 
         Map<Integer, de.mpc.pia.intermediate.Modification> modifications =
                 transformModifications(sequence, mzTabPSM.getModifications());
-
+        // TODO: if more than one position in the modification is encoded: generate multiple PSMs
         // TODO: add parsing of the search engines: actually only one search engine per PSM can be added to the specIdProtocol in PIA...
 
         List<ScoreModel> scores = parsePSMScores(mzTabPSM);
@@ -507,6 +571,8 @@ public class MzTabParser {
      * the methods needs as input the list of mztab modifications and the compiler. The metadata is necesary to
      * get the information of the modifications like names, positions, etc.
      *
+     * @param sequence
+     * @param mzTabMods
      * @return
      */
     private Map<Integer, de.mpc.pia.intermediate.Modification> transformModifications(String sequence,
@@ -514,23 +580,36 @@ public class MzTabParser {
         Map<Integer, de.mpc.pia.intermediate.Modification> modifications = new HashMap<>();
 
         for (uk.ac.ebi.pride.jmztab.model.Modification oldMod : mzTabMods) {
-            for(Integer pos : oldMod.getPositionMap().keySet()) {
-                String oldAccession = (oldMod.getType() == Modification.Type.MOD
-                        && !oldMod.getAccession().startsWith("MOD")) ? "MOD:" + oldMod.getAccession(): oldMod.getAccession();
-                Character charMod = (pos == 0 || pos > sequence.length()) ? '.' : sequence.charAt(pos-1);
 
-                de.mpc.pia.intermediate.Modification mod = new de.mpc.pia.intermediate.Modification(
-                        charMod,
-                        compiler.getModReader().getPTMbyAccession(oldAccession).getMonoDeltaMass(),
-                        prideModAccToName.get(oldAccession),
-                        oldMod.getAccession());
+            for (Integer pos : oldMod.getPositionMap().keySet()) {
+                String oldAccession = (oldMod.getType() == Modification.Type.MOD
+                        && !oldMod.getAccession().startsWith("MOD")) ? "MOD:" + oldMod.getAccession() : oldMod.getAccession();
+                Character residue = (pos == 0 || pos > sequence.length()) ? '.' : sequence.charAt(pos-1);
+
+                de.mpc.pia.intermediate.Modification mod;
+
+                if (mzTabaccessionToSearchModifications.containsKey(oldAccession)) {
+                    // there are multiple searchMods (with residues), but the needed values should be equal for all
+                    SearchModification searchMod = mzTabaccessionToSearchModifications.get(oldAccession).iterator().next();
+                    CvParam cvParam = searchMod.getCvParam().iterator().next();
+
+                    BigDecimal bd = new BigDecimal(Float.toString(searchMod.getMassDelta()));
+                    mod = new de.mpc.pia.intermediate.Modification(
+                            residue,
+                            bd.doubleValue(),
+                            cvParam.getName(),
+                            cvParam.getAccession());
+
+                } else {
+                    mod = new de.mpc.pia.intermediate.Modification(
+                            residue,
+                            compiler.getModReader().getPTMbyAccession(oldAccession).getMonoDeltaMass(),
+                            prideModAccToName.get(oldAccession),
+                            oldAccession);
+                }
 
                 modifications.put(pos, mod);
             }
-
-
-
-
         }
 
         return modifications;
@@ -617,7 +696,7 @@ public class MzTabParser {
 
 
     /**
-     * Parses the spectra of a PSM lien in the file
+     * Parses the spectra of a PSM line in the file
      *
      * @param mzTabPSM
      * @param spectraRef
@@ -635,7 +714,6 @@ public class MzTabParser {
             List<ScoreModel> scores, Map<Integer, de.mpc.pia.intermediate.Modification> modifications) {
 
         MsRun msRun = spectraRef.getMsRun();
-        SpectraData spectraData = convertMsRunSpectraData(msRun);
         PIAInputFile piaFile = inputFileMap.get(msRun.getId());
 
         String psmID = createPSMKey(mzTabPSM.getPSM_ID(), modifications, charge, sequence, precursorMZ, rt);
@@ -651,7 +729,7 @@ public class MzTabParser {
                     deltaMass,
                     rt,
                     sequence,
-                    -1,             // no way to calculate the missed cleavages w/o seqeunces and enzymes
+                    -1,             // no way to calculate the missed cleavages w/o sequences and enzymes
                     sourceID,
                     spectraTitle,
                     piaFile,
@@ -727,9 +805,10 @@ public class MzTabParser {
      * @param psm
      * @param mzTabPSM
      */
-    private static void updatePSMsDecoyState(PeptideSpectrumMatch psm, PSM mzTabPSM) {
-        if (mzTabPSM.getOptionColumnValueAsString(OPTIONAL_PEPTIDE_DECOY_COLUMN) != null) {
-            boolean mzTabState = "1".equals(mzTabPSM.getOptionColumnValueAsString(OPTIONAL_PEPTIDE_DECOY_COLUMN));
+    private void updatePSMsDecoyState(PeptideSpectrumMatch psm, PSM mzTabPSM) {
+        if (psmDecoyStateLogicalPosition != null) {
+            boolean mzTabState = "1".equals(mzTabPSM.getValue(psmDecoyStateLogicalPosition).toString());
+
             if (psm.getIsDecoy() == null) {
                 psm.setIsDecoy(mzTabState);
             } else {
@@ -769,8 +848,8 @@ public class MzTabParser {
         if (proteinsCache.containsKey(accession)) {
             Protein mzTabProtein = proteinsCache.get(accession);
 
-            if (acc.getDbSequence() == null) {
-                acc.setDbSequence(mzTabProtein.getOptionColumnValue(OPTIONAL_SEQUENCE_COLUMN));
+            if ((acc.getDbSequence() == null) && (proteinSequenceLogicalPosition != null)) {
+                acc.setDbSequence(mzTabProtein.getValue(proteinSequenceLogicalPosition).toString());
             }
 
             if (!acc.getDescriptions().containsKey(fileID)) {
