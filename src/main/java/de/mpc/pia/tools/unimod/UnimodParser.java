@@ -32,6 +32,18 @@ public class UnimodParser {
     /** the path to the packaged unimod */
     private static final String PATH_TO_SHIPPED_UNIMOD =  "/de/mpc/pia/unimod.xml";
 
+    /** designation for the position anywhere */
+    public static final String UNIMOD_ANYWHERE = "Anywhere";
+    /** designation for the position any n-term */
+    public static final String UNIMOD_ANY_N_TERM = "Any N-term";
+    /** designation for the position any c-term */
+    public static final String UNIMOD_ANY_C_TERM = "Any C-term";
+    /** designation for the position protein n-term */
+    public static final String UNIMOD_PROTEIN_N_TERM = "Protein N-term";
+    /** designation for the position protein c-term */
+    public static final String UNIMOD_PROTEIN_C_TERM = "Protein C-term";
+
+
     /** the CV for unimod */
     private static Cv cvUnimod;
 
@@ -179,7 +191,7 @@ public class UnimodParser {
                 }
             }
         } catch (NumberFormatException e) {
-            LOGGER.error("Could not parse accession: " + idStr, e);
+            LOGGER.error("Could not parse accession in UniMod: " + idStr, e);
         }
         return null;
     }

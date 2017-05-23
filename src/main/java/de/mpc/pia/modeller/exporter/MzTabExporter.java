@@ -275,28 +275,23 @@ public class MzTabExporter {
             metadata = createMetadataForMzTab(exportFileID, proteinLevel, filterExport,
                     tabDescription);
 
-            // write out the metadata header
-            outWriter.append(metadata.toString());
-
             // the PSMs, which will be in th export
             List<PSMReportItem> reportPSMs = new ArrayList<>();
 
             boolean exportReliabilitycolumn = false;
 
+            List<ReportProtein> proteinList = null;
+            Map<String, PSMReportItem> reportPSMsMap = null;
+
             if (proteinLevel) {
                 // write the report proteins
-                List<ReportProtein> proteinList;
                 proteinList = piaModeller.getProteinModeller().getFilteredReportProteins(
                         filterExport ? piaModeller.getProteinModeller().getReportFilters() : null);
 
                 if (proteinList == null) {
                     LOGGER.warn("No report protein list, probably inference was not run.");
                 } else {
-                    Map<String, PSMReportItem> reportPSMsMap = new HashMap<>();
-
-                    // write out the proteins
-                    outWriter.append(MZTabConstants.NEW_LINE);
-                    writeProteins(proteinList, reportPSMsMap, exportProteinSequences);
+                    reportPSMsMap = new HashMap<>();
 
                     reportPSMs = new ArrayList<>(reportPSMsMap.values());
                     exportReliabilitycolumn = piaModeller.getPSMModeller().isCombinedFDRScoreCalculated();
@@ -313,6 +308,17 @@ public class MzTabExporter {
                     reportPSMs.addAll(piaModeller.getPSMModeller().getFilteredReportPSMSets(filters));
                     exportReliabilitycolumn = piaModeller.getPSMModeller().isCombinedFDRScoreCalculated();
                 }
+            }
+
+            checkPSMsForUnassignedModifications(reportPSMs);
+
+            // write out the metadata header
+            outWriter.append(metadata.toString());
+
+            if (proteinList != null) {
+                // write out the proteins
+                outWriter.append(MZTabConstants.NEW_LINE);
+                writeProteins(proteinList, reportPSMsMap, exportProteinSequences);
             }
 
             // write out the PSMs
@@ -351,14 +357,11 @@ public class MzTabExporter {
 
         List<InputSpectra> inputSpectraList = new ArrayList<>();
         // all needed search modifications
-        List<SearchModification> searchModifications =
-                new ArrayList<>();
+        List<SearchModification> searchModifications = new ArrayList<>();
         // all needed analysis protocol collections (for the software in MTD)
-        List<AnalysisProtocolCollection> analysisProtocols =
-                new ArrayList<>();
+        List<AnalysisProtocolCollection> analysisProtocols = new ArrayList<>();
         // maps from the spectrumIdentification ID to the spectraData ID
-        Map<String, List<String>> spectrumIdentificationToSpectraData =
-                new HashMap<>();
+        Map<String, List<String>> spectrumIdentificationToSpectraData = new HashMap<>();
 
         if (fileID == 0) {
             addMetadataForOverview(mtd, inputSpectraList, searchModifications, analysisProtocols,
@@ -433,6 +436,12 @@ public class MzTabExporter {
                     !searchMod.getCvParam().isEmpty()) {
                 modAccession = searchMod.getCvParam().get(0).getAccession();
                 modName = searchMod.getCvParam().get(0).getName();
+            }
+
+            if ((modAccession != null)
+                    && (OntologyConstants.NO_FIXED_MODIFICATIONS_SEARCHED.getPsiAccession().equals(modAccession)
+                            || OntologyConstants.NO_VARIABLE_MODIFICATIONS_SEARCHED.getPsiAccession().equals(modAccession))) {
+                continue;
             }
 
             ModT uniMod = unimodParser.getModification(
@@ -793,13 +802,14 @@ public class MzTabExporter {
                 getSpectrumIdentificationProtocol().get(0).
                 getModificationParams();
         if ((modParams != null) && (modParams.getSearchModification() != null)) {
-            searchModifications.addAll(
-                    modParams.getSearchModification());
+            searchModifications.addAll(modParams.getSearchModification());
         }
 
         if (piaModeller.getFiles().get(fileID).getAnalysisProtocolCollection() != null) {
             analysisProtocols.add(piaModeller.getFiles().get(fileID).getAnalysisProtocolCollection());
         }
+
+
     }
 
 
@@ -993,12 +1003,6 @@ public class MzTabExporter {
                         null);
         columnFactory.addOptionalColumn(decoyColumnParam, String.class);
 
-        // if it is set, write the reliability column
-        if (reliabilityCol) {
-            columnFactory.addReliabilityOptionalColumn();
-        }
-
-
         // maps from the peptide's stringID to the peptide
         Map<String, ReportPeptide> reportPeptides = null;
 
@@ -1025,6 +1029,12 @@ public class MzTabExporter {
             for (ReportPeptide repPep : repPeplist) {
                 reportPeptides.put(repPep.getStringID(), repPep);
             }
+        }
+
+        // if it is set, write the reliability column
+        if (reliabilityCol) {
+            // there seems to be a bug in the setting of the correct column for the reliability, therefore put it to the end
+            columnFactory.addReliabilityOptionalColumn("9999");
         }
 
         outWriter.append(columnFactory.toString());
@@ -1082,8 +1092,7 @@ public class MzTabExporter {
                 mztabPsm.setUnique(MZBoolean.True);
             }
 
-            for (Map.Entry<Integer, Modification> modIt
-                    : psmItem.getModifications().entrySet()) {
+            for (Map.Entry<Integer, Modification> modIt : psmItem.getModifications().entrySet()) {
                 uk.ac.ebi.pride.jmztab.model.Modification mod;
                 mod = getUnimodModification(modIt.getValue());
 
@@ -1637,7 +1646,7 @@ public class MzTabExporter {
 
         if (uniMod == null) {
             // modification was not yet cached
-            createNewCachedModification(modification);
+            uniMod = createNewCachedModification(modification);
         }
 
         if (uniMod != null) {
@@ -1812,5 +1821,17 @@ public class MzTabExporter {
         }
 
         return occurrences.get(accession);
+    }
+
+
+    /**
+     * This function checks the given PSMs for modifications, which are not yet recorded for the header (i.e. not
+     * in the SpectrumIdetificationProtocol.
+     *
+     * @param reportPSMs
+     */
+    private void checkPSMsForUnassignedModifications(List<PSMReportItem> reportPSMs) {
+        // TODO: implement
+        // this must still be able to edit the modifications, therefore the metadata must not be ready yet...
     }
 }
