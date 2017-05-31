@@ -1,9 +1,7 @@
 package de.mpc.pia.intermediate.compiler.parser;
 
-import de.mpc.pia.intermediate.Accession;
-import de.mpc.pia.intermediate.PIAInputFile;
+import de.mpc.pia.intermediate.*;
 import de.mpc.pia.intermediate.Peptide;
-import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.PIACachedCompiler;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.piaxml.ScoreXML;
@@ -26,6 +24,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.pride.jmztab.model.*;
+import uk.ac.ebi.pride.jmztab.model.Modification;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileParser;
 import uk.ac.ebi.pride.utilities.data.core.Score;
 import uk.ac.ebi.pride.utilities.pridemod.model.AbstractPTM;
@@ -516,15 +515,19 @@ public class MzTabParser {
                         && !oldMod.getAccession().startsWith("MOD")) ? "MOD:" + oldMod.getAccession(): oldMod.getAccession();
                 Character charMod = (pos == 0 || pos > sequence.length()) ? '.' : sequence.charAt(pos-1);
                 PTM oldPTM = compiler.getModReader().getPTMbyAccession(oldAccession);
-                de.mpc.pia.intermediate.Modification mod = new de.mpc.pia.intermediate.Modification(
-                        charMod,
-                        ((AbstractPTM)oldPTM).getMonoDeltaMass(),
-                        prideModAccToName.get(oldPTM.getAccession()),
-                        oldPTM.getAccession(),
-                        null,oldPTM.getCvLabel(),
-                        transformScore(oldMod.getPositionMap().get(pos)));
+                //Todo: Neutral loss should be handle by default.
+                if(oldPTM != null){
+                    de.mpc.pia.intermediate.Modification mod = new de.mpc.pia.intermediate.Modification(
+                            charMod,
+                            ((AbstractPTM) oldPTM).getMonoDeltaMass(),
+                            prideModAccToName.get(oldPTM.getAccession()),
+                            oldPTM.getAccession(),
+                            null, oldPTM.getCvLabel(),
+                            transformScore(oldMod.getPositionMap().get(pos)));
+                    modifications.put(pos, mod);
+                }
 
-                modifications.put(pos, mod);
+
             }
         }
 

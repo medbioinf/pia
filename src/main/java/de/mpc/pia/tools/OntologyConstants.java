@@ -109,6 +109,7 @@ public enum OntologyConstants {
     MASCOT_EXPECTATION_VALUE("Mascot:expectation value", "MS:1001172", "Mascot expect value", "PRIDE:0000212"),
     MASCOT_INSTRUMENT("Mascot:Instrument", "MS:1001656"),
     MASCOT_IDENTITY_THRESHED("Mascot:identity threshold", "MS:1001371"),
+    MASCOT_PTM_SITE_CONFIDENT("Mascot:PTM site assignment", "MS:1002012"),
 
     MSGF_RAWSCORE("MS-GF:RawScore", "MS:1002049"),
     MSGF_DENOVOSCORE("MS-GF:DeNovoScore", "MS:1002050"),
@@ -127,6 +128,8 @@ public enum OntologyConstants {
     SEQUEST_XCORR("SEQUEST:xcorr", "MS:1001157", "Sequest score", "PRIDE:0000053"),
     SEQUEST_SP("SEQUEST:sp", "MS:1001155", "Sp", "PRIDE:0000054"),
     SEQUEST_DELTA_CN("SEQUEST:deltacn", "MS:1001156", "Delta Cn", "PRIDE:0000012"),
+    SEQUEST_PEPTIDE_SP("SEQUEST:PeptideSp", "MS:1001215"),
+    SEQUEST_PEPTIDE_RANK_SP("SEQUEST:PeptideRankSp", "MS:1001217"),
 
 
     SCAFFOLD_PEPTIDE_PROBABILITY("Scaffold:Peptide Probability", "MS:1001568"),
@@ -136,9 +139,12 @@ public enum OntologyConstants {
     XTANDEM_EXPECT("X!Tandem:expect", "MS:1001330", "expect", "PRIDE:0000183"),
     XTANDEM_HYPERSCORE("X!Tandem:hyperscore", "MS:1001331", "X!Tandem Hyperscore", "PRIDE:0000176"),
 
+    COMET_DELTA_CN("Comet:deltacn", "MS:1002253"),
+    COMET_XCORR("Comet:xcorr", "MS:1002252"),
+
     PROTEOME_DISCOVERER_MIN_PEPTIDE_LENGTH("ProteomeDiscoverer:min peptide length", "MS:1002322"),
-    PROTEOME_DISCOVERER_MAX_PEPTIDE_LENGTH("ProteomeDiscoverer:max peptide length", "MS:1002323"),
-    ;
+    PROTEOME_DISCOVERER_MAX_PEPTIDE_LENGTH("ProteomeDiscoverer:max peptide length", "MS:1002323");
+
 
     /** URL to the current psi-ms.obo file */
     public static final String PSI_MS_OBO_URL = "https://raw.githubusercontent.com/HUPO-PSI/psi-ms-CV/master/psi-ms.obo";
