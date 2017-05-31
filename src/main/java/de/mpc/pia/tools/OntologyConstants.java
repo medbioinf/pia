@@ -108,6 +108,7 @@ public enum OntologyConstants {
     MASCOT_SCORE("Mascot:score", "MS:1001171", "Mascot score", "PRIDE:0000069"),
     MASCOT_EXPECTATION_VALUE("Mascot:expectation value", "MS:1001172", "Mascot expect value", "PRIDE:0000212"),
     MASCOT_INSTRUMENT("Mascot:Instrument", "MS:1001656"),
+    MASCOT_IDENTITY_THRESHED("Mascot:identity threshold", "MS:1001371"),
 
     MSGF_RAWSCORE("MS-GF:RawScore", "MS:1002049"),
     MSGF_DENOVOSCORE("MS-GF:DeNovoScore", "MS:1002050"),
@@ -125,6 +126,11 @@ public enum OntologyConstants {
     SEQUEST_PROBABILITY("SEQUEST:probability", "MS:1001154"),
     SEQUEST_XCORR("SEQUEST:xcorr", "MS:1001157", "Sequest score", "PRIDE:0000053"),
     SEQUEST_SP("SEQUEST:sp", "MS:1001155", "Sp", "PRIDE:0000054"),
+    SEQUEST_DELTA_CN("SEQUEST:deltacn", "MS:1001156", "Delta Cn", "PRIDE:0000012"),
+
+
+    SCAFFOLD_PEPTIDE_PROBABILITY("Scaffold:Peptide Probability", "MS:1001568"),
+
 
     XTANDEM("X!Tandem", "MS:1001476"),
     XTANDEM_EXPECT("X!Tandem:expect", "MS:1001330", "expect", "PRIDE:0000183"),

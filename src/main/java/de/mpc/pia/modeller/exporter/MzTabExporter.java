@@ -1441,10 +1441,6 @@ public class MzTabExporter {
      * @param reportPSMs
      * @param psmSetSettings
      * @param msRunMap
-     * @param proteinScoreColumnParam
-     * @param fdrColumnParam
-     * @param qvalueColumnParam
-     * @param nrPeptidesColumnParam
      * @return
      */
     private Protein createMzTabProtein(ReportProtein reportProtein, MZTabColumnFactory proteinColumnFactory,

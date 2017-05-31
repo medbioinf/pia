@@ -520,6 +520,59 @@ public enum ScoreModelEnum {
         }
     },
 
+    MASCOT_IDENTITY_THRESHOLD {
+        @Override
+        public String getName() {
+            return "Mascot:identity threshold";
+        }
+
+        @Override
+        public String getShortName() {
+            return "mascot_identity_threshold";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.MASCOT_IDENTITY_THRESHED.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.MASCOT_IDENTITY_THRESHED.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return false;
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add("Mascot Identity Threshold");
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
+
+            return descs;
+        }
+    },
+
+
     /** End of Mascot Scores**/
 
     /**
@@ -673,6 +726,63 @@ public enum ScoreModelEnum {
             descs.add(getName().toLowerCase());
             descs.add("Sequest XCorr");
             descs.add("sequest xcorr");
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
+
+            return descs;
+        }
+    },
+
+    SEQUEST_DELTACN {
+        @Override
+        public String getName() {
+            return "Delta Cn";
+        }
+
+        @Override
+        public String getShortName() {
+            return "sequest_deltacn";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.SEQUEST_DELTA_CN.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.SEQUEST_DELTA_CN.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            List<String> accessions = new ArrayList<>();
+            accessions.add(OntologyConstants.SEQUEST_DELTA_CN.getPrideAccession());
+            return accessions;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return false;
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add("Delta Cn");
+            descs.add("delta cn");
+            descs.add("Sequest delta cn");
+            descs.add("Sequest Delta Cn");
             descs.add(getShortName());
             descs.add(getCvAccession());
             descs.add(getCvName());
@@ -1201,6 +1311,60 @@ public enum ScoreModelEnum {
             descs.add(getCvAccession());
             descs.add(getCvName());
             descs.add("MyriMatch_mvh_score");
+
+            return descs;
+        }
+    },
+
+    /**
+     * The SCAFFOLD SCORES
+     */
+    SCAFFOLD_PEPTIDE_PROBABILITY {
+        @Override
+        public String getName() {
+            return "Scaffold:Peptide Probability";
+        }
+
+        @Override
+        public String getShortName() {
+            return "scaffold_peptide_probability";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.SCAFFOLD_PEPTIDE_PROBABILITY.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.SCAFFOLD_PEPTIDE_PROBABILITY.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            return Collections.emptyList();
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return true;
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+            descs.add("scaffold_peptide_probability");
 
             return descs;
         }
