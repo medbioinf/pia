@@ -110,6 +110,7 @@ public enum OntologyConstants {
     MASCOT_INSTRUMENT("Mascot:Instrument", "MS:1001656"),
     MASCOT_IDENTITY_THRESHED("Mascot:identity threshold", "MS:1001371"),
     MASCOT_PTM_SITE_CONFIDENT("Mascot:PTM site assignment", "MS:1002012"),
+    MASCOT_HOMOLOGY_THRESHOLD("Mascot:homology threshold", "MS:1001370"),
 
     MSGF_RAWSCORE("MS-GF:RawScore", "MS:1002049"),
     MSGF_DENOVOSCORE("MS-GF:DeNovoScore", "MS:1002050"),
@@ -117,8 +118,6 @@ public enum OntologyConstants {
     MSGF_EVALUE("MS-GF:EValue", "MS:1002053"),
     MSGF_PEPQVALUE("MS-GF:PepQValue","MS:1002055"),
     MSGF_QVALUE("MS-GF:QValue","MS:1002054"),
-
-    MYRIMATCH_MVH("MyriMatch:MVH", "MS:1001589"),
 
     OMSSA_E_VALUE("OMSSA:evalue", "MS:1001328", "OMSSA E-value", "PRIDE:0000185"),
     OMSSA_P_VALUE("OMSSA:pvalue", "MS:1001329", "OMSSA P-value", "PRIDE:0000186"),
@@ -132,6 +131,7 @@ public enum OntologyConstants {
     SEQUEST_PEPTIDE_RANK_SP("SEQUEST:PeptideRankSp", "MS:1001217"),
 
 
+
     SCAFFOLD_PEPTIDE_PROBABILITY("Scaffold:Peptide Probability", "MS:1001568"),
 
 
@@ -142,8 +142,24 @@ public enum OntologyConstants {
     COMET_DELTA_CN("Comet:deltacn", "MS:1002253"),
     COMET_XCORR("Comet:xcorr", "MS:1002252"),
 
+    PEAKS_PEPTIDE_SCORE("PEAKS:peptideScore","MS:1001950"),
+
+    PERCOLATOR_POSTERIOR_ERROR_PROBABILITY("percolator:PEP", "MS:1001493"),
+    PERCOLATOR_Q_VALUE("percolator:Q value","MS:1001491"),
+
     PROTEOME_DISCOVERER_MIN_PEPTIDE_LENGTH("ProteomeDiscoverer:min peptide length", "MS:1002322"),
-    PROTEOME_DISCOVERER_MAX_PEPTIDE_LENGTH("ProteomeDiscoverer:max peptide length", "MS:1002323");
+    PROTEOME_DISCOVERER_MAX_PEPTIDE_LENGTH("ProteomeDiscoverer:max peptide length", "MS:1002323"),
+    WATERS_IDENTITYE_SCORE("IdentityE Score", "MS:1001569"),
+
+    PEPTIDESHAKER_PSM_SCORE("PeptideShaker: PSM Score", "MS:1002466"),
+    PEPTIDESHAKER_PSM_CONFIDENCE_SCORE("PeptideShaker PSM confidence", "MS:1002467"),
+
+    MYRIMATCH_MVH("MyriMatch:MVH", "MS:1001589"),
+    MYRIMATCH_MZFIDELITY_SCORE("MyriMatch:mzFidelity", "MS:1001590"),
+
+    PHENYX_PEPTIDE_Z_SCORE( "Phenyx:Pepzscore", "MS:1001395"),
+    PHENYX_SCORE( "Phenyx:Score", "MS:1001390");
+
 
 
     /** URL to the current psi-ms.obo file */

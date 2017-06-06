@@ -610,6 +610,11 @@ public class MzTabParser {
                 scoreType = ScoreModelEnum.getModelByDescription(searchEngineScoreParam.getName());
             }
 
+            if ((scoreType == null) || ScoreModelEnum.UNKNOWN_SCORE.equals(scoreType)) {
+                throw new IllegalArgumentException("type must not be null or of " +
+                        "type UNKNOWN_SCORE: " + searchEngineScoreParam.toString());
+            }
+
             score = new ScoreModel(null, scoreType);
 
             searchEngineParamsToScoreModels.put(searchEngineScoreParam, score);
