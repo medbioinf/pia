@@ -391,7 +391,7 @@ public abstract class PIACompiler {
      *
      * @return the newly created PSM
      */
-    public abstract PeptideSpectrumMatch createNewPeptideSpectrumMatch(int charge,
+    public abstract PeptideSpectrumMatch createNewPeptideSpectrumMatch(Integer charge,
             double massToCharge, double deltaMass, Double rt, String sequence,
             int missed, String sourceID, String spectrumTitle,
             PIAInputFile file, SpectrumIdentification spectrumID);

@@ -216,6 +216,9 @@ public class PrideXMLParser {
 
                 foundModifications.addAll(modifications.values());
 
+                if(charge == null)
+                    charge = -1;
+
                 String psmKey = PeptideSpectrumMatch.getIdentificationKey(
                         psmSetSettings,
                         sequence,
