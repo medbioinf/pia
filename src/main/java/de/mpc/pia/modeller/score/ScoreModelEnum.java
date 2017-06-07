@@ -1453,7 +1453,6 @@ public enum ScoreModelEnum {
 
     },
 
-
     /** End OMSSA Scores **/
 
 
@@ -1914,7 +1913,228 @@ public enum ScoreModelEnum {
 
     },
 
+    PHENYX_P_VALUE{
+        @Override
+        public String getName() {
+            return "Phenyx:PepPvalue";
+        }
+
+        @Override
+        public String getShortName() {
+            return "phenyx_peppvalue";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PHENYX_PEPTIDE_P_VALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PHENYX_PEPTIDE_P_VALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+    },
+
+
+
     /** End Phenyx Score **/
+
+
+    /**
+     * Byonic Scores
+     */
+    BYONIC_BEST_SCORE{
+
+        @Override
+        public String getName() {
+            return "Byonic:Best Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "byonic_best_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.BYONIC_BEST_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.BYONIC_BEST_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+    },
+
+    BYONIC_SCORE{
+
+        @Override
+        public String getName() {
+            return "Byonic:Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "byonic_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.BYONIC_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.BYONIC_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return true;
+        }
+    },
+
+    BYONIC_ABSLOGPROB2D_SCORE{
+
+        @Override
+        public String getName() {
+            return "Byonic: Peptide AbsLogProb2D";
+        }
+
+        @Override
+        public String getShortName() {
+            return "byonic_peptide_abslogprob2d";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.BYONIC_ABSLOGPROB2D_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.BYONIC_ABSLOGPROB2D_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+    },
+
+    BYONIC_DELTA_SCORE{
+
+        @Override
+        public String getName() {
+            return "Byonic:Delta Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "byonic_delta_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.BYONIC_DELTA_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.BYONIC_DELTA_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+    },
+
+    BYONIC_DELTA_MOD_SCORE{
+
+        @Override
+        public String getName() {
+            return "Byonic:DeltaMod Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "byonic_delta_mod_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.BYONIC_DELTA_MOD_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.BYONIC_DELTA_MOD_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+    },
+
+
+    /** End of Byonic Scores **/
+
+
+    /** Spectrum Mill Score **/
+
+    SPECTRUM_MILL_SCORE{
+
+        @Override
+        public String getName() {
+            return "SpectrumMill:Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "spectrummill_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.SPECTRUM_MILL_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.SPECTRUM_MILL_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return true;
+        }
+
+    },
+
+    /** End Spectrum Mill Score **/
 
     /**
      * The FASTA Sequence Count score.
@@ -2040,6 +2260,33 @@ public enum ScoreModelEnum {
 
     },
 
+    NUMBER_OF_MATCHEED_PEAKS{
+
+        @Override
+        public String getName() {
+            return "number of matched peaks";
+        }
+
+        @Override
+        public String getShortName() {
+            return "number_of_matched_peaks";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.NUMBER_MATCHED_PEAKS.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.NUMBER_MATCHED_PEAKS.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+    }
 
     ;
 

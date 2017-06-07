@@ -157,9 +157,20 @@ public enum OntologyConstants {
     MYRIMATCH_MVH("MyriMatch:MVH", "MS:1001589"),
     MYRIMATCH_MZFIDELITY_SCORE("MyriMatch:mzFidelity", "MS:1001590"),
 
-    PHENYX_PEPTIDE_Z_SCORE( "Phenyx:Pepzscore", "MS:1001395"),
-    PHENYX_SCORE( "Phenyx:Score", "MS:1001390");
+    PHENYX_PEPTIDE_Z_SCORE("Phenyx:Pepzscore", "MS:1001395"),
+    PHENYX_PEPTIDE_P_VALUE("Phenyx:PepPvalue","MS:1001396"),
+    PHENYX_SCORE("Phenyx:Score", "MS:1001390"),
 
+    SPECTRUM_MILL_SCORE( "SpectrumMill:Score" , "MS:1001572", "Spectrum Mill peptide score","PRIDE:0000177"),
+
+
+    BYONIC_BEST_SCORE("Byonic:Best Score",  "MS:1002269"),
+    BYONIC_SCORE("Byonic:Score",  "MS:1002262"),
+    BYONIC_ABSLOGPROB2D_SCORE("Byonic: Peptide AbsLogProb2D","MS:1002311"),
+    BYONIC_DELTA_SCORE("Byonic:Delta Score",  "MS:1002263"),
+    BYONIC_DELTA_MOD_SCORE("Byonic:DeltaMod Score", "MS:1002264"),
+
+    NUMBER_MATCHED_PEAKS("number of matched peaks","MS:1001121");
 
 
     /** URL to the current psi-ms.obo file */
