@@ -2377,7 +2377,7 @@ public enum ScoreModelEnum {
      */
     public List<String> getAdditionalAccessions(){
         return Collections.emptyList();
-    };
+    }
 
 
     /**
@@ -2403,7 +2403,7 @@ public enum ScoreModelEnum {
         descs.add(getCvName());
         descs.addAll(getAdditionalAccessions());
         return descs;
-    };
+    }
 
 
     /**

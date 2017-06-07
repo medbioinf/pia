@@ -1326,8 +1326,8 @@ public enum RegisteredFilters {
      * @param longName
      * @param filteringListName
      */
-    private RegisteredFilters(FilterType filterType, Class<?> valueInstance,
-            String longName, String filteringListName) {
+    RegisteredFilters(FilterType filterType, Class<?> valueInstance,
+                      String longName, String filteringListName) {
         this.filterType = filterType;
         this.valueInstance = valueInstance;
         this.longName = longName;

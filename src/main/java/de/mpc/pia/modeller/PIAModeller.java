@@ -1081,7 +1081,7 @@ public class PIAModeller implements Serializable {
         LOGGER.info("Serializing data to " + file.getAbsolutePath());
         try (FileOutputStream fos = new FileOutputStream(file);
                 GZIPOutputStream gzo = new GZIPOutputStream(fos);
-                ObjectOutputStream oos = new ObjectOutputStream(gzo); ) {
+                ObjectOutputStream oos = new ObjectOutputStream(gzo)) {
             oos.writeObject(piaModeller);
         } catch (IOException e) {
             LOGGER.error("Could not write whole PIA model to " + file.getAbsolutePath(), e);
@@ -1117,7 +1117,7 @@ public class PIAModeller implements Serializable {
 
         try (FileInputStream fin = new FileInputStream(file);
                 GZIPInputStream gzi = new GZIPInputStream(fin);
-                ObjectInputStream ois = new ObjectInputStream(gzi);) {
+                ObjectInputStream ois = new ObjectInputStream(gzi)) {
             Object readObject = ois.readObject();
             if (readObject instanceof PIAModeller) {
                 piaModeller = (PIAModeller) readObject;
