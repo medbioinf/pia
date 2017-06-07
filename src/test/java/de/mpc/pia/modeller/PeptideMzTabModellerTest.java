@@ -3,6 +3,7 @@ package de.mpc.pia.modeller;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
 import de.mpc.pia.intermediate.compiler.parser.InputFileParserFactory;
+import de.mpc.pia.modeller.exporter.MzTabExporter;
 import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.score.FDRData;
@@ -18,11 +19,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-/**
- *
- * @author ypriverol (ypriverol@gmail.com) on 19/04/2017.
- */
+
 public class PeptideMzTabModellerTest {
 
     private static File mzTabFile;
@@ -42,14 +41,14 @@ public class PeptideMzTabModellerTest {
         piaCompiler.buildClusterList();
         piaCompiler.buildIntermediateStructure();
 
-        File tempFile = File.createTempFile(mzTabFile.getName(), ".tmp");
+        File tempFile = File.createTempFile(mzTabFile.getName(), ".piaXML");
         piaCompiler.writeOutXML(tempFile);
         piaCompiler.finish();
         piaModeller = new PIAModeller(tempFile.getAbsolutePath());
     }
 
     @Test
-    public void testDecoysAndFDR() {
+    public void testDecoysAndFDR() throws IOException {
         // set everything on PSM level (but don't calculate FDR now)
         piaModeller.setCreatePSMSets(true);
 
@@ -69,7 +68,6 @@ public class PeptideMzTabModellerTest {
         assertEquals(1258, fdrData.getNrTargets().intValue());
 
 
-
         // calculate FDR on PSM level
         piaModeller.getPSMModeller().calculateAllFDR();
         piaModeller.getPSMModeller().calculateCombinedFDRScore();
@@ -86,5 +84,11 @@ public class PeptideMzTabModellerTest {
         assertEquals(2, fdrData.getNrDecoys().intValue());
         assertEquals(1260, fdrData.getNrItems().intValue());
         assertEquals(1258, fdrData.getNrTargets().intValue());
+
+        MzTabExporter exporter = new MzTabExporter(piaModeller);
+        File exportFile = File.createTempFile("control_exo_rep1_high_mol_weight", "mzTab");
+        assertTrue(exporter.exportToMzTab(fileID, exportFile, false, true, false, false));
+
+        exportFile.delete();
     }
 }

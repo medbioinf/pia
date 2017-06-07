@@ -64,6 +64,7 @@ import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
 import de.mpc.pia.tools.obo.OBOMapper;
+import de.mpc.pia.tools.obo.PsiModParser;
 import de.mpc.pia.tools.unimod.UnimodParser;
 
 /**
@@ -113,10 +114,13 @@ public abstract class PIACompiler {
     /** the analysis software for identifications (class from mzIdentML) */
     private Map<String, AnalysisSoftware> softwareMap;
 
-    /** UnimodParser to get additional information from the unimod */
-    /** We can deprecated this and use instead the pride-mod library **/
+    /** UnimodParser to get additional information from the UniMod */
     private UnimodParser unimodParser;
 
+    /** PsiModParser to get additional information from the PSI-MOD and map to UniMod */
+    private PsiModParser psiModParser;
+
+    /** gets modificatiosn in PRIDE style **/
     private ModReader modReader;
 
     /** the OBO mapper, to get additional data */
@@ -169,11 +173,11 @@ public abstract class PIACompiler {
         searchDatabasesMap = new HashMap<>();
         softwareMap = new HashMap<>();
 
-        unimodParser = null;
-
-        modReader = null;
-
         oboMapper = null;
+
+        unimodParser = null;
+        psiModParser = null;
+        modReader = null;
 
         numThreads = 0;
     }
@@ -205,6 +209,19 @@ public abstract class PIACompiler {
         }
         return unimodParser;
     }
+
+
+    /**
+     * Getter for the PsiModParser. Initializes the parser on the first call.
+     * @return
+     */
+    public final PsiModParser getPsiModParser() {
+        if (psiModParser == null) {
+            psiModParser = new PsiModParser();
+        }
+        return psiModParser;
+    }
+
 
     /**
      * Getter for the Pride Mod Reader allowing to retrieve information from

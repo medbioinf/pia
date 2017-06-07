@@ -113,6 +113,6 @@ public class MzTabExporterTest {
         File exportFile = File.createTempFile("pia_testPeptideLevelExport", ".mzTab");
         assertTrue(exporter.exportToMzTab(0L, exportFile, false, true, false, false));
 
-        exportFile.delete();
+        //exportFile.delete();
     }
 }

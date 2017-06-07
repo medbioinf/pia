@@ -175,6 +175,8 @@ public enum OntologyConstants {
 
     /** URL to the current psi-ms.obo file */
     public static final String PSI_MS_OBO_URL = "https://raw.githubusercontent.com/HUPO-PSI/psi-ms-CV/master/psi-ms.obo";
+    /** URL to the current psi-mod.obo file */
+    public static final String PSI_MOD_OBO_URL = "http://psidev.cvs.sourceforge.net/viewvc/psidev/psi/mod/data/PSI-MOD.obo";
     /** the label for the PSI-MS ontology */
     public static final String CV_PSI_MS_LABEL = "MS";
     /** current version of psi-ms.obo */

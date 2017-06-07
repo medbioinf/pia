@@ -5,19 +5,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.NoSuchElementException;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.biojava.nbio.ontology.Ontology;
-import org.biojava.nbio.ontology.Term;
-import org.biojava.nbio.ontology.Triple;
 import org.biojava.nbio.ontology.io.OboParser;
 
 import de.mpc.pia.tools.OntologyConstants;
 
 
-public class OBOMapper {
+/**
+ * Parser for the MS-OBO ontology of the HUPO-PSI.
+ *
+ * @author julianu
+ *
+ */
+public class OBOMapper extends AbstractOBOMapper {
 
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(OBOMapper.class);
@@ -29,11 +31,10 @@ public class OBOMapper {
     private Ontology shippedOntology;
 
     // some statics
-    public static final String OBO_RELATIONSHIP = "relationship";
-    public static final String OBO_IS_A = "is_a";
     public static final String OBO_HAS_REGEXP = "has_regexp";
     public static final String OBO_HAS_ORDER_HIGHERSCOREBETTER = "has_order MS:1002108";
     public static final String OBO_HAS_ORDER_LOWERSCOREBETTER = "has_order MS:1002109";
+
 
     /**
      * Constructor for the OBOMapper. Uses the online OBO file (if accessible)
@@ -87,79 +88,12 @@ public class OBOMapper {
     }
 
 
-    /**
-     * Fetch {@link Term} with specified accession
-     *
-     * @param accession
-     * @return
-     */
-    public Term getTerm(String accession) {
-        try {
-            if (onlineOntology != null) {
-                return onlineOntology.getTerm(accession);
-            } else {
-                return shippedOntology.getTerm(accession);
-            }
-        } catch (NoSuchElementException e) {
-            LOGGER.warn(e);
-            return null;
-        }
-    }
-
-
-    /**
-     * Fetch all {@link Term}s of the ontology
-     *
-     * @return
-     */
-    public Set<Term> getTerms() {
-        try {
-            if (onlineOntology != null) {
-                return onlineOntology.getTerms();
-            } else {
-                return shippedOntology.getTerms();
-            }
-        } catch (NoSuchElementException e) {
-            LOGGER.warn(e);
-            return null;
-        }
-    }
-
-
-    /**
-     * Return all triples from this ontology which match the supplied pattern.
-     * If any of the parameters of this method are null, they are treated as
-     * wildcards.
-     *
-     * @param subject
-     * @param object
-     * @param predicate
-     * @return
-     */
-    public Set<Triple> getTriples(Term subject, Term object, Term predicate) {
+    @Override
+    public Ontology getCurrentOntology() {
         if (onlineOntology != null) {
-            return onlineOntology.getTriples(subject, object, predicate);
+            return onlineOntology;
         } else {
-            return shippedOntology.getTriples(subject, object, predicate);
+            return shippedOntology;
         }
-    }
-
-
-    /**
-     * Gets the entry in the OBO with the given name. If none is found, returns
-     * null.
-     *
-     * @param name
-     * @return
-     */
-    public Term getTermByName(String name) {
-        Set<Term> keys = getTerms();
-        for (Term term : keys) {
-            if (name.equals(term.getDescription())) {
-                return term;
-            }
-        }
-
-        return null;
     }
 }

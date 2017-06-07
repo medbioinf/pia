@@ -95,17 +95,16 @@ public class Modification implements Serializable {
      * @param mass
      * @param description
      * @param accession
-     * @param massString
      * @param cvLabel
      * @param probability
      */
-    public Modification(Character residue, Double mass, String description, String accession, String massString,
+    public Modification(Character residue, Double mass, String description, String accession,
                         String cvLabel, List<ScoreXML> probability) {
         this.residue = residue;
         this.mass = mass;
         this.description = description;
         this.accession = accession;
-        this.massString = massString;
+        this.massString = df.format(mass);
         this.cvLabel = cvLabel;
         this.probability = probability;
     }

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -82,17 +83,17 @@ public class IdXMLExporter {
         try {
             out = new FileOutputStream(exportFile, false);
             // create an XMLOutputFactory
+            String encoding = StandardCharsets.UTF_8.name();
             XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-            XMLStreamWriter streamWriter = new IndentingXMLStreamWriter(outputFactory.createXMLStreamWriter(out));
+            XMLStreamWriter streamWriter = new IndentingXMLStreamWriter(outputFactory.createXMLStreamWriter(out, encoding));
 
             // write common idXML header
-            streamWriter.writeStartDocument("utf-8", "1.0");
+            streamWriter.writeStartDocument(encoding, "1.0");
             streamWriter.writeProcessingInstruction("xml-stylesheet",
                     "type=\"text/xsl\" href=\"http://open-ms.sourceforge.net/XSL/IdXML.xsl\"");
             streamWriter.writeCharacters("\n");
 
             streamWriter.writeStartElement("IdXML");
-
 
             // <SearchParameters                one for each IdentificationRun
 
