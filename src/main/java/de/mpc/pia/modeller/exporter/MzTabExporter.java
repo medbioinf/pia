@@ -1582,12 +1582,8 @@ public class MzTabExporter {
         for (Map.Entry<Integer, MsRun> msRunIt : msRunMap.entrySet()) {
             Integer msRunID = msRunIt.getValue().getId();
             // set the num_psms_ms_run
-            if (msRunIdToNumPSMs.containsKey(msRunID)) {
-                mzTabProtein.setNumPSMs(msRunIt.getValue(),
-                        msRunIdToNumPSMs.get(msRunID));
-            } else {
-                mzTabProtein.setNumPSMs(msRunIt.getValue(), 0);
-            }
+            mzTabProtein.setNumPSMs(msRunIt.getValue(),
+                    msRunIdToNumPSMs.getOrDefault(msRunID, 0));
 
             if (msRunIdToDistinctPeptides.containsKey(msRunID)) {
                 mzTabProtein.setNumPeptidesDistinct(msRunIt.getValue(),

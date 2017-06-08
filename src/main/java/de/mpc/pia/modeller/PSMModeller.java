@@ -1770,11 +1770,7 @@ public class PSMModeller implements Serializable {
 
         List<Integer> IDs = new ArrayList<>(maxIDs);
         for (int i=1; i <= maxIDs; i++) {
-            if (idMap.containsKey(i)) {
-                IDs.add(idMap.get(i));
-            } else {
-                IDs.add(0);
-            }
+            IDs.add(idMap.getOrDefault(i, 0));
         }
 
         return IDs;

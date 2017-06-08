@@ -7,7 +7,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.List;
 import java.util.Locale;
 
-import de.mpc.pia.intermediate.piaxml.ScoreXML;
+import de.mpc.pia.modeller.score.ScoreModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -43,7 +43,7 @@ public class Modification implements Serializable {
     /** formatter for the mass as string */
     private static final DecimalFormat df;
 
-    private List<ScoreXML> probability;
+    private List<ScoreModel> probability;
 
 
     // initialize some static variables
@@ -80,7 +80,7 @@ public class Modification implements Serializable {
      * @param description
      */
     public Modification(Character residue, Double mass, String description,
-                        String acc, List<ScoreXML> probability) {
+                        String acc, List<ScoreModel> probability) {
         this.residue = residue;
         this.mass = mass;
         this.description = description;
@@ -99,7 +99,7 @@ public class Modification implements Serializable {
      * @param probability
      */
     public Modification(Character residue, Double mass, String description, String accession,
-                        String cvLabel, List<ScoreXML> probability) {
+                        String cvLabel, List<ScoreModel> probability) {
         this.residue = residue;
         this.mass = mass;
         this.description = description;
@@ -160,11 +160,11 @@ public class Modification implements Serializable {
     }
 
 
-    public List<ScoreXML >getProbability() {
+    public List<ScoreModel> getProbability() {
         return probability;
     }
 
-    public void setProbability(List<ScoreXML> probability) {
+    public void setProbability(List<ScoreModel> probability) {
         this.probability = probability;
     }
 

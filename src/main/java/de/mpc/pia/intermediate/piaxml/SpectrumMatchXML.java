@@ -147,7 +147,18 @@ public class SpectrumMatchXML {
 			modXML.setAccession(modIt.getValue().getAccession());
 			modXML.setDescription(modIt.getValue().getDescription());
 			modXML.setCvLabel(modIt.getValue().getCvLabel());
-			modXML.setProbabilities(modIt.getValue().getProbability());
+			List<ScoreXML> scoreXMLS = new ArrayList<>();
+			if(modIt.getValue().getProbability() != null){
+				for(ScoreModel scoreModel : modIt.getValue().getProbability()){
+					ScoreXML scoreXML = new ScoreXML();
+					scoreXML.setCvAccession(scoreModel.getAccession());
+					scoreXML.setName(scoreModel.getName());
+					scoreXML.setValue(scoreModel.getValue());
+					scoreXML.setCvLabel(scoreModel.getCvLabel());
+					scoreXMLS.add(scoreXML);
+				}
+			}
+			modXML.setProbabilities(scoreXMLS);
 			modifications.add(modXML);
 		}
 		

@@ -404,7 +404,7 @@ class CompilerWorkerThread extends Thread {
                 }
             }
             // remove the accessions of the found group from the accessions set
-            if ((mostId > 0) && (mostGroup != null)) {
+            if (mostId > 0) {
                 mostGroup.getAllAccessions().keySet().forEach(accessions::remove);
                 // and add the found ID to the subTreeSet
                 subTreeSet.add(mostId);

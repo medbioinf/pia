@@ -557,21 +557,15 @@ public class PIAModeller implements Serializable {
         if (nodeName.startsWith(PSMExecuteCommands.getPrefix())) {
             PSMExecuteCommands execute = PSMExecuteCommands.valueOf(
                     nodeName.substring(PSMExecuteCommands.getPrefix().length()));
-            if (execute != null) {
-                execute.executeXMLParameters(node, model.getPSMModeller(), model);
-            }
+            execute.executeXMLParameters(node, model.getPSMModeller(), model);
         } else if (nodeName.startsWith(PeptideExecuteCommands.getPrefix())) {
             PeptideExecuteCommands execute = PeptideExecuteCommands.valueOf(
                     nodeName.substring(PeptideExecuteCommands.getPrefix().length()));
-            if (execute != null) {
-                execute.executeXMLParameters(node, model.getPeptideModeller(), model);
-            }
+            execute.executeXMLParameters(node, model.getPeptideModeller(), model);
         } else if (nodeName.startsWith(ProteinExecuteCommands.getPrefix())) {
             ProteinExecuteCommands execute = ProteinExecuteCommands.valueOf(
                     nodeName.substring(ProteinExecuteCommands.getPrefix().length()));
-            if (execute != null) {
-                execute.executeXMLParameters(node, model.getProteinModeller(), model);
-            }
+            execute.executeXMLParameters(node, model.getProteinModeller(), model);
         } else {
             LOGGER.error("Could not execute " + nodeName);
         }
@@ -634,21 +628,15 @@ public class PIAModeller implements Serializable {
             if (params[0].startsWith(PSMExecuteCommands.getPrefix())) {
                 PSMExecuteCommands execute = PSMExecuteCommands.valueOf(
                         params[0].substring(PSMExecuteCommands.getPrefix().length()));
-                if (execute != null) {
-                    node = execute.generateNode(params);
-                }
+                node = execute.generateNode(params);
             } else if (params[0].startsWith(PeptideExecuteCommands.getPrefix())) {
                 PeptideExecuteCommands execute = PeptideExecuteCommands.valueOf(
                         params[0].substring(PeptideExecuteCommands.getPrefix().length()));
-                if (execute != null) {
-                    node = execute.generateNode(params);
-                }
+                node = execute.generateNode(params);
             } else if (params[0].startsWith(ProteinExecuteCommands.getPrefix())) {
                 ProteinExecuteCommands execute = ProteinExecuteCommands.valueOf(
                         params[0].substring(ProteinExecuteCommands.getPrefix().length()));
-                if (execute != null) {
-                    node = execute.generateNode(params);
-                }
+                node = execute.generateNode(params);
             }
 
             if (node != null) {

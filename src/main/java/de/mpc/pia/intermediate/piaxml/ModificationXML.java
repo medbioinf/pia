@@ -137,8 +137,7 @@ public class ModificationXML {
 	public void setProbabilities(List<ScoreXML> probabilities) {
 		if(probabilities != null && probabilities.size() > 0){
 			this.probability = new ArrayList<>();
-			for(ScoreXML score: probabilities)
-				this.probability.add(score);
+			this.probability.addAll(probabilities);
 		}
 	}
 }

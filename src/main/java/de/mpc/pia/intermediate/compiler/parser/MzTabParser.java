@@ -4,7 +4,6 @@ import de.mpc.pia.intermediate.*;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.compiler.PIACachedCompiler;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
-import de.mpc.pia.intermediate.piaxml.ScoreXML;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.PIATools;
@@ -312,15 +311,11 @@ public class MzTabParser {
         mzTabaccessionToSearchModifications = new HashMap<>();
 
         if (metadata.getFixedModMap() != null) {
-            metadata.getFixedModMap().forEach((key, mod) -> {
-                createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add);
-            });
+            metadata.getFixedModMap().forEach((key, mod) -> createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add));
         }
 
         if (metadata.getVariableModMap() != null) {
-            metadata.getVariableModMap().forEach((key, mod) -> {
-                createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add);
-            });
+            metadata.getVariableModMap().forEach((key, mod) -> createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add));
         }
 
         return modifications;
@@ -607,15 +602,11 @@ public class MzTabParser {
         return modifications;
     }
 
-    private List<ScoreXML> transformScore(CVParam cvParam) {
-        List<ScoreXML> scores = new ArrayList<>();
+    private List<ScoreModel> transformScore(CVParam cvParam) {
+        List<ScoreModel> scores = new ArrayList<>();
         if(cvParam != null){
-            ScoreXML score = new ScoreXML();
-            score.setCvLabel(cvParam.getCvLabel());
-            score.setCvAccession(cvParam.getAccession());
+            ScoreModel score = new ScoreModel(Double.parseDouble(cvParam.getValue()),cvParam.getAccession(), cvParam.getName(),cvParam.getCvLabel());
             //Todo: We have some risk here for scores that are not double based.
-            score.setValue(Double.parseDouble(cvParam.getValue()));
-            score.setName(cvParam.getName());
             scores.add(score);
         }
         return scores;
@@ -793,20 +784,18 @@ public class MzTabParser {
     private static String createPSMKey(String psmID, Map<Integer, de.mpc.pia.intermediate.Modification> modifications,
             int charge, String sequence, double precursorMZ, Double rt) {
         // PSM_ID with same mods, charge, sequence (and RT and M/Z)
-        StringBuilder idSB = new StringBuilder(psmID);
+        String idSB = psmID + ":" +
+                PeptideSpectrumMatch.getModificationString(modifications) +
+                ':' +
+                charge +
+                ':' +
+                sequence +
+                ':' +
+                Double.toString(PIATools.round(precursorMZ, 4)) +
+                ':' +
+                ((rt != null) ? Double.toString((int) PIATools.round(rt, 0)) : null);
 
-        idSB.append(":")
-                .append(PeptideSpectrumMatch.getModificationString(modifications))
-                .append(':')
-                .append(charge)
-                .append(':')
-                .append(sequence)
-                .append(':')
-                .append(Double.toString(PIATools.round(precursorMZ, 4)))
-                .append(':')
-                .append((rt != null) ? Double.toString((int)PIATools.round(rt, 0)) : null);
-
-        return idSB.toString();
+        return idSB;
     }
 
 

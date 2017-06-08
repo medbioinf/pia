@@ -531,19 +531,25 @@ public class PIAIntermediateJAXBHandler implements Serializable {
     private static void addPSMModificationsFromXML(PeptideSpectrumMatch psm, SpectrumMatchXML psmXML) {
         for (ModificationXML modXML : psmXML.getModification()) {
             Modification mod;
-
+            List<ScoreModel> scoreModels = new ArrayList<>();
+            if(modXML.getProbability() != null){
+                for(ScoreXML oldScoreXML: modXML.getProbability()){
+                    ScoreModel scoreModel = new ScoreModel(oldScoreXML.getValue(),
+                            oldScoreXML.getCvAccession(), oldScoreXML.getName(), oldScoreXML.getCvLabel());
+                    scoreModels.add(scoreModel);
+                }
+            }
             mod = new Modification(
                     modXML.getResidue().charAt(0),
                     modXML.getMass(),
                     modXML.getDescription(),
-                    modXML.getAccession(),null,
-                    modXML.getCvLabel(), modXML.getProbability()
+                    modXML.getAccession(),
+                    modXML.getCvLabel(), scoreModels
                     );
 
             psm.addModification(modXML.getLocation(), mod);
         }
     }
-
 
     /**
      * Update the warnings with information of the new PSM.
