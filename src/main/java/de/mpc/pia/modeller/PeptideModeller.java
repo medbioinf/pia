@@ -201,9 +201,7 @@ public class PeptideModeller implements Serializable {
      * @return
      */
     public List<AbstractFilter> getFilters(Long fileID) {
-        List<AbstractFilter> filters = fileFiltersMap.computeIfAbsent(fileID, k -> new ArrayList<>());
-
-        return filters;
+        return fileFiltersMap.computeIfAbsent(fileID, k -> new ArrayList<>());
     }
 
 

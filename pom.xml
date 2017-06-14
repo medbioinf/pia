@@ -45,8 +45,8 @@
 		<commons-lang3.version>3.5</commons-lang3.version>
 		<commons-collections.version>4.1</commons-collections.version>
 		<jmzidentml.version>1.2.6</jmzidentml.version>
-		<jmztab.version>3.0.7-SNAPSHOT</jmztab.version>
-		<pride-mod.version>2.1.2</pride-mod.version>
+		<jmztab.version>3.0.7</jmztab.version>
+		<pride-mod.version>2.1.4</pride-mod.version>
 		<pride-jaxb.version>1.0.18</pride-jaxb.version>
 		<mascotdatfile.version>3.5.0</mascotdatfile.version>
 		<xtandem-parser.version>1.12.0</xtandem-parser.version>
@@ -61,6 +61,7 @@
 		<jung-visualization.version>2.0.1</jung-visualization.version>
 		<inspector-mzgraph-browser.version>2.0.5</inspector-mzgraph-browser.version>
 		<ehcache.version>3.1.1</ehcache.version>
+		<xercesImpl.version>2.11.0</xercesImpl.version>
 	</properties>
 
 	<dependencies>
@@ -205,6 +206,13 @@
 			<groupId>org.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
 			<version>${ehcache.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>${xercesImpl.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

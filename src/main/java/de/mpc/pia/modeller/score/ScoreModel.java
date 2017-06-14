@@ -27,6 +27,10 @@ public class ScoreModel implements Serializable, Comparable<ScoreModel> {
     /** the cvName, if possible, or just a name. only used for unknown type */
     private String name;
 
+    /** cvLabel is use to describe the id of the ontology **/
+
+    private String cvLabel;
+
 
     /**
      * Basic constructor.
@@ -41,6 +45,19 @@ public class ScoreModel implements Serializable, Comparable<ScoreModel> {
         this.name = name;
     }
 
+    /**
+     * Basic contructor including the CvLabel
+     * @param score
+     * @param cvAccession
+     * @param name
+     * @param cvLabel
+     */
+    public ScoreModel(Double score, String cvAccession, String name, String cvLabel) {
+        this.score = score;
+        this.cvAccession = cvAccession;
+        this.name = name;
+        this.cvLabel = cvLabel;
+    }
 
     /**
      * Basic constructor, if the type is known.
@@ -108,6 +125,13 @@ public class ScoreModel implements Serializable, Comparable<ScoreModel> {
         }
     }
 
+    public String getCvLabel() {
+        return cvLabel;
+    }
+
+    public void setCvLabel(String cvLabel) {
+        this.cvLabel = cvLabel;
+    }
 
     /**
      * Getter for the score value.

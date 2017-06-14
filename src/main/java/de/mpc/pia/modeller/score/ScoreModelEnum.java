@@ -49,11 +49,6 @@ public enum ScoreModelEnum {
         }
 
         @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
         public List<String> getValidDescriptors() {
             return new ArrayList<>();
         }
@@ -85,11 +80,6 @@ public enum ScoreModelEnum {
         @Override
         public Boolean higherScoreBetter() {
             return false;
-        }
-
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
         }
 
         @Override
@@ -140,11 +130,6 @@ public enum ScoreModelEnum {
         }
 
         @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<>();
 
@@ -190,23 +175,6 @@ public enum ScoreModelEnum {
             return false;
         }
 
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<>();
-
-            descs.add(getName());
-            descs.add(getName().toLowerCase());
-            descs.add(getShortName());
-            descs.add(getCvAccession());
-            descs.add(getCvName());
-
-            return descs;
-        }
     },
     /**
      * This Score implements the PSM level q-value.
@@ -235,11 +203,6 @@ public enum ScoreModelEnum {
         @Override
         public Boolean higherScoreBetter() {
             return false;
-        }
-
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
         }
 
         @Override
@@ -288,11 +251,6 @@ public enum ScoreModelEnum {
         }
 
         @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<>();
 
@@ -338,23 +296,6 @@ public enum ScoreModelEnum {
             return false;
         }
 
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<>();
-
-            descs.add(getName());
-            descs.add(getName().toLowerCase());
-            descs.add(getShortName());
-            descs.add(getCvAccession());
-            descs.add(getCvName());
-
-            return descs;
-        }
     },
     /**
      * This Score implements the PSM level q-value.
@@ -383,24 +324,6 @@ public enum ScoreModelEnum {
         @Override
         public Boolean higherScoreBetter() {
             return false;
-        }
-
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<>();
-
-            descs.add(getName());
-            descs.add(getName().toLowerCase());
-            descs.add(getShortName());
-            descs.add(getCvAccession());
-            descs.add(getCvName());
-
-            return descs;
         }
     },
 
@@ -445,7 +368,6 @@ public enum ScoreModelEnum {
         @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<>();
-
             descs.add(getName());
             descs.add(getName().toLowerCase());
             descs.add(getShortName());
@@ -520,6 +442,136 @@ public enum ScoreModelEnum {
         }
     },
 
+    MASCOT_PTM_SITE_CONFIDENT {
+        @Override
+        public String getName() {
+            return "Mascot:PTM site assignment";
+        }
+
+        @Override
+        public String getShortName() {
+            return "mascot_ptm_siteassignment";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.MASCOT_PTM_SITE_CONFIDENT.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.MASCOT_PTM_SITE_CONFIDENT.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return false;
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<>();
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add("Mascot PTM site assignment");
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
+
+            return descs;
+        }
+    },
+
+    MASCOT_IDENTITY_THRESHOLD {
+        @Override
+        public String getName() {
+            return "Mascot:identity threshold";
+        }
+
+        @Override
+        public String getShortName() {
+            return "mascot_identity_threshold";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.MASCOT_IDENTITY_THRESHED.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.MASCOT_IDENTITY_THRESHED.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return false;
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add("Mascot Identity Threshold");
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
+
+            return descs;
+        }
+    },
+
+    /**
+     * Mascot Homology Threshold.
+     */
+    MASCOT_HOMOLOGOY_THERHOLD{
+
+        @Override
+        public String getName() {
+            return "Mascot:homology threshold";
+        }
+
+        @Override
+        public String getShortName() {
+            return "mascot_homology_threshold";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.MASCOT_HOMOLOGY_THRESHOLD.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.MASCOT_HOMOLOGY_THRESHOLD.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return false;
+        }
+
+    },
+
     /** End of Mascot Scores**/
 
     /**
@@ -550,11 +602,6 @@ public enum ScoreModelEnum {
         public Boolean higherScoreBetter() {
             // no transformation needed
             return false;
-        }
-
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
         }
 
         @Override
@@ -681,6 +728,158 @@ public enum ScoreModelEnum {
             return descs;
         }
     },
+
+    SEQUEST_DELTACN {
+        @Override
+        public String getName() {
+            return "Delta Cn";
+        }
+
+        @Override
+        public String getShortName() {
+            return "sequest_deltacn";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.SEQUEST_DELTA_CN.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.SEQUEST_DELTA_CN.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            List<String> accessions = new ArrayList<>();
+            accessions.add(OntologyConstants.SEQUEST_DELTA_CN.getPrideAccession());
+            return accessions;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return false;
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add("Delta Cn");
+            descs.add("delta cn");
+            descs.add("Sequest delta cn");
+            descs.add("Sequest Delta Cn");
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
+
+            return descs;
+        }
+    },
+
+    SEQUEST_PEPTIDE_SP {
+        @Override
+        public String getName() {
+            return "SEQUEST:PeptideSp";
+        }
+
+        @Override
+        public String getShortName() {
+            return "sequest_peptidesp";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.SEQUEST_PEPTIDE_SP.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.SEQUEST_PEPTIDE_SP.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return false;
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add("SEQUEST PeptideSp");
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
+
+            return descs;
+        }
+    },
+
+    SEQUEST_PEPTIDE_RANK_SP {
+        @Override
+        public String getName() {
+            return "SEQUEST:PeptideRankSp";
+        }
+
+        @Override
+        public String getShortName() {
+            return "sequest_peptide_ranksp";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.SEQUEST_PEPTIDE_RANK_SP.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.SEQUEST_PEPTIDE_RANK_SP.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return false;
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add("SEQUEST PeptideRankSp");
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
+
+            return descs;
+        }
+    },
+
     /**
      * The X!Tandem expectation value.
      */
@@ -829,23 +1028,6 @@ public enum ScoreModelEnum {
             return true;
         }
 
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<>();
-
-            descs.add(getName());
-            descs.add(getName().toLowerCase());
-            descs.add(getShortName());
-            descs.add(getCvAccession());
-            descs.add(getCvName());
-
-            return descs;
-        }
     },
     /**
      * The MS-GF+ DeNovoScore
@@ -876,23 +1058,6 @@ public enum ScoreModelEnum {
             return true;
         }
 
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<>();
-
-            descs.add(getName());
-            descs.add(getName().toLowerCase());
-            descs.add(getShortName());
-            descs.add(getCvAccession());
-            descs.add(getCvName());
-
-            return descs;
-        }
     },
     /**
      * The MS-GF+ SpecEValue
@@ -921,11 +1086,6 @@ public enum ScoreModelEnum {
         @Override
         public Boolean higherScoreBetter() {
             return false;
-        }
-
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
         }
 
         @Override
@@ -977,23 +1137,6 @@ public enum ScoreModelEnum {
             return false;
         }
 
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<>();
-
-            descs.add(getName());
-            descs.add(getName().toLowerCase());
-            descs.add(getShortName());
-            descs.add(getCvAccession());
-            descs.add(getCvName());
-
-            return descs;
-        }
     },
 
     /**
@@ -1025,23 +1168,6 @@ public enum ScoreModelEnum {
             return false;
         }
 
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<>();
-
-            descs.add(getName());
-            descs.add(getName().toLowerCase());
-            descs.add(getShortName());
-            descs.add(getCvAccession());
-            descs.add(getCvName());
-
-            return descs;
-        }
     },
 
     /**
@@ -1073,23 +1199,6 @@ public enum ScoreModelEnum {
             return false;
         }
 
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<>();
-
-            descs.add(getName());
-            descs.add(getName().toLowerCase());
-            descs.add(getShortName());
-            descs.add(getCvAccession());
-            descs.add(getCvName());
-
-            return descs;
-        }
     },
 
     /** End of MSGF+ Scores **/
@@ -1126,11 +1235,6 @@ public enum ScoreModelEnum {
         }
 
         @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
         public Boolean isSearchengineMainScore() {
             return true;
         }
@@ -1152,28 +1256,187 @@ public enum ScoreModelEnum {
 
     /** End of the MS-Amanda Scores **/
 
+
     /**
-     * The MyriMatch MVH
+     * The Comet Scores
      */
-    MYRIMATCH_MVH {
+    COMET_DELTA_CN {
         @Override
         public String getName() {
-            return "MyriMatch:MVH";
+            return "Comet:deltacn";
         }
 
         @Override
         public String getShortName() {
-            return "myrimatch_mvh";
+            return "comet_deltacn";
         }
 
         @Override
         public String getCvAccession() {
-            return OntologyConstants.MYRIMATCH_MVH.getPsiAccession();
+            return OntologyConstants.COMET_DELTA_CN.getPsiAccession();
         }
 
         @Override
         public String getCvName() {
-            return OntologyConstants.MYRIMATCH_MVH.getPsiName();
+            return OntologyConstants.COMET_DELTA_CN.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+    },
+
+    COMET_XCORR {
+        @Override
+        public String getName() {
+            return "Comet:xcorr";
+        }
+
+        @Override
+        public String getShortName() {
+            return "comet_xcorr";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.COMET_XCORR.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.COMET_XCORR.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return true;
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add("Comet XCorr");
+            descs.add("Comet xcorr");
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
+
+            return descs;
+        }
+    },
+
+    /** End of COMET Scores **/
+
+    /**
+     * The Peaks Scores
+     */
+    PEAKS_PEPTIDE_SCORE {
+        @Override
+        public String getName() {
+            return "PEAKS:peptideScore";
+        }
+
+        @Override
+        public String getShortName() {
+            return "peaks_peptide_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PEAKS_PEPTIDE_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PEAKS_PEPTIDE_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return true;
+        }
+    },
+
+    /** End of Peaks Scores **/
+
+    /** OMSSA Scores ***/
+
+    OMSSA_E_VALUE {
+
+        @Override
+        public String getName() {
+            return "OMSSA E-value";
+        }
+
+        @Override
+        public String getShortName() {
+            return "omssa_e_value";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.OMSSA_E_VALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.OMSSA_E_VALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+        @Override
+        public List<String> getAdditionalAccessions(){
+            List<String> accessions = new ArrayList<>();
+            accessions.add(OntologyConstants.OMSSA_E_VALUE.getPrideAccession());
+            return accessions;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return true;
+        }
+    },
+
+    OMSSA_P_VALUE {
+
+        @Override
+        public String getName() {
+            return "OMSSA P-value";
+        }
+
+        @Override
+        public String getShortName() {
+            return "omssa_p_value";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.OMSSA_P_VALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.OMSSA_P_VALUE.getPsiName();
         }
 
         @Override
@@ -1183,7 +1446,43 @@ public enum ScoreModelEnum {
 
         @Override
         public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
+            List<String> accessions = new ArrayList<>();
+            accessions.add(OntologyConstants.OMSSA_P_VALUE.getPrideAccession());
+            return accessions;
+        }
+
+    },
+
+    /** End OMSSA Scores **/
+
+
+    /**
+     * The SCAFFOLD SCORES
+     */
+    SCAFFOLD_PEPTIDE_PROBABILITY {
+        @Override
+        public String getName() {
+            return "Scaffold:Peptide Probability";
+        }
+
+        @Override
+        public String getShortName() {
+            return "scaffold_peptide_probability";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.SCAFFOLD_PEPTIDE_PROBABILITY.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.SCAFFOLD_PEPTIDE_PROBABILITY.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
         }
 
         @Override
@@ -1200,7 +1499,7 @@ public enum ScoreModelEnum {
             descs.add(getShortName());
             descs.add(getCvAccession());
             descs.add(getCvName());
-            descs.add("MyriMatch_mvh_score");
+            descs.add("scaffold_peptide_probability");
 
             return descs;
         }
@@ -1233,11 +1532,6 @@ public enum ScoreModelEnum {
         @Override
         public Boolean higherScoreBetter() {
             return false;
-        }
-
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
         }
 
         @Override
@@ -1284,11 +1578,6 @@ public enum ScoreModelEnum {
         }
 
         @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<>();
 
@@ -1332,11 +1621,6 @@ public enum ScoreModelEnum {
         }
 
         @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<>();
 
@@ -1350,6 +1634,508 @@ public enum ScoreModelEnum {
             return descs;
         }
     },
+
+    /**
+     * The Percolator Posterior Error Probability
+     */
+    PERCOLATOR_POSTERIOR_ERROR_PROBABILITY {
+        @Override
+        public String getName() {
+            return "percolator:PEP";
+        }
+
+        @Override
+        public String getShortName() {
+            return "percolator_pep";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PERCOLATOR_POSTERIOR_ERROR_PROBABILITY.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PERCOLATOR_POSTERIOR_ERROR_PROBABILITY.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+    },
+
+    /**
+     * The Percolator Q-Value
+     */
+    PERCOLATOR_Q_VALUE {
+        @Override
+        public String getName() {
+            return "percolator:Q value";
+        }
+
+        @Override
+        public String getShortName() {
+            return "percolator_q_value";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PERCOLATOR_Q_VALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PERCOLATOR_Q_VALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+    },
+
+    /** Percolator scores END**/
+
+    /** PeptideShaker Scores**/
+
+    PEPTIDESHAKER_PSM_SCORE{
+
+        @Override
+        public String getName() {
+            return "PeptideShaker: PSM Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "peptideshaker_psm_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PEPTIDESHAKER_PSM_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PEPTIDESHAKER_PSM_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return true;
+        }
+
+    },
+
+    PEPTIDESHAKER_PSM_CONFIDENCE_SCORE{
+
+        @Override
+        public String getName() {
+            return "PeptideShaker PSM confidence";
+        }
+
+        @Override
+        public String getShortName() {
+            return "peptideshaker_psm_confidence";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PEPTIDESHAKER_PSM_CONFIDENCE_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PEPTIDESHAKER_PSM_CONFIDENCE_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+    },
+
+    /** End of PeptideShaker Scores **/
+
+
+    /** MyriMatch Scores **/
+
+    MYRIMATCH_MZFIDELITY{
+
+        @Override
+        public String getName() {
+            return "MyriMatch:mzFidelity";
+        }
+
+        @Override
+        public String getShortName() {
+            return "myrimatch_mzfidelity";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.MYRIMATCH_MZFIDELITY_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.MYRIMATCH_MZFIDELITY_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+    },
+
+    /**
+     * The MyriMatch MVH
+     */
+    MYRIMATCH_MVH {
+        @Override
+        public String getName() {
+            return "MyriMatch:MVH";
+        }
+
+        @Override
+        public String getShortName() {
+            return "myrimatch_mvh";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.MYRIMATCH_MVH.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.MYRIMATCH_MVH.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return true;
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+            descs.add("MyriMatch_mvh_score");
+
+            return descs;
+        }
+    },
+
+    /** End MyriMatch Scores
+
+    /** Phenyx Score **/
+
+    PHENYX_PEPTIDE_Z_SCORE{
+
+        @Override
+        public String getName() {
+            return "Phenyx:Pepzscore";
+        }
+
+        @Override
+        public String getShortName() {
+            return "phenyx_pepzscore";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PHENYX_PEPTIDE_Z_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PHENYX_PEPTIDE_Z_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return true;
+        }
+
+    },
+
+    PHENYX_SCORE{
+        @Override
+        public String getName() {
+            return "Phenyx:Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "phenyx_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PHENYX_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PHENYX_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+    },
+
+    PHENYX_P_VALUE{
+        @Override
+        public String getName() {
+            return "Phenyx:PepPvalue";
+        }
+
+        @Override
+        public String getShortName() {
+            return "phenyx_peppvalue";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.PHENYX_PEPTIDE_P_VALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.PHENYX_PEPTIDE_P_VALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+    },
+
+
+
+    /** End Phenyx Score **/
+
+
+    /**
+     * Byonic Scores
+     */
+    BYONIC_BEST_SCORE{
+
+        @Override
+        public String getName() {
+            return "Byonic:Best Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "byonic_best_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.BYONIC_BEST_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.BYONIC_BEST_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+    },
+
+    BYONIC_SCORE{
+
+        @Override
+        public String getName() {
+            return "Byonic:Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "byonic_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.BYONIC_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.BYONIC_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return true;
+        }
+    },
+
+    BYONIC_ABSLOGPROB2D_SCORE{
+
+        @Override
+        public String getName() {
+            return "Byonic: Peptide AbsLogProb2D";
+        }
+
+        @Override
+        public String getShortName() {
+            return "byonic_peptide_abslogprob2d";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.BYONIC_ABSLOGPROB2D_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.BYONIC_ABSLOGPROB2D_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+    },
+
+    BYONIC_DELTA_SCORE{
+
+        @Override
+        public String getName() {
+            return "Byonic:Delta Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "byonic_delta_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.BYONIC_DELTA_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.BYONIC_DELTA_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+    },
+
+    BYONIC_DELTA_MOD_SCORE{
+
+        @Override
+        public String getName() {
+            return "Byonic:DeltaMod Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "byonic_delta_mod_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.BYONIC_DELTA_MOD_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.BYONIC_DELTA_MOD_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+    },
+
+
+    /** End of Byonic Scores **/
+
+
+    /** Spectrum Mill Score **/
+
+    SPECTRUM_MILL_SCORE{
+
+        @Override
+        public String getName() {
+            return "SpectrumMill:Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "spectrummill_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.SPECTRUM_MILL_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.SPECTRUM_MILL_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return true;
+        }
+
+    },
+
+    /** End Spectrum Mill Score **/
+
     /**
      * The FASTA Sequence Count score.
      */
@@ -1379,23 +2165,6 @@ public enum ScoreModelEnum {
             return true;
         }
 
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<>();
-
-            descs.add(getName());
-            descs.add(getName().toLowerCase());
-            descs.add(getShortName());
-            descs.add(getCvAccession());
-            descs.add(getCvName());
-
-            return descs;
-        }
     },
     /**
      * The FASTA Accession Count score.
@@ -1426,23 +2195,6 @@ public enum ScoreModelEnum {
             return true;
         }
 
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<>();
-
-            descs.add(getName());
-            descs.add(getName().toLowerCase());
-            descs.add(getShortName());
-            descs.add(getCvAccession());
-            descs.add(getCvName());
-
-            return descs;
-        }
     },
 
     /**
@@ -1474,24 +2226,68 @@ public enum ScoreModelEnum {
             return true;
         }
 
-        @Override
-        public List<String> getAdditionalAccessions(){
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<String> getValidDescriptors() {
-            List<String> descs = new ArrayList<>();
-
-            descs.add(getName());
-            descs.add(getName().toLowerCase());
-            descs.add(getShortName());
-            descs.add(getCvAccession());
-            descs.add(getCvName());
-
-            return descs;
-        }
     },
+
+    /**
+     * Some other scores
+     */
+
+    WATERS_IDENTITYE_SCORE{
+        @Override
+        public String getName() {
+            return "IdentityE Score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "identitye_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.WATERS_IDENTITYE_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.WATERS_IDENTITYE_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+    },
+
+    NUMBER_OF_MATCHEED_PEAKS{
+
+        @Override
+        public String getName() {
+            return "number of matched peaks";
+        }
+
+        @Override
+        public String getShortName() {
+            return "number_of_matched_peaks";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.NUMBER_MATCHED_PEAKS.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.NUMBER_MATCHED_PEAKS.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+    }
+
     ;
 
 
@@ -1579,7 +2375,9 @@ public enum ScoreModelEnum {
      * PRIDE:0000069 and MS:1001171. The additional values will be handle here.
      * @return
      */
-    public abstract List<String> getAdditionalAccessions();
+    public List<String> getAdditionalAccessions(){
+        return Collections.emptyList();
+    }
 
 
     /**
@@ -1596,7 +2394,16 @@ public enum ScoreModelEnum {
      * or cvAccession, some additional names)
      * @return
      */
-    public abstract List<String> getValidDescriptors();
+    public List<String> getValidDescriptors(){
+        List<String> descs = new ArrayList<>();
+        descs.add(getName());
+        descs.add(getName().toLowerCase());
+        descs.add(getShortName());
+        descs.add(getCvAccession());
+        descs.add(getCvName());
+        descs.addAll(getAdditionalAccessions());
+        return descs;
+    }
 
 
     /**

@@ -108,6 +108,9 @@ public enum OntologyConstants {
     MASCOT_SCORE("Mascot:score", "MS:1001171", "Mascot score", "PRIDE:0000069"),
     MASCOT_EXPECTATION_VALUE("Mascot:expectation value", "MS:1001172", "Mascot expect value", "PRIDE:0000212"),
     MASCOT_INSTRUMENT("Mascot:Instrument", "MS:1001656"),
+    MASCOT_IDENTITY_THRESHED("Mascot:identity threshold", "MS:1001371"),
+    MASCOT_PTM_SITE_CONFIDENT("Mascot:PTM site assignment", "MS:1002012"),
+    MASCOT_HOMOLOGY_THRESHOLD("Mascot:homology threshold", "MS:1001370"),
 
     MSGF_RAWSCORE("MS-GF:RawScore", "MS:1002049"),
     MSGF_DENOVOSCORE("MS-GF:DeNovoScore", "MS:1002050"),
@@ -116,8 +119,6 @@ public enum OntologyConstants {
     MSGF_PEPQVALUE("MS-GF:PepQValue","MS:1002055"),
     MSGF_QVALUE("MS-GF:QValue","MS:1002054"),
 
-    MYRIMATCH_MVH("MyriMatch:MVH", "MS:1001589"),
-
     OMSSA_E_VALUE("OMSSA:evalue", "MS:1001328", "OMSSA E-value", "PRIDE:0000185"),
     OMSSA_P_VALUE("OMSSA:pvalue", "MS:1001329", "OMSSA P-value", "PRIDE:0000186"),
 
@@ -125,14 +126,52 @@ public enum OntologyConstants {
     SEQUEST_PROBABILITY("SEQUEST:probability", "MS:1001154"),
     SEQUEST_XCORR("SEQUEST:xcorr", "MS:1001157", "Sequest score", "PRIDE:0000053"),
     SEQUEST_SP("SEQUEST:sp", "MS:1001155", "Sp", "PRIDE:0000054"),
+    SEQUEST_DELTA_CN("SEQUEST:deltacn", "MS:1001156", "Delta Cn", "PRIDE:0000012"),
+    SEQUEST_PEPTIDE_SP("SEQUEST:PeptideSp", "MS:1001215"),
+    SEQUEST_PEPTIDE_RANK_SP("SEQUEST:PeptideRankSp", "MS:1001217"),
+
+
+
+    SCAFFOLD_PEPTIDE_PROBABILITY("Scaffold:Peptide Probability", "MS:1001568"),
+
 
     XTANDEM("X!Tandem", "MS:1001476"),
     XTANDEM_EXPECT("X!Tandem:expect", "MS:1001330", "expect", "PRIDE:0000183"),
     XTANDEM_HYPERSCORE("X!Tandem:hyperscore", "MS:1001331", "X!Tandem Hyperscore", "PRIDE:0000176"),
 
+    COMET_DELTA_CN("Comet:deltacn", "MS:1002253"),
+    COMET_XCORR("Comet:xcorr", "MS:1002252"),
+
+    PEAKS_PEPTIDE_SCORE("PEAKS:peptideScore","MS:1001950"),
+
+    PERCOLATOR_POSTERIOR_ERROR_PROBABILITY("percolator:PEP", "MS:1001493"),
+    PERCOLATOR_Q_VALUE("percolator:Q value","MS:1001491"),
+
     PROTEOME_DISCOVERER_MIN_PEPTIDE_LENGTH("ProteomeDiscoverer:min peptide length", "MS:1002322"),
     PROTEOME_DISCOVERER_MAX_PEPTIDE_LENGTH("ProteomeDiscoverer:max peptide length", "MS:1002323"),
-    ;
+    WATERS_IDENTITYE_SCORE("IdentityE Score", "MS:1001569"),
+
+    PEPTIDESHAKER_PSM_SCORE("PeptideShaker: PSM Score", "MS:1002466"),
+    PEPTIDESHAKER_PSM_CONFIDENCE_SCORE("PeptideShaker PSM confidence", "MS:1002467"),
+
+    MYRIMATCH_MVH("MyriMatch:MVH", "MS:1001589"),
+    MYRIMATCH_MZFIDELITY_SCORE("MyriMatch:mzFidelity", "MS:1001590"),
+
+    PHENYX_PEPTIDE_Z_SCORE("Phenyx:Pepzscore", "MS:1001395"),
+    PHENYX_PEPTIDE_P_VALUE("Phenyx:PepPvalue","MS:1001396"),
+    PHENYX_SCORE("Phenyx:Score", "MS:1001390"),
+
+    SPECTRUM_MILL_SCORE( "SpectrumMill:Score" , "MS:1001572", "Spectrum Mill peptide score","PRIDE:0000177"),
+
+
+    BYONIC_BEST_SCORE("Byonic:Best Score",  "MS:1002269"),
+    BYONIC_SCORE("Byonic:Score",  "MS:1002262"),
+    BYONIC_ABSLOGPROB2D_SCORE("Byonic: Peptide AbsLogProb2D","MS:1002311"),
+    BYONIC_DELTA_SCORE("Byonic:Delta Score",  "MS:1002263"),
+    BYONIC_DELTA_MOD_SCORE("Byonic:DeltaMod Score", "MS:1002264"),
+
+    NUMBER_MATCHED_PEAKS("number of matched peaks","MS:1001121");
+
 
     /** URL to the current psi-ms.obo file */
     public static final String PSI_MS_OBO_URL = "https://raw.githubusercontent.com/HUPO-PSI/psi-ms-CV/master/psi-ms.obo";

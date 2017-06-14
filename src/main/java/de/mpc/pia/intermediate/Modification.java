@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.List;
 import java.util.Locale;
 
+import de.mpc.pia.modeller.score.ScoreModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -36,8 +38,12 @@ public class Modification implements Serializable {
     /** the mass shift as formatted string */
     private String massString;
 
+    private String cvLabel = null;
+
     /** formatter for the mass as string */
     private static final DecimalFormat df;
+
+    private List<ScoreModel> probability;
 
 
     // initialize some static variables
@@ -66,6 +72,42 @@ public class Modification implements Serializable {
         this.massString = df.format(mass);
     }
 
+    /**
+     * Constructor including the probability of the Modification
+     *
+     * @param residue
+     * @param mass
+     * @param description
+     */
+    public Modification(Character residue, Double mass, String description,
+                        String acc, List<ScoreModel> probability) {
+        this.residue = residue;
+        this.mass = mass;
+        this.description = description;
+        this.accession = acc;
+        this.massString = df.format(mass);
+        this.probability = probability;
+    }
+
+    /**
+     * This constructor can handle the post-translational modifications
+     * @param residue
+     * @param mass
+     * @param description
+     * @param accession
+     * @param cvLabel
+     * @param probability
+     */
+    public Modification(Character residue, Double mass, String description, String accession,
+                        String cvLabel, List<ScoreModel> probability) {
+        this.residue = residue;
+        this.mass = mass;
+        this.description = description;
+        this.accession = accession;
+        this.massString = df.format(mass);
+        this.cvLabel = cvLabel;
+        this.probability = probability;
+    }
 
     /**
      * Getter for the residue, i.e. the amino acids, where the modification
@@ -117,6 +159,22 @@ public class Modification implements Serializable {
         return accession;
     }
 
+
+    public List<ScoreModel> getProbability() {
+        return probability;
+    }
+
+    public void setProbability(List<ScoreModel> probability) {
+        this.probability = probability;
+    }
+
+    public String getCvLabel() {
+        return cvLabel;
+    }
+
+    public void setCvLabel(String cvLabel) {
+        this.cvLabel = cvLabel;
+    }
 
     @Override
     public int hashCode() {

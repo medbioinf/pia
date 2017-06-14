@@ -408,7 +408,7 @@ public abstract class PIACompiler {
      *
      * @return the newly created PSM
      */
-    public abstract PeptideSpectrumMatch createNewPeptideSpectrumMatch(int charge,
+    public abstract PeptideSpectrumMatch createNewPeptideSpectrumMatch(Integer charge,
             double massToCharge, double deltaMass, Double rt, String sequence,
             int missed, String sourceID, String spectrumTitle,
             PIAInputFile file, SpectrumIdentification spectrumID);
@@ -548,7 +548,8 @@ public abstract class PIACompiler {
     public final SearchDatabase putIntoSearchDatabasesMap(SearchDatabase database) {
         // go through the databases and check, if any equals the given database
         for (Map.Entry<String, SearchDatabase> dbIt : searchDatabasesMap.entrySet()) {
-            if (dbIt.getValue().getLocation().equals(database.getLocation())) {
+
+            if (dbIt.getValue().getLocation() != null && dbIt.getValue().getLocation().equals(database.getLocation())) {
                 boolean equal;
 
                 equal = PIATools.bothNullOrEqual(dbIt.getValue().getName(),

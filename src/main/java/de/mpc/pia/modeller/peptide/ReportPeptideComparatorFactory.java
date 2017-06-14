@@ -90,7 +90,7 @@ public class ReportPeptideComparatorFactory {
         NR_PSMS_SORT {
             @Override
             public Comparator<ReportPeptide> getNewInstance() {
-                return (o1, o2) -> o1.getNrPSMs().compareTo(o2.getNrPSMs());
+                return Comparator.comparing(ReportPeptide::getNrPSMs);
             }
 
             @Override

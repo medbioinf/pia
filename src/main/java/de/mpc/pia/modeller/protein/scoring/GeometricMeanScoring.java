@@ -65,7 +65,7 @@ public class GeometricMeanScoring extends AbstractScoring {
 					signum = -1.0;
 				}
 				
-				if ((score != null) && !score.getValue().equals(Double.NaN)) {
+				if (!score.getValue().equals(Double.NaN)) {
 					if (!proteinScore.equals(Double.NaN)) {
 						if (signum < 0) {
 							proteinScore -= Math.log10(Math.pow(score.getValue(), exp));

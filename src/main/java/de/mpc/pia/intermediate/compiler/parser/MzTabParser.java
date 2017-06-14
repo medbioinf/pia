@@ -1,9 +1,7 @@
 package de.mpc.pia.intermediate.compiler.parser;
 
-import de.mpc.pia.intermediate.Accession;
-import de.mpc.pia.intermediate.PIAInputFile;
+import de.mpc.pia.intermediate.*;
 import de.mpc.pia.intermediate.Peptide;
-import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.PIACachedCompiler;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
@@ -26,20 +24,10 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
-import uk.ac.ebi.pride.jmztab.model.FixedMod;
-import uk.ac.ebi.pride.jmztab.model.Metadata;
-import uk.ac.ebi.pride.jmztab.model.Mod;
+import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.model.Modification;
-import uk.ac.ebi.pride.jmztab.model.MsRun;
-import uk.ac.ebi.pride.jmztab.model.PSM;
-import uk.ac.ebi.pride.jmztab.model.PSMSearchEngineScore;
-import uk.ac.ebi.pride.jmztab.model.Param;
-import uk.ac.ebi.pride.jmztab.model.Protein;
-import uk.ac.ebi.pride.jmztab.model.Software;
-import uk.ac.ebi.pride.jmztab.model.SpectraRef;
-import uk.ac.ebi.pride.jmztab.model.SplitList;
-import uk.ac.ebi.pride.jmztab.model.VariableMod;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileParser;
+import uk.ac.ebi.pride.utilities.pridemod.model.PTM;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -323,15 +311,11 @@ public class MzTabParser {
         mzTabaccessionToSearchModifications = new HashMap<>();
 
         if (metadata.getFixedModMap() != null) {
-            metadata.getFixedModMap().forEach((key, mod) -> {
-                createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add);
-            });
+            metadata.getFixedModMap().forEach((key, mod) -> createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add));
         }
 
         if (metadata.getVariableModMap() != null) {
-            metadata.getVariableModMap().forEach((key, mod) -> {
-                createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add);
-            });
+            metadata.getVariableModMap().forEach((key, mod) -> createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add));
         }
 
         return modifications;
@@ -342,7 +326,7 @@ public class MzTabParser {
      * Creates a list of {@link SearchModification}s from the params in the mzTab metadata. The created list is added
      * to the mzTabaccessionToSearchModifications mapping.
      *
-     * @param modParam
+     * @param mod Modifications
      * @return
      */
     private List<SearchModification> createModificationListFromMzTabParamMod(Mod mod) {
@@ -568,8 +552,10 @@ public class MzTabParser {
 
     /**
      * This file will take a list of mzTab modifications and convert them to intermediate modifications
-     * the methods needs as input the list of mztab modifications and the compiler. The metadata is necesary to
+     * the methods needs as input the list of mztab modifications and the compiler. The metadata is necessary to
      * get the information of the modifications like names, positions, etc.
+     *
+     * The new version also include the probability that this modification is present.
      *
      * @param sequence
      * @param mzTabMods
@@ -580,12 +566,13 @@ public class MzTabParser {
         Map<Integer, de.mpc.pia.intermediate.Modification> modifications = new HashMap<>();
 
         for (uk.ac.ebi.pride.jmztab.model.Modification oldMod : mzTabMods) {
-
-            for (Integer pos : oldMod.getPositionMap().keySet()) {
+            for(Integer pos : oldMod.getPositionMap().keySet()) {
                 String oldAccession = (oldMod.getType() == Modification.Type.MOD
-                        && !oldMod.getAccession().startsWith("MOD")) ? "MOD:" + oldMod.getAccession() : oldMod.getAccession();
-                Character residue = (pos == 0 || pos > sequence.length()) ? '.' : sequence.charAt(pos-1);
+                        && !oldMod.getAccession().startsWith("MOD")) ? "MOD:" + oldMod.getAccession(): oldMod.getAccession();
 
+                Character charMod = (pos == 0 || pos > sequence.length()) ? '.' : sequence.charAt(pos-1);
+
+                PTM oldPTM = compiler.getModReader().getPTMbyAccession(oldAccession);
                 de.mpc.pia.intermediate.Modification mod;
 
                 if (mzTabaccessionToSearchModifications.containsKey(oldAccession)) {
@@ -595,24 +582,34 @@ public class MzTabParser {
 
                     BigDecimal bd = new BigDecimal(Float.toString(searchMod.getMassDelta()));
                     mod = new de.mpc.pia.intermediate.Modification(
-                            residue,
+                            charMod,
                             bd.doubleValue(),
                             cvParam.getName(),
-                            cvParam.getAccession());
+                            cvParam.getAccession(), oldPTM.getCvLabel(),
+                            transformScore(oldMod.getPositionMap().get(pos)));
 
                 } else {
                     mod = new de.mpc.pia.intermediate.Modification(
-                            residue,
+                            charMod,
                             compiler.getModReader().getPTMbyAccession(oldAccession).getMonoDeltaMass(),
                             prideModAccToName.get(oldAccession),
-                            oldAccession);
+                            oldAccession, oldPTM.getCvLabel(),
+                            transformScore(oldMod.getPositionMap().get(pos)));
                 }
-
                 modifications.put(pos, mod);
             }
         }
-
         return modifications;
+    }
+
+    private List<ScoreModel> transformScore(CVParam cvParam) {
+        List<ScoreModel> scores = new ArrayList<>();
+        if(cvParam != null){
+            ScoreModel score = new ScoreModel(Double.parseDouble(cvParam.getValue()),cvParam.getAccession(), cvParam.getName(),cvParam.getCvLabel());
+            //Todo: We have some risk here for scores that are not double based.
+            scores.add(score);
+        }
+        return scores;
     }
 
 
@@ -675,6 +672,11 @@ public class MzTabParser {
             if (ScoreModelEnum.UNKNOWN_SCORE.equals(scoreType)) {
                 // still unknown -> try name of param
                 scoreType = ScoreModelEnum.getModelByDescription(searchEngineScoreParam.getName());
+            }
+
+            if ((scoreType == null) || ScoreModelEnum.UNKNOWN_SCORE.equals(scoreType)) {
+                throw new IllegalArgumentException("type must not be null or of " +
+                        "type UNKNOWN_SCORE: " + searchEngineScoreParam.toString());
             }
 
             score = new ScoreModel(null, scoreType);
@@ -782,20 +784,18 @@ public class MzTabParser {
     private static String createPSMKey(String psmID, Map<Integer, de.mpc.pia.intermediate.Modification> modifications,
             int charge, String sequence, double precursorMZ, Double rt) {
         // PSM_ID with same mods, charge, sequence (and RT and M/Z)
-        StringBuilder idSB = new StringBuilder(psmID);
+        String idSB = psmID + ":" +
+                PeptideSpectrumMatch.getModificationString(modifications) +
+                ':' +
+                charge +
+                ':' +
+                sequence +
+                ':' +
+                Double.toString(PIATools.round(precursorMZ, 4)) +
+                ':' +
+                ((rt != null) ? Double.toString((int) PIATools.round(rt, 0)) : null);
 
-        idSB.append(":")
-                .append(PeptideSpectrumMatch.getModificationString(modifications))
-                .append(':')
-                .append(charge)
-                .append(':')
-                .append(sequence)
-                .append(':')
-                .append(Double.toString(PIATools.round(precursorMZ, 4)))
-                .append(':')
-                .append((rt != null) ? Double.toString((int)PIATools.round(rt, 0)) : null);
-
-        return idSB.toString();
+        return idSB;
     }
 
 

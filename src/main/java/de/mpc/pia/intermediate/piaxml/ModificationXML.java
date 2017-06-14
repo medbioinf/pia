@@ -1,7 +1,10 @@
 package de.mpc.pia.intermediate.piaxml;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -12,6 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "Modification")
 public class ModificationXML {
+
 	private Integer location;
 	
 	private Double mass;
@@ -21,6 +25,11 @@ public class ModificationXML {
 	private String accession;
 	
 	private String description;
+
+	private String cvLabel;
+
+    @XmlElement(name = "Score")
+	private List<ScoreXML> probability;
 	
 	/**
 	 * Gets the value of the location property.
@@ -84,8 +93,8 @@ public class ModificationXML {
 	public String getAccession() {
 		return accession;
 	}
-	
-	
+
+
 	/**
 	 * Sets the value of the accession property.
 	 */
@@ -109,5 +118,26 @@ public class ModificationXML {
 	 */
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+
+	public List<ScoreXML> getProbability() {
+		return this.probability;
+	}
+
+	@XmlAttribute
+	public String getCvLabel() {
+		return cvLabel;
+	}
+
+	public void setCvLabel(String cvLabel) {
+		this.cvLabel = cvLabel;
+	}
+
+	public void setProbabilities(List<ScoreXML> probabilities) {
+		if(probabilities != null && probabilities.size() > 0){
+			this.probability = new ArrayList<>();
+			this.probability.addAll(probabilities);
+		}
 	}
 }

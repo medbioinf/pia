@@ -122,7 +122,7 @@ public class PsiModParser extends AbstractOBOMapper {
         String residue = accAndRes[1];
         Double massdelta = null;
 
-        return unimodParser.getModification(accession, null, massdelta, residue);
+        return unimodParser.getModification(accession, null, null, residue);
     }
 
 
@@ -185,7 +185,7 @@ public class PsiModParser extends AbstractOBOMapper {
         String residue = accAndRes[1];
         Double massdelta = null;
 
-        return unimodParser.getModification(accession, null, massdelta, residue);
+        return unimodParser.getModification(accession, null, null, residue);
     }
 
 

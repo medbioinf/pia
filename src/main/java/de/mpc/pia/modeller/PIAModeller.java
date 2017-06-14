@@ -557,21 +557,15 @@ public class PIAModeller implements Serializable {
         if (nodeName.startsWith(PSMExecuteCommands.getPrefix())) {
             PSMExecuteCommands execute = PSMExecuteCommands.valueOf(
                     nodeName.substring(PSMExecuteCommands.getPrefix().length()));
-            if (execute != null) {
-                execute.executeXMLParameters(node, model.getPSMModeller(), model);
-            }
+            execute.executeXMLParameters(node, model.getPSMModeller(), model);
         } else if (nodeName.startsWith(PeptideExecuteCommands.getPrefix())) {
             PeptideExecuteCommands execute = PeptideExecuteCommands.valueOf(
                     nodeName.substring(PeptideExecuteCommands.getPrefix().length()));
-            if (execute != null) {
-                execute.executeXMLParameters(node, model.getPeptideModeller(), model);
-            }
+            execute.executeXMLParameters(node, model.getPeptideModeller(), model);
         } else if (nodeName.startsWith(ProteinExecuteCommands.getPrefix())) {
             ProteinExecuteCommands execute = ProteinExecuteCommands.valueOf(
                     nodeName.substring(ProteinExecuteCommands.getPrefix().length()));
-            if (execute != null) {
-                execute.executeXMLParameters(node, model.getProteinModeller(), model);
-            }
+            execute.executeXMLParameters(node, model.getProteinModeller(), model);
         } else {
             LOGGER.error("Could not execute " + nodeName);
         }
@@ -634,21 +628,15 @@ public class PIAModeller implements Serializable {
             if (params[0].startsWith(PSMExecuteCommands.getPrefix())) {
                 PSMExecuteCommands execute = PSMExecuteCommands.valueOf(
                         params[0].substring(PSMExecuteCommands.getPrefix().length()));
-                if (execute != null) {
-                    node = execute.generateNode(params);
-                }
+                node = execute.generateNode(params);
             } else if (params[0].startsWith(PeptideExecuteCommands.getPrefix())) {
                 PeptideExecuteCommands execute = PeptideExecuteCommands.valueOf(
                         params[0].substring(PeptideExecuteCommands.getPrefix().length()));
-                if (execute != null) {
-                    node = execute.generateNode(params);
-                }
+                node = execute.generateNode(params);
             } else if (params[0].startsWith(ProteinExecuteCommands.getPrefix())) {
                 ProteinExecuteCommands execute = ProteinExecuteCommands.valueOf(
                         params[0].substring(ProteinExecuteCommands.getPrefix().length()));
-                if (execute != null) {
-                    node = execute.generateNode(params);
-                }
+                node = execute.generateNode(params);
             }
 
             if (node != null) {
@@ -1081,7 +1069,7 @@ public class PIAModeller implements Serializable {
         LOGGER.info("Serializing data to " + file.getAbsolutePath());
         try (FileOutputStream fos = new FileOutputStream(file);
                 GZIPOutputStream gzo = new GZIPOutputStream(fos);
-                ObjectOutputStream oos = new ObjectOutputStream(gzo); ) {
+                ObjectOutputStream oos = new ObjectOutputStream(gzo)) {
             oos.writeObject(piaModeller);
         } catch (IOException e) {
             LOGGER.error("Could not write whole PIA model to " + file.getAbsolutePath(), e);
@@ -1117,7 +1105,7 @@ public class PIAModeller implements Serializable {
 
         try (FileInputStream fin = new FileInputStream(file);
                 GZIPInputStream gzi = new GZIPInputStream(fin);
-                ObjectInputStream ois = new ObjectInputStream(gzi);) {
+                ObjectInputStream ois = new ObjectInputStream(gzi)) {
             Object readObject = ois.readObject();
             if (readObject instanceof PIAModeller) {
                 piaModeller = (PIAModeller) readObject;

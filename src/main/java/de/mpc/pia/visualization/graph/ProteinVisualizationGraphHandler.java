@@ -95,8 +95,7 @@ public class ProteinVisualizationGraphHandler {
      * shown/expanded
      */
     public boolean isExpandedAccessions(VertexObject vertex) {
-        return (expandedAccessionsMap.containsKey(vertex.getLabel())) ?
-                expandedAccessionsMap.get(vertex.getLabel()) : false;
+        return expandedAccessionsMap.getOrDefault(vertex.getLabel(), false);
     }
 
 
@@ -105,8 +104,7 @@ public class ProteinVisualizationGraphHandler {
      * shown/expanded
      */
     public Boolean isExpandedPeptides(VertexObject vertex) {
-        return (expandedPeptidesMap.containsKey(vertex.getLabel())) ?
-                expandedPeptidesMap.get(vertex.getLabel()) : false;
+        return expandedPeptidesMap.getOrDefault(vertex.getLabel(), false);
     }
 
 
@@ -115,8 +113,7 @@ public class ProteinVisualizationGraphHandler {
      * shown/expanded
      */
     public Boolean isExpandedPSMs(VertexObject vertex) {
-        return (showPSMsMap.containsKey(vertex.getLabel())) ?
-                showPSMsMap.get(vertex.getLabel()) : false;
+        return showPSMsMap.getOrDefault(vertex.getLabel(), false);
     }
 
 

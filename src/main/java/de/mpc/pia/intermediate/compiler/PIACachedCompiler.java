@@ -205,7 +205,7 @@ public class PIACachedCompiler extends PIACompiler {
 
 
     @Override
-    public PeptideSpectrumMatch createNewPeptideSpectrumMatch(int charge,
+    public PeptideSpectrumMatch createNewPeptideSpectrumMatch(Integer charge,
             double massToCharge, double deltaMass, Double rt, String sequence,
             int missed, String sourceID, String spectrumTitle,
             PIAInputFile file, SpectrumIdentification spectrumID) {

@@ -270,7 +270,9 @@ public class ReportPSMSet implements PSMReportItem {
                                         mod.getResidue(),
                                         mod.getMass(),
                                         modIt.getValue().getDescription(),
-                                        mod.getAccession()
+                                        mod.getAccession(),
+                                        mod.getCvLabel(),
+                                        mod.getProbability()
                                         ));
                     }
                 } else {
