@@ -689,21 +689,20 @@ class MzIdentMLFileParser {
             uk.ac.ebi.jmzidml.model.mzidml.Peptide peptide, String proteinSequence) {
         String pepEvSequence = null;
 
-        if ((start != null) && (end != null)) {
-            if (peptide != null) {
-                pepEvSequence = peptide.getPeptideSequence();
-            } else if (proteinSequence != null) {
-                pepEvSequence = proteinSequence.substring(start-1, end);
-            }
+        if (peptide != null) {
+            pepEvSequence = peptide.getPeptideSequence();
+        } else if ((start != null) && (end != null) && (proteinSequence != null)) {
+            pepEvSequence = proteinSequence.substring(start-1, end);
+        } else {
+            LOGGER.error("No peptide sequence found for a peptide!");
+        }
 
-            if ((proteinSequence != null) && (peptide != null)) {
-                String dbEvSeq = proteinSequence.substring(start-1, end);
-                String pepEvSeq = peptide.getPeptideSequence();
+        if ((proteinSequence != null) && (peptide != null)) {
+            String dbEvSeq = proteinSequence.substring(start-1, end);
 
-                if ((dbEvSeq != null) && !dbEvSeq.equals(pepEvSeq)) {
-                    LOGGER.warn("PSM sequence fromSearchDB differs to sequence from Peptide: " +
-                            dbEvSeq + " != " + pepEvSeq + ". Only sequence from Peptide is used.");
-                }
+            if ((dbEvSeq != null) && !dbEvSeq.equals(pepEvSequence)) {
+                LOGGER.warn("PSM sequence fromSearchDB differs to sequence from Peptide: " +
+                        dbEvSeq + " != " + pepEvSequence + ". Only sequence from Peptide is used.");
             }
         }
 
@@ -777,7 +776,9 @@ class MzIdentMLFileParser {
         }
 
         // add the accession occurrence to the peptide
-        peptide.addAccessionOccurrence(acc, start, end);
+        if ((start != null) && (end != null)) {
+            peptide.addAccessionOccurrence(acc, start, end);
+        }
 
         // now insert the connection between peptide and accession into the compiler
         compiler.addAccessionPeptideConnection(acc, peptide);
