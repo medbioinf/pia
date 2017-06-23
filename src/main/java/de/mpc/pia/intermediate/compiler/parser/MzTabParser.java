@@ -1,7 +1,9 @@
 package de.mpc.pia.intermediate.compiler.parser;
 
-import de.mpc.pia.intermediate.*;
+import de.mpc.pia.intermediate.Accession;
+import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
+import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.PIACachedCompiler;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
@@ -24,8 +26,20 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
-import uk.ac.ebi.pride.jmztab.model.*;
+import uk.ac.ebi.pride.jmztab.model.CVParam;
+import uk.ac.ebi.pride.jmztab.model.FixedMod;
+import uk.ac.ebi.pride.jmztab.model.Metadata;
+import uk.ac.ebi.pride.jmztab.model.Mod;
 import uk.ac.ebi.pride.jmztab.model.Modification;
+import uk.ac.ebi.pride.jmztab.model.MsRun;
+import uk.ac.ebi.pride.jmztab.model.PSM;
+import uk.ac.ebi.pride.jmztab.model.PSMSearchEngineScore;
+import uk.ac.ebi.pride.jmztab.model.Param;
+import uk.ac.ebi.pride.jmztab.model.Protein;
+import uk.ac.ebi.pride.jmztab.model.Software;
+import uk.ac.ebi.pride.jmztab.model.SpectraRef;
+import uk.ac.ebi.pride.jmztab.model.SplitList;
+import uk.ac.ebi.pride.jmztab.model.VariableMod;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileParser;
 import uk.ac.ebi.pride.utilities.pridemod.model.PTM;
 
