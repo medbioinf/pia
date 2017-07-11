@@ -43,7 +43,7 @@ public abstract class AbstractOBOMapper {
         try {
             return getCurrentOntology().getTerm(accession);
         } catch (NoSuchElementException e) {
-            LOGGER.info("No term with accession '" + accession + "' was found", e);
+            LOGGER.debug("No term with accession '" + accession + "' was found", e);
             return null;
         }
     }
@@ -58,7 +58,7 @@ public abstract class AbstractOBOMapper {
         try {
             return getCurrentOntology().getTerms();
         } catch (NoSuchElementException e) {
-            LOGGER.info("No term found for ontology", e);
+            LOGGER.debug("No term found for ontology", e);
             return Collections.emptySet();
         }
     }
