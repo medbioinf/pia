@@ -32,6 +32,13 @@ public class PIAConstants {
     public static final String PIA_REPOSITORY_LOCATION = "https://github.com/mpc-bioinformatics/pia";
 
 
+    /** precision for rounding the retention time (e.g. for PSM set generation) */
+    public static final Integer RETENTION_TIME_PRECISION = 0;
+
+    /** precision for rounding the mass to charge (e.g. for PSM set generation) */
+    public static final Integer MASS_TO_CHARGE_PRECISION = 3;
+
+
     // prefixes for the IDs from mzIdentML
     public static final String software_prefix = "software_";
     public static final String identification_protocol_prefix = "identProtocol_";

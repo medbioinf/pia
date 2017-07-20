@@ -8,6 +8,7 @@ import de.mpc.pia.intermediate.compiler.PIACachedCompiler;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
+import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
 import de.mpc.pia.tools.pride.PRIDETools;
 
@@ -805,9 +806,9 @@ public class MzTabParser {
                 ':' +
                 sequence +
                 ':' +
-                Double.toString(PIATools.round(precursorMZ, 4)) +
+                Double.toString(PIATools.round(precursorMZ, PIAConstants.MASS_TO_CHARGE_PRECISION)) +
                 ':' +
-                ((rt != null) ? Double.toString((int) PIATools.round(rt, 0)) : null);
+                ((rt != null) ? Double.toString((int) PIATools.round(rt, PIAConstants.RETENTION_TIME_PRECISION)) : null);
 
         return idSB;
     }

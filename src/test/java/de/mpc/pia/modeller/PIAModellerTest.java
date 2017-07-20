@@ -39,7 +39,7 @@ public class PIAModellerTest {
         piaModeller.setCreatePSMSets(true);
         assertEquals("createPSMSets should be true", true, piaModeller.getCreatePSMSets());
 
-        assertEquals("number of PSM sets is wrong", 2424, piaModeller.getPSMModeller().getNrReportPSMs(0L));
+        assertEquals("number of PSM sets is wrong", 2420, piaModeller.getPSMModeller().getNrReportPSMs(0L));
         assertEquals("number of PSMs in file 1 is wrong", 2308, piaModeller.getPSMModeller().getNrReportPSMs(1L));
         assertEquals("number of PSMs in file 2 is wrong", 170, piaModeller.getPSMModeller().getNrReportPSMs(2L));
 

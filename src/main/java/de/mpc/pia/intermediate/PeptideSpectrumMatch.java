@@ -19,6 +19,7 @@ import de.mpc.pia.modeller.IdentificationKeySettings;
 import de.mpc.pia.modeller.psm.PSMItem;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
+import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
 
 
@@ -547,7 +548,10 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
             String modificationString, int charge, Double massToCharge,
             Double rt, String sourceID, String spectrumTitle, Long fileID) {
 
-        List<String> usedSettings = psmSetSettings.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList());
+        List<String> usedSettings = psmSetSettings.entrySet().stream()
+                .filter(Map.Entry::getValue)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
         Collections.sort(usedSettings);
 
         StringBuilder key = new StringBuilder();
@@ -564,7 +568,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
 
             case MASSTOCHARGE:
                 if (massToCharge != null) {
-                    value = Double.toString(PIATools.round(massToCharge, 4));
+                    value = Double.toString(PIATools.round(massToCharge, PIAConstants.MASS_TO_CHARGE_PRECISION));
                 }
                 break;
 
@@ -574,7 +578,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
 
             case RETENTION_TIME:
                 if (rt != null) {
-                    value = Double.toString((int)PIATools.round(rt, 0));
+                    value = Double.toString((int)PIATools.round(rt, PIAConstants.RETENTION_TIME_PRECISION));
                 }
                 break;
 
@@ -653,7 +657,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
         }
 
         spectrumName.append(" (");
-        spectrumName.append((int)PIATools.round(massToCharge, 4));
+        spectrumName.append((int)PIATools.round(massToCharge, PIAConstants.MASS_TO_CHARGE_PRECISION));
         spectrumName.append(", ");
         if (charge > 0) {
             spectrumName.append("+");
@@ -662,7 +666,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
 
         if (retentionTime != null) {
             spectrumName.append(", ");
-            spectrumName.append(PIATools.round(retentionTime, 0));
+            spectrumName.append(PIATools.round(retentionTime, PIAConstants.RETENTION_TIME_PRECISION));
         }
 
         spectrumName.append(")");
