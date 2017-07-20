@@ -394,13 +394,12 @@ class CompilerWorkerThread extends Thread {
             // get the group (in subGroups) with the most accessions in its
             // allAccessions, which are also in the accessions map
             for (Group group : subGroups.values()) {
-                if (groupHasNoOtherInAllAccessions(group, accessions)) {
-                    if ((group.getAllAccessions().size() > mostAccessions) ||
-                            ((mostId == -1) && (group.getAllAccessions().size() > 0))) {
-                        mostAccessions = group.getAllAccessions().size();
-                        mostId = group.getID();
-                        mostGroup = group;
-                    }
+                if (groupHasNoOtherInAllAccessions(group, accessions)
+                        && ((group.getAllAccessions().size() > mostAccessions)
+                                || ((mostId == -1) && (group.getAllAccessions().size() > 0)))) {
+                    mostAccessions = group.getAllAccessions().size();
+                    mostId = group.getID();
+                    mostGroup = group;
                 }
             }
             // remove the accessions of the found group from the accessions set
