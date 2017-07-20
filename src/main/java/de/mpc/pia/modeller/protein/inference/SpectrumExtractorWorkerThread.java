@@ -89,7 +89,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
      * inferring the peptides
      * @param psmSetSettings settings for PSMSet creation
      */
-    public SpectrumExtractorWorkerThread(int ID,
+    public SpectrumExtractorWorkerThread(int id,
             SpectrumExtractorInference parent,
             AbstractScoring scoring,
             List<AbstractFilter> filters,
@@ -101,7 +101,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
             String scoreShort,
             boolean considerModifications,
             Map<String, Boolean> psmSetSettings) {
-        this.id = ID;
+        this.id = id;
         this.parent = parent;
         this.scoring = scoring;
         this.filters = filters;
@@ -166,8 +166,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
                 Set<String> modificationsDone = new HashSet<>();
 
                 for (PeptideSpectrumMatch psm : peptide.getSpectra()) {
-                    String peptideKey =
-                            psm.getPeptideStringID(considerModifications);
+                    String peptideKey = psm.getPeptideStringID(considerModifications);
                     // check, whether the peptide is on the blacklist
                     if (!peptideBlacklist.contains(peptideKey)) {
                         // check, if this PSM is already used
@@ -176,13 +175,10 @@ public class SpectrumExtractorWorkerThread extends Thread {
                             // these fixed PSMSets and this peptide (with modifications)
                             // is done
                             if (!modificationsDone.contains(peptideKey)) {
-                                ReportPeptide reportPeptide =
-                                        new ReportPeptide(psm.getSequence(),
-                                                peptideKey, peptide);
+                                ReportPeptide reportPeptide = new ReportPeptide(psm.getSequence(), peptideKey, peptide);
 
                                 if (peptideMap.put(peptideKey, reportPeptide) != null) {
-                                    LOGGER.error(
-                                            "There was already another peptide for " +
+                                    LOGGER.error("There was already another peptide for " +
                                                     peptideKey + " in the peptideMap!");
                                 }
 
