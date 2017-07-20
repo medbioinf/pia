@@ -30,7 +30,7 @@ import de.mpc.pia.tools.PIATools;
  */
 public class PeptideSpectrumMatch implements PSMItem, Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -7839921462687609103L;
 
 
     /** internal ID of the PSM */
