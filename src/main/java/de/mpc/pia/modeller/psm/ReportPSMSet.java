@@ -895,4 +895,26 @@ public class ReportPSMSet implements PSMReportItem {
                 append(psmsList).
                 toHashCode();
     }
+
+
+    @Override
+    public String toString() {
+       StringBuilder bt = new StringBuilder();
+       bt.append(ReportPSM.class.getName()).append(" | ");
+
+       bt.append("Protein Accessions: ");
+       for(Accession acc: getAccessions())
+           bt.append(acc.getAccession() + "|");
+
+        bt.append(" Sequence: " + getPeptide().getSequence()).append(" | ");
+
+        bt.append("Modifications: " );
+        for(PSMItem psm: psmsList){
+            bt.append(psm.getModifications().values());
+        }
+        return bt.toString();
+    }
+
+
+
 }

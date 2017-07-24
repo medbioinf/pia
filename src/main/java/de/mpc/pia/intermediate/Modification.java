@@ -204,4 +204,17 @@ public class Modification implements Serializable {
                append(residue, mod.residue).
                isEquals();
     }
+
+    @Override
+    public String toString() {
+        return "Modification{" +
+                "residue=" + residue +
+                ", mass=" + mass +
+                ", description='" + description + '\'' +
+                ", accession='" + accession + '\'' +
+                ", massString='" + massString + '\'' +
+                ", cvLabel='" + cvLabel + '\'' +
+                ", probability=" + probability +
+                '}';
+    }
 }
