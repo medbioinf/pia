@@ -320,7 +320,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      */
     public List<String> getPSMsIdentificationKeys(Map<String, Boolean> psmSetSettings) {
         Set<String> idKeySet = psmList.stream().map(psm -> psm.getIdentificationKey(psmSetSettings)).collect(Collectors.toSet());
-
         return new ArrayList<>(idKeySet);
     }
 
@@ -343,6 +342,29 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
         return new ArrayList<>(fileNameSet);
     }
 
+
+    /**
+     * This function retrieve the PSMs for an specific File after even when they merge
+     * @param fileName  File name
+     * @return List of PSMReportItem
+     */
+     public List<PSMReportItem> getPSMReportByFileName(String fileName){
+
+         Set<PSMReportItem> fileNameSet = new HashSet<>();
+
+         for (PSMReportItem psm : psmList) {
+             if (psm instanceof ReportPSM) {
+                 if(((ReportPSM) psm).getFileName().equalsIgnoreCase(fileName))
+                 fileNameSet.add(psm);
+             } else if (psm instanceof ReportPSMSet) {
+                 fileNameSet.addAll(
+                         ((ReportPSMSet) psm).getPSMs().stream().filter(reportPSM -> reportPSM.getFileName().equalsIgnoreCase(fileName))
+                                 .collect(Collectors.toList()));
+             }
+         }
+
+         return new ArrayList<>(fileNameSet);
+     }
 
     /**
      * Returns a list with the PSMs of this ReportPeptide.
