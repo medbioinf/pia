@@ -215,4 +215,17 @@ public class Modification implements Serializable {
                .append(probability, mod.probability)
                .isEquals();
     }
+
+    @Override
+    public String toString() {
+        return "Modification{" +
+                "residue=" + residue +
+                ", mass=" + mass +
+                ", description='" + description + '\'' +
+                ", accession='" + accession + '\'' +
+                ", massString='" + massString + '\'' +
+                ", cvLabel='" + cvLabel + '\'' +
+                ", probability=" + probability +
+                '}';
+    }
 }

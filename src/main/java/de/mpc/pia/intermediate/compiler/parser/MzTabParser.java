@@ -690,7 +690,7 @@ public class MzTabParser {
             }
 
             if ((scoreType == null) || ScoreModelEnum.UNKNOWN_SCORE.equals(scoreType)) {
-                throw new IllegalArgumentException("type must not be null or of " +
+                throw new IllegalArgumentException("Type must not be null or of " +
                         "type UNKNOWN_SCORE: " + searchEngineScoreParam.toString());
             }
 

@@ -1323,7 +1323,8 @@ public class PSMModeller implements Serializable {
             }
 
             // if no score is returned yet, take the first best score
-            return fileScoreShortNames.get(fileID).get(0);
+            if(fileScoreShortNames.get(fileID) != null && !fileScoreShortNames.get(fileID).isEmpty())
+                return fileScoreShortNames.get(fileID).get(0);
         }
 
         return null;
