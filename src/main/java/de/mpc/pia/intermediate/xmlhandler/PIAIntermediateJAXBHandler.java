@@ -176,6 +176,11 @@ public class PIAIntermediateJAXBHandler implements Serializable {
         }
 
         parseXMLFile(fileName, progress, notifier);
+
+        // the source ID and spectrum title needs to be updated -> deactivate for now
+        // TODO: review the source ID and use it constantly as in the mzIdentML document, converting everything to index=XXX does not work!
+        psmSetSettingsWarnings.get(IdentificationKeySettings.SOURCE_ID.toString()).add(0L);
+        psmSetSettingsWarnings.get(IdentificationKeySettings.SPECTRUM_TITLE.toString()).add(0L);
     }
 
 

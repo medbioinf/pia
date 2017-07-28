@@ -28,7 +28,6 @@ public class ScoreModel implements Serializable, Comparable<ScoreModel> {
     private String name;
 
     /** cvLabel is use to describe the id of the ontology **/
-
     private String cvLabel;
 
 

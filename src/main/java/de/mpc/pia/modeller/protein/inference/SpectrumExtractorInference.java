@@ -685,6 +685,10 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
             }
         }
 
+        proteinListIt = null;
+        changedAccessions = null;
+        threads.clear();
+
         LOGGER.info(NAME + " calculateInference done, " + completeReportProteinList.size() + " groups inferred");
         inferenceDone = true;
         return completeReportProteinList;
