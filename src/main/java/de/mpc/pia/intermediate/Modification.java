@@ -38,10 +38,10 @@ public class Modification implements Serializable {
     /** the mass shift as formatted string */
     private String massString;
 
-    private String cvLabel = null;
-
     /** formatter for the mass as string */
     private static final DecimalFormat df;
+
+    private String cvLabel = null;
 
     private List<ScoreModel> probability;
 
@@ -70,6 +70,8 @@ public class Modification implements Serializable {
         this.description = description;
         this.accession = acc;
         this.massString = df.format(mass);
+        this.cvLabel = null;
+        this.probability = null;
     }
 
     /**
@@ -86,6 +88,7 @@ public class Modification implements Serializable {
         this.description = description;
         this.accession = acc;
         this.massString = df.format(mass);
+        this.cvLabel = null;
         this.probability = probability;
     }
 
@@ -178,12 +181,18 @@ public class Modification implements Serializable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(23, 31).
-                append(accession).
-                append(description).
-                append(mass).
-                append(residue).
-                toHashCode();
+        HashCodeBuilder hcb = new HashCodeBuilder(23, 31)
+                .append(accession)
+                .append(description)
+                .append(mass)
+                .append(residue)
+                .append(cvLabel);
+
+        if (probability != null) {
+            hcb.append(probability.hashCode());
+        }
+
+        return hcb.toHashCode();
     }
 
 
@@ -197,12 +206,14 @@ public class Modification implements Serializable {
        }
 
        Modification mod = (Modification)obj;
-       return new EqualsBuilder().
-               append(accession, mod.accession).
-               append(description, mod.description).
-               append(mass, mod.mass).
-               append(residue, mod.residue).
-               isEquals();
+       return new EqualsBuilder()
+               .append(accession, mod.accession)
+               .append(description, mod.description)
+               .append(mass, mod.mass)
+               .append(residue, mod.residue)
+               .append(cvLabel, mod.cvLabel)
+               .append(probability, mod.probability)
+               .isEquals();
     }
 
     @Override

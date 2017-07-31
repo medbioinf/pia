@@ -16,12 +16,16 @@ import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
+import uk.ac.ebi.jmzidml.model.mzidml.FileFormat;
+import uk.ac.ebi.jmzidml.model.mzidml.InputSpectra;
 import uk.ac.ebi.jmzidml.model.mzidml.ModificationParams;
 import uk.ac.ebi.jmzidml.model.mzidml.Param;
 import uk.ac.ebi.jmzidml.model.mzidml.ParamList;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabaseRef;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchModification;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.model.mzidml.Tolerance;
@@ -240,6 +244,12 @@ public class IdXMLFileParser {
             spectrumID.setSpectrumIdentificationList(null);
             spectrumID.setSpectrumIdentificationProtocol(spectrumIDProtocol);
 
+
+            InputSpectra inputSpectra = new InputSpectra();
+            inputSpectra.setSpectraData(createFilesSpectradata(compiler, fileName));
+            spectrumID.getInputSpectra().add(inputSpectra);
+
+
             SearchDatabaseRef searchDBRef = new SearchDatabaseRef();
             searchDBRef.setSearchDatabase(searchDatabase);
             spectrumID.getSearchDatabaseRef().add(searchDBRef);
@@ -264,6 +274,33 @@ public class IdXMLFileParser {
         return true;
     }
 
+
+    /**
+     * Creates the spectraData element for the file and adds it to the compiler
+     */
+    private static SpectraData createFilesSpectradata(PIACompiler compiler, String fileName) {
+        // an inputSpectra with spectraData is needed, though not given in idXML
+        // --> take the idXML file, though not 100% correct
+        SpectraData spectraData = new SpectraData();
+
+        spectraData.setId("idXMLSpectraData");
+        spectraData.setLocation(fileName);
+
+        FileFormat fileFormat = new FileFormat();
+
+        fileFormat.setCvParam(MzIdentMLTools.createCvParam(
+                "MS:1001369", MzIdentMLTools.getCvPSIMS(), "text format", null));
+        spectraData.setFileFormat(fileFormat);
+
+        SpectrumIDFormat idFormat = new SpectrumIDFormat();
+        idFormat.setCvParam(MzIdentMLTools.createCvParam(
+                "MS:1000824", MzIdentMLTools.getCvPSIMS(), "no nativeID format", null));
+        spectraData.setSpectrumIDFormat(idFormat);
+
+        spectraData = compiler.putIntoSpectraDataMap(spectraData);
+
+        return spectraData;
+    }
 
 
     /**
@@ -292,6 +329,10 @@ public class IdXMLFileParser {
         String sourceID = getSpectrumSourceIDFromUserParams(pepID.getUserParam());
         if (sourceID == null) {
             sourceID = getSpectrumSourceIDFromSpectrumReference(pepID.getSpectrumReference());
+        }
+        if (sourceID == null) {
+            // nothing given in this file, create an ID using M/Z and RT
+            sourceID = pepID.getMZ() + "__" + pepID.getRT();
         }
 
         // the distinct PSMs in this pepID

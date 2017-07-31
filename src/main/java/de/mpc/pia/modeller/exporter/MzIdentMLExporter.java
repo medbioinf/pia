@@ -413,10 +413,14 @@ public class MzIdentMLExporter {
                     .getAnalysisCollection().getSpectrumIdentification().get(0);
 
             // add the spectraData of the input file
-            spectraData.addAll(specID.getInputSpectra().stream().map(inputSpectra -> piaModeller.getSpectraData().get(inputSpectra.getSpectraDataRef())).collect(Collectors.toList()));
+            spectraData.addAll(specID.getInputSpectra().stream()
+                    .map(inputSpectra -> piaModeller.getSpectraData().get(inputSpectra.getSpectraDataRef()))
+                    .collect(Collectors.toList()));
 
             // add the search databases of the input file
-            databases.addAll(specID.getSearchDatabaseRef().stream().map(dbRef -> piaModeller.getSearchDatabases().get(dbRef.getSearchDatabaseRef())).collect(Collectors.toList()));
+            databases.addAll(specID.getSearchDatabaseRef().stream()
+                    .map(dbRef -> piaModeller.getSearchDatabases().get(dbRef.getSearchDatabaseRef()))
+                    .collect(Collectors.toList()));
         } else {
             // add all SpectraData and SearchDatabase
             spectraData.addAll(piaModeller.getSpectraData().values());
@@ -919,7 +923,6 @@ public class MzIdentMLExporter {
             specIdRes.setId(psmIdentificationKey);
             specIdRes.setSpectrumID(psm.getSourceID());
             specIdRes.setSpectraData(getRepresentingSpectraData(psm));
-
 
             if (psm.getSpectrumTitle() != null) {
                specIdRes.getCvParam().add(

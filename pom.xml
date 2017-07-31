@@ -4,7 +4,7 @@
 
 	<groupId>de.mpc.pia</groupId>
 	<artifactId>pia</artifactId>
-	<version>1.3.2-SNAPSHOT</version>
+	<version>1.3.3</version>
 	<name>PIA - Protein Inference Algorithms</name>
 	<url>https://github.com/mpc-bioinformatics/pia</url>
 
@@ -207,11 +207,13 @@
 			<artifactId>ehcache</artifactId>
 			<version>${ehcache.version}</version>
 		</dependency>
-
+		
+		<!--  needed by some testcases and testscenarios -->
 		<dependency>
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
 			<version>${xercesImpl.version}</version>
+      <scope>test</scope>
 		</dependency>
 	</dependencies>
 
