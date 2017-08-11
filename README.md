@@ -46,14 +46,23 @@ free to test it using the test server).
 
 ## Download
 
-For how to install and run PIA inside KNIME see [the wiki about PIA in KNIME](https://github.com/mpc-bioinformatics/pia/wiki/Running-PIA-via-KNIME).
+PIA is fully integrated into KNIME and automatically installed, when using the
+package with all free extensions. Please use always the newest version of KNIME.
+More information on how to install and run PIA inside KNIME are in 
+[the wiki about PIA in KNIME](https://github.com/mpc-bioinformatics/pia/wiki/Running-PIA-via-KNIME).
 
-Download the latest released version [here](https://github.com/mpc-bioinformatics/pia/releases/latest).
+For the command line you can download the latest released version
+[here](https://github.com/mpc-bioinformatics/pia/releases/latest).
 
 
 ## Tutorial
 
-The tutorial as PDF can be downloaded [here](https://github.com/julianu/pia-tutorial/blob/master/pia_tutorial.pdf), the required data are available [here](https://github.com/julianu/pia-tutorial/tree/master/data) and the workflows [here](https://github.com/julianu/pia-tutorial/tree/master/workflows) (all are in the tutorial repository at https://github.com/julianu/pia-tutorial/).
+The tutorial as PDF can be downloaded
+[here](https://github.com/julianu/pia-tutorial/blob/master/pia_tutorial.pdf),
+the required data are available [here](https://github.com/julianu/pia-tutorial/tree/master/data)
+and the workflows [here](https://github.com/julianu/pia-tutorial/tree/master/workflows)
+(all data is also available in the tutorial repository at
+https://github.com/julianu/pia-tutorial/).
 
 
 ## Documentation
@@ -79,3 +88,11 @@ http://www.ncbi.nlm.nih.gov/pubmed/25938255
 We provide a test installation of the web interface on http://134.147.84.213:8080/pia/
 
 In your own interest, don't sent any sensitive research data to this server!
+
+
+## Funding
+
+The development of PIA is funded by the BMBF as part of de.NBI, the German
+Network for Bioinformatics Infrastructure.
+
+[![de.NBI logo](https://www.denbi.de/templates/de.nbi2/img/deNBI_logo.jpg)](https://www.denbi.de/)
