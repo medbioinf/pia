@@ -223,7 +223,7 @@ public class MzTabParser {
      * @param name the base name of the file
      * @return
      */
-    private boolean parseFile(String name) {
+    private boolean parseFile(String name){
         Metadata metadata = tabParser.getMZTabFile().getMetadata();
 
         parseMetadataInformation(metadata, name);
@@ -237,7 +237,12 @@ public class MzTabParser {
         pepNr = 0;
         psmNr = 0;
 
-        parsePSMs();
+        try {
+            parsePSMs();
+        } catch (Exception e) {
+            LOGGER.error("Error parsing the File" + e.getMessage());
+            return false;
+        }
 
         // add the searchDatabase references for each msRun
         runsToSearchDatabases.forEach((id, searchDBs) -> {
@@ -249,10 +254,7 @@ public class MzTabParser {
             }
         });
 
-        LOGGER.info("inserted new: \n\t" +
-                pepNr + " peptides\n\t" +
-                psmNr + " peptide spectrum matches\n\t" +
-                accNr + " accessions");
+        LOGGER.info("inserted new: \n\t" + pepNr + " peptides\n\t" + psmNr + " peptide spectrum matches\n\t" + accNr + " accessions");
 
         return true;
     }
@@ -498,7 +500,7 @@ public class MzTabParser {
     /**
      * Parse the PSMs of the mzTab file.
      */
-    private void parsePSMs() {
+    private void parsePSMs() throws Exception {
         psmMap = new HashMap<>();
 
         tabParser.getMZTabFile().getPsmColumnFactory().getColumnMapping().forEach((key, value) -> {
@@ -519,7 +521,7 @@ public class MzTabParser {
      *
      * @param mzTabPSM
      */
-    private void parsePSM(PSM mzTabPSM) {
+    private void parsePSM(PSM mzTabPSM) throws Exception {
         Integer charge = mzTabPSM.getCharge();
 
         Double precursorMZ = mzTabPSM.getExpMassToCharge();
@@ -536,8 +538,7 @@ public class MzTabParser {
 
         String sequence = mzTabPSM.getSequence();
 
-        Map<Integer, de.mpc.pia.intermediate.Modification> modifications =
-                transformModifications(sequence, mzTabPSM.getModifications());
+        Map<Integer, de.mpc.pia.intermediate.Modification> modifications = transformModifications(sequence, mzTabPSM.getModifications());
         // TODO: if more than one position in the modification is encoded: generate multiple PSMs
         // TODO: add parsing of the search engines: actually only one search engine per PSM can be added to the specIdProtocol in PIA...
 
@@ -577,7 +578,7 @@ public class MzTabParser {
      * @return
      */
     private Map<Integer, de.mpc.pia.intermediate.Modification> transformModifications(String sequence,
-            SplitList<uk.ac.ebi.pride.jmztab.model.Modification> mzTabMods) {
+            SplitList<uk.ac.ebi.pride.jmztab.model.Modification> mzTabMods) throws Exception {
         Map<Integer, de.mpc.pia.intermediate.Modification> modifications = new HashMap<>();
 
         for (uk.ac.ebi.pride.jmztab.model.Modification oldMod : mzTabMods) {
@@ -604,17 +605,50 @@ public class MzTabParser {
                             transformScore(oldMod.getPositionMap().get(pos)));
 
                 } else {
-                    mod = new de.mpc.pia.intermediate.Modification(
-                            charMod,
-                            compiler.getModReader().getPTMbyAccession(oldAccession).getMonoDeltaMass(),
-                            prideModAccToName.get(oldAccession),
-                            oldAccession, oldPTM.getCvLabel(),
-                            transformScore(oldMod.getPositionMap().get(pos)));
+                    LOGGER.info("Old modification to be change: " + oldMod.toString());
+                    PTM ptm = compiler.getModReader().getPTMbyAccession(oldAccession);
+                    if(ptm == null && oldMod.getType() == Modification.Type.CHEMMOD){
+                        List<PTM> ptms = compiler.getModReader().getAnchorModification(Modification.Type.CHEMMOD.toString() + ":" +oldAccession, charMod.toString());
+                        if(ptms != null && ptms.size() == 1)
+                            ptm = ptms.get(0);
+                    }
+                    if(ptm != null){
+                        mod = new de.mpc.pia.intermediate.Modification(
+                                charMod,
+                                ptm.getMonoDeltaMass(),
+                                prideModAccToName.get(ptm.getAccession()),
+                                ptm.getAccession(), ptm.getCvLabel(),
+                                transformScore(oldMod.getPositionMap().get(pos)));
+                    }else if(oldMod.getType() == Modification.Type.CHEMMOD){
+                        mod = new de.mpc.pia.intermediate.Modification(
+                                charMod,
+                                Double.parseDouble(oldAccession),
+                                null,
+                                oldAccession, Modification.Type.CHEMMOD.toString(),
+                                transformScore(oldMod.getPositionMap().get(pos)));
+                    }else{
+                        throw new Exception("The moddification is not supported" + oldMod.toString());
+                    }
+
                 }
                 modifications.put(pos, mod);
             }
         }
         return modifications;
+    }
+
+    private boolean isCHEMODMOD(String accession){
+        return accession.toUpperCase().contains("CHEMOD");
+    }
+
+    private Double parseDeltaMassCHEMOD(String chemodAccession){
+        if(isCHEMODMOD(chemodAccession)){
+            String[] chemodList = chemodAccession.split(":");
+            if(chemodList.length == 2){
+                return Double.parseDouble(chemodList[1]);
+            }
+        }
+        return null;
     }
 
     private List<ScoreModel> transformScore(CVParam cvParam) {

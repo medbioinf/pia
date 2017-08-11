@@ -4,7 +4,7 @@
 
 	<groupId>de.mpc.pia</groupId>
 	<artifactId>pia</artifactId>
-	<version>1.3.3</version>
+	<version>1.3.4-SNAPSHOT</version>
 	<name>PIA - Protein Inference Algorithms</name>
 	<url>https://github.com/mpc-bioinformatics/pia</url>
 
@@ -347,4 +347,21 @@
 			<url>file://${project.basedir}/libs</url>
 		</repository>
 	</repositories>
+
+	<!-- Overwrites the previous repositories-->
+	<distributionManagement>
+		<!-- EBI repo -->
+		<repository>
+			<id>pst-release</id>
+			<name>EBI Nexus Repository</name>
+			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
+		</repository>
+		<!-- EBI SNAPSHOT repo -->
+		<snapshotRepository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>pst-snapshots</id>
+			<name>EBI Nexus Snapshots Repository</name>
+			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
