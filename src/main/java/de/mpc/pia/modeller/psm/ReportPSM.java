@@ -549,8 +549,7 @@ public class ReportPSM  implements PSMReportItem {
         if (fdrScore != null) {
             fdrScore.setValue(score);
         } else {
-            fdrScore = new ScoreModel(score,
-                    ScoreModelEnum.PSM_LEVEL_FDR_SCORE);
+            fdrScore = new ScoreModel(score, ScoreModelEnum.PSM_LEVEL_FDR_SCORE);
         }
     }
 

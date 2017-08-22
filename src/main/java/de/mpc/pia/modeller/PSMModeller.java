@@ -1339,11 +1339,14 @@ public class PSMModeller implements Serializable {
         Map<String, List<ReportPSMSet>> fileLists = new HashMap<>();
         String key;
 
+
         updateDecoyStates(0L);
 
         // first we need the Average FDR Score for each PSM set
         for (ReportPSMSet set : reportPSMSets) {
-            set.calculateAverageFDRScore();
+
+
+             set.calculateAverageFDRScore();
 
             if (!set.getAverageFDRScore().getValue().equals(Double.NaN)) {
                 // put the PSM set into the List, which holds the sets identified in the same files
@@ -1407,9 +1410,7 @@ public class PSMModeller implements Serializable {
         // and add to the score fields
         fileScoreShortNames.put(0L, new ArrayList<>(1));
         fileScoreShortNames.get(0L).add(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName());
-        scoreShortToScoreName.put(
-                ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName(),
-                ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getName());
+        scoreShortToScoreName.put(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName(), ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getName());
         scoreShortToComparator.put(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName(),
                 new ScoreComparator<>(
                         ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName(),
