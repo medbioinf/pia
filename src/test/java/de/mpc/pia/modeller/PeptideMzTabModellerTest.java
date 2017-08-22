@@ -92,9 +92,10 @@ public class PeptideMzTabModellerTest {
                 new PeptideScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PEPTIDE_LEVEL_Q_VALUE.getShortName())
         );
 
-        List<ReportPeptide> peptides = piaModeller.getPeptideModeller().getFilteredReportPeptides(0L, piaModeller.getPeptideModeller().getFilters(0L));
+        List<ReportPeptide> peptides = piaModeller.getPeptideModeller().getFilteredReportPeptides(0L,
+                piaModeller.getPeptideModeller().getFilters(0L));
 
-        peptides.forEach(peptide -> System.out.println(peptide.getSequence() + " -> " + peptide.getQValue()));
+        assertEquals("Wrong number of peptides in the returned list", 1260,  peptides.size());
 
         MzTabExporter exporter = new MzTabExporter(piaModeller);
         File exportFile = File.createTempFile("control_exo_rep1_high_mol_weight", "mzTab");
