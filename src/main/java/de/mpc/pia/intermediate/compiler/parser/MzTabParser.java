@@ -240,7 +240,7 @@ public class MzTabParser {
         try {
             parsePSMs();
         } catch (Exception e) {
-            LOGGER.error("Error parsing the File" + e.getMessage());
+            LOGGER.error("Error parsing the File", e);
             return false;
         }
 
@@ -607,26 +607,26 @@ public class MzTabParser {
                 } else {
                     LOGGER.info("Old modification to be change: " + oldMod.toString());
                     PTM ptm = compiler.getModReader().getPTMbyAccession(oldAccession);
-                    if(ptm == null && oldMod.getType() == Modification.Type.CHEMMOD){
+                    if (ptm == null && oldMod.getType() == Modification.Type.CHEMMOD) {
                         List<PTM> ptms = compiler.getModReader().getAnchorModification(Modification.Type.CHEMMOD.toString() + ":" +oldAccession, charMod.toString());
                         if(ptms != null && ptms.size() == 1)
                             ptm = ptms.get(0);
                     }
-                    if(ptm != null){
+                    if (ptm != null) {
                         mod = new de.mpc.pia.intermediate.Modification(
                                 charMod,
                                 ptm.getMonoDeltaMass(),
                                 prideModAccToName.get(ptm.getAccession()),
                                 ptm.getAccession(), ptm.getCvLabel(),
                                 transformScore(oldMod.getPositionMap().get(pos)));
-                    }else if(oldMod.getType() == Modification.Type.CHEMMOD){
+                    } else if (oldMod.getType() == Modification.Type.CHEMMOD) {
                         mod = new de.mpc.pia.intermediate.Modification(
                                 charMod,
                                 Double.parseDouble(oldAccession),
                                 null,
                                 oldAccession, Modification.Type.CHEMMOD.toString(),
                                 transformScore(oldMod.getPositionMap().get(pos)));
-                    }else{
+                    } else {
                         throw new Exception("The moddification is not supported" + oldMod.toString());
                     }
 
@@ -637,9 +637,11 @@ public class MzTabParser {
         return modifications;
     }
 
+
     private boolean isCHEMODMOD(String accession){
         return accession.toUpperCase().contains("CHEMOD");
     }
+
 
     private Double parseDeltaMassCHEMOD(String chemodAccession){
         if(isCHEMODMOD(chemodAccession)){
@@ -650,6 +652,7 @@ public class MzTabParser {
         }
         return null;
     }
+
 
     private List<ScoreModel> transformScore(CVParam cvParam) {
         List<ScoreModel> scores = new ArrayList<>();
@@ -833,7 +836,7 @@ public class MzTabParser {
     private static String createPSMKey(String psmID, Map<Integer, de.mpc.pia.intermediate.Modification> modifications,
             int charge, String sequence, double precursorMZ, Double rt) {
         // PSM_ID with same mods, charge, sequence (and RT and M/Z)
-        String idSB = psmID + ":" +
+        return psmID + ":" +
                 PeptideSpectrumMatch.getModificationString(modifications) +
                 ':' +
                 charge +
@@ -843,8 +846,6 @@ public class MzTabParser {
                 Double.toString(PIATools.round(precursorMZ, PIAConstants.MASS_TO_CHARGE_PRECISION)) +
                 ':' +
                 ((rt != null) ? Double.toString((int) PIATools.round(rt, PIAConstants.RETENTION_TIME_PRECISION)) : null);
-
-        return idSB;
     }
 
 
