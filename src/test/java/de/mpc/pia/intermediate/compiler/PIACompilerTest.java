@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import de.mpc.pia.modeller.peptide.ReportPeptide;
-import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
 import org.junit.Before;
 import org.junit.Test;
 
