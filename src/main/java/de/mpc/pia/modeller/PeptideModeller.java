@@ -679,13 +679,11 @@ public class PeptideModeller implements Serializable {
         }
 
         // get a List of the ReportPeptides for FDR calculation
-        List<ReportPeptide> listForFDR = new ArrayList<>(
-                getFilteredReportPeptides(fileID, filters));
+        List<ReportPeptide> listForFDR = new ArrayList<>(getFilteredReportPeptides(fileID, filters));
 
         // get the comparator for the score
         boolean higherScoreBetter = psmModeller.getHigherScoreBetter(fdrData.getScoreShortName());
-        Comparator<ReportPeptide> peptideComparator =
-                new ScoreComparator<>(fdrData.getScoreShortName(), higherScoreBetter);
+        Comparator<ReportPeptide> peptideComparator = new ScoreComparator<>(fdrData.getScoreShortName(), higherScoreBetter);
 
         // calculate the FDR values
         fdrData.calculateFDR(listForFDR, peptideComparator);

@@ -493,7 +493,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
                 bestScoreModel = newScoreModel;
             }
         }
-
         // no score found
         return bestScoreModel;
     }
@@ -861,5 +860,27 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
     @Override
     public void setIsFDRGood(boolean isGood) {
         isFDRGood = isGood;
+    }
+
+
+    @Override
+    public String toString() {
+        return "ReportPeptide{" +
+                "stringID='" + stringID + '\'' +
+                ", sequence='" + sequence + '\'' +
+                ", rank=" + rank +
+                ", psmList=" + psmList +
+                ", nonScoringPSMIDs=" + nonScoringPSMIDs +
+                ", nonScoringSpectraIDKeys=" + nonScoringSpectraIDKeys +
+                ", allSpectraKeySet=" + allSpectraKeySet +
+                ", maximalSpectraIdentificationSettings=" + maximalSpectraIdentificationSettings +
+                ", maximalNonRedundantSpectraIdentificationSettings=" + maximalNonRedundantSpectraIdentificationSettings +
+                ", peptide=" + peptide +
+                ", isDecoy=" + isDecoy +
+                ", fdrValue=" + fdrValue +
+                ", qValue=" + qValue +
+                ", isFDRGood=" + isFDRGood +
+                ", fdrScore=" + fdrScore +
+                '}';
     }
 }

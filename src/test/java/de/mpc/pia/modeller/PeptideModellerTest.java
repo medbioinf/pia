@@ -3,10 +3,23 @@ package de.mpc.pia.modeller;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import de.mpc.pia.intermediate.compiler.PIACompiler;
+import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
+import de.mpc.pia.intermediate.compiler.parser.InputFileParserFactory;
+import de.mpc.pia.modeller.peptide.ReportPeptide;
+import de.mpc.pia.modeller.report.filter.AbstractFilter;
+import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
+import org.apache.log4j.Logger;
+import org.junit.*;
 
 import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
@@ -14,12 +27,12 @@ import de.mpc.pia.modeller.score.FDRData;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 
 
+
 public class PeptideModellerTest {
 
     private static File piaFile;
 
     private PIAModeller piaModeller;
-
 
     @BeforeClass
     public static void setUpBeforeClass() {
@@ -68,4 +81,6 @@ public class PeptideModellerTest {
         assertEquals(8, fdrData.getNrItems().intValue());
         assertEquals(5, fdrData.getNrTargets().intValue());
     }
+
+
 }
