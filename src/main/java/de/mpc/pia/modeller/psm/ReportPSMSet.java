@@ -547,17 +547,22 @@ public class ReportPSMSet implements PSMReportItem {
 
     @Override
     public Double getScore(String scoreShortName) {
+        Double scoreVal = Double.NaN;
+
         if (isPSMSetScore(scoreShortName)) {
-            if ((averageFDRScore != null) &&
-                    ScoreModelEnum.AVERAGE_FDR_SCORE.isValidDescriptor(scoreShortName)) {
-                return averageFDRScore.getValue();
-            } else if ((fdrScore != null) &&
-                    ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.isValidDescriptor(scoreShortName)) {
-                return fdrScore.getValue();
+            if ((averageFDRScore != null)
+                    && ScoreModelEnum.AVERAGE_FDR_SCORE.isValidDescriptor(scoreShortName)) {
+                scoreVal =  averageFDRScore.getValue();
+            } else if ((fdrScore != null)
+                    && ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.isValidDescriptor(scoreShortName)) {
+                scoreVal = fdrScore.getValue();
+            } else if ((qValue != null)
+                    && ScoreModelEnum.PSM_LEVEL_Q_VALUE.isValidDescriptor(scoreShortName)) {
+                scoreVal = qValue;
             }
         }
 
-        return Double.NaN;
+        return scoreVal;
     }
 
 
@@ -569,7 +574,8 @@ public class ReportPSMSet implements PSMReportItem {
      */
     public static boolean isPSMSetScore(String scoreShortName) {
         return ScoreModelEnum.AVERAGE_FDR_SCORE.isValidDescriptor(scoreShortName) ||
-                ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.isValidDescriptor(scoreShortName);
+                ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.isValidDescriptor(scoreShortName) ||
+                ScoreModelEnum.PSM_LEVEL_Q_VALUE.isValidDescriptor(scoreShortName);
     }
 
 

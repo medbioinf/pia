@@ -11,7 +11,6 @@ import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -25,16 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This code is licensed under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * ==Overview==
- * <p>
  * This Test allows to compute the FDR at Peptide level for a PRIDE dataset based on mzTab files.
- * <p>
+ *
  * Created by ypriverol (ypriverol@gmail.com) on 23/08/2017.
  */
 public class PIAPRIDEModellerTest {
@@ -101,7 +92,7 @@ public class PIAPRIDEModellerTest {
                 for (ReportPeptide peptide : peptides) {
                     if (!peptide.getIsDecoy()) {
                         noDecoyPeptides.add(peptide);
-                        logger.info("Peptide Sequence: " + peptide.getSequence() + " q-value: " + peptide.getQValue());
+                        logger.debug("Peptide Sequence: " + peptide.getSequence() + " q-value: " + peptide.getQValue());
                     }
                 }
             } else {
