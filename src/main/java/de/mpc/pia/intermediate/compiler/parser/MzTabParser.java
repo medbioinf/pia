@@ -626,10 +626,17 @@ public class MzTabParser {
                                 null,
                                 oldAccession, Modification.Type.CHEMMOD.toString(),
                                 transformScore(oldMod.getPositionMap().get(pos)));
-                    } else {
-                        throw new Exception("The moddification is not supported" + oldMod.toString());
-                    }
+                    } else if( oldMod.getType() == Modification.Type.NEUTRAL_LOSS){
+                        mod = new de.mpc.pia.intermediate.Modification(
+                                charMod,
+                                Double.parseDouble(oldMod.getNeutralLoss().getValue()),
+                                oldMod.getNeutralLoss().getName(),
+                                oldAccession, oldMod.getNeutralLoss().getCvLabel(),
+                                transformScore(oldMod.getPositionMap().get(pos)));
 
+                    } else{
+                        throw new Exception("The modification is not supported " + oldMod.toString());
+                    }
                 }
                 modifications.put(pos, mod);
             }
