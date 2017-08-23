@@ -349,20 +349,23 @@ public class ReportPSM  implements PSMReportItem {
 
     @Override
     public Double getScore(String scoreName) {
-        if (scoreName.equals(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName())) {
-            // special case: FDR-Score
-            if (fdrScore != null) {
-                return fdrScore.getValue();
-            }
+        Double scoreVal = Double.NaN;
+
+        if (ScoreModelEnum.PSM_LEVEL_FDR_SCORE.isValidDescriptor(scoreName)
+                && (fdrScore != null)) {
+            scoreVal = fdrScore.getValue();
+        } else if (ScoreModelEnum.PSM_LEVEL_Q_VALUE.isValidDescriptor(scoreName)
+                && (qValue != null)) {
+            scoreVal = qValue;
         } else {
             // for all other cases: get score from spectrum
             ScoreModel score = spectrum.getScore(scoreName);
             if (score != null) {
-                return score.getValue();
+                scoreVal = score.getValue();
             }
         }
-        // no score found
-        return Double.NaN;
+
+        return scoreVal;
     }
 
 

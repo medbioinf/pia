@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import de.mpc.pia.modeller.peptide.ReportPeptide;
-import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -151,17 +150,9 @@ public class PIACompilerTest {
 
         List<AbstractFilter> filters = new ArrayList<>();
         filters.add(new PSMScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName()));
-      //   filters.add(new PeptideScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PEPTIDE_LEVEL_COMBINED_FDR_SCORE.getShortName()));
 
         List<ReportPeptide> peptides = piaModeller.getPeptideModeller().getFilteredReportPeptides(0L, filters);
-
-        if (!peptides.isEmpty()) {
-            for (ReportPeptide peptide : peptides){
-                for(String fileName:peptide.getFileNames()){
-                    System.out.println("Peptide: " + peptide.getSequence() +  " Number of PSMs by FileName: " + fileName + " " + peptide.getPSMReportByFileName(fileName).size());
-                }
-            }
-        }
+        assertEquals("Wrong number of peptides in the returned list", 2611,  peptides.size());
 
         // protein level
         SpectrumExtractorInference seInference = new SpectrumExtractorInference();
