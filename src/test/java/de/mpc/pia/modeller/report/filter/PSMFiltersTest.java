@@ -12,8 +12,10 @@ import org.junit.Test;
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.modeller.PIAModeller;
 import de.mpc.pia.modeller.psm.ReportPSM;
+import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.report.filter.impl.PSMTopIdentificationFilter;
+import de.mpc.pia.modeller.score.ScoreModelEnum;
 
 /**
  * test cases for PSM level filters
@@ -22,7 +24,7 @@ import de.mpc.pia.modeller.report.filter.impl.PSMTopIdentificationFilter;
  */
 public class PSMFiltersTest {
 
-    private static PIAModeller piaModeller = null;
+    private PIAModeller piaModeller = null;
 
     @Before
     public void setUp() throws Exception {
@@ -35,12 +37,13 @@ public class PSMFiltersTest {
         piaModeller.setCreatePSMSets(true);
         assertEquals("createPSMSets should be true", true, piaModeller.getCreatePSMSets());
 
-        piaModeller.getPSMModeller().setAllDecoyPattern("Rnd_.*");
+        piaModeller.getPSMModeller().setAllDecoyPattern("Rnd.*");
         piaModeller.getPSMModeller().setAllTopIdentifications(1);
 
         piaModeller.getPSMModeller().calculateAllFDR();
         piaModeller.getPSMModeller().calculateCombinedFDRScore();
     }
+
 
     @Test
     public void testChargeFilter() {
@@ -72,6 +75,7 @@ public class PSMFiltersTest {
         }
     }
 
+
     @Test
     public void testPSMAccessionsFilter() {
         ArrayList<AbstractFilter> filters = new ArrayList<>();
@@ -99,11 +103,6 @@ public class PSMFiltersTest {
         }
 
     }
-
-
-
-    /* TODO: implement tests for the remaining filters */
-
 
 
     @Test
@@ -177,5 +176,37 @@ public class PSMFiltersTest {
         // this file has no mascot_score
         psmList = piaModeller.getPSMModeller().getFilteredReportPSMs(2L, filters);
         assertEquals("Number of PSMs with mascot_score >= 10 must be 0 for this file", 0, psmList.size());
+
+
+        // q-value filtering
+        testedScoreShort = ScoreModelEnum.PSM_LEVEL_Q_VALUE.getShortName();
+        filters.clear();
+        filters.add(new PSMScoreFilter(FilterComparator.less_equal, false, 2.0, testedScoreShort));
+        psmList = piaModeller.getPSMModeller().getFilteredReportPSMs(1L, filters);
+        assertEquals("Number of PSMs with q-value filter not correct", 30, psmList.size());
+
+        filters.clear();
+        filters.add(new PSMScoreFilter(FilterComparator.less_equal, false, 1.0, testedScoreShort));
+        psmList = piaModeller.getPSMModeller().getFilteredReportPSMs(2L, filters);
+        assertEquals("Number of PSMs with q-value filter not correct", 10, psmList.size());
+
+        filters.clear();
+        filters.add(new PSMScoreFilter(FilterComparator.less_equal, false, 2.0, testedScoreShort));
+        List<ReportPSMSet> psmSetList = piaModeller.getPSMModeller().getFilteredReportPSMSets(filters);
+        assertEquals("Number of PSM sets with q-value filter not correct", 12, psmSetList.size());
+
+
+        // FDR Score filtering
+        testedScoreShort = ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName();
+        filters.clear();
+        filters.add(new PSMScoreFilter(FilterComparator.less_equal, false, 1.0, testedScoreShort));
+        psmList = piaModeller.getPSMModeller().getFilteredReportPSMs(1L, filters);
+        assertEquals("Number of PSMs with FDR Score filter not correct", 8, psmList.size());
+
+        testedScoreShort = ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName();
+        filters.clear();
+        filters.add(new PSMScoreFilter(FilterComparator.less_equal, false, 1.0, testedScoreShort));
+        psmSetList = piaModeller.getPSMModeller().getFilteredReportPSMSets(filters);
+        assertEquals("Number of PSM sets with Combined FDR Score filter not correct", 15, psmSetList.size());
     }
 }
