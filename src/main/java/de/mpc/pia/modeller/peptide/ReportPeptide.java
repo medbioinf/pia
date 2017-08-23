@@ -475,9 +475,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
     public ScoreModel getBestScoreModel(String scoreName) {
         ScoreModel bestScoreModel = null;
 
-        if(sequence.equalsIgnoreCase("LAALNPESNTAGLDIFAK"))
-            System.out.println("Aqui");
-
         // get the best of the scores out of the list
         for (PSMReportItem psm : psmList) {
             ScoreModel newScoreModel = null;
@@ -496,9 +493,6 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
                 bestScoreModel = newScoreModel;
             }
         }
-
-        System.out.println(bestScoreModel + " " + toString());
-
         // no score found
         return bestScoreModel;
     }

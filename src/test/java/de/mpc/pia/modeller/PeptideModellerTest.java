@@ -18,6 +18,7 @@ import de.mpc.pia.intermediate.compiler.parser.InputFileParserFactory;
 import de.mpc.pia.modeller.peptide.ReportPeptide;
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
+import org.apache.log4j.Logger;
 import org.junit.*;
 
 import de.mpc.pia.modeller.report.filter.FilterComparator;
@@ -26,12 +27,15 @@ import de.mpc.pia.modeller.score.FDRData;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 
 
+
 public class PeptideModellerTest {
 
     private static File piaFile;
 
     private PIAModeller piaModeller;
     private static final Long MERGE_FILE_ID = 0L;
+
+    org.apache.log4j.Logger logger = Logger.getLogger(PeptideModellerTest.class);
 
 
     @BeforeClass
@@ -105,24 +109,54 @@ public class PeptideModellerTest {
         }
 
         PIAModeller modeller = computeFDRPSMLevel(files, "PXD000001");
-        modeller.getPeptideModeller().calculateFDR(MERGE_FILE_ID);
-        if (modeller.getPSMModeller().getAllFilesHaveFDRCalculated() && modeller.getPSMModeller().getFilesFDRData(MERGE_FILE_ID).getNrFDRGoodDecoys() > 0) {
 
+        // TODO: @yasset check, whether you need this or not... you should only trust data containing FDR PSMs though
+        // reportPSMSets still exist (even without set creation), but are effectively single PSMs for the overview
+        // need to update the decoy states of the overview, as it was never done before (because no combined fdr score was calculated)
+        long nrDecoys = modeller.getPSMModeller().getReportPSMSets().entrySet().stream()
+                .filter(entry -> entry.getValue().getIsDecoy())
+                .count();
+
+        logger.debug("decoys calculated in all files: " + modeller.getPSMModeller().getAllFilesHaveFDRCalculated() );
+        logger.debug("decoys in all files: " + nrDecoys);
+
+        // check, whether the FDR is calculated and whether there are any decoys in all files
+        if (modeller.getPSMModeller().getAllFilesHaveFDRCalculated()
+                && nrDecoys > 0) {
+
+            // the PSM level filter should be set before calculating the peptide level FDR
+            modeller.getPeptideModeller().addFilter(MERGE_FILE_ID,
+                    new PSMScoreFilter(FilterComparator.less_equal, false, 0.01,
+                            ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName()));        // as combinedFDRScore was not calculated, use "normal" fdr score
+
+            // calculate the peptide FDR using the PSM filter
+            modeller.getPeptideModeller().calculateFDR(MERGE_FILE_ID);
+
+            // setting filter for peptide level filtering
             List<AbstractFilter> filters = new ArrayList<>();
-            filters.add(new PSMScoreFilter(FilterComparator.less_equal, false, 0.001, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName()));
-            filters.add(new PeptideScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PEPTIDE_LEVEL_Q_VALUE.getShortName()));
+            filters.add(new PeptideScoreFilter(FilterComparator.less_equal, false, 0.01,
+                    ScoreModelEnum.PEPTIDE_LEVEL_Q_VALUE.getShortName()));              // you can also use fdr score here
+
+            // get the FDR filtered peptides
             List<ReportPeptide> peptides = modeller.getPeptideModeller().getFilteredReportPeptides(MERGE_FILE_ID, filters);
+
             List<ReportPeptide> noDecoyPeptides = new ArrayList<>();
             if (!peptides.isEmpty()) {
                 for (ReportPeptide peptide : peptides) {
                     if (!peptide.getIsDecoy()) {
                         noDecoyPeptides.add(peptide);
+                        logger.info("Peptide Sequence: " + peptide.getSequence() + " q-value: " + peptide.getQValue());
                     }
                 }
             } else {
-                System.out.println("There are no peptides at all!");
+                logger.error("There are no peptides at all!");
             }
+
+            logger.info("number of FDR 0.01 filtered target peptides: " + noDecoyPeptides.size() + " / " + peptides.size());
+        } else {
+            logger.info("no decoys in the data!");
         }
+
     }
 
     /**
@@ -136,26 +170,38 @@ public class PeptideModellerTest {
     private PIAModeller computeFDRPSMLevel(Map<String, String> mzTabFileMap, String PXProjectIdentifier) throws IOException {
         PIAModeller piaModeller = null;
         PIACompiler piaCompiler = new PIASimpleCompiler();
+
         if (mzTabFileMap != null && !mzTabFileMap.isEmpty()) {
-            for (Map.Entry entry : mzTabFileMap.entrySet()) {
+            for (Map.Entry<String, String> entry : mzTabFileMap.entrySet()) {
                 String assayKey = (String) entry.getValue();
                 String fileName = (String) entry.getKey();
-                piaCompiler.getDataFromFile(assayKey, fileName, null, InputFileParserFactory.InputFileTypes.MZTAB_INPUT.getFileTypeShort());
+                piaCompiler.getDataFromFile(assayKey, fileName, null,
+                        InputFileParserFactory.InputFileTypes.MZTAB_INPUT.getFileTypeShort());
             }
         }
         piaCompiler.buildClusterList();
         piaCompiler.buildIntermediateStructure();
-        if (piaCompiler.getAllPeptideSpectrumMatcheIDs() != null && !piaCompiler.getAllPeptideSpectrumMatcheIDs().isEmpty()) {
+        if (piaCompiler.getAllPeptideSpectrumMatcheIDs() != null
+                && !piaCompiler.getAllPeptideSpectrumMatcheIDs().isEmpty()) {
             File inferenceTempFile = File.createTempFile(PXProjectIdentifier, ".tmp");
             piaCompiler.writeOutXML(inferenceTempFile);
             piaCompiler.finish();
             piaModeller = new PIAModeller(inferenceTempFile.getAbsolutePath());
-            piaModeller.setCreatePSMSets(true);
+
+            // creation of PSM sets is only useful, when combining multiple search engines
+            piaModeller.setCreatePSMSets(false);
             piaModeller.getPSMModeller().setAllDecoyPattern("searchengine");
             piaModeller.getPSMModeller().setAllTopIdentifications(0);
+
             // calculate FDR on PSM level
             piaModeller.getPSMModeller().calculateAllFDR();
-            piaModeller.getPSMModeller().calculateCombinedFDRScore();
+
+            // combined FDR Score is mainly used for combining search engine results, but can also be used without.
+            // if used without creation of PSM sets, the Combined FDR Score is equal to the "normal" FDR Score
+            //piaModeller.getPSMModeller().calculateCombinedFDRScore();
+            // updating the decoy states is necessary, if CombinedFDRScore was not calculated
+            piaModeller.getPSMModeller().updateDecoyStates(MERGE_FILE_ID);
+
             if (inferenceTempFile.exists()) {
                 inferenceTempFile.deleteOnExit();
             }

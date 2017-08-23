@@ -685,8 +685,6 @@ public class PeptideModeller implements Serializable {
         boolean higherScoreBetter = psmModeller.getHigherScoreBetter(fdrData.getScoreShortName());
         Comparator<ReportPeptide> peptideComparator = new ScoreComparator<>(fdrData.getScoreShortName(), higherScoreBetter);
 
-        for(ReportPeptide peptide: listForFDR)
-            System.out.println(peptide.toString());
         // calculate the FDR values
         fdrData.calculateFDR(listForFDR, peptideComparator);
 
