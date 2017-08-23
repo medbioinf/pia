@@ -34,8 +34,6 @@ public class PeptideModellerTest {
 
     private PIAModeller piaModeller;
 
-
-
     @BeforeClass
     public static void setUpBeforeClass() {
         piaFile = new File(PIAModellerTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
