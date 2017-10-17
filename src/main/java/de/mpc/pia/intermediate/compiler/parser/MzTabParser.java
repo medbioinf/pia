@@ -1,5 +1,6 @@
 package de.mpc.pia.intermediate.compiler.parser;
 
+import de.mpc.pia.exceptions.PTMMappingException;
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
@@ -510,7 +511,11 @@ public class MzTabParser {
         });
 
         for (PSM mzTabPSM : tabParser.getMZTabFile().getPSMs()) {
-            parsePSM(mzTabPSM);
+            try{
+                parsePSM(mzTabPSM);
+            }catch(PTMMappingException exception){
+                LOGGER.info("PSM Skip: " + mzTabPSM.getSequence() + " " + exception.getMessage());
+            }
         }
 
     }
@@ -521,7 +526,8 @@ public class MzTabParser {
      *
      * @param mzTabPSM
      */
-    private void parsePSM(PSM mzTabPSM) throws Exception {
+    private void parsePSM(PSM mzTabPSM) throws PTMMappingException {
+
         Integer charge = mzTabPSM.getCharge();
 
         Double precursorMZ = mzTabPSM.getExpMassToCharge();
@@ -539,7 +545,7 @@ public class MzTabParser {
         String sequence = mzTabPSM.getSequence();
 
         Map<Integer, de.mpc.pia.intermediate.Modification> modifications = transformModifications(sequence, mzTabPSM.getModifications());
-        // TODO: if more than one position in the modification is encoded: generate multiple PSMs
+        // TODO: if more than one position in the modification is encoded: generate multiple PSMs.
         // TODO: add parsing of the search engines: actually only one search engine per PSM can be added to the specIdProtocol in PIA...
 
         List<ScoreModel> scores = parsePSMScores(mzTabPSM);
@@ -578,7 +584,7 @@ public class MzTabParser {
      * @return
      */
     private Map<Integer, de.mpc.pia.intermediate.Modification> transformModifications(String sequence,
-            SplitList<uk.ac.ebi.pride.jmztab.model.Modification> mzTabMods) throws Exception {
+            SplitList<uk.ac.ebi.pride.jmztab.model.Modification> mzTabMods) throws PTMMappingException {
         Map<Integer, de.mpc.pia.intermediate.Modification> modifications = new HashMap<>();
 
         for (uk.ac.ebi.pride.jmztab.model.Modification oldMod : mzTabMods) {
@@ -635,7 +641,7 @@ public class MzTabParser {
                                 transformScore(oldMod.getPositionMap().get(pos)));
 
                     } else{
-                        throw new Exception("The modification is not supported " + oldMod.toString());
+                        throw new PTMMappingException(oldMod.toString());
                     }
                 }
                 modifications.put(pos, mod);
