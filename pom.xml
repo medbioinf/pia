@@ -4,7 +4,7 @@
 
 	<groupId>de.mpc.pia</groupId>
 	<artifactId>pia</artifactId>
-	<version>1.3.5-SNAPSHOT</version>
+	<version>1.3.5</version>
 	<name>PIA - Protein Inference Algorithms</name>
 	<url>https://github.com/mpc-bioinformatics/pia</url>
 
@@ -42,18 +42,15 @@
 		<log4j.version>1.2.17</log4j.version>
 		<junit.version>4.12</junit.version>
 		<commons-cli.version>1.4</commons-cli.version>
-		<commons-lang3.version>3.5</commons-lang3.version>
 		<commons-collections.version>4.1</commons-collections.version>
-		<jmzidentml.version>1.2.6</jmzidentml.version>
+		<jmzidentml.version>1.2.7</jmzidentml.version>
 		<jmztab.version>3.0.7</jmztab.version>
-		<pride-mod.version>2.1.6</pride-mod.version>
-		<pride-jaxb.version>1.0.18</pride-jaxb.version>
-		<mascotdatfile.version>3.5.0</mascotdatfile.version>
-		<xtandem-parser.version>1.12.0</xtandem-parser.version>
-		<biojava-ontology.version>4.2.7</biojava-ontology.version>
-		<BaseLib.version>0.0.1-SNAPSHOT</BaseLib.version>
-		<CvtBaseLib.version>0.0.1-SNAPSHOT</CvtBaseLib.version>
-		<PDLibrary.version>0.0.1-SNAPSHOT</PDLibrary.version>
+		<pride-mod.version>2.1.8</pride-mod.version>
+		<pride-jaxb.version>1.0.20</pride-jaxb.version>
+		<xxindex.version>0.21</xxindex.version>
+		<mascotdatfile.version>3.6.0</mascotdatfile.version>
+		<xtandem-parser.version>1.13.0</xtandem-parser.version>
+		<biojava-ontology.version>4.2.8</biojava-ontology.version>
 		<sqlite4java.version>1.0.392</sqlite4java.version>
 		<sqlite-jdbc.version>3.8.10.1</sqlite-jdbc.version>
 		<jfreechart.version>1.0.19</jfreechart.version>		
@@ -62,6 +59,14 @@
 		<inspector-mzgraph-browser.version>2.0.5</inspector-mzgraph-browser.version>
 		<ehcache.version>3.1.1</ehcache.version>
 		<xercesImpl.version>2.11.0</xercesImpl.version>
+		
+		<!-- these are "internal" dependencies, the jar files are delivered together with the source -->
+		<BaseLib.version>0.0.1-SNAPSHOT</BaseLib.version>
+		<CvtBaseLib.version>0.0.1-SNAPSHOT</CvtBaseLib.version>
+		<PDLibrary.version>0.0.1-SNAPSHOT</PDLibrary.version>
+		
+		<!-- check for these dependencies the available KNIME deps. If these are ok, take them, even if they are older. -->
+		<commons-lang3.version>3.2.1</commons-lang3.version>
 	</properties>
 
 	<dependencies>
@@ -130,6 +135,13 @@
 			<artifactId>pride-jaxb</artifactId>
 			<version>${pride-jaxb.version}</version>
 		</dependency>
+		
+		<!-- mascotdatfile wants to use a very old version, use newer instead -->
+		<dependency>
+			<groupId>psidev.psi.tools</groupId>
+			<artifactId>xxindex</artifactId>
+			<version>${xxindex.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.compomics</groupId>
@@ -180,11 +192,6 @@
 		
 		<!-- visualization packages -->
 		<dependency>
-			<groupId>org.jfree</groupId>
-			<artifactId>jfreechart</artifactId>
-			<version>${jfreechart.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>net.sf.jung</groupId>
 			<artifactId>jung-graph-impl</artifactId>
 			<version>${jung-graph-impl.version}</version>
@@ -200,6 +207,12 @@
 			<artifactId>inspector-mzgraph-browser</artifactId>
 			<version>${inspector-mzgraph-browser.version}</version>
 		</dependency>
+		<!-- only needed to use more current version than delivered by inspector-mzgraph-browser -->
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>${jfreechart.version}</version>
+		</dependency>
 		<!-- End visualization packages -->
 
 		<dependency>
@@ -213,7 +226,7 @@
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
 			<version>${xercesImpl.version}</version>
-      <scope>test</scope>
+      		<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -316,22 +329,26 @@
 	</build>
 
 	<repositories>
+        <!-- EBI repo -->
 		<repository>
-			<id>nexus-ebi-release-repo</id>
-			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
-		</repository>
-		<repository>
-			<id>nexus-ebi-snapshot-repo</id>
-			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
-		</repository>
+            <id>pst-release</id>
+            <name>EBI Nexus Repository</name>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
+        </repository>
+        <!-- EBI SNAPSHOT repo -->
+        <repository>
+            <id>pst-snapshots</id>
+            <name>EBI Nexus Snapshots Repository</name>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
+        </repository>
 
-		<!-- UGent Genesis Maven 2 repository -->
-		<repository>
-			<id>genesis-maven2-repository</id>
-			<name>Genesis maven2 repository</name>
-			<url>http://genesis.UGent.be/maven2</url>
-			<layout>default</layout>
-		</repository>
+		<!-- UGent Genesis repository -->
+        <repository>
+            <id>genesis-maven2-repository</id>
+            <name>Genesis maven2 repository</name>
+            <url>http://genesis.ugent.be/maven2</url>
+            <layout>default</layout>
+        </repository>
 
 		<!-- local files for the PD parser -->
 		<repository>
@@ -347,21 +364,4 @@
 			<url>file://${project.basedir}/libs</url>
 		</repository>
 	</repositories>
-
-	<!-- Overwrites the previous repositories-->
-	<distributionManagement>
-		<!-- EBI repo -->
-		<repository>
-			<id>pst-release</id>
-			<name>EBI Nexus Repository</name>
-			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
-		</repository>
-		<!-- EBI SNAPSHOT repo -->
-		<snapshotRepository>
-			<uniqueVersion>false</uniqueVersion>
-			<id>pst-snapshots</id>
-			<name>EBI Nexus Snapshots Repository</name>
-			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
 </project>
