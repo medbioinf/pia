@@ -238,12 +238,7 @@ public class MzTabParser {
         pepNr = 0;
         psmNr = 0;
 
-        try {
-            parsePSMs();
-        } catch (Exception e) {
-            LOGGER.error("Error parsing the File", e);
-            return false;
-        }
+        parsePSMs();
 
         // add the searchDatabase references for each msRun
         runsToSearchDatabases.forEach((id, searchDBs) -> {
@@ -255,8 +250,10 @@ public class MzTabParser {
             }
         });
 
-        LOGGER.info("inserted new: \n\t" + pepNr + " peptides\n\t" + psmNr + " peptide spectrum matches\n\t" + accNr + " accessions");
-
+        LOGGER.info("inserted new:"
+                + "\n\t" + pepNr + " peptides"
+                + "\n\t" + psmNr + " peptide spectrum matches"
+                + "\n\t" + accNr + " accessions");
         return true;
     }
 
@@ -501,7 +498,7 @@ public class MzTabParser {
     /**
      * Parse the PSMs of the mzTab file.
      */
-    private void parsePSMs() throws Exception {
+    private void parsePSMs() {
         psmMap = new HashMap<>();
 
         tabParser.getMZTabFile().getPsmColumnFactory().getColumnMapping().forEach((key, value) -> {
@@ -511,13 +508,12 @@ public class MzTabParser {
         });
 
         for (PSM mzTabPSM : tabParser.getMZTabFile().getPSMs()) {
-            try{
+            try {
                 parsePSM(mzTabPSM);
-            }catch(PTMMappingException exception){
-                LOGGER.info("PSM Skip: " + mzTabPSM.getSequence() + " " + exception.getMessage());
+            } catch (PTMMappingException exception){
+                LOGGER.warn("PSM skipped: " + mzTabPSM.getSequence(), exception);
             }
         }
-
     }
 
 
@@ -527,7 +523,6 @@ public class MzTabParser {
      * @param mzTabPSM
      */
     private void parsePSM(PSM mzTabPSM) throws PTMMappingException {
-
         Integer charge = mzTabPSM.getCharge();
 
         Double precursorMZ = mzTabPSM.getExpMassToCharge();
@@ -611,7 +606,7 @@ public class MzTabParser {
                             transformScore(oldMod.getPositionMap().get(pos)));
 
                 } else {
-                    LOGGER.info("Old modification to be change: " + oldMod.toString());
+                    LOGGER.info("Old modification which is changed: " + oldMod.toString());
                     PTM ptm = compiler.getModReader().getPTMbyAccession(oldAccession);
                     if (ptm == null && oldMod.getType() == Modification.Type.CHEMMOD) {
                         List<PTM> ptms = compiler.getModReader().getAnchorModification(Modification.Type.CHEMMOD.toString() + ":" +oldAccession, charMod.toString());
@@ -651,12 +646,12 @@ public class MzTabParser {
     }
 
 
-    private boolean isCHEMODMOD(String accession){
+    private static boolean isCHEMODMOD(String accession){
         return accession.toUpperCase().contains("CHEMOD");
     }
 
 
-    private Double parseDeltaMassCHEMOD(String chemodAccession){
+    private static Double parseDeltaMassCHEMOD(String chemodAccession){
         if(isCHEMODMOD(chemodAccession)){
             String[] chemodList = chemodAccession.split(":");
             if(chemodList.length == 2){
@@ -667,7 +662,7 @@ public class MzTabParser {
     }
 
 
-    private List<ScoreModel> transformScore(CVParam cvParam) {
+    private static List<ScoreModel> transformScore(CVParam cvParam) {
         List<ScoreModel> scores = new ArrayList<>();
         if(cvParam != null){
             ScoreModel score = new ScoreModel(Double.parseDouble(cvParam.getValue()),cvParam.getAccession(), cvParam.getName(),cvParam.getCvLabel());
