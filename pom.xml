@@ -43,7 +43,7 @@
 		<junit.version>4.12</junit.version>
 		<commons-cli.version>1.4</commons-cli.version>
 		<commons-collections.version>4.1</commons-collections.version>
-		<jmzidentml.version>1.2.7</jmzidentml.version>
+		<jmzidentml.version>1.2.5</jmzidentml.version>
 		<jmztab.version>3.0.7</jmztab.version>
 		<pride-mod.version>2.1.8</pride-mod.version>
 		<pride-jaxb.version>1.0.20</pride-jaxb.version>
