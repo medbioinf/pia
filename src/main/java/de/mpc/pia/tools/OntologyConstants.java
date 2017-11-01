@@ -124,23 +124,27 @@ public enum OntologyConstants {
 
     SEQUEST("SEQUEST", "MS:1001208"),
     SEQUEST_PROBABILITY("SEQUEST:probability", "MS:1001154"),
-    SEQUEST_XCORR("SEQUEST:xcorr", "MS:1001157", "Sequest score", "PRIDE:0000053"),
-    SEQUEST_SP("SEQUEST:sp", "MS:1001155", "Sp", "PRIDE:0000054"),
+    SEQUEST_XCORR("SEQUEST:xcorr", "MS:1001155", "Sequest score", "PRIDE:0000053"),
     SEQUEST_DELTA_CN("SEQUEST:deltacn", "MS:1001156", "Delta Cn", "PRIDE:0000012"),
+    SEQUEST_SP("SEQUEST:sp", "MS:1001157", "Sp", "PRIDE:0000054"),
+    SEQUEST_UNIQ("SEQUEST:Uniq", "MS:1001158"),
+    SEQUEST_EXPECTATION("SEQUEST:expectation value", "MS:1001159"),
+    SEQUEST_SF("SEQUEST:sf", "MS:1001160", "Sf", "PRIDE:0000284"),
     SEQUEST_PEPTIDE_SP("SEQUEST:PeptideSp", "MS:1001215"),
     SEQUEST_PEPTIDE_RANK_SP("SEQUEST:PeptideRankSp", "MS:1001217"),
 
-
-
     SCAFFOLD_PEPTIDE_PROBABILITY("Scaffold:Peptide Probability", "MS:1001568"),
-
 
     XTANDEM("X!Tandem", "MS:1001476"),
     XTANDEM_EXPECT("X!Tandem:expect", "MS:1001330", "expect", "PRIDE:0000183"),
     XTANDEM_HYPERSCORE("X!Tandem:hyperscore", "MS:1001331", "X!Tandem Hyperscore", "PRIDE:0000176"),
 
-    COMET_DELTA_CN("Comet:deltacn", "MS:1002253"),
     COMET_XCORR("Comet:xcorr", "MS:1002252"),
+    COMET_DELTA_CN("Comet:deltacn", "MS:1002253"),
+    COMET_DELTA_CN_STAR("Comet:deltacnstar", "MS:1002254"),
+    COMET_SP("Comet:spscore", "MS:1002255"),
+    COMET_SP_RANK("Comet:sprank", "MS:1002256"),
+    COMET_EXPECTATION("Comet:expectation value", "MS:1002257"),
 
     PEAKS_PEPTIDE_SCORE("PEAKS:peptideScore","MS:1001950"),
 
@@ -163,12 +167,12 @@ public enum OntologyConstants {
 
     SPECTRUM_MILL_SCORE( "SpectrumMill:Score" , "MS:1001572", "Spectrum Mill peptide score","PRIDE:0000177"),
 
-
     BYONIC_BEST_SCORE("Byonic:Best Score",  "MS:1002269"),
     BYONIC_SCORE("Byonic:Score",  "MS:1002262"),
     BYONIC_ABSLOGPROB2D_SCORE("Byonic: Peptide AbsLogProb2D","MS:1002311"),
     BYONIC_DELTA_SCORE("Byonic:Delta Score",  "MS:1002263"),
     BYONIC_DELTA_MOD_SCORE("Byonic:DeltaMod Score", "MS:1002264"),
+
 
     NUMBER_MATCHED_PEAKS("number of matched peaks","MS:1001121");
 
