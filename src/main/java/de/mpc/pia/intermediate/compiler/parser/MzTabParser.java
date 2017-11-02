@@ -510,8 +510,9 @@ public class MzTabParser {
         for (PSM mzTabPSM : tabParser.getMZTabFile().getPSMs()) {
             try {
                 parsePSM(mzTabPSM);
-            } catch (PTMMappingException exception){
-                LOGGER.warn("PSM skipped: " + mzTabPSM.getSequence(), exception);
+            } catch (PTMMappingException exception) {
+                // exception is not rethrown, as the text is too long
+                LOGGER.error("PSM skipped: " + mzTabPSM.getSequence());
             }
         }
     }
@@ -606,7 +607,7 @@ public class MzTabParser {
                             transformScore(oldMod.getPositionMap().get(pos)));
 
                 } else {
-                    LOGGER.info("Old modification which is changed: " + oldMod.toString());
+                    LOGGER.error("Old modification which is changed: " + oldMod.toString());
                     PTM ptm = compiler.getModReader().getPTMbyAccession(oldAccession);
                     if (ptm == null && oldMod.getType() == Modification.Type.CHEMMOD) {
                         List<PTM> ptms = compiler.getModReader().getAnchorModification(Modification.Type.CHEMMOD.toString() + ":" +oldAccession, charMod.toString());
