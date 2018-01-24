@@ -90,6 +90,16 @@ We provide a test installation of the web interface on http://134.147.84.213:808
 In your own interest, don't sent any sensitive research data to this server!
 
 
+## Usage Statistics
+
+The PIA team is collecting usage statistics for quality control and funding
+purposes.
+
+We will never give out your personal data, but you may disable this
+functionality by setting the appropriate settings for the command line versions
+or the KNIME nodes. 
+
+
 ## Funding
 
 The development of PIA is funded by the BMBF as part of de.NBI, the German

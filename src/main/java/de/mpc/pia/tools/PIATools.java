@@ -27,7 +27,7 @@ public class PIATools {
      * Checks whether both objects are null or are equal.
      */
     public  static boolean bothNullOrEqual(Object x, Object y) {
-        return ( x == null ? y == null : x.equals(y) );
+        return x == null ? y == null : x.equals(y);
     }
 
 
@@ -48,7 +48,7 @@ public class PIATools {
     /**
      * Calls the compareTo for the given objects, if none of them are null. If
      * one of them is null, null is ordered before the other. If both are null,
-     * they are ccompared as equal.
+     * they are compared as equal.
      *
      * @param o1
      * @param o2
@@ -106,16 +106,15 @@ public class PIATools {
                 header + "\nOptions:",
                 options,
                 "\nPIA - Protein Inference Algorithms, version " + PIAConstants.version +
-                "\nCopyright (C) 2013-2015 Medizinisches Proteom-Center, " +
-                "julian.uszkoreit@rub.de" +
-                "\nThis is free software; see the source for copying conditions. " +
-                "There is ABSOLUTELY NO warranty!",
+                "\nCopyright (C) 2013-2018 Medizinisches Proteom-Center, " +
+                "https://github.com/mpc-bioinformatics/pia" +
+                "\nThis is free software; see the source for copying and license conditions. There is ABSOLUTELY NO warranty!",
                 true);
     }
 
 
     /**
-     * Returns the first complete occurance of the first peptide in the second,
+     * Returns the first complete occurrence of the first peptide in the second,
      * with awareness of the special amino acid X.
      *
      * @param first
