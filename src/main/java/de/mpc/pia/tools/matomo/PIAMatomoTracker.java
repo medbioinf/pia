@@ -168,9 +168,9 @@ public class PIAMatomoTracker {
     }
 
 
-
     /**
-     * Function used to track a PIA event of any kind.
+     * Function used to track a PIA event of any kind. If the visitorCid was not set before (or is null), it will be
+     * fetched from the configuration file or newly created and stored in a config file in the user's home directory.
      *
      * @param eventCategory the category, like e.g. "PIA_cli" or "PIA_KNIME"
      * @param eventName name of the event, like "compiler", "analysis", "export"
@@ -182,8 +182,10 @@ public class PIAMatomoTracker {
             return;
         }
 
-        // first get pia tracking data
-        readConfigFile();
+        if (visitorCid == null) {
+            // get pia tracking data, if it was not set yet
+            readConfigFile();
+        }
 
         try {
             // looks always like this in our environment
@@ -218,5 +220,21 @@ public class PIAMatomoTracker {
             // in working example: silently ignore any exception
             LOGGER.debug("problem during matomo tracking", e);
         }
+    }
+
+
+    /**
+     * Function used to track a PIA event of any kind with the given visitorCid.
+     *
+     * @param eventCategory the category, like e.g. "PIA_cli" or "PIA_KNIME"
+     * @param eventName name of the event, like "compiler", "analysis", "export"
+     * @param eventAction action of the event, like "compiler_started", "compiler_finished", "compiler_aborted"
+     * @param eventValue an (optional) value for the event, null will remove this and not record it
+     * @param setVisitorCid sets the visitorCid to the given value (16 character hexadecimal string)
+     */
+    public static void trackPIAEvent(String eventCategory, String eventName, String eventAction, Number eventValue,
+            String setVisitorCid) {
+        visitorCid = setVisitorCid;
+        trackPIAEvent(eventCategory, eventName, eventAction, eventValue);
     }
 }
