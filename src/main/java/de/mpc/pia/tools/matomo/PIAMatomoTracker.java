@@ -187,19 +187,14 @@ public class PIAMatomoTracker {
      */
     public static void trackPIAEvent(String eventCategory, String eventName, String eventAction, Number eventValue) {
         if (disableUsageStatistics) {
-            LOGGER.debug("usage statistics disabled");
             return;
         }
 
         try {
-            LOGGER.debug("usage statistics enabled");
-
             if (visitorCid == null) {
                 // get pia tracking data, if it was not set yet
                 readConfigFile();
             }
-
-            LOGGER.debug("usage statistics vCID " + visitorCid);
 
             String getRequest = "idsite=" + PIA_MATOMO_TRACKING_SITE_ID
                     + "&rec=1"
@@ -224,17 +219,11 @@ public class PIAMatomoTracker {
                             + "}", UTF8);
             getRequest += customVariablesString;
 
-            LOGGER.debug("going to track PIA action with Matomo: " + eventCategory + ", " + eventName + ", "
-                    + eventAction + ", " + eventValue);
-
             // make the actual request via GET
             HttpsURLConnection connection = (HttpsURLConnection) new URL(PIA_MATOMO_TRACKING_URL + "?" +
                     getRequest).openConnection();
             connection.setRequestMethod("GET");
             connection.getResponseCode();
-
-            LOGGER.debug("tracked PIA action with Matomo: " + eventCategory + ", " + eventName + ", "
-                    + eventAction + ", " + eventValue);
         } catch (Exception e) {
             // silently ignore any exception
             LOGGER.debug("problem during matomo tracking", e);
