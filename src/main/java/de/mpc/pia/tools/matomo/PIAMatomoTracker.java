@@ -5,13 +5,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.util.Properties;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import org.apache.log4j.Logger;
-import org.piwik.java.tracking.CustomVariable;
-import org.piwik.java.tracking.PiwikRequest;
-import org.piwik.java.tracking.PiwikTracker;
 
 import de.mpc.pia.tools.PIAConstants;
 
@@ -36,8 +37,16 @@ public class PIAMatomoTracker {
     /** path to the configuration file */
     private static final String DEFAULT_CONFIG_FILE_PATH = System.getProperty("user.home") + File.separator +".pia";
 
+    private static final String UTF8 = "UTF-8";
+
+    /** random generator for this instance */
+    private static SecureRandom random = new SecureRandom();
+
     /** the visitor CID, read from the PIA config file */
     private static String visitorCid = null;
+
+    /** a unique Id for this static instance */
+    private static String sessionId = new BigInteger(64, random).toString(16);
 
 
     /** the URL to the tracking page */
@@ -160,7 +169,6 @@ public class PIAMatomoTracker {
      * Create a new random visitor CID
      */
     private static void createNewVisitorCID() {
-        SecureRandom random = new SecureRandom();
         visitorCid = null;
         while ((visitorCid == null) || (visitorCid.length() < 16)) {
             visitorCid = new BigInteger(64, random).toString(16);
@@ -179,45 +187,56 @@ public class PIAMatomoTracker {
      */
     public static void trackPIAEvent(String eventCategory, String eventName, String eventAction, Number eventValue) {
         if (disableUsageStatistics) {
+            LOGGER.debug("usage statistics disabled");
             return;
         }
 
-        if (visitorCid == null) {
-            // get pia tracking data, if it was not set yet
-            readConfigFile();
-        }
-
         try {
-            // looks always like this in our environment
-            PiwikTracker piwikTracker = new PiwikTracker(PIA_MATOMO_TRACKING_URL);
+            LOGGER.debug("usage statistics enabled");
 
-            // set the site id here (3 is for test-tracking) and, if you like, the URL
-            PiwikRequest request = new PiwikRequest(PIA_MATOMO_TRACKING_SITE_ID, null);
+            if (visitorCid == null) {
+                // get pia tracking data, if it was not set yet
+                readConfigFile();
+            }
 
-            // this ID should always be the same for one user
-            request.setVisitorCustomId(visitorCid);
+            LOGGER.debug("usage statistics vCID " + visitorCid);
 
-            // track the current call/action as an event
-            request.setEventCategory(eventCategory);
-            request.setEventName(eventName);
-            request.setEventAction(eventAction);
-            request.setEventValue(eventValue);
+            String getRequest = "idsite=" + PIA_MATOMO_TRACKING_SITE_ID
+                    + "&rec=1"
+                    + "&_id=" + sessionId
+                    + "&rand=" + (new BigInteger(64, random).toString(20))
+                    + "&apiv=1"
+                    + "&cid=" + visitorCid
+                    + "&e_c=" + URLEncoder.encode(eventCategory, UTF8)
+                    + "&e_a=" + URLEncoder.encode(eventAction, UTF8)
+                    + "&e_n=" + URLEncoder.encode(eventName, UTF8)
+                    + "&send_image=0";
 
-            // you may set as many variables, as you like
-            CustomVariable cvOs = new CustomVariable("operating_system", System.getProperty("os.name"));
-            request.setPageCustomVariable(cvOs, 1);
+            if (eventValue != null) {
+                getRequest += "&e_v=" + eventValue;
+            }
 
-            cvOs = new CustomVariable("pia_version", PIAConstants.version);
-            request.setPageCustomVariable(cvOs, 2);
+            // the custom variables are json encoded
+            String customVariablesString = "&cvar="
+                    + URLEncoder.encode("{"
+                            + "\"1\":[\"operating_system\",\"" + System.getProperty("os.name") + "\"],"
+                            + "\"2\":[\"pia_version\",\"" + PIAConstants.version + "\"],"
+                            + "}", UTF8);
+            getRequest += customVariablesString;
 
-            // send one tracking event / action
-            // if you like to send multiple, use sendBulkRequest
-            piwikTracker.sendRequest(request);
+            LOGGER.debug("going to track PIA action with Matomo: " + eventCategory + ", " + eventName + ", "
+                    + eventAction + ", " + eventValue);
+
+            // make the actual request via GET
+            HttpsURLConnection connection = (HttpsURLConnection) new URL(PIA_MATOMO_TRACKING_URL + "?" +
+                    getRequest).openConnection();
+            connection.setRequestMethod("GET");
+            connection.getResponseCode();
 
             LOGGER.debug("tracked PIA action with Matomo: " + eventCategory + ", " + eventName + ", "
                     + eventAction + ", " + eventValue);
-        } catch (IOException e) {
-            // in working example: silently ignore any exception
+        } catch (Exception e) {
+            // silently ignore any exception
             LOGGER.debug("problem during matomo tracking", e);
         }
     }
