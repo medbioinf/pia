@@ -24,6 +24,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.ParamList;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabaseRef;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchModification;
+import uk.ac.ebi.jmzidml.model.mzidml.SpecificityRules;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
@@ -351,9 +352,7 @@ public class IdXMLFileParser {
 
             Map<Integer, Modification> modifications = new HashMap<>();
 
-            if (sequence.contains("(")) {
-                sequence = extractModifications(sequence, modifications, compiler);
-            }
+            sequence = extractModifications(sequence, modifications, compiler);
 
             double deltaMass = getDeltaMass(pepHit.getUserParam());
 
@@ -725,10 +724,18 @@ public class IdXMLFileParser {
         if (matcher.matches()) {
             // the modification is encoded as e.g. "Carbamidomethyl (C)"
 
-            // get unique residues
-            List<String> residues = Arrays.asList(matcher.group(2).split(" ")).stream()
-                    .distinct()
-                    .collect(Collectors.toList());
+            String residuesString = matcher.group(2);
+            List<String> residues;
+
+            if (residuesString.contains("term") || residuesString.contains("Term")) {
+                // get terminus, if given
+                residues = addModificationSpecificity(searchMod, residuesString);
+            } else {
+                // get unique residues
+                residues = Arrays.asList(matcher.group(2).split(" ")).stream()
+                        .distinct()
+                        .collect(Collectors.toList());
+            }
 
             for (String res : residues) {
                 if (res.trim().isEmpty()) {
@@ -771,6 +778,48 @@ public class IdXMLFileParser {
         }
 
         return searchMod;
+    }
+
+
+    /**
+     * Adds the modification specificity to the searchMod, if it is given in the residueString.
+     *
+     * @param searchMod to this the specificity will be added
+     * @param residuesString a String in the form similar to "N-Term Q"
+     * @return the list of residues
+     */
+    private static List<String> addModificationSpecificity(SearchModification searchMod, String residuesString) {
+        OntologyConstants modSpecificityConstant = null;
+        if (residuesString.startsWith("Protein N")) {
+            modSpecificityConstant = OntologyConstants.MODIFICATION_SPECIFICITY_PROTEIN_N_TERM;
+        } else if (residuesString.startsWith("Protein C")) {
+            modSpecificityConstant = OntologyConstants.MODIFICATION_SPECIFICITY_PROTEIN_C_TERM;
+        } else if (residuesString.startsWith("N-")) {
+            modSpecificityConstant = OntologyConstants.MODIFICATION_SPECIFICITY_PEP_N_TERM;
+        } else if (residuesString.startsWith("C-")) {
+            modSpecificityConstant = OntologyConstants.MODIFICATION_SPECIFICITY_PEP_C_TERM;
+        }
+
+        List<String> residues = new ArrayList<>();
+
+        if (modSpecificityConstant != null) {
+            CvParam specificity = MzIdentMLTools.createPSICvParam(modSpecificityConstant, null);
+
+            SpecificityRules specRules = new SpecificityRules();
+            specRules.getCvParam().add(specificity);
+            searchMod.getSpecificityRules().add(specRules);
+
+            String[] residuesSplit = residuesString.split("erm");
+            if (residuesSplit.length > 1) {
+                residues = Arrays.asList(residuesSplit[1].trim().split(" ")).stream()
+                        .distinct()
+                        .collect(Collectors.toList());
+            } else {
+                residues.add(".");
+            }
+        }
+
+        return residues;
     }
 
 
@@ -823,7 +872,7 @@ public class IdXMLFileParser {
             return null;
         }
 
-        String modificationsSequence = modSequence;
+        String modificationsSequence = trimStartAndEndDot(modSequence);
         StringBuilder sequence = new StringBuilder(modificationsSequence.length());
 
         int pos;
@@ -833,7 +882,6 @@ public class IdXMLFileParser {
 
             String residue;
             if (sequence.length() == 0) {
-                // TODO: how are C-terminal modifications encoded in idXML?
                 // N-terminal modification
                 residue = ".";
             } else {
@@ -868,16 +916,35 @@ public class IdXMLFileParser {
 
                 modifications.put(sequence.length(), mod);
             } else {
-                LOGGER.error("Could not get information for " +
-                        "modification " + modName + " in " +
-                        sequence);
+                LOGGER.error("Could not get information for modification " + modName + " in " + sequence);
             }
 
             modificationsSequence =
                     modificationsSequence.substring(modName.length() + 2);
         }
         sequence.append(modificationsSequence);
-        return sequence.toString().toUpperCase();
+
+        return trimStartAndEndDot(sequence.toString().toUpperCase());
+    }
+
+
+    /**
+     * Trims the "." character from the start and end of a sequence string.
+     *
+     * @param sequenceString
+     * @return
+     */
+    private static String trimStartAndEndDot(String sequenceString) {
+        String strippedSequence = sequenceString;
+        if (strippedSequence.startsWith(".")) {
+            strippedSequence = strippedSequence.substring(1);
+        }
+
+        if (strippedSequence.trim().endsWith(".")) {
+            strippedSequence = strippedSequence.substring(0, strippedSequence.length() - 1);
+        }
+
+        return strippedSequence;
     }
 
 
@@ -902,7 +969,7 @@ public class IdXMLFileParser {
         Matcher matcher;
         matcher = Pattern.compile(peptideSeq).matcher(proteinSeq);
         while (matcher.find()) {
-            startSites.add(matcher.start() + 2);
+            startSites.add(matcher.start() + 1);
         }
 
         if (proteinSeq.contains("X")) {
