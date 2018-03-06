@@ -32,31 +32,32 @@ public class ProteinHit {
     @XmlAttribute(required = true)
     private String accession;
     @XmlAttribute(required = true)
-    private float score;
+    private String score;
     @XmlAttribute
     private String sequence;
 
+
     /**
      * Gets the value of the userParam property.
-     * 
+     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the userParam property.
-     * 
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getUserParam().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link UserParamIdXML }
-     * 
-     * 
+     *
+     *
      */
     public List<UserParamIdXML> getUserParam() {
         if (userParam == null) {
@@ -67,11 +68,11 @@ public class ProteinHit {
 
     /**
      * Gets the value of the id property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getId() {
         return id;
@@ -79,11 +80,11 @@ public class ProteinHit {
 
     /**
      * Sets the value of the id property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setId(String value) {
         this.id = value;
@@ -91,11 +92,11 @@ public class ProteinHit {
 
     /**
      * Gets the value of the accession property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getAccession() {
         return accession;
@@ -103,11 +104,11 @@ public class ProteinHit {
 
     /**
      * Sets the value of the accession property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setAccession(String value) {
         this.accession = value;
@@ -115,27 +116,31 @@ public class ProteinHit {
 
     /**
      * Gets the value of the score property.
-     * 
+     *
      */
     public float getScore() {
-        return score;
+        if ((score == null) || score.contains("nan")) {
+            return Float.NaN;
+        } else {
+            return Float.parseFloat(score);
+        }
     }
 
     /**
      * Sets the value of the score property.
-     * 
+     *
      */
-    public void setScore(float value) {
+    public void setScore(String value) {
         this.score = value;
     }
 
     /**
      * Gets the value of the sequence property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getSequence() {
         return sequence;
@@ -143,11 +148,11 @@ public class ProteinHit {
 
     /**
      * Sets the value of the sequence property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setSequence(String value) {
         this.sequence = value;
