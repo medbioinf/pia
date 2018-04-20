@@ -317,7 +317,7 @@ class MzIdentMLFileParser {
                     getAndSetEnzymeRegexFromOBO(oboID, enzyme);
                 } else {
                     // TODO: parse the enzyme regex from a userParam
-                    LOGGER.warn("unsupported enzyme: " + param.getName() + " / " + param.getValue());
+                    LOGGER.error("unsupported enzyme: " + param.getName() + " / " + param.getValue());
                 }
             }
         }
@@ -367,6 +367,8 @@ class MzIdentMLFileParser {
         Enzymes specIDListsEnzymes = null;
         Set<InputSpectra> inputSpectraSet = new HashSet<>();
 
+        String analysisSoftwareName = null;
+
         for (SpectrumIdentification specID : file.getAnalysisCollection().getSpectrumIdentification()) {
             if (specID.getId().equals(specIdListIDtoSpecIdID.get(specIDList.getId()))  ) {
                 // this is the SpectrumIdentification for this list
@@ -374,9 +376,15 @@ class MzIdentMLFileParser {
                 spectrumID = specID;
 
                 // get the enzymes
-                specIDListsEnzymes = specID.getSpectrumIdentificationProtocol().getEnzymes();
+                SpectrumIdentificationProtocol idProtocol = specID.getSpectrumIdentificationProtocol();
+                specIDListsEnzymes = idProtocol.getEnzymes();
                 inputSpectraSet.addAll(specID.getInputSpectra());
 
+                // get the analysis software
+                AnalysisSoftware analysisSoftware = idProtocol.getAnalysisSoftware();
+                if (analysisSoftware != null) {
+                    analysisSoftwareName = analysisSoftware.getName();
+                }
                 break;
             }
         }
@@ -384,7 +392,8 @@ class MzIdentMLFileParser {
         // go through all the SpectrumIdentificationResults and build the PSMs
         boolean ok = true;
         for (SpectrumIdentificationResult specIdRes : specIDList.getSpectrumIdentificationResult()) {
-            ok = addSpectrumIdentificationResult(specIdRes, spectrumID, specIDListsDBRefs, specIDListsEnzymes);
+            ok = addSpectrumIdentificationResult(specIdRes, spectrumID, specIDListsDBRefs, specIDListsEnzymes,
+                    analysisSoftwareName);
             if (!ok) {
                 break;
             }
@@ -404,7 +413,8 @@ class MzIdentMLFileParser {
      * @return
      */
     private boolean addSpectrumIdentificationResult(SpectrumIdentificationResult specIdResult,
-            SpectrumIdentification spectrumID, Set<String> specIDListsDBRefs, Enzymes specIDListsEnzymes) {
+            SpectrumIdentification spectrumID, Set<String> specIDListsDBRefs, Enzymes specIDListsEnzymes,
+            String analysisSoftwareName) {
         String sourceID = parseSourceID(specIdResult);
         String spectrumTitle = parseSpectrumTitle(specIdResult);
         Double retentionTime = parseRetentionTime(specIdResult);
@@ -418,9 +428,8 @@ class MzIdentMLFileParser {
         boolean ok = true;
         for (SpectrumIdentificationItem specIdItem : specIdResult.getSpectrumIdentificationItem()) {
 
-            ok = processSpectrumIdentificationItem(specIdItem, resultParams,
-                    sourceID, spectrumTitle, retentionTime,
-                    spectrumID, specIDListsDBRefs, specIDListsEnzymes);
+            ok = processSpectrumIdentificationItem(specIdItem, resultParams, sourceID, spectrumTitle, retentionTime,
+                    spectrumID, specIDListsDBRefs, specIDListsEnzymes, analysisSoftwareName);
             if (!ok) {
                 break;
             }
@@ -540,8 +549,8 @@ class MzIdentMLFileParser {
      * @return
      */
     private boolean processSpectrumIdentificationItem(SpectrumIdentificationItem specIdItem, ParamList resultParams,
-            String sourceID, String spectrumTitle, Double retentionTime,
-            SpectrumIdentification spectrumID, Set<String> specIDListsDBRefs, Enzymes specIDListsEnzymes) {
+            String sourceID, String spectrumTitle, Double retentionTime, SpectrumIdentification spectrumID,
+            Set<String> specIDListsDBRefs, Enzymes specIDListsEnzymes, String analysisSoftwareName) {
         double deltaMass = calculateDeltaMass(specIdItem);
         uk.ac.ebi.jmzidml.model.mzidml.Peptide peptide = peptides.get(specIdItem.getPeptideRef());
 
@@ -584,7 +593,9 @@ class MzIdentMLFileParser {
         }
 
         // add the userParam to the params of the PSM
-        specIdItem.getUserParam().forEach(psm::addParam);
+
+        specIdItem.getUserParam().forEach(
+                userParam -> addUserParamToPSM(psm, userParam, analysisSoftwareName));
 
         // add the params from the specIdResult to the PSM
         resultParams.getParamGroup().forEach(psm::addParam);
@@ -885,5 +896,149 @@ class MzIdentMLFileParser {
                 accession);
 
         psm.addModification(mod.getLocation(), modification);
+    }
+
+
+    /**
+     * Adds the given userParam to the given PSM. Makes some checks to convert the userParam to a score or other param.
+     *
+     * @param psm
+     * @param userParam
+     */
+    private static void addUserParamToPSM(PeptideSpectrumMatch psm, UserParam userParam, String analysisSoftwareName) {
+        boolean processed = false;
+
+        if ("comet".equalsIgnoreCase(analysisSoftwareName.trim())) {
+            // this score seems to originate from a Comet identification
+            processed = checkParamForCometSpecifics(psm, userParam);
+            if (!processed) {
+                processed = checkParamForPercolatorSpecifics(psm, userParam);
+            }
+        } else if ("mascot".equalsIgnoreCase(analysisSoftwareName.trim())) {
+            processed = checkParamForPercolatorSpecifics(psm, userParam);
+        }
+
+        if (!processed) {
+            psm.addParam(userParam);
+        }
+    }
+
+
+    /**
+     * Checks and processes any unprocessed or accidentally as userParam marked params for Comet specific params.
+     *
+     * @param psm
+     * @param userParam
+     */
+    private static boolean checkParamForCometSpecifics(PeptideSpectrumMatch psm, UserParam userParam) {
+        String paramName = userParam.getName().trim().toLowerCase();
+        boolean isScore;
+        OntologyConstants foundParam;
+
+        switch (paramName) {
+        case "xcorr":
+            isScore = true;
+            foundParam = OntologyConstants.COMET_XCORR;
+            break;
+
+        case "deltacn":
+            isScore = true;
+            foundParam = OntologyConstants.COMET_DELTA_CN;
+            break;
+
+        case "deltacnstar":
+            isScore = true;
+            foundParam = OntologyConstants.COMET_DELTA_CN_STAR;
+            break;
+
+        case "spscore":
+            isScore = true;
+            foundParam = OntologyConstants.COMET_SP;
+            break;
+
+        case "sprank":
+            isScore = true;
+            foundParam = OntologyConstants.COMET_SP_RANK;
+            break;
+
+        case "expect":
+            isScore = true;
+            foundParam = OntologyConstants.COMET_EXPECTATION;
+            break;
+
+        default:
+            isScore = false;
+            foundParam = null;
+        }
+
+        boolean processed = false;
+        if (isScore && (foundParam != null)) {
+            processed = addScoreFromParam(psm, userParam, foundParam);
+        }
+
+        return processed;
+    }
+
+
+    /**
+     * Checks and processes any unprocessed or accidentally as userParam marked params for Percolator specific params.
+     *
+     * @param psm
+     * @param userParam
+     */
+    private static boolean checkParamForPercolatorSpecifics(PeptideSpectrumMatch psm, UserParam userParam) {
+        String paramName = userParam.getName().trim().toLowerCase();
+        boolean isScore;
+        OntologyConstants foundParam;
+
+        switch (paramName) {
+        case "q value":
+            isScore = true;
+            foundParam = OntologyConstants.PERCOLATOR_Q_VALUE;
+            break;
+
+        case "pep":
+            isScore = true;
+            foundParam = OntologyConstants.PERCOLATOR_POSTERIOR_ERROR_PROBABILITY;
+            break;
+
+        default:
+            isScore = false;
+            foundParam = null;
+        }
+
+        boolean processed = false;
+        if (isScore && (foundParam != null)) {
+            processed = addScoreFromParam(psm, userParam, foundParam);
+        }
+
+        return processed;
+    }
+
+
+    /**
+     * Adds the score given by the ontology to the PSM using the value from the userParam.
+     *
+     * @param psm
+     * @param userParam
+     * @param ontology
+     * @return
+     */
+    private static boolean addScoreFromParam(PeptideSpectrumMatch psm, UserParam userParam, OntologyConstants ontology) {
+        boolean processed = false;
+
+        try {
+            ScoreModel score = new ScoreModel(Double.NaN,
+                    ontology.getPsiAccession(),
+                    ontology.getPsiName());
+            Double scoreValue = Double.parseDouble(userParam.getValue());
+            score.setValue(scoreValue);
+            psm.addScore(score);
+            processed = true;
+        } catch (NumberFormatException e) {
+            LOGGER.error("Could not parse score value", e);
+        }
+
+        return processed;
     }
 }

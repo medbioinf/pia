@@ -42,6 +42,9 @@ import de.mpc.pia.modeller.report.filter.impl.PSMTopIdentificationFilter;
 import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 import de.mpc.pia.modeller.score.comparator.RankCalculator;
 import de.mpc.pia.modeller.score.comparator.ScoreComparator;
+import de.mpc.pia.tools.OntologyConstants;
+import de.mpc.pia.tools.PIAConstants;
+import de.mpc.pia.tools.PIATools;
 import de.mpc.pia.tools.obo.OBOMapper;
 
 
@@ -464,9 +467,12 @@ public class PSMModeller implements Serializable {
 
                                             for (Triple triple : tripleSet) {
                                                 if (triple.getPredicate().getName().equals(OBOMapper.OBO_IS_A)) {
-                                                    if (triple.getObject().getName().equals("MS:1001868") || // MS:1001868 ! distinct peptide-level q-value
-                                                            triple.getObject().getName().equals("MS:1001870") || // MS:1001870 ! distinct peptide-level p-value
-                                                            triple.getObject().getName().equals("MS:1001872")) { // MS:1001872 ! distinct peptide-level e-value
+                                                    if (triple.getObject().getName().equals(OntologyConstants.PSM_LEVEL_PVALUE.getPsiAccession())
+                                                            || triple.getObject().getName().equals(OntologyConstants.PSM_LEVEL_EVALUE.getPsiAccession())
+                                                            || triple.getObject().getName().equals(OntologyConstants.PSM_LEVEL_QVALUE.getPsiAccession())
+                                                            || triple.getObject().getName().equals(OntologyConstants.PEPTIDE_LEVEL_QVALUE.getPsiAccession())
+                                                            || triple.getObject().getName().equals(OntologyConstants.PEPTIDE_LEVEL_PVALUE.getPsiAccession())
+                                                            || triple.getObject().getName().equals(OntologyConstants.PEPTIDE_LEVEL_EVALUE.getPsiAccession())) {
                                                         higherscorebetter = false;
                                                     }
                                                 } else if (triple.getPredicate().getName().equals(OBOMapper.OBO_RELATIONSHIP)) {
@@ -615,10 +621,21 @@ public class PSMModeller implements Serializable {
      * @return
      */
     private static String createPSMKeyForScoreRanking(ReportPSM psm) {
-        return psm.getSourceID()
-                + ":" + psm.getSpectrum().getSpectrumTitle()
-                + ":" + psm.getMassToCharge()
-                + ":" + psm.getSpectrum().getRetentionTime();
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(psm.getSourceID());
+        sb.append(':');
+        sb.append(psm.getSpectrum().getSpectrumTitle());
+        sb.append(':');
+        sb.append(Double.toString(PIATools.round(psm.getMassToCharge(), PIAConstants.MASS_TO_CHARGE_PRECISION)));
+        sb.append(':');
+        if (psm.getRetentionTime() != null) {
+            sb.append(Double.toString(PIATools.round(psm.getRetentionTime(), PIAConstants.RETENTION_TIME_PRECISION)));
+        } else {
+            sb.append("null");
+        }
+
+        return sb.toString();
     }
 
 
@@ -1339,14 +1356,11 @@ public class PSMModeller implements Serializable {
         Map<String, List<ReportPSMSet>> fileLists = new HashMap<>();
         String key;
 
-
         updateDecoyStates(0L);
 
         // first we need the Average FDR Score for each PSM set
         for (ReportPSMSet set : reportPSMSets) {
-
-
-             set.calculateAverageFDRScore();
+            set.calculateAverageFDRScore();
 
             if (!set.getAverageFDRScore().getValue().equals(Double.NaN)) {
                 // put the PSM set into the List, which holds the sets identified in the same files
@@ -1744,9 +1758,9 @@ public class PSMModeller implements Serializable {
      */
     public List<Integer> getNrIdentifications(boolean fdrGood) {
         if (fdrGood && !isCombinedFDRScoreCalculated()) {
-            List<Integer> idLIst = new ArrayList<>(1);
-            idLIst.add(0);
-            return idLIst;
+            List<Integer> idList = new ArrayList<>(1);
+            idList.add(0);
+            return idList;
         }
 
         Map<Integer, Integer> idMap = new HashMap<>();
@@ -1770,12 +1784,12 @@ public class PSMModeller implements Serializable {
             }
         }
 
-        List<Integer> IDs = new ArrayList<>(maxIDs);
+        List<Integer> idList = new ArrayList<>(maxIDs);
         for (int i=1; i <= maxIDs; i++) {
-            IDs.add(idMap.getOrDefault(i, 0));
+            idList.add(idMap.getOrDefault(i, 0));
         }
 
-        return IDs;
+        return idList;
     }
 
 
@@ -1812,11 +1826,9 @@ public class PSMModeller implements Serializable {
 
                 for (Long psmFileID: fileReportPSMs.keySet()) {
                     if (!getFilters(0L).isEmpty()) {
-                        List<ReportPSM> part = filterExport ?
-                                getFilteredReportPSMs(psmFileID, getFilters(0L)) :
+                        List<ReportPSM> part = filterExport ? getFilteredReportPSMs(psmFileID, getFilters(0L)) :
                                     fileReportPSMs.get(psmFileID);
-
-                                report.addAll(part);
+                        report.addAll(part);
                     } else {
                         report.addAll(fileReportPSMs.get(psmFileID));
                     }

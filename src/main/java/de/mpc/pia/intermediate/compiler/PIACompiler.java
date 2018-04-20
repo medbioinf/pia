@@ -63,6 +63,7 @@ import de.mpc.pia.intermediate.piaxml.SpectrumMatchXML;
 import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
+import de.mpc.pia.tools.matomo.PIAMatomoTracker;
 import de.mpc.pia.tools.obo.OBOMapper;
 import de.mpc.pia.tools.obo.PsiModParser;
 import de.mpc.pia.tools.unimod.UnimodParser;
@@ -71,7 +72,7 @@ import de.mpc.pia.tools.unimod.UnimodParser;
  * This class is used to read in one or several input files and compile them
  * into one PIA XML intermediate file.
  *
- * @author julian
+ * @author julianu
  *
  */
 public abstract class PIACompiler {
@@ -1218,20 +1219,23 @@ public abstract class PIACompiler {
         Option inputFileOpt = Option.builder("infile")
                 .argName("inputFile")
                 .hasArg()
-                .desc( "input file with possible further information "
-                        + "separated by semicolon. This option may be called "
-                        + "multiple times. Any further information not given "
-                        + "will be treated as null, the information is in this "
-                        + "order:\n"
-                        + "name of the input file (as shown in the PIA viewers, "
-                        + "if not given will be set to the path of the input file), "
-                        + "type of the file (usually guessed, but may also be "
-                        + "explicitly given, possible values are "
+                .desc( "input file with possible further information separated by semicolon. This option may be called "
+                        + "multiple times. Any further information not given will be treated as null, the information "
+                        + "is in this order:\n"
+                        + "name of the input file (as shown in the PIA viewers, if not given will be set to the path "
+                        + "of the input file), type of the file (usually guessed, but may also be explicitly given, "
+                        + "possible values are "
                         + InputFileParserFactory.getAvailableTypeShorts()
-                        + "), "
-                        + "additional information file (very seldom used)")
+                        + "), additional information file (very seldom used)")
                 .build();
         options.addOption(inputFileOpt);
+
+        Option disableUsageStatisticsOpt = Option.builder("disableUsageStatistics")
+                .hasArg(false)
+                .desc("set this option to disable the collection of usage statistics for quality control and"
+                        + "funding purposes")
+                .build();
+        options.addOption(disableUsageStatisticsOpt);
 
         if (args.length < 1) {
             PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
@@ -1247,6 +1251,10 @@ public abstract class PIACompiler {
         try {
             CommandLine line = parser.parse( options, args );
 
+            PIAMatomoTracker.disableTracking(line.hasOption(disableUsageStatisticsOpt.getOpt()));
+
+            PIAMatomoTracker.trackPIAEvent(PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
+                    PIAMatomoTracker.PIA_TRACKING_COMPILER_NAME, PIAMatomoTracker.PIA_TRACKING_COMPILER_STARTED, null);
             boolean filesOk = false;
             if (line.hasOption(inputFileOpt.getOpt())) {
                 filesOk = parseCommandLineInfiles(line.getOptionValues(inputFileOpt.getOpt()), piaCompiler);
@@ -1267,6 +1275,9 @@ public abstract class PIACompiler {
             // now write out the file
             outFileName = line.getOptionValue(outfileOpt.getOpt());
             piaCompiler.writeOutXML(outFileName);
+            piaCompiler.finish();
+            PIAMatomoTracker.trackPIAEvent(PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
+                    PIAMatomoTracker.PIA_TRACKING_COMPILER_NAME, PIAMatomoTracker.PIA_TRACKING_COMPILER_FINISHED, null);
         } catch (ParseException e) {
             LOGGER.error("error parsing the command line: " + e.getMessage());
             PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
@@ -1274,6 +1285,8 @@ public abstract class PIACompiler {
             System.exit(-1);
         } catch (IOException e) {
             LOGGER.error("Error while writing PIA XML file.", e);
+            PIAMatomoTracker.trackPIAEvent(PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
+                    PIAMatomoTracker.PIA_TRACKING_COMPILER_NAME, PIAMatomoTracker.PIA_TRACKING_COMPILER_ERROR, null);
         }
 
     }

@@ -4,15 +4,11 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 import de.mpc.pia.modeller.score.ScoreModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class ScoreComparator<T extends ScoreComparable> implements Comparator<T>, Serializable {
 
     private static final long serialVersionUID = 3640095411432489213L;
-
-    private static final Logger logger = LoggerFactory.getLogger(ScoreComparator.class);
 
 
     /** the index of the compared score model of the spectrum */

@@ -36,11 +36,6 @@ import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 
 public class PIACompilerTest {
 
-    /*
-    public static File mascotFile;
-    public static File tandemFile;
-    */
-
     private File mzid55mergeTandem;
     private File mzid55mergeMascot;
     private File mzid55mergeOmssa;
@@ -55,10 +50,6 @@ public class PIACompilerTest {
 
     @Before
     public void setUp() {
-        /* the mascot file is still too big for gitHub, use a smaller example
-        mascotFile = new File(PIACompilerTest.class.getResource("/07-12_MW_58-F008265.dat").getPath());
-        tandemFile = new File(PIACompilerTest.class.getResource("/07-12_MW_58.tandem.xml").getPath());
-        */
 
         mzid55mergeTandem = new File(PIACompilerTest.class.getResource("/55merge_tandem.mzid").getPath());
         mzid55mergeMascot = new File(PIACompilerTest.class.getResource("/55merge_mascot_full.mzid").getPath());
@@ -70,6 +61,7 @@ public class PIACompilerTest {
         idXMLexpectedFile = new File(PIACompilerTest.class.getResource("/yeast-gold-015-filtered-proteins.csv").getPath());
     }
 
+<<<<<<< HEAD
 
     @Test
     public void testPIACompilerNativeFiles() throws IOException {
@@ -107,6 +99,8 @@ public class PIACompilerTest {
         endTime = System.nanoTime();
     }
 
+=======
+>>>>>>> b2786f859c69e286fe3f1a0f8adb1254029aadb3
 
     @Test
     public void testPIACompilerCompilationAndAnalysis() throws IOException, JAXBException, XMLStreamException {

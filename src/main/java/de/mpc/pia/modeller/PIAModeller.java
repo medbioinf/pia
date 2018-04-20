@@ -39,6 +39,7 @@ import de.mpc.pia.modeller.protein.ProteinExecuteCommands;
 import de.mpc.pia.modeller.psm.PSMExecuteCommands;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
+import de.mpc.pia.tools.matomo.PIAMatomoTracker;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
@@ -712,9 +713,8 @@ public class PIAModeller implements Serializable {
         Option paramOutFileOpt = Option.builder(PARAM_OUT_FILE_OPTION)
                 .argName("filename")
                 .hasArg()
-                .desc("Path to the parameter file, which will contain the newly "
-                        + "added execution. Only used in combination with "
-                        + "append. If not given, the paramFile will be used.")
+                .desc("Path to the parameter file, which will contain the newly added execution. Only used in "
+                        + "combination with append. If not given, the paramFile will be used.")
                 .build();
         options.addOption(paramOutFileOpt);
 
@@ -726,67 +726,53 @@ public class PIAModeller implements Serializable {
         Option initOpt = Option.builder(INIT_OPTION)
                 .argName("name")
                 .hasArg()
-                .desc("Initialize the parameter file given by paramFile, giving "
-                        + "the pipeline the specified name. This is mainly used "
-                        + "to build a pipeline via KNIME and not intended to be "
-                        + "called on the command line." )
+                .desc("Initialize the parameter file given by paramFile, giving the pipeline the specified name. This "
+                        + "was mainly used to build a pipeline via KNIME and not intended to be called on the command "
+                        + "line." )
                 .build();
         options.addOption(initOpt);
 
         Option appendOpt = Option.builder(APPEND_OPTION)
-                .desc("All free arguments together are appended as one command "
-                        + "to the param file. The first argument specifies the "
-                        + "command with prefix (e.g. psm_add_filter), all "
-                        + "following arguments are passed to the execution of "
-                        + "the command. This is mainly used to build a pipeline "
-                        + "via KNIME and not intended to be called on the command line." )
+                .desc("All free arguments together are appended as one command to the param file. The first argument "
+                        + "specifies the command with prefix (e.g. psm_add_filter), all following arguments are passed "
+                        + "to the execution of the command. This is mainly used to build a pipeline via KNIME and not "
+                        + "intended to be called on the command line." )
                 .build();
         options.addOption(appendOpt);
 
         Option psmExportOpt = Option.builder(PSM_EXPORT_OPTION)
-                .argName("outfile "
-                        + "format "
-                        + "[fileID=ID] "
-                        + "[spectralCount=true/false]")
+                .argName("outfile format [fileID=ID] [spectralCount=true/false]")
                 .valueSeparator(' ')
                 .hasArg()
                 .optionalArg(true)
                 .numberOfArgs(4)
-                .desc("Exports on the psm level. Only used in combination with "
-                        + "infile and paramFile, which should be executed before exporting.")
+                .desc("Exports on the psm level. Only used in combination with infile and paramFile, which should be "
+                        + "executed before exporting.")
                 .build();
         options.addOption(psmExportOpt);
 
         Option peptideExportOpt = Option.builder(PEPTIDE_EXPORT_OPTION)
-                .argName("outfile "
-                        + "format "
-                        + "[fileID=ID] "
-                        + "[exportPSMs=true/false] "
-                        + "[exportPSMSets=true/false] "
+                .argName("outfile format [fileID=ID] [exportPSMs=true/false] [exportPSMSets=true/false] "
                         + "[oneAccessionPerLine=true/false]")
                 .valueSeparator(' ')
                 .hasArg()
                 .optionalArg(true)
                 .numberOfArgs(6)
-                .desc("Exports on the peptide level. Only used in combination "
-                        + "with infile and paramFile, which should be executed before exporting." )
+                .desc("Exports on the peptide level. Only used in combination with infile and paramFile, which should "
+                        + "be executed before exporting." )
                 .build();
         options.addOption(peptideExportOpt);
 
         Option proteinExportOpt = Option.builder(PROTEIN_EXPORT_OPTION)
-                .argName("outfile "
-                        + "format "
-                        + "[exportPSMs=true/false] "
-                        + "[exportPSMSets=true/false] "
-                        + "[exportPeptides=true/false] "
-                        + "[oneAccessionPerLine=true/false] "
+                .argName("outfile format [exportPSMs=true/false] [exportPSMSets=true/false] "
+                        + "[exportPeptides=true/false] [oneAccessionPerLine=true/false] "
                         + "[exportProteinSequences=true/false]")
                 .valueSeparator(' ')
                 .hasArg()
                 .optionalArg(true)
                 .numberOfArgs(7)
-                .desc( "Exports on the protein level. Only used in combination "
-                        + "with infile and paramFile, which should be executed before exporting." )
+                .desc( "Exports on the protein level. Only used in combination with infile and paramFile, which should "
+                        + "be executed before exporting." )
                 .build();
         options.addOption(proteinExportOpt);
 
@@ -804,18 +790,36 @@ public class PIAModeller implements Serializable {
                 .build();
         options.addOption(calculateInfoOpt);
 
+        Option disableUsageStatisticsOpt = Option.builder("disableUsageStatistics")
+                .hasArg(false)
+                .desc("set this option to disable the collection of usage statistics for quality control and"
+                        + "funding purposes")
+                .build();
+        options.addOption(disableUsageStatisticsOpt);
+
 
         if (args.length > 0) {
             try {
                 CommandLine line = parser.parse( options, args );
 
+                PIAMatomoTracker.disableTracking(line.hasOption(disableUsageStatisticsOpt.getOpt()));
+
                 if (line.hasOption(paramFileOpt.getOpt())) {
                     // commands processed from an XML file
+                    PIAMatomoTracker.trackPIAEvent(PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
+                            PIAMatomoTracker.PIA_TRACKING_MODELLER_NAME,
+                            PIAMatomoTracker.PIA_TRACKING_MODELLER_XML_STARTED, null);
                     parseParameterXMLFile(line);
                 } else {
                     // commands are directly processed on the command line
+                    PIAMatomoTracker.trackPIAEvent(PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
+                            PIAMatomoTracker.PIA_TRACKING_MODELLER_NAME,
+                            PIAMatomoTracker.PIA_TRACKING_MODELLER_CLI_STARTED, null);
                     parseCommandsFromCommandLine(line);
                 }
+                PIAMatomoTracker.trackPIAEvent(PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
+                        PIAMatomoTracker.PIA_TRACKING_MODELLER_NAME,
+                        PIAMatomoTracker.PIA_TRACKING_MODELLER_FINISHED, null);
             } catch (ParseException e) {
                 LOGGER.error("Error parsing command line", e);
                 PIATools.printCommandLineHelp(PIAModeller.class.getSimpleName(),
@@ -823,6 +827,9 @@ public class PIAModeller implements Serializable {
                 System.exit(-1);
             } catch (Exception e) {
                 LOGGER.error("Error while executing " + PIAModeller.class.getSimpleName(), e);
+                PIAMatomoTracker.trackPIAEvent(PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
+                        PIAMatomoTracker.PIA_TRACKING_MODELLER_NAME,
+                        PIAMatomoTracker.PIA_TRACKING_MODELLER_ERROR, null);
                 System.exit(-1);
             }
         } else {
