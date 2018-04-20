@@ -70,7 +70,7 @@ public class PIACompilerTest {
         idXMLexpectedFile = new File(PIACompilerTest.class.getResource("/yeast-gold-015-filtered-proteins.csv").getPath());
     }
 
-/*
+
     @Test
     public void testPIACompilerNativeFiles() throws IOException {
         Runtime runtime = Runtime.getRuntime();
@@ -78,13 +78,13 @@ public class PIACompilerTest {
         final long startTime = System.nanoTime();
         final long endTime;
 
+        File tpp = new File(PIACompilerTest.class.getResource("/interact-ipro.pep.mzid").getPath());
+
+
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
         assertEquals("Mascot file could not be parsed", true,
-                piaCompiler.getDataFromFile("mascot", mascotFile.getAbsolutePath(), null, null));
-
-        assertEquals("X!TAndem file could not be parsed", true,
-                piaCompiler.getDataFromFile("tandem", tandemFile.getAbsolutePath(), null, "tandem"));
+                piaCompiler.getDataFromFile("tpp", tpp.getAbsolutePath(), null, null));
 
         piaCompiler.buildClusterList();
         piaCompiler.buildIntermediateStructure();
@@ -105,13 +105,8 @@ public class PIACompilerTest {
         piaCompiler.finish();
 
         endTime = System.nanoTime();
-        LOGGER.info("Total Memory: " + runtime.totalMemory() / mb + " MB");
-        LOGGER.info("Used Memory: " + (runtime.totalMemory() - runtime.freeMemory()) / mb + " MB");
-        LOGGER.info("Free Memory: " + runtime.freeMemory() / mb + " MB");
-        LOGGER.info("Max Memory: " + runtime.maxMemory() / mb + " MB");
-        LOGGER.info("Execution time: " + ((endTime - startTime) / 1000000000.0) + " s");
     }
-*/
+
 
     @Test
     public void testPIACompilerCompilationAndAnalysis() throws IOException, JAXBException, XMLStreamException {
