@@ -61,8 +61,6 @@ public class PIACompilerTest {
         idXMLexpectedFile = new File(PIACompilerTest.class.getResource("/yeast-gold-015-filtered-proteins.csv").getPath());
     }
 
-<<<<<<< HEAD
-
     @Test
     public void testPIACompilerNativeFiles() throws IOException {
         Runtime runtime = Runtime.getRuntime();
@@ -98,9 +96,6 @@ public class PIACompilerTest {
 
         endTime = System.nanoTime();
     }
-
-=======
->>>>>>> b2786f859c69e286fe3f1a0f8adb1254029aadb3
 
     @Test
     public void testPIACompilerCompilationAndAnalysis() throws IOException, JAXBException, XMLStreamException {
