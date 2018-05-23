@@ -1,0 +1,87 @@
+Data privacy regulations according to the GDPR
+==============================================
+(german version see below)
+
+
+
+
+
+Datenschutzerklärung nach den Vorgaben der DSGVO
+================================================
+
+Im Folgenden informieren wir über die Verarbeitung personenbezogener Daten bei
+Nutzung des Tools "PIA - Protein Inference Algorithms". Personenbezogene Daten
+sind alle Daten, die auf Sie persönlich bezogen werden können.
+
+
+I) Name und Anschrift des Verantwortlichen
+------------------------------------------
+
+Der Verantwortliche im Sinne der Datenschutz-Grundverordnung und dem
+Landesdatenschutzgesetz NRW ist die Ruhr-Universität Bochum,
+Universitätsstr. 150, 44780 Bochum. Ausführend: Medizinisches Proteom-Center
+(MPC), Prof. Dr. Katrin Marcus, Tel.: +49 (234) 32-28444,
+E-Mail: katrin.marcus@rub.de.
+
+
+II) Name und Anschrift des Datenschutzbeauftragten
+--------------------------------------------------
+
+Der Datenschutzbeauftragte des Verantwortlichen ist:
+Dr. Kai-Uwe Loser, Ruhr-Universität Bochum, Universitätsstraße 150, 44780 Bochum
+Tel.: +49 (234) 32-28720, E-Mail: dsb@rub.de, https://dsb.ruhr-uni-bochum.de
+
+
+III) Statistische Analyse der Nutzung von PIA
+---------------------------------------------
+
+Für die statistische Analyse des Tools benutzt dsa Medizinische Proteom-Center
+Matomo (ehemals Piwik), eine Open-Source-Software. Ziel der Auswertung ist dabei
+die Verbesserung des Angebots. Für die Aufzeichnung mittels Piwik wird eine
+User-ID verwendet die eine Analyse der Benutzung des Tools durch die Nutzer
+ermöglicht (Rechtsgrundlage Art 6 Abs.1 Buchst. e DS-GVO).
+
+Diese User-ID wird auf dem Computer erstellt, auf dem PIA ausgeführt wird. Bei
+Commandline Ausführung wird diese User-ID im User-/Home-Verzeichnis unter
+".pia", gespeichert. Um die Aufzeichnung zu deeaktivieren kann PIA mit dem
+Argument "disableUsageStatistics" ausgeführt werden. In KNIME kann die User-ID
+in den  Einstellungen eingesehen werden und das Tracking dort deaktiviert
+werden. Durch die Deaktivierung der Aufzeichnungen entstehen keine
+Einschränkungen in der Nutzung.
+
+Die durch die User-ID und die Aufzeichnung werden Informationen über die
+Benutzung des Tools auf dem Server des Medizinischen Proteom-Centers
+gespeichert. Die IP-Adresse wird sofort nach der Verarbeitung und vor deren
+Speicherung anonymisiert.
+
+Folgende Daten werden übermittelt und aufgezeichnet:
+- PIA version
+- Name und Version des Betriebssystem
+- ausgeführte Funktion von PIA
+- Informationen darüber, ob PIA in KNIME oder der command line ausgeführt wurde
+- User ID (zufälliges Pseudonym, um Ausführungen einer Person zuzuordnen)
+
+
+IV) Ihre Rechte als betroffene Person
+-------------------------------------
+
+Werden personenbezogene Daten von Ihnen verarbeitet, sind Sie Betroffener i.S.d.
+DSGVO und es stehen Ihnen folgende Rechte gegenüber dem Verantwortlichen zu:
+
+Sie können eine Bestätigung darüber verlangen, ob personenbezogene Daten, die
+Sie betreffen, verarbeitet werden. Falls eine solche Verarbeitung vorliegt
+können Sie Auskunft über den Zweck, die Daten, die Herkunft der Daten, Empfänger
+von Daten sowie Dauer der Speicherung erhalten.
+
+Sie haben ein Recht auf Berichtigung der Daten, falls diese unrichtig oder
+unvollständig sind. Unter verschiedenen Voraussetzungen haben Sie das Recht die
+Daten Löschen zu lassen oder die Verarbeitung einzuschränken. Falls Daten
+weitergegeben wurden bezieht sich die Löschung auch auf die Empfänger von Daten
+und wir werden Ihnen die Empfänger Ihrer Daten mitteilen.
+
+Für Fragen und Beschwerden können Sie sich in jedem Fall an die zuständige
+Aufsichtsbehörde wenden (Landesbeauftragte für den Datenschutz NRW,
+http://ldi.nrw.de)
+
+Ebenso können Sie den Datenschutzbeauftragten der RUB wie oben angegeben
+erreichen.
