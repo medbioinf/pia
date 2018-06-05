@@ -19,9 +19,9 @@ preferences, inside the settings for PIA.
 
 The following data are transmitted and recorded:
 - PIA version
-- name and version of teh operating system
+- name and version of the operating system
 - executed function of PIA (compiler, analysis, visualization)
-- information, whether PIA was called on teh commadn line or via KNIME
+- information, whether PIA was called on the command line or via KNIME
 - user ID (random string of letters and numbers, to combine allow association of
   multiple calls by one user)
 
