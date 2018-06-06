@@ -1,0 +1,31 @@
+Data privacy information
+========================
+
+The PIA team is collecting usage statistics for quality control and funding
+purposes. We will never give out your personal data. You may disable the
+tracking functionality by setting the appropriate settings for the command line
+versions (see below) or inside the KNIME preferences. 
+
+For the analysis of the tool's (PIA's) usage, we collect data via the internet.
+This data is stored on our servers anonymised (the last part of the IP address
+is deleted). A user ID is used to combine the statistics of multiple calls from
+the same machine. This user ID is created on the first call of PIA and is stored
+either in the user/home directory at ".pia" for a command line call, or directly
+inside the KNIME preferences.
+
+To turn off any recording of usage data, use the command line argument
+"disableUsageStatistics" or turn off the sending of usage data inside the KNIME
+preferences, inside the settings for PIA.
+
+The following data are transmitted and recorded:
+- PIA version
+- name and version of the operating system
+- executed function of PIA (compiler, analysis, visualization)
+- information, whether PIA was called on the command line or via KNIME
+- user ID (random string of letters and numbers, to combine allow association of
+  multiple calls by one user)
+
+To allow communication via the internet, the IP address of the user is stored
+for the sole purpose of communication with our servers. As required by laws, we
+log these addresses for up to 7 days on our servers before deletion, to
+facilitate the analysis of abuses of and attacks on our servers.
