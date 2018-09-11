@@ -229,12 +229,13 @@ public class MzIdentMLExporter {
         outWriter = new BufferedWriter(exportWriter);
         unimodParser = new UnimodParser();
         mzidMarshaller = new MzIdentMLMarshaller();
+        // change, if new version of jMzIdentML is available
+        // mzidMarshaller = new MzIdentMLMarshaller(MzIdentMLVersion.Version_1_2);
 
         piaAnalysisSoftware = MzIdentMLTools.getPIAAnalysisSoftware();
 
         try {
             // XML header
-            // TODO: set the version of mzIdentML here
             outWriter.write(mzidMarshaller.createXmlHeader() + "\n");
             outWriter.write(mzidMarshaller.createMzIdentMLStartTag("PIAExport for PSMs") + "\n");
 
@@ -441,7 +442,6 @@ public class MzIdentMLExporter {
         sourceFile.setFileFormat(fileFormat);
         inputs.getSourceFile().add(sourceFile);
     }
-
 
 
     /**
@@ -732,7 +732,7 @@ public class MzIdentMLExporter {
             Accession accession, Map<String, Set<Long>> dbsInFiles) {
         PeptideEvidence pepEvi = new PeptideEvidence();
 
-        DBSequence dbSequence = sequenceMap.get(accession);
+        DBSequence dbSequence = sequenceMap.get(accession.getAccession());
         if (dbSequence == null) {
             // create the dbSequence entry, if it is not yet created
             dbSequence = createDBSequence(accession, dbsInFiles);
@@ -1865,8 +1865,7 @@ public class MzIdentMLExporter {
         }
 
         for (SearchDatabase searchDB : inputs.getSearchDatabase()) {
-            String location = encodeLocation(searchDB.getLocation());
-            searchDB.setLocation(location);
+            refineSearchDatabase(searchDB);
         }
 
         for (SpectraData spectraData : inputs.getSpectraData()) {
@@ -1883,6 +1882,34 @@ public class MzIdentMLExporter {
                 }
             }
 
+        }
+    }
+
+
+    /**
+     * Refines the SearchDatabase information of the databases in the list
+     * @param databases
+     */
+    private static void refineSearchDatabase(SearchDatabase database) {
+        String location = encodeLocation(database.getLocation());
+        database.setLocation(location);
+
+        if (database.getFileFormat() == null) {
+            // add FileFormat information, if possible
+            location = database.getLocation();
+            String name = database.getName();
+            CvParam param = null;
+            if ((location.length() > 5 && "fasta".equalsIgnoreCase(location.substring(location.length()-5)))
+                    || ((name.length() > 5) && "fasta".equalsIgnoreCase(name.substring(name.length()-5)))) {
+                param = MzIdentMLTools.createPSICvParam(OntologyConstants.FASTA_FORMAT, null);
+            }
+
+
+            if (param != null) {
+                FileFormat format = new FileFormat();
+                format.setCvParam(param);
+                database.setFileFormat(format);
+            }
         }
     }
 

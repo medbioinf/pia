@@ -17,9 +17,12 @@ import uk.ac.ebi.jmzidml.model.mzidml.*;
 import uk.ac.ebi.jmzidml.xml.io.MzIdentMLUnmarshaller;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -1040,5 +1043,49 @@ class MzIdentMLFileParser {
         }
 
         return processed;
+    }
+
+
+    /**
+     * Checks, whether the given file looks like an mzIdentML file
+     *
+     * @param fileName
+     * @return
+     */
+    public static boolean checkFileType(String fileName) {
+        boolean isMzIdentMLFile = false;
+        LOGGER.debug("checking whether this is an idXML file: " + fileName);
+
+        try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
+            // read in the first 10, not empty lines
+            List<String> lines = stream.filter(line -> !line.trim().isEmpty())
+                    .limit(10)
+                    .collect(Collectors.toList());
+
+            // check, if first lines are ok
+            int idx = 0;
+
+            // optional declaration
+            if (lines.get(idx).trim().matches("<\\?xml version=\"[0-9.]+\"( encoding=\"[^\"]+\"){0,1}\\?>")) {
+                LOGGER.debug("file has the XML declaration line:" + lines.get(idx));
+                idx++;
+            }
+
+            // optional stylesheet declaration
+            if (lines.get(idx).trim().matches("<\\?xml-stylesheet.+\\?>")) {
+                LOGGER.debug("file has the XML stylesheet line:" + lines.get(idx));
+                idx++;
+            }
+
+            // now the MzIdentML element must be next
+            if (lines.get(idx).trim().matches("<MzIdentML .+")) {
+                isMzIdentMLFile = true;
+                LOGGER.debug("file has the MzIdentML element: " + lines.get(idx));
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Could not check file " + fileName, e);
+        }
+
+        return isMzIdentMLFile;
     }
 }

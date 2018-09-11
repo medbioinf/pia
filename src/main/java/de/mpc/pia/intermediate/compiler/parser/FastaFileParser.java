@@ -4,6 +4,11 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
@@ -314,5 +319,56 @@ public class FastaFileParser {
 
         // now insert the connection between peptide and accession into the compiler
         compiler.addAccessionPeptideConnection(accession, peptide);
+    }
+
+
+    /**
+     * Checks, whether the given file looks like a FASTA file
+     *
+     * @param fileName
+     * @return
+     */
+    public static boolean checkFileType(String fileName) {
+        boolean isFastaFile = false;
+        LOGGER.debug("checking whether this is a FASTA file: " + fileName);
+
+        try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
+            // read in the first 100, not empty lines
+            List<String> lines = stream.filter(line -> !line.trim().isEmpty())
+                    .limit(100)
+                    .collect(Collectors.toList());
+
+            // check, if first line is a header
+
+            int headerCount = 0;
+            int sequenceCount = 0;
+            int otherCount = 0;
+
+            // file must start with a header
+            isFastaFile = lines.get(0).startsWith(">");
+
+            for (String line : lines) {
+                if (line.startsWith(">")) {
+                    headerCount++;
+                } else if (line.replaceAll("[a-zA-Z]*", "").trim().isEmpty()) {
+                    sequenceCount++;
+                } else {
+                    otherCount++;
+                }
+            }
+
+            if ((otherCount > 0) || (sequenceCount < 1)) {
+                // not a single sequence line and some "other" lines -> it's no FASTA file
+                isFastaFile = false;
+            }
+
+            LOGGER.debug("headers: " + headerCount
+                    + ", sequences: " + sequenceCount
+                    + ", other: " + otherCount);
+        } catch (Exception e) {
+            LOGGER.debug("Could not check file " + fileName, e);
+        }
+
+        return isFastaFile;
     }
 }

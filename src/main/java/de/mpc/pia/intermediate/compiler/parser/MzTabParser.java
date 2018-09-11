@@ -49,6 +49,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -56,6 +58,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class read the MzTab Files and map the data to the PIA Intermediate data
@@ -946,4 +950,81 @@ public class MzTabParser {
         return searchDatabaseMap.get(dbKey);
     }
 
+
+    /**
+     * Checks, whether the given file looks like an mzTab file
+     *
+     * @param fileName
+     * @return
+     */
+    public static boolean checkFileType(String fileName) {
+        boolean isMzTabFile = false;
+        LOGGER.debug("checking whether this is an mzTab file: " + fileName);
+
+        try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
+            // read in the first 10, not empty lines
+            List<String> lines = stream.filter(line -> !line.trim().isEmpty())
+                    .limit(100)
+                    .collect(Collectors.toList());
+
+            // check, if first lines are ok
+            int countCOM = 0;
+            int countMTD = 0;
+            int countPRH = 0;
+            int countPRT = 0;
+            int countPSH = 0;
+            int countPSM = 0;
+            int countOther = 0;
+
+            isMzTabFile = true;
+            for (String line : lines) {
+                switch (line.split("\\s")[0]) {
+                case "COM":
+                    countCOM++;
+                    break;
+
+                case "MTD":
+                    countMTD++;
+                    break;
+
+                case "PRH":
+                    countPRH++;
+                    break;
+
+                case "PRT":
+                    countPRT++;
+                    break;
+
+                case "PSH":
+                    countPSH++;
+                    break;
+
+                case "PSM":
+                    countPSM++;
+                    break;
+
+                default:
+                    countOther++;
+                }
+            }
+
+            if (countOther > 0) {
+                // not a single sequence line and some "other" lines -> it's no FASTA file
+                isMzTabFile = false;
+            }
+
+            LOGGER.debug("COM: " + countCOM
+                    + ", MTD: " + countMTD
+                    + ", PRH: " + countPRH
+                    + ", PRT: " + countPRT
+                    + ", PSH: " + countPSH
+                    + ", PSM: " + countPSM
+                    + ", other: " + countOther);
+
+        } catch (Exception e) {
+            LOGGER.debug("Could not check file " + fileName, e);
+        }
+
+        return isMzTabFile;
+    }
 }
