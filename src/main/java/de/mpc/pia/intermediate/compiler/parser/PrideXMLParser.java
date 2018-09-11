@@ -492,19 +492,19 @@ public class PrideXMLParser {
         if(param != null){
             CvParam cvParam = new CvParam();
 
-            if ((param.getAccession() != null) && (!param.getAccession().isEmpty())) {
+            if ((param.getAccession() != null) && !param.getAccession().isEmpty()) {
                 cvParam.setAccession(param.getAccession());
             }
-            if ((param.getName() != null) && (!param.getName().isEmpty())) {
+            if ((param.getName() != null) && !param.getName().isEmpty()) {
                 cvParam.setName(param.getName());
             }
-            if ((param.getValue() != null) && (!param.getValue().isEmpty())) {
+            if ((param.getValue() != null) && !param.getValue().isEmpty()) {
                 cvParam.setValue(param.getValue());
             }
-            if ((param.getCvLabel() != null && (!param.getCvLabel().isEmpty()))) {
+            if ((param.getCvLabel() != null) && !param.getCvLabel().isEmpty()) {
                 cvParam.setUnitAccession(param.getCvLabel());
 
-                if (param.getCvLabel().equals("MS")) {
+                if ("MS".equals(param.getCvLabel())) {
                     cvParam.setCv(MzIdentMLTools.getCvPSIMS());
                 }
             }
@@ -631,7 +631,7 @@ public class PrideXMLParser {
             StringBuilder sourceIdBase) {
         SpectraData specData = null;
 
-        if (sourceFile.getFileType().equalsIgnoreCase("Mascot dat file")) {
+        if ("Mascot dat file".equalsIgnoreCase(sourceFile.getFileType())) {
             specData = new SpectraData();
 
             FileFormat fileFormat = new FileFormat();
@@ -721,25 +721,25 @@ public class PrideXMLParser {
         // go through all other processing methods
         for (uk.ac.ebi.pride.jaxb.model.CvParam param
                 : dataProcessingSection.getProcessingMethod().getCvParam()) {
-            if (param.getAccession().equals("PRIDE:0000161")) {
+            if ("PRIDE:0000161".equals(param.getAccession())) {
                 // "Fragment mass tolerance setting"
-                String splitString[] = param.getValue().split(" ");
+                String[] splitString = param.getValue().split(" ");
                 Tolerance tolerance = MzIdentMLTools.createSearchTolerance(
                         splitString[0], splitString[1]);
 
                 if (tolerance != null) {
                     spectrumIdProtocol.setFragmentTolerance(tolerance);
                 }
-            } else if (param.getAccession().equals("PRIDE:0000078")) {
+            } else if ("PRIDE:0000078".equals(param.getAccession())) {
                 // "Peptide mass tolerance setting"
-                String splitString[] = param.getValue().split(" ");
+                String[] splitString = param.getValue().split(" ");
                 Tolerance tolerance = MzIdentMLTools.createSearchTolerance(
                         splitString[0], splitString[1]);
 
                 if (tolerance != null) {
                     spectrumIdProtocol.setParentTolerance(tolerance);
                 }
-            } else if (param.getAccession().equals("PRIDE:0000162")) {
+            } else if ("PRIDE:0000162".equals(param.getAccession())) {
                 // "Allowed missed cleavages"
                 int missed = Integer.parseInt(param.getValue());
                 for (Enzyme enzyme : spectrumIdProtocol.getEnzymes().getEnzyme()) {
@@ -864,5 +864,30 @@ public class PrideXMLParser {
         sDB.setDatabaseName(param);
 
         return sDB;
+    }
+
+
+
+    /**
+     * Checks, whether the given file looks like a PRIDE XML file
+     *
+     * @param fileName
+     * @return
+     */
+    public static boolean checkFileType(String fileName) {
+        boolean isPrideXMLFile = true;
+        LOGGER.debug("checking whether this is a PRIDE XML file: " + fileName);
+
+        try {
+            PrideXmlReader prideParser = new PrideXmlReader(new File(fileName));
+            if (prideParser.getIdentIds().isEmpty()) {
+                isPrideXMLFile = false;
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Could not check file " + fileName, e);
+            isPrideXMLFile = false;
+        }
+
+        return isPrideXMLFile;
     }
 }

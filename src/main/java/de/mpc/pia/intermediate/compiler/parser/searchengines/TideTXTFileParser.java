@@ -3,12 +3,16 @@ package de.mpc.pia.intermediate.compiler.parser.searchengines;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
@@ -182,8 +186,6 @@ public class TideTXTFileParser {
                 }
 
                 // TODO: implement the delta mass, it is too imprecise to calculate from the given values
-                // double deltaMass = Double.parseDouble(columns[columnMap.get(HEADER_PEPTIDE_MASS)])
-                //     - Double.parseDouble(columns[columnMap.get(HEADER_SPECTRUM_NEUTRAL_MASS)]);
                 double deltaMass = Double.NaN;
 
                 String sequence = columns[columnMap.get(HEADER_SEQUENCE)];
@@ -324,7 +326,7 @@ public class TideTXTFileParser {
             }
 
             int loc = sequence.length();
-            String residue = "" + sequence.charAt(loc-1);
+            String residue = Character.toString(sequence.charAt(loc-1));
 
             Double massShift;
             ModT unimod = null;
@@ -385,7 +387,7 @@ public class TideTXTFileParser {
         CleavageAgent enzyme = null;
 
         // TODO: add further cleavage agents
-        if (type.equals("trypsin-full-digest")) {
+        if ("trypsin-full-digest".equals(type)) {
             enzyme = CleavageAgent.TRYPSIN;
         }
 
@@ -396,5 +398,57 @@ public class TideTXTFileParser {
         }
 
         return missed;
+    }
+
+
+    /**
+     * Checks, whether the given file looks like a Tide TXT file
+     *
+     * @param fileName
+     * @return
+     */
+    public static boolean checkFileType(String fileName) {
+        boolean isTideTXTFile = false;
+        LOGGER.debug("checking whether this is a Tide TXT file: " + fileName);
+
+        try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
+            // read in the first 10, not empty lines
+            List<String> lines = stream.filter(line -> !line.trim().isEmpty())
+                    .limit(1)
+                    .collect(Collectors.toList());
+
+            //the first line must be the header
+            int countOK = 0;
+            int countFalse = 0;
+            boolean foundProtein = false;
+            boolean foundSequence = false;
+
+            for (String header : lines.get(0).split(SEPARATOR_STRING)) {
+                if (colNames.contains(header)) {
+                    countOK++;
+                } else {
+                    countFalse++;
+                }
+
+                if (header.equals(HEADER_PROTEINID)) {
+                    foundProtein = true;
+                } else if (header.equals(HEADER_SEQUENCE)) {
+                    foundSequence = true;
+                }
+            }
+
+            isTideTXTFile = (countOK >= 2)
+                    && foundProtein
+                    && foundSequence;
+
+            LOGGER.debug("ok: " + countOK
+                    + ", false: " + countFalse
+                    + ", protein: " + foundProtein
+                    + ", sequence: " + foundSequence);
+        } catch (Exception e) {
+            LOGGER.debug("Could not check file " + fileName, e);
+        }
+
+        return isTideTXTFile;
     }
 }

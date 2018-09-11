@@ -5,12 +5,16 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
@@ -384,7 +388,7 @@ public class TandemFileParser {
 
                 String[] values = strParam.split("\\|");
                 String pre = values[0].substring(1, values[0].length() - 1);
-                if (pre.equalsIgnoreCase("X")) {
+                if ("X".equalsIgnoreCase(pre)) {
                     // X stands for any, make it \S in PCRE for "not whitespace"
                     pre = "\\S";
                 } else if (pre.length() > 1) {
@@ -397,7 +401,7 @@ public class TandemFileParser {
                 }
 
                 String post = values[1].substring(1, values[1].length() - 1);
-                if (post.equalsIgnoreCase("X")) {
+                if ("X".equalsIgnoreCase(post)) {
                     // X stands for any, make it \S in PCRE for "not whitespace"
                     post = "\\S";
                 } else if (post.length() > 1) {
@@ -766,11 +770,11 @@ public class TandemFileParser {
                     searchMod.setFixedMod(isFixed);
                     searchMod.setMassDelta(Float.parseFloat(values[0]));
 
-                    if (values[1].equals("[") || values[1].equals("]")) {
+                    if ("[".equals(values[1]) || "]".equals(values[1])) {
                         searchMod.getResidues().add(".");
 
                         OntologyConstants modConstant;
-                        if (values[1].equals("[")) {
+                        if ("[".equals(values[1])) {
                             modConstant = OntologyConstants.MODIFICATION_SPECIFICITY_PEP_N_TERM;
                         } else {
                             modConstant = OntologyConstants.MODIFICATION_SPECIFICITY_PEP_C_TERM;
@@ -890,5 +894,64 @@ public class TandemFileParser {
         }
 
         return modifications;
+    }
+
+
+    /**
+     * Checks, whether the given file looks like an X!Tandem XML file
+     *
+     * @param fileName
+     * @return
+     */
+    public static boolean checkFileType(String fileName) {
+        boolean isTandemFile = false;
+        LOGGER.debug("checking whether this is an X!Tandem XML file: " + fileName);
+
+        try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
+            // read in the first 10, not empty lines
+            List<String> lines = stream.filter(line -> !line.trim().isEmpty())
+                    .limit(100)
+                    .collect(Collectors.toList());
+
+            // check, if first lines are ok
+            int idx = 0;
+
+            // optional declaration
+            if (lines.get(idx).trim().matches("<\\?xml version=\"[0-9.]+\"( encoding=\"[^\"]+\"){0,1}\\?>")) {
+                LOGGER.debug("file has the XML declaration line:" + lines.get(idx));
+                idx++;
+            }
+
+            // optional stylesheet declaration
+            if (lines.get(idx).trim().matches("<\\?xml-stylesheet.+\\?>")) {
+                LOGGER.debug("file has the XML stylesheet line:" + lines.get(idx));
+                idx++;
+            }
+
+            // now the bioml element must be next
+            if (lines.get(idx).trim().matches("<bioml .+")) {
+                isTandemFile = true;
+                LOGGER.debug("file has the bioml element: " + lines.get(idx));
+            }
+
+
+            boolean groupFound = false;
+            boolean proteinFound = false;
+
+            for (String line : lines) {
+                if (line.contains("<group ")) {
+                    groupFound = true;
+                } else if (line.contains("<protein ")) {
+                    proteinFound = true;
+                }
+            }
+
+            isTandemFile &= groupFound;
+            isTandemFile &= proteinFound;
+        } catch (Exception e) {
+            LOGGER.debug("Could not check file " + fileName, e);
+        }
+
+        return isTandemFile;
     }
 }
