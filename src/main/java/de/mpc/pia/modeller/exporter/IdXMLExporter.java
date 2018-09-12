@@ -65,18 +65,19 @@ public class IdXMLExporter {
     }
 
 
-    public boolean exportPSMLevel(Long fileID, String fileName) {
+    public boolean exportPSMLevel(Long fileID, String fileName, boolean filterExport) {
         File exportFile = new File(fileName);
-        return exportPSMLevel(fileID, exportFile);
+        return exportPSMLevel(fileID, exportFile, filterExport);
     }
 
 
-    public boolean exportPSMLevel(Long fileID, File exportFile) {
-        return exportToIdXML(fileID, exportFile, false);
+    public boolean exportPSMLevel(Long fileID, File exportFile, boolean filterExport) {
+        return exportToIdXML(fileID, exportFile, false, filterExport);
     }
 
 
-    public boolean exportToIdXML(Long fileID, File exportFile, boolean proteinLevel) {
+    public boolean exportToIdXML(Long fileID, File exportFile,
+            boolean proteinLevel, boolean filterExport) {
         OutputStream out = null;
         boolean error = false;
 
@@ -122,7 +123,8 @@ public class IdXMLExporter {
                         0.0, false);    // TODO: get the peak mass tolerances
             }
 
-            writeIdentificationRun(streamWriter, fileID, inputFileIDToSearchParameter.get(fileID), proteinLevel);
+            writeIdentificationRun(streamWriter, fileID, inputFileIDToSearchParameter.get(fileID),
+                    proteinLevel, filterExport);
 
             // close the idXML and the XML
             streamWriter.writeEndElement();
@@ -157,38 +159,38 @@ public class IdXMLExporter {
      * @param streamWriter
      * @param id
      * @param db
-     * @param db_version
+     * @param dbVersion
      * @param taxonomy
-     * @param mass_type
+     * @param massType
      * @param charges
      * @param enzyme
-     * @param missed_cleavages
-     * @param precursor_peak_tolerance
-     * @param precursor_peak_tolerance_ppm
-     * @param peak_mass_tolerance
-     * @param peak_mass_tolerance_ppm
+     * @param missedCleavages
+     * @param precursorPeakTolerance
+     * @param precursorPeakTolerancePPM
+     * @param peakMassTolerance
+     * @param peakMassTolerancePPM
      * @throws XMLStreamException
      */
-    private void writeSearchParameters(XMLStreamWriter streamWriter,
-            String id, String db, String db_version, String taxonomy, MassType mass_type,
-            String charges, DigestionEnzyme enzyme, Integer missed_cleavages,
-            Double precursor_peak_tolerance, Boolean precursor_peak_tolerance_ppm,
-            Double peak_mass_tolerance, Boolean peak_mass_tolerance_ppm)
+    private static void writeSearchParameters(XMLStreamWriter streamWriter,
+            String id, String db, String dbVersion, String taxonomy, MassType massType,
+            String charges, DigestionEnzyme enzyme, Integer missedCleavages,
+            Double precursorPeakTolerance, Boolean precursorPeakTolerancePPM,
+            Double peakMassTolerance, Boolean peakMassTolerancePPM)
             throws XMLStreamException {
         streamWriter.writeStartElement("SearchParameters");
 
         streamWriter.writeAttribute("id", id);
         streamWriter.writeAttribute("db", db);
-        streamWriter.writeAttribute("db_version", db_version);
+        streamWriter.writeAttribute("db_version", dbVersion);
         streamWriter.writeAttribute("taxonomy", taxonomy);
-        streamWriter.writeAttribute("mass_type", mass_type.value());
+        streamWriter.writeAttribute("mass_type", massType.value());
         streamWriter.writeAttribute("charges", charges);
         streamWriter.writeAttribute("enzyme", enzyme.value());
-        streamWriter.writeAttribute("missed_cleavages", missed_cleavages.toString());
-        streamWriter.writeAttribute("precursor_peak_tolerance", precursor_peak_tolerance.toString());
-        streamWriter.writeAttribute("precursor_peak_tolerance_ppm", precursor_peak_tolerance_ppm.toString());
-        streamWriter.writeAttribute("peak_mass_tolerance", peak_mass_tolerance.toString());
-        streamWriter.writeAttribute("peak_mass_tolerance_ppm", peak_mass_tolerance_ppm.toString());
+        streamWriter.writeAttribute("missed_cleavages", missedCleavages.toString());
+        streamWriter.writeAttribute("precursor_peak_tolerance", precursorPeakTolerance.toString());
+        streamWriter.writeAttribute("precursor_peak_tolerance_ppm", precursorPeakTolerancePPM.toString());
+        streamWriter.writeAttribute("peak_mass_tolerance", peakMassTolerance.toString());
+        streamWriter.writeAttribute("peak_mass_tolerance_ppm", peakMassTolerancePPM.toString());
 
         streamWriter.writeEndElement();
     }
@@ -203,7 +205,7 @@ public class IdXMLExporter {
      * @throws XMLStreamException
      */
     private void writeIdentificationRun(XMLStreamWriter streamWriter, Long fileID,
-            String spId, boolean proteinLevel)
+            String spId, boolean proteinLevel, boolean filterExport)
             throws XMLStreamException {
         streamWriter.writeStartElement("IdentificationRun");
 
@@ -237,7 +239,19 @@ public class IdXMLExporter {
 
 
         // no filtering at the moment
-        List<AbstractFilter> filters = new ArrayList<>();
+        List<AbstractFilter> filters;
+        if (filterExport) {
+            if (proteinLevel) {
+                // protein level export
+                filters = piaModeller.getProteinModeller().getReportFilters();
+            } else {
+                // PSM level export
+                filters = piaModeller.getPSMModeller().getFilters(fileID);
+            }
+        } else {
+            // no filtering
+            filters = null;
+        }
 
         // mapping from the spectra to the identifications / PSMs
         Map<String, List<PSMReportItem>> peptideIdentifications =

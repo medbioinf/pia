@@ -73,7 +73,7 @@ public class MzTabExporterForPRIDEReanalysisTest {
         File exportFile = new File("/tmp/PXD001428_0.01_peptide_level_fdr.mzTab");
         assertTrue(exporter.exportToMzTab(0L, exportFile, false, true, false, true));
 
-        //exportFile.delete();
+        exportFile.delete();
     }
 
 
@@ -129,5 +129,7 @@ public class MzTabExporterForPRIDEReanalysisTest {
         MzTabExporter exporter = new MzTabExporter(piaModeller);
         File exportFile = new File("/tmp/PXD001428_0.01_pep_level_fdr_occams_razor.mzTab");
         assertTrue(exporter.exportToMzTab(0L, exportFile, true, true, false, true));
+
+        exportFile.delete();
     }
 }
