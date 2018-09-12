@@ -182,6 +182,7 @@ public class InputFileParserFactory {
                         fileName, compiler);
             }
         },
+
         /**
          * the input file is in the mzIdentML format
          */
@@ -213,6 +214,7 @@ public class InputFileParserFactory {
                         fileName, compiler);
             }
         },
+
         /**
          * the input file is in the X!Tandem XML format
          */
@@ -244,37 +246,7 @@ public class InputFileParserFactory {
                         compiler, additionalInfoFileName);
             }
         },
-        /**
-         * the input file is a Thermo MSF File
-         */
-        THERMO_MSF_INPUT {
-            @Override
-            public String getFileSuffix() {
-                return "msf";
-            }
 
-            @Override
-            public String getFileTypeName() {
-                return "Thermo MSF";
-            }
-
-            @Override
-            public String getFileTypeShort() {
-                return "thermo";
-            }
-
-            @Override
-            public boolean checkFileType(String fileName) {
-                return ThermoMSFFileParser.checkFileType(fileName);
-            }
-
-            @Override
-            public boolean parseFile(String name, String fileName,
-                    PIACompiler compiler, String additionalInfoFileName) {
-                return ThermoMSFFileParser.getDataFromThermoMSFFile(name,
-                        fileName, compiler);
-            }
-        },
         /**
          * the input file is a Tide TXT file
          */
@@ -303,6 +275,38 @@ public class InputFileParserFactory {
             public boolean parseFile(String name, String fileName,
                     PIACompiler compiler, String additionalInfoFileName) {
                 return TideTXTFileParser.getDataFromTideTXTFile(name,
+                        fileName, compiler);
+            }
+        },
+
+        /**
+         * the input file is a Thermo MSF File
+         */
+        THERMO_MSF_INPUT {
+            @Override
+            public String getFileSuffix() {
+                return "msf";
+            }
+
+            @Override
+            public String getFileTypeName() {
+                return "Thermo MSF";
+            }
+
+            @Override
+            public String getFileTypeShort() {
+                return "thermo";
+            }
+
+            @Override
+            public boolean checkFileType(String fileName) {
+                return ThermoMSFFileParser.checkFileType(fileName);
+            }
+
+            @Override
+            public boolean parseFile(String name, String fileName,
+                    PIACompiler compiler, String additionalInfoFileName) {
+                return ThermoMSFFileParser.getDataFromThermoMSFFile(name,
                         fileName, compiler);
             }
         },

@@ -1,8 +1,5 @@
 package de.mpc.pia.modeller.protein;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,6 +16,7 @@ import de.mpc.pia.modeller.execute.ExecuteModelCommands;
 import de.mpc.pia.modeller.execute.xmlparams.ITEMType;
 import de.mpc.pia.modeller.execute.xmlparams.NODEType;
 import de.mpc.pia.modeller.execute.xmlparams.PossibleITEMType;
+import de.mpc.pia.modeller.exporter.CSVExporter;
 import de.mpc.pia.modeller.exporter.MzIdentMLExporter;
 import de.mpc.pia.modeller.exporter.MzTabExporter;
 import de.mpc.pia.modeller.protein.inference.AbstractProteinInference;
@@ -473,58 +471,21 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                 Map<String, String> commandMap) {
             boolean exportOK = true;
 
-            if ("mzTab".equalsIgnoreCase(format)) {
-                MzTabExporter exporter = new MzTabExporter(piaModeller);
-                exportOK = writeMzTab(exporter, fileName, commandMap);
-            } else if ("mzIdenML".equalsIgnoreCase(format) || "mzid".equalsIgnoreCase(format)) {
-                MzIdentMLExporter exporter = new MzIdentMLExporter(piaModeller);
-                exportOK = exporter.exportToMzIdentML(0L, fileName, true, true);
-            } else if ("csv".equalsIgnoreCase(format)) {
-                exportOK = writeCSV(piaModeller.getProteinModeller(), fileName, commandMap);
-            }
-
-            return exportOK;
-        }
-
-
-        /**
-         * Export to mzTab
-         *
-         * @param exporter
-         * @param fileName
-         * @param commandMap
-         * @return
-         */
-        private boolean writeMzTab(MzTabExporter exporter, String fileName, Map<String, String>  commandMap) {
+            boolean exportPSMs = CommandTools.checkYesNoCommand("exportPSMs", commandMap);
             boolean exportPeptides = CommandTools.checkYesNoCommand("exportPeptides", commandMap);
             boolean exportProteinSequences = CommandTools.checkYesNoCommand("exportProteinSequences", commandMap);
 
-            return exporter.exportToMzTab(0L, fileName, true, exportPeptides, true, exportProteinSequences);
-        }
-
-
-        /**
-         * Export to CSV file
-         *
-         * @param exporter
-         * @param fileName
-         * @param commandMap
-         * @return
-         */
-        private boolean writeCSV(ProteinModeller proteinModeller, String fileName, Map<String, String>  commandMap) {
-            boolean exportOK = true;
-            boolean exportPeptides = CommandTools.checkYesNoCommand("exportPeptides", commandMap);
-            boolean exportPSMSets = CommandTools.checkYesNoCommand("exportPSMSets", commandMap);
-            boolean exportPSMs = CommandTools.checkYesNoCommand("exportPSMs", commandMap);
-            boolean oneAccessionPerLine = CommandTools.checkYesNoCommand("oneAccessionPerLine", commandMap);
-
-            try (Writer writer = new FileWriter(fileName, false)) {
-                proteinModeller.exportCSV(writer, true, exportPeptides,
-                        exportPSMSets, exportPSMs, oneAccessionPerLine);
-                writer.close();
-            } catch (IOException e) {
-                LOGGER.error("Cannot write to file " + fileName, e);
-                exportOK = false;
+            if ("mzTab".equalsIgnoreCase(format)) {
+                MzTabExporter exporter = new MzTabExporter(piaModeller);
+                exportOK = exporter.exportToMzTab(0L, fileName, true, exportPeptides, true, exportProteinSequences);
+            } else if ("mzIdentML".equalsIgnoreCase(format) || "mzid".equalsIgnoreCase(format)) {
+                MzIdentMLExporter exporter = new MzIdentMLExporter(piaModeller);
+                exportOK = exporter.exportToMzIdentML(0L, fileName, true, true);
+            } else if ("csv".equalsIgnoreCase(format)) {
+                CSVExporter exporter = new CSVExporter(piaModeller);
+                exportOK = exporter.exportToCSV(0L, fileName,
+                        exportPSMs, exportPeptides, true,
+                        true);
             }
 
             return exportOK;
@@ -537,11 +498,10 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                     + "Additional parameters may be passed semicolon "
                     + "separated with the syntax param=arg[;arg2;...]."
                     + "valid parameters are:"
-                    + "\nformat: csv [default], mzIdentML"
+                    + "\nformat: csv [default], mzIdentML, mzTab"
                     + "\nfileName: the report file name [report.peptide.csv]"
                     + "\noneAccessionPerLine (CSV): write one accession per line (useful for spectral counting), defaults to false"
                     + "\nexportPeptides (CSV, mzTab): defaults to false"
-                    + "\nexportPSMSets (CSV): defaults to false"
                     + "\nexportPSMs (CSV): defaults to false"
                     + "\nexportProteinSequences (mzTab): defaults to false";
         }

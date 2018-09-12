@@ -1,8 +1,5 @@
 package de.mpc.pia.modeller.peptide;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,6 +15,7 @@ import de.mpc.pia.modeller.execute.ExecuteModelCommands;
 import de.mpc.pia.modeller.execute.xmlparams.ITEMType;
 import de.mpc.pia.modeller.execute.xmlparams.NODEType;
 import de.mpc.pia.modeller.execute.xmlparams.PossibleITEMType;
+import de.mpc.pia.modeller.exporter.CSVExporter;
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.FilterFactory;
@@ -269,30 +267,14 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                 fileID = 0L;
             }
 
-            boolean oneAccessionPerLine = CommandTools.checkYesNoCommand("oneAccessionPerLine", commandMap);
-            boolean exportPSMSets = CommandTools.checkYesNoCommand("exportPSMSets", commandMap);
             boolean exportPSMs = CommandTools.checkYesNoCommand("exportPSMs", commandMap);
-
-            boolean exportOK = true;
+            boolean exportOK;
 
             if ("csv".equalsIgnoreCase(format)) {
-                // export to CSV
-                LOGGER.info("export parameters: " +
-                        "filename: " + fileName +
-                        ", fileID: " + fileID +
-                        ", format: " + format +
-                        ", oneAccessionPerLine: " + oneAccessionPerLine +
-                        ", exportPSMSets: " + exportPSMSets +
-                        ", exportPSMs:" + exportPSMs);
-
-                try (Writer writer = new FileWriter(fileName, false)) {
-                    peptideModeller.exportCSV(writer, fileID, true,
-                            oneAccessionPerLine, exportPSMSets, exportPSMs);
-                    writer.close();
-                } catch (IOException e) {
-                    LOGGER.error("Cannot write to file " + fileName, e);
-                    exportOK = false;
-                }
+                CSVExporter exporter = new CSVExporter(piaModeller);
+                exportOK = exporter.exportToCSV(fileID, fileName,
+                        exportPSMs, true, false,
+                        true);
             } else {
                 LOGGER.error("unsupported format: " + format);
                 exportOK = false;
@@ -310,9 +292,6 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                     "\nformat: csv [default]" +
                     "\nfileID: default 0 (overview)" +
                     "\nfileName: the report file name [report.peptide.csv]" +
-                    "\noneAccessionPerLine: write one accession per line " +
-                    "(useful for spectral counting), defaults to false" +
-                    "\nexportPSMSets: defaults to false" +
                     "\nexportPSMs: defaults to false";
         }
 
