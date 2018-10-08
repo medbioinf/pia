@@ -104,3 +104,10 @@ The development of PIA is funded by the BMBF as part of de.NBI, the German
 Network for Bioinformatics Infrastructure.
 
 [![de.NBI logo](https://www.denbi.de/templates/de.nbi2/img/deNBI_logo.jpg)](https://www.denbi.de/)
+
+
+## Authors of PIA
+ 
+The programming work on PIA was performed by Julian Uszkoreit (Ruhr University
+Bochum, Medizinisches Proteom-Center), and Yasset Perez-Riverol  (European
+Bioinformatics Institute (EMBL-EBI), Cambridge)
