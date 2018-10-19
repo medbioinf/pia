@@ -85,6 +85,18 @@ public enum FilterType {
 		}
 		
 	},
+
+	all_search_engine_found_psm {
+		@Override
+		public List<FilterComparator> getAvailableComparators() {
+			List<FilterComparator> arguments = new ArrayList<>();
+
+			arguments.add(FilterComparator.is_in_all_search_engines);
+
+			return arguments;
+		}
+
+	},
 	;
 	
 	/**

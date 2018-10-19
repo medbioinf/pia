@@ -80,6 +80,7 @@ public enum RegisteredFilters {
             return ((c instanceof PSMReportItem) || (c instanceof Number));
         }
     },
+
     DELTA_PPM_FILTER(FilterType.numerical, Number.class, "dPPM Filter for PSM", "dPPM (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -103,6 +104,29 @@ public enum RegisteredFilters {
             return (c instanceof PSMReportItem);
         }
     },
+
+    SEARCH_ENGINE_PSM_FILTER(FilterType.all_search_engine_found_psm, String.class, "All search engines needs to identified the PSM", "All Search Engine PSM") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof ReportPSM) {
+                return ((ReportPSM) o).getSpectrum().getScores();
+            } else if (o instanceof List<?>) {
+                return ((List<?>) o).stream().filter(obj -> obj instanceof Modification).map(obj -> (Modification) obj).collect(Collectors.toList());
+            }
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return (c instanceof PSMReportItem);
+        }
+    },
+
     MZ_FILTER(FilterType.numerical, Number.class, "m/z Filter for PSM", "m/z (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -126,6 +150,7 @@ public enum RegisteredFilters {
             return (c instanceof PSMReportItem);
         }
     },
+
     PSM_ACCESSIONS_FILTER(FilterType.literal_list, String.class, "Accessions Filter for PSM", "Accessions (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -175,6 +200,7 @@ public enum RegisteredFilters {
             return strList;
         }
     },
+
     PSM_DESCRIPTION_FILTER(FilterType.literal_list, String.class, "Description Filter for PSM", "Description (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -224,6 +250,7 @@ public enum RegisteredFilters {
             return strList;
         }
     },
+
     PSM_FILE_LIST_FILTER(FilterType.literal_list, String.class, "File List Filter for PSM", "File List (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -274,6 +301,7 @@ public enum RegisteredFilters {
             return strList;
         }
     },
+
     PSM_MISSED_CLEAVAGES_FILTER(FilterType.numerical, Number.class, "Missed Cleavages Filter for PSM", "Missed Cleavages (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -320,6 +348,7 @@ public enum RegisteredFilters {
             return (c instanceof PSMReportItem);
         }
     },
+
     PSM_RANK_FILTER(FilterType.numerical, Number.class, "Rank Filter for PSM", "Rank (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -343,6 +372,7 @@ public enum RegisteredFilters {
             return (c instanceof PSMReportItem);
         }
     },
+
     PSM_SEQUENCE_FILTER(FilterType.literal, String.class, "Sequence Filter for PSM", "Sequence (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {

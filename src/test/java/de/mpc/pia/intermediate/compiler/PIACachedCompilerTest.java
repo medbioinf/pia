@@ -16,6 +16,10 @@ import javax.xml.stream.XMLStreamException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import de.mpc.pia.modeller.peptide.ReportPeptide;
+import de.mpc.pia.modeller.report.filter.impl.PSMSearchEngineFilter;
+import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -94,6 +98,8 @@ public class PIACachedCompilerTest {
 
         seInference.addFilter(
                 new PSMScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName()));
+        seInference.addFilter(new PSMSearchEngineFilter(FilterComparator.is_in_all_search_engines, true));
+
 
         seInference.setScoring(new MultiplicativeScoring(new HashMap<>()));
         seInference.getScoring().setSetting(AbstractScoring.SCORING_SETTING_ID, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
@@ -105,6 +111,13 @@ public class PIACachedCompilerTest {
         piaModeller.getProteinModeller().updateDecoyStates();
         piaModeller.getProteinModeller().calculateFDR();
 
+        piaModeller.getPSMModeller().addFilter(0L,
+                new PSMSearchEngineFilter(FilterComparator.is_in_all_search_engines, true)
+        );
+        List<ReportPeptide> peptides = piaModeller.getPeptideModeller().getFilteredReportPeptides(0L,
+                piaModeller.getPeptideModeller().getFilters(0L));
+
+        Assert.assertTrue(peptides.size() ==  2611);
 
         List<AbstractFilter> filters = new ArrayList<>();
         filters.add(RegisteredFilters.NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER.newInstanceOf(

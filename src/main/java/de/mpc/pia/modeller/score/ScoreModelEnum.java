@@ -2286,9 +2286,18 @@ public enum ScoreModelEnum {
         public Boolean higherScoreBetter() {
             return true;
         }
-    }
+    };
 
-    ;
+    public static final List<ScoreModelEnum> nonNativeScoreModels = new ArrayList<>(
+          Arrays.asList(new ScoreModelEnum[]{
+                  AVERAGE_FDR_SCORE,
+        PSM_LEVEL_COMBINED_FDR_SCORE,
+        PSM_LEVEL_FDR_SCORE,
+        PSM_LEVEL_Q_VALUE,
+        PEPTIDE_LEVEL_COMBINED_FDR_SCORE,
+        PEPTIDE_LEVEL_FDR_SCORE,
+        PEPTIDE_LEVEL_Q_VALUE})
+    );
 
 
     /**

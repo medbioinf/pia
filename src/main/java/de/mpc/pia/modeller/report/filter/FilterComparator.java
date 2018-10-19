@@ -217,6 +217,22 @@ public enum FilterComparator {
 			return "RES";
 		}
 	},
+	is_in_all_search_engines {
+		@Override
+		public String toString() {
+			return "is_identified_by_all_search_engines";
+		}
+
+		@Override
+		public String getLabel() {
+			return "Is identified by all search engines";
+		}
+
+		@Override
+		public String getCliShort() {
+			return "IAS";
+		}
+	},
 	;
 	
 	
