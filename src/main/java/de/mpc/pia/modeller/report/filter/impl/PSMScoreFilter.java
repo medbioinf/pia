@@ -114,7 +114,7 @@ public class PSMScoreFilter extends AbstractFilter {
         if (c instanceof PSMReportItem) {
             // it also depends on the score ("average FDR score" and "combined fdr score" is PSMSet, all other are PSM)
             if (c instanceof ReportPSM) {
-                log.info(((ReportPSM) c).getSpectrum().getScores().toString());
+                log.debug(((ReportPSM) c).getSpectrum().getScores().toString());
                 if (ScoreModelEnum.PSM_LEVEL_Q_VALUE.isValidDescriptor(scoreShortName)) {
                     supports = true;
                 } else {

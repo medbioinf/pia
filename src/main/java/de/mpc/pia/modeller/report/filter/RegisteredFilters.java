@@ -19,6 +19,7 @@ import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.report.filter.impl.PSMTopIdentificationFilter;
 import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
 import de.mpc.pia.modeller.report.filter.impl.SimpleTypeFilter;
+import de.mpc.pia.modeller.score.ScoreModel;
 
 /**
  * All the filters should be registered in this enum.
@@ -116,7 +117,7 @@ public enum RegisteredFilters {
             if (o instanceof ReportPSM) {
                 return ((ReportPSM) o).getSpectrum().getScores();
             } else if (o instanceof List<?>) {
-                return ((List<?>) o).stream().filter(obj -> obj instanceof Modification).map(obj -> (Modification) obj).collect(Collectors.toList());
+                return ((List<?>) o).stream().filter(obj -> obj instanceof ScoreModel).map(obj -> (ScoreModel) obj).collect(Collectors.toList());
             }
             return null;
         }
