@@ -99,7 +99,7 @@ public class PIAPRIDEModellerTest {
                 logger.error("There are no peptides at all!");
             }
 
-            Assert.assertTrue(noDecoyPeptides.size() == 10987);
+            Assert.assertTrue(noDecoyPeptides.size() == 9409);
 
             logger.info("number of FDR 0.01 filtered target peptides: " + noDecoyPeptides.size() + " / " + peptides.size());
         } else {

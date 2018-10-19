@@ -56,6 +56,42 @@ public class PIAConstants {
     public static final String MZTAB_NR_SPECTRA_COLUMN_NAME = "number_of_spectra";
 
 
+    /*
+     * options for the command line parsing
+     */
+    public static final String INPUT_FILE_OPTION = "infile";
+    public static final String PARAM_FILE_OPTION = "paramFile";
+    public static final String PARAM_OUT_FILE_OPTION = "paramOutFile";
+    public static final String INIT_OPTION = "init";
+    public static final String APPEND_OPTION = "append";
+    public static final String WRITE_INFORMATION_OPTION = "writeInformation";
+    public static final String CALCULATE_INFORMATION_OPTION = "calculateInformation";
+    public static final String PSM_OPTION = "S";
+    public static final String PEPTIDE_OPTION = "E";
+    public static final String PROTEIN_OPTION = "R";
+    public static final String PSM_EXPORT_OPTION = "psmExport";
+    public static final String PEPTIDE_EXPORT_OPTION = "peptideExport";
+    public static final String PROTEIN_EXPORT_OPTION = "proteinExport";
+
+    /** helper description */
+    public static final String HELP_DESCRIPTION =
+            "PIAModeller... Use a high enough amount of memory (e.g. use the Java setting -Xmx8G).";
+
+    /** argName of for several colon separated parameters*/
+    public static final String COLON_COMMAND_PARAMETERS = "command1[:command2...]";
+
+    /** explanation for CLI option with several colon separated parameters*/
+    public static final String COLON_COMMAND_PARAMETERS_EXPLANATION =
+            ", separated by colons. If params are given to the command, they "
+                    + "follow an = and are separated by commata (e.g. command=param1,param2...)"
+                    + "\nvalid commands are: ";
+
+    /** constant for fileName= */
+    public static final String FILE_NAME_PARAM = "fileName=";
+    /** constant for format= */
+    public static final String FORMAT_PARAM = "format=";
+
+
     /**
      * Set the version from the properties file, which is always set by maven
      */

@@ -68,7 +68,7 @@ public class PIACompilerTest {
         final long startTime = System.nanoTime();
         final long endTime;
 
-        File tpp = new File(PIACompilerTest.class.getResource("/interact-ipro.pep.mzid").getPath());
+        File tpp = new File(PIACompilerTest.class.getResource("/55merge_mascot_full.mzid").getPath());
 
 
         PIACompiler piaCompiler = new PIASimpleCompiler();

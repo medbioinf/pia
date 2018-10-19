@@ -228,6 +228,12 @@
 			<version>${xercesImpl.version}</version>
       		<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.compomics</groupId>
+			<artifactId>utilities</artifactId>
+			<version>4.12.6</version>
+		</dependency>
 	</dependencies>
 
 	<build>
