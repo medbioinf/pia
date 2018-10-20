@@ -1,8 +1,5 @@
 package de.mpc.pia.modeller.psm;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,6 +15,7 @@ import de.mpc.pia.modeller.execute.ExecuteModelCommands;
 import de.mpc.pia.modeller.execute.xmlparams.ITEMType;
 import de.mpc.pia.modeller.execute.xmlparams.NODEType;
 import de.mpc.pia.modeller.execute.xmlparams.PossibleITEMType;
+import de.mpc.pia.modeller.exporter.CSVExporter;
 import de.mpc.pia.modeller.exporter.MzIdentMLExporter;
 import de.mpc.pia.modeller.exporter.MzTabExporter;
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
@@ -484,7 +482,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                 fileID = 0L;
             }
 
-            return writeExport(piaModeller, format, fileName, fileID, commandMap);
+            return writeExport(piaModeller, format, fileName, fileID);
         }
 
 
@@ -494,11 +492,9 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
          * @param piaModeller
          * @param format
          * @param fileName
-         * @param commandMap
          * @return
          */
-        private boolean writeExport(PIAModeller piaModeller, String format, String fileName, Long fileID,
-                Map<String, String> commandMap) {
+        private boolean writeExport(PIAModeller piaModeller, String format, String fileName, Long fileID) {
             boolean exportOK = true;
 
             if ("mzIdentML".equalsIgnoreCase(format) || "mzid".equalsIgnoreCase(format)) {
@@ -508,41 +504,14 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                 MzTabExporter exporter = new MzTabExporter(piaModeller);
                 exportOK = exporter.exportToMzTab(fileID, fileName, false, false, true);
             } else if ("csv".equalsIgnoreCase(format)) {
-                exportOK = writeCSV(piaModeller.getPSMModeller(), fileName, fileID, commandMap);
+                CSVExporter exporter = new CSVExporter(piaModeller);
+                exportOK = exporter.exportToCSV(fileID, fileName,
+                        true, false, false,
+                        true);
             }
 
             return exportOK;
         }
-
-
-        /**
-         * Export to CSV file
-         *
-         * @param exporter
-         * @param fileName
-         * @param commandMap
-         * @return
-         */
-        private boolean writeCSV(PSMModeller psmModeller, String fileName, Long fileID, Map<String, String>  commandMap) {
-            boolean exportOK = true;
-            Boolean spectralCount = CommandTools.checkYesNoCommand("spectral_count", commandMap);
-
-            LOGGER.info("export parameters for CSV: " +
-                    "filename: " + fileName +
-                    ", fileID: " + fileID +
-                    ", spectral_count: " + spectralCount);
-
-            try (Writer writer = new FileWriter(fileName, false)) {
-                psmModeller.exportCSV(writer, fileID, spectralCount, true);
-                writer.close();
-            } catch (IOException e) {
-                LOGGER.error("Error exporting to CSV file " + fileName, e);
-                exportOK = false;
-            }
-
-            return exportOK;
-        }
-
 
 
         @Override

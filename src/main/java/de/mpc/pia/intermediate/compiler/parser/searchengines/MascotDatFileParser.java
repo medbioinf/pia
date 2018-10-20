@@ -3,10 +3,14 @@ package de.mpc.pia.intermediate.compiler.parser.searchengines;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
@@ -628,5 +632,68 @@ public class MascotDatFileParser {
         }
 
         return searchMod;
+    }
+
+
+
+    /**
+     * Checks, whether the given file looks like a Mascot DAT file
+     *
+     * @param fileName
+     * @return
+     */
+    public static boolean checkFileType(String fileName) {
+        boolean isMascotFile = false;
+        LOGGER.debug("checking whether this is a mascot DAT file: " + fileName);
+
+        try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
+            // read in the first 50, not empty lines
+            List<String> lines = stream.filter(line -> !line.trim().isEmpty())
+                    .limit(250)
+                    .collect(Collectors.toList());
+
+            // check, if the labels are found
+            boolean foundMultipartMixed = false;
+            boolean foundMascot = false;
+            boolean foundTOL = false;
+            boolean foundTOLU = false;
+            boolean foundITOL = false;
+            boolean foundITOLU = false;
+            boolean foundFILE = false;
+            boolean foundFORMAT = false;
+
+            for (String line : lines) {
+                if (line.contains("Content-Type: multipart/mixed;")) {
+                    foundMultipartMixed = true;
+                } else if (line.contains("Content-Type: application/x-Mascot;")) {
+                    foundMascot = true;
+                } else if (line.startsWith("TOL=")) {
+                    foundTOL = true;
+                } else if (line.startsWith("TOLU=")) {
+                    foundTOLU = true;
+                } else if (line.startsWith("ITOL=")) {
+                    foundITOL = true;
+                } else if (line.startsWith("ITOLU=")) {
+                    foundITOLU = true;
+                } else if (line.startsWith("FILE=")) {
+                    foundFILE = true;
+                } else if (line.startsWith("FORMAT=")) {
+                    foundFORMAT = true;
+                }
+            }
+
+            isMascotFile = foundMultipartMixed;
+            isMascotFile &= foundMascot;
+            isMascotFile &= foundTOL;
+            isMascotFile &= foundTOLU;
+            isMascotFile &= foundITOL;
+            isMascotFile &= foundITOLU;
+            isMascotFile &= foundFILE;
+            isMascotFile &= foundFORMAT;
+        } catch (Exception e) {
+            LOGGER.debug("Could not check file " + fileName, e);
+        }
+
+        return isMascotFile;
     }
 }

@@ -14,7 +14,7 @@ import de.mpc.pia.intermediate.compiler.parser.searchengines.TideTXTFileParser;
 public class InputFileParserFactory {
 
     /** logger for this class */
-    private static final Logger logger = Logger.getLogger(InputFileParserFactory.class);
+    private static final Logger LOGGER = Logger.getLogger(InputFileParserFactory.class);
 
     public enum InputFileTypes {
 
@@ -35,6 +35,11 @@ public class InputFileParserFactory {
             @Override
             public String getFileTypeShort() {
                 return "FASTA";
+            }
+
+            @Override
+            public boolean checkFileType(String fileName) {
+                return FastaFileParser.checkFileType(fileName);
             }
 
             /**
@@ -76,15 +81,18 @@ public class InputFileParserFactory {
             }
 
             @Override
+            public boolean checkFileType(String fileName) {
+                return IdXMLFileParser.checkFileType(fileName);
+            }
+
+            @Override
             public boolean parseFile(String name, String fileName,
                     PIACompiler compiler, String additionalInfoFileName) {
-                return IdXMLFileParser.getDataFromIdXMLFile(name, fileName,
-                        compiler);
+                return IdXMLFileParser.getDataFromIdXMLFile(name, fileName, compiler);
             }
         },
 
         MZTAB_INPUT {
-
             @Override
             public String getFileSuffix() {
                 return "mztab";
@@ -101,6 +109,11 @@ public class InputFileParserFactory {
             }
 
             @Override
+            public boolean checkFileType(String fileName) {
+                return MzTabParser.checkFileType(fileName);
+            }
+
+            @Override
             public boolean parseFile(String name, String fileName,
                     PIACompiler compiler, String additionalInfoFileName) {
                 return MzTabParser.getDataFromMzTabFile(name, fileName,
@@ -110,7 +123,6 @@ public class InputFileParserFactory {
         },
 
         PRIDEXML_INPUT {
-
             @Override
             public String getFileSuffix() {
                 return "xml";
@@ -127,12 +139,18 @@ public class InputFileParserFactory {
             }
 
             @Override
+            public boolean checkFileType(String fileName) {
+                return PrideXMLParser.checkFileType(fileName);
+            }
+
+            @Override
             public boolean parseFile(String name, String fileName,
                     PIACompiler compiler, String additionalInfoFileName) {
                 return PrideXMLParser.getDataFromPrideXMLFile(fileName, compiler);
             }
 
         },
+
         /**
          * the input file is a Mascot dat file
          */
@@ -153,12 +171,18 @@ public class InputFileParserFactory {
             }
 
             @Override
+            public boolean checkFileType(String fileName) {
+                return MascotDatFileParser.checkFileType(fileName);
+            }
+
+            @Override
             public boolean parseFile(String name,  String fileName,
                     PIACompiler compiler, String additionalInfoFileName) {
                 return MascotDatFileParser.getDataFromMascotDatFile(name,
                         fileName, compiler);
             }
         },
+
         /**
          * the input file is in the mzIdentML format
          */
@@ -179,12 +203,18 @@ public class InputFileParserFactory {
             }
 
             @Override
+            public boolean checkFileType(String fileName) {
+                return MzIdentMLFileParser.checkFileType(fileName);
+            }
+
+            @Override
             public boolean parseFile(String name, String fileName,
                     PIACompiler compiler, String additionalInfoFileName) {
                 return MzIdentMLFileParser.getDataFromMzIdentMLFile(name,
                         fileName, compiler);
             }
         },
+
         /**
          * the input file is in the X!Tandem XML format
          */
@@ -205,38 +235,18 @@ public class InputFileParserFactory {
             }
 
             @Override
+            public boolean checkFileType(String fileName) {
+                return TandemFileParser.checkFileType(fileName);
+            }
+
+            @Override
             public boolean parseFile(String name, String fileName,
                     PIACompiler compiler, String additionalInfoFileName) {
                 return TandemFileParser.getDataFromTandemFile(name, fileName,
                         compiler, additionalInfoFileName);
             }
         },
-        /**
-         * the input file is a Thermo MSF File
-         */
-        THERMO_MSF_INPUT {
-            @Override
-            public String getFileSuffix() {
-                return "msf";
-            }
 
-            @Override
-            public String getFileTypeName() {
-                return "Thermo MSF";
-            }
-
-            @Override
-            public String getFileTypeShort() {
-                return "thermo";
-            }
-
-            @Override
-            public boolean parseFile(String name, String fileName,
-                    PIACompiler compiler, String additionalInfoFileName) {
-                return ThermoMSFFileParser.getDataFromThermoMSFFile(name,
-                        fileName, compiler);
-            }
-        },
         /**
          * the input file is a Tide TXT file
          */
@@ -257,9 +267,46 @@ public class InputFileParserFactory {
             }
 
             @Override
+            public boolean checkFileType(String fileName) {
+                return TideTXTFileParser.checkFileType(fileName);
+            }
+
+            @Override
             public boolean parseFile(String name, String fileName,
                     PIACompiler compiler, String additionalInfoFileName) {
                 return TideTXTFileParser.getDataFromTideTXTFile(name,
+                        fileName, compiler);
+            }
+        },
+
+        /**
+         * the input file is a Thermo MSF File
+         */
+        THERMO_MSF_INPUT {
+            @Override
+            public String getFileSuffix() {
+                return "msf";
+            }
+
+            @Override
+            public String getFileTypeName() {
+                return "Thermo MSF";
+            }
+
+            @Override
+            public String getFileTypeShort() {
+                return "thermo";
+            }
+
+            @Override
+            public boolean checkFileType(String fileName) {
+                return ThermoMSFFileParser.checkFileType(fileName);
+            }
+
+            @Override
+            public boolean parseFile(String name, String fileName,
+                    PIACompiler compiler, String additionalInfoFileName) {
+                return ThermoMSFFileParser.getDataFromThermoMSFFile(name,
                         fileName, compiler);
             }
         },
@@ -287,6 +334,16 @@ public class InputFileParserFactory {
          * @return
          */
         public abstract String getFileTypeShort();
+
+
+        /**
+         * Checks whether this is teh correct file type by parsing the first few
+         * lines or typical characteristics of the file.
+         *
+         * @param fileName
+         * @return
+         */
+        public abstract boolean checkFileType(String fileName);
 
 
         /**
@@ -322,6 +379,26 @@ public class InputFileParserFactory {
         }
 
         return null;
+    }
+
+
+
+    /**
+     * Checks the type of teh file by reading some of the contents
+     *
+     * @param fileName
+     * @return
+     */
+    public static InputFileTypes getFileTypeByContent(String fileName) {
+        InputFileTypes returnType = null;
+        for (InputFileTypes type : InputFileTypes.values()) {
+            if (type.checkFileType(fileName)) {
+                returnType = type;
+                break;
+            }
+        }
+
+        return returnType;
     }
 
 
@@ -366,26 +443,24 @@ public class InputFileParserFactory {
             String fileType) {
 
         if (fileType == null) {
-            String fileSuffix = fileName.substring(fileName.lastIndexOf('.')+1);
-
-            InputFileTypes type = getFileTypeBySuffix(fileSuffix);
+            InputFileTypes type = getFileTypeByContent(fileName);
             if (type != null) {
-                logger.info("'" + fileName + "' seems to be a " +
+                LOGGER.info("'" + fileName + "' seems to be a " +
                         type.getFileTypeName()+" file");
                 return type.parseFile(name, fileName, compiler, additionalInfoFileName);
             }
 
-            logger.error("File '" + fileName + "' could not be parsed, " +
+            LOGGER.error("File '" + fileName + "' could not be parsed, " +
                     "fileType could not be guessed, please specify.");
         } else {
             InputFileTypes type = getFileTypeByShortName(fileType);
             if (type != null) {
-                logger.info("'" + fileName + "' should be a " +
+                LOGGER.info("'" + fileName + "' should be a " +
                         type.getFileTypeName()+" file");
                 return type.parseFile(name, fileName, compiler, additionalInfoFileName);
             }
 
-            logger.error("File '" + fileName + "' could not be parsed, fileType '" +
+            LOGGER.error("File '" + fileName + "' could not be parsed, fileType '" +
                     fileType + "' unknown.");
         }
         return false;

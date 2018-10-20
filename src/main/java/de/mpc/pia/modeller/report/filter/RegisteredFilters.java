@@ -55,7 +55,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object obj) {
-            return (obj instanceof PSMReportItem);
+            return obj instanceof PSMReportItem;
         }
     },
     DELTA_MASS_FILTER(FilterType.numerical, Number.class, "dMass Filter for PSM", "dMass (PSM)") {
@@ -78,7 +78,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return ((c instanceof PSMReportItem) || (c instanceof Number));
+            return (c instanceof PSMReportItem) || (c instanceof Number);
         }
     },
 
@@ -102,7 +102,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof PSMReportItem);
+            return c instanceof PSMReportItem;
         }
     },
 
@@ -148,7 +148,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof PSMReportItem);
+            return c instanceof PSMReportItem;
         }
     },
 
@@ -172,7 +172,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object obj) {
-            return (obj instanceof PSMReportItem);
+            return obj instanceof PSMReportItem;
         }
 
         @Override
@@ -222,7 +222,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof PSMReportItem);
+            return c instanceof PSMReportItem;
         }
 
         @Override
@@ -323,7 +323,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof PSMReportItem);
+            return c instanceof PSMReportItem;
         }
     },
     PSM_MODIFICATIONS_FILTER(FilterType.modification, String.class, "Modifications Filter for PSM", "Modifications (PSM)") {
@@ -346,7 +346,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof PSMReportItem);
+            return c instanceof PSMReportItem;
         }
     },
 
@@ -370,7 +370,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof PSMReportItem);
+            return c instanceof PSMReportItem;
         }
     },
 
@@ -394,7 +394,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof PSMReportItem);
+            return c instanceof PSMReportItem;
         }
     },
     PSM_UNIQUE_FILTER(FilterType.bool, Boolean.class, "Unique Filter for PSM", "Unique (PSM)") {
@@ -428,7 +428,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof PSMReportItem);
+            return c instanceof PSMReportItem;
         }
 
     },
@@ -452,7 +452,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof PSMReportItem);
+            return c instanceof PSMReportItem;
         }
 
         @Override
@@ -501,7 +501,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportPSMSet);
+            return c instanceof ReportPSMSet;
         }
     },
     PSM_SOURCE_ID_FILTER(FilterType.literal, String.class, "Source ID Filter for PSM", "Source ID (PSM)") {
@@ -524,7 +524,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof PSMReportItem);
+            return c instanceof PSMReportItem;
         }
     },
 
@@ -552,7 +552,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportPeptide);
+            return c instanceof ReportPeptide;
         }
 
         @Override
@@ -600,7 +600,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportPeptide);
+            return c instanceof ReportPeptide;
         }
 
         @Override
@@ -647,7 +647,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportPeptide);
+            return c instanceof ReportPeptide;
         }
     },
     PEPTIDE_MISSED_CLEAVAGES_FILTER(FilterType.numerical, Number.class, "Missed Cleavages Filter for Peptide", "Missed Cleavages (Peptide)") {
@@ -671,7 +671,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportPeptide);
+            return c instanceof ReportPeptide;
         }
     },
     PEPTIDE_MODIFICATIONS_FILTER(FilterType.modification, String.class, "Modifications Filter for Peptide", "Modifications (Peptide)") {
@@ -694,7 +694,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportPeptide);
+            return c instanceof ReportPeptide;
         }
     },
     PEPTIDE_SEQUENCE_FILTER(FilterType.literal, String.class, "Sequence Filter for Peptide", "Sequence (Peptide)") {
@@ -717,7 +717,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportPeptide);
+            return c instanceof ReportPeptide;
         }
     },
     PEPTIDE_SOURCE_ID_LIST_FILTER(FilterType.literal, String.class, "Source ID Filter for Peptide", "Source ID (Peptide)") {
@@ -738,7 +738,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportPeptide);
+            return c instanceof ReportPeptide;
         }
     },
     PEPTIDE_UNIQUE_FILTER(FilterType.bool, Boolean.class, "Unique Filter for Peptide", "Unique (Peptide)") {
@@ -749,8 +749,11 @@ public enum RegisteredFilters {
 
         @Override
         public Object getObjectsValue(Object o) {
-            if (o instanceof ReportPeptide) {
+            Object retObj = null;
 
+            if (o instanceof ReportPeptide) {
+                // assume uniqueness
+                retObj = Boolean.TRUE;
                 for (PSMReportItem psmReportItem : ((ReportPeptide) o).getPSMs()) {
                     Boolean isUnique = null;
 
@@ -761,22 +764,22 @@ public enum RegisteredFilters {
                     }
 
                     if ((isUnique == null) || (!isUnique)) {
-                        return false;
+                        // something is not unique -> break loop
+                        retObj = Boolean.FALSE;
+                        break;
                     }
                 }
-                // all PSMs were unique
-                return Boolean.TRUE;
             } else if (o instanceof Boolean) {
-                return o;
+                retObj = o;
             }
 
             // nothing supported
-            return null;
+            return retObj;
         }
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportPeptide);
+            return c instanceof ReportPeptide;
         }
     },
     NR_PSMS_PER_PEPTIDE_FILTER(FilterType.numerical, Number.class, "#PSMs per Peptide Set", "#PSMs (Peptide)") {
@@ -799,7 +802,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportPeptide);
+            return c instanceof ReportPeptide;
         }
     },
     NR_SPECTRA_PER_PEPTIDE_FILTER(FilterType.numerical, Number.class, "#Spectra per Peptide Set", "#spectra (Peptide)") {
@@ -822,7 +825,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportPeptide);
+            return c instanceof ReportPeptide;
         }
     },
 
@@ -850,7 +853,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportProtein);
+            return c instanceof ReportProtein;
         }
 
         @Override
@@ -898,7 +901,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportProtein);
+            return c instanceof ReportProtein;
         }
 
         @Override
@@ -951,7 +954,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportProtein);
+            return c instanceof ReportProtein;
         }
     },
     PROTEIN_MODIFICATIONS_FILTER(FilterType.modification, String.class, "Modifications Filter for Protein", "Modifications (Protein)") {
@@ -978,7 +981,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportProtein);
+            return c instanceof ReportProtein;
         }
     },
     PROTEIN_RANK_FILTER(FilterType.numerical, Number.class, "Rank Filter for Protein", "Rank (Protein)") {
@@ -1001,7 +1004,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportProtein);
+            return c instanceof ReportProtein;
         }
     },
     PROTEIN_SEQUENCE_LIST_FILTER(FilterType.literal_list, String.class, "Sequence List Filter for Protein", "Sequence List (Protein)") {
@@ -1022,7 +1025,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportProtein);
+            return c instanceof ReportProtein;
         }
 
         @Override
@@ -1067,7 +1070,31 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportProtein);
+            return c instanceof ReportProtein;
+        }
+    },
+    PROTEIN_Q_VALUE_FILTER(FilterType.numerical, Number.class, "Protein FDR q-value filter", "q-value (Protein)") {
+        @Override
+        public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<>(arg, this, negate, ((Number) value).doubleValue());
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            Object retObj = null;
+            if (o instanceof ReportProtein) {
+                retObj = ((ReportProtein) o).getQValue();
+            } else if (o instanceof Number) {
+                retObj = o;
+            }
+
+            // nothing supported
+            return retObj;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return c instanceof ReportProtein;
         }
     },
     NR_PEPTIDES_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#Peptides per Protein Filter", "#peptides (Protein)") {
@@ -1090,7 +1117,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportProtein);
+            return c instanceof ReportProtein;
         }
     },
     NR_PSMS_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#PSMs per Protein Filter", "#PSMs (Protein)") {
@@ -1113,7 +1140,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportProtein);
+            return c instanceof ReportProtein;
         }
     },
     NR_SPECTRA_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#Spectra per Protein Filter", "#spectra (Protein)") {
@@ -1136,7 +1163,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportProtein);
+            return c instanceof ReportProtein;
         }
     },
     NR_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#Unique Peptides per Protein Filter", "#unique peptides (Protein)") {
@@ -1147,6 +1174,7 @@ public enum RegisteredFilters {
 
         @Override
         public Object getObjectsValue(Object o) {
+            Object retObj = null;
             if (o instanceof ReportProtein) {
                 Integer nrUnique = 0;
 
@@ -1174,19 +1202,18 @@ public enum RegisteredFilters {
                     }
                 }
 
-                return nrUnique;
+                retObj = nrUnique;
             } else if (o instanceof Number) {
                 // if we get a Number, simply return it
-                return o;
+                retObj = o;
             }
 
-            // nothing supported
-            return null;
+            return retObj;
         }
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportProtein);
+            return c instanceof ReportProtein;
         }
     },
     NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER(FilterType.numerical, Number.class, "#Unique Peptides per Protein Group Filter", "#unique peptides for group (Protein)") {
@@ -1219,7 +1246,7 @@ public enum RegisteredFilters {
 
         @Override
         public boolean supportsClass(Object c) {
-            return (c instanceof ReportProtein);
+            return c instanceof ReportProtein;
         }
     },
 
@@ -1230,57 +1257,57 @@ public enum RegisteredFilters {
         @Override
         public PSMScoreFilter newInstanceOf(FilterComparator arg, Object value, boolean negate) {
             throw new NullPointerException("Wrong way to instantiate PSMScoreFilter. "
-                    + "Instantiate directly!");
+                    + INSTANTIANTE_DIRECTLY);
         }
 
         @Override
         public Object getObjectsValue(Object o) {
-            throw new NullPointerException("This should never be called. "
-                    + "PSMScoreFilter must overwrite getObjectsValue() method.");
+            throw new NullPointerException(SHOULD_NOT_BE_CALLED
+                    + " PSMScoreFilter must overwrite getObjectsValue() method.");
         }
 
         @Override
         public boolean supportsClass(Object c) {
-            throw new NullPointerException("This should never be called. "
-                    + "PSMScoreFilter must overwrite supportsClass() method.");
+            throw new NullPointerException(SHOULD_NOT_BE_CALLED
+                    + " PSMScoreFilter must overwrite supportsClass() method.");
         }
     },
     PSM_TOP_IDENTIFICATION_FILTER(FilterType.numerical, Number.class, "Top Identifications for PSMs", "PSM Top Identifications") {
         @Override
         public PSMScoreFilter newInstanceOf(FilterComparator arg, Object value, boolean negate) {
             throw new NullPointerException("Wrong way to instantiate PSMTopIdentificationFilter. "
-                    + "Instantiate directly!");
+                    + INSTANTIANTE_DIRECTLY);
         }
 
         @Override
         public Object getObjectsValue(Object o) {
-            throw new NullPointerException("This should never be called. "
-                    + "PSMTopIdentificationFilter must overwrite getObjectsValue() method.");
+            throw new NullPointerException(SHOULD_NOT_BE_CALLED
+                    + " PSMTopIdentificationFilter must overwrite getObjectsValue() method.");
         }
 
         @Override
         public boolean supportsClass(Object c) {
-            throw new NullPointerException("This should never be called. "
-                    + "PSMTopIdentificationFilter must overwrite supportsClass() method.");
+            throw new NullPointerException(SHOULD_NOT_BE_CALLED
+                    + " PSMTopIdentificationFilter must overwrite supportsClass() method.");
         }
     },
     PEPTIDE_SCORE_FILTER(FilterType.numerical, Number.class, "Score Filter", "Score (peptide)") {
         @Override
         public Object getObjectsValue(Object o) {
             throw new NullPointerException("Wrong way to instantiate PeptideScoreFilter. "
-                    + "Instantiate directly!");
+                    + INSTANTIANTE_DIRECTLY);
         }
 
         @Override
         public boolean supportsClass(Object c) {
-            throw new NullPointerException("This should never be called. "
-                    + "PeptideScoreFilter must overwrite getObjectsValue() method.");
+            throw new NullPointerException(SHOULD_NOT_BE_CALLED
+                    + " PeptideScoreFilter must overwrite getObjectsValue() method.");
         }
 
         @Override
         public AbstractFilter newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            throw new NullPointerException("This should never be called. "
-                    + "PeptideScoreFilter must overwrite getObjectsValue() method.");
+            throw new NullPointerException(SHOULD_NOT_BE_CALLED
+                    + " PeptideScoreFilter must overwrite getObjectsValue() method.");
         }
 
     },
@@ -1333,6 +1360,7 @@ public enum RegisteredFilters {
     /** list of filters for proteins */
     private static final List<RegisteredFilters> proteinFilters = Arrays.asList(
             PROTEIN_SCORE_FILTER,
+            PROTEIN_Q_VALUE_FILTER,
             PROTEIN_RANK_FILTER,
             NR_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER,
             NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER,
@@ -1348,6 +1376,12 @@ public enum RegisteredFilters {
 
     /** a copy of all filters */
     private static final List<RegisteredFilters> allFilters = Arrays.asList(values());
+
+
+    // some constant strings
+    private static final String SHOULD_NOT_BE_CALLED = "This should never be called.";
+    private static final String INSTANTIANTE_DIRECTLY = "Instantiate directly!";
+    private static final String SCORE_SHORT_DESC = "[scoreShort]";
 
 
     /**
@@ -1486,8 +1520,8 @@ public enum RegisteredFilters {
     public static final List<String> getPSMFilterShortsForHelp() {
         List<String> filterShorts = new ArrayList<>();
 
-        filterShorts.add(PSMScoreFilter.PREFIX + "[scoreShort]");
-        filterShorts.add(PSMTopIdentificationFilter.PREFIX + "[scoreShort]");
+        filterShorts.add(PSMScoreFilter.PREFIX + SCORE_SHORT_DESC);
+        filterShorts.add(PSMTopIdentificationFilter.PREFIX + SCORE_SHORT_DESC);
 
         filterShorts.addAll(getPSMFilters().stream().map(RegisteredFilters::getShortName).collect(Collectors.toList()));
 
@@ -1510,9 +1544,9 @@ public enum RegisteredFilters {
     public static final Set<String> getPeptideFilterShortsForHelp() {
         Set<String> filterShorts = new HashSet<>();
 
-        filterShorts.add(PSMScoreFilter.PREFIX + "[scoreShort]");
-        filterShorts.add(PSMTopIdentificationFilter.PREFIX + "[scoreShort]");
-        filterShorts.add(PeptideScoreFilter.PREFIX + "[scoreShort]");
+        filterShorts.add(PSMScoreFilter.PREFIX + SCORE_SHORT_DESC);
+        filterShorts.add(PSMTopIdentificationFilter.PREFIX + SCORE_SHORT_DESC);
+        filterShorts.add(PeptideScoreFilter.PREFIX + SCORE_SHORT_DESC);
 
         filterShorts.addAll(getPeptideFilters().stream().map(RegisteredFilters::getShortName).collect(Collectors.toList()));
 
@@ -1535,7 +1569,7 @@ public enum RegisteredFilters {
     public static Set<String> getProteinFilterShortsForHelp() {
         Set<String> filterShorts = new HashSet<>();
 
-        filterShorts.add(PSMScoreFilter.PREFIX + "[scoreShort]");
+        filterShorts.add(PSMScoreFilter.PREFIX + SCORE_SHORT_DESC);
 
         filterShorts.addAll(getProteinFilters().stream().map(RegisteredFilters::getShortName).collect(Collectors.toList()));
 

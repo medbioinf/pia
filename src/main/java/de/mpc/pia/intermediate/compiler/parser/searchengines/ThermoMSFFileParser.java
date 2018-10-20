@@ -1069,4 +1069,38 @@ public class ThermoMSFFileParser {
 
         return calculatedMass;
     }
+
+
+    /**
+     * Checks, whether the given file looks like a Thermo MSF file
+     *
+     * @param fileName
+     * @return
+     */
+    public static boolean checkFileType(String fileName) {
+        boolean isMSFFile = false;
+        LOGGER.debug("checking whether this is an MSF file: " + fileName);
+
+        SimpleProgramParameters fileConnectionParams;
+
+        // set up the DB connection to the MSF file
+        fileConnectionParams = new SimpleProgramParameters(fileName, true);
+        JDBCAccess jdbc = new JDBCAccess();
+        jdbc.connectToExistingDB(fileName);
+        fileConnectionParams.setJDBCAccess(jdbc);
+
+        try {
+            if (!ProcessingNodes.getObjectMap(fileConnectionParams, ProcessingNodes.class).isEmpty()) {
+                isMSFFile = true;
+            }
+
+            fileConnectionParams.closeDB();
+        } catch (Exception e) {
+            LOGGER.debug("Cannot read database", e);
+        } finally {
+            fileConnectionParams.closeDB();
+        }
+
+        return isMSFFile;
+    }
 }

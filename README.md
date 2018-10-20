@@ -46,8 +46,10 @@ free to test it using the test server).
 
 ## Download
 
-PIA is fully integrated into KNIME and automatically installed, when using the
-package with all free extensions. Please use always the newest version of KNIME.
+PIA is fully integrated into KNIME. You can easily install it from the trusted
+community contributions repository, which is available in all newer KNIME
+versions. Please use always the newest version of KNIME before submitting any
+bugs or issues.
 More information on how to install and run PIA inside KNIME are in 
 [the wiki about PIA in KNIME](https://github.com/mpc-bioinformatics/pia/wiki/Running-PIA-via-KNIME).
 
@@ -83,21 +85,17 @@ If you found PIA useful for your work, please cite the following publication:
 http://www.ncbi.nlm.nih.gov/pubmed/25938255
 
 
-## Test Server
-
-We provide a test installation of the web interface on http://134.147.84.213:8080/pia/
-
-In your own interest, don't sent any sensitive research data to this server!
-
-
 ## Usage Statistics
 
 The PIA team is collecting usage statistics for quality control and funding
-purposes.
+purposes. To ensure further funding, it is required to be able tu guess, how
+often PIA is used by the community, so please do not deactivate the tracking. 
+Please read the data_privacy.txt for more information on what data is
+transmitted and stored and the legal notices.
 
-We will never give out your personal data, but you may disable this
+We will never give out your personal data. You may disable the tracking
 functionality by setting the appropriate settings for the command line versions
-or the KNIME nodes. 
+or inside the KNIME preferences. 
 
 
 ## Funding
@@ -106,3 +104,10 @@ The development of PIA is funded by the BMBF as part of de.NBI, the German
 Network for Bioinformatics Infrastructure.
 
 [![de.NBI logo](https://www.denbi.de/templates/de.nbi2/img/deNBI_logo.jpg)](https://www.denbi.de/)
+
+
+## Authors of PIA
+ 
+The programming work on PIA was performed by Julian Uszkoreit (Ruhr University
+Bochum, Medizinisches Proteom-Center), and Yasset Perez-Riverol  (European
+Bioinformatics Institute (EMBL-EBI), Cambridge)

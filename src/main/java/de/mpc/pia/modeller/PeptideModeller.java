@@ -1,9 +1,6 @@
 package de.mpc.pia.modeller;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.io.Writer;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -17,14 +14,11 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
-import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.modeller.peptide.PeptideExecuteCommands;
 import de.mpc.pia.modeller.peptide.ReportPeptide;
 import de.mpc.pia.modeller.peptide.ReportPeptideComparatorFactory;
 import de.mpc.pia.modeller.psm.PSMReportItem;
-import de.mpc.pia.modeller.psm.ReportPSM;
-import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.modeller.report.SortOrder;
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterFactory;
@@ -373,222 +367,6 @@ public class PeptideModeller implements Serializable {
                         fileReportPeptides.get(fileID),
                         filters, fileID),
                 new ScoreComparator<>(rankableShortName));
-    }
-
-
-
-    /**
-     * Writes the peptide report for the file with the given ID and optionally
-     * filtered with the filters of this file in a loose CSV format.
-     *
-     * @param writer
-     * @param fileID
-     * @param filterExport
-     * @param oneAccessionPerLine
-     * @throws IOException
-     */
-    public void exportCSV(Writer writer, Long fileID, boolean filterExport,
-            boolean oneAccessionPerLine, boolean includePSMSets,
-            boolean includePSMs) throws IOException {
-        boolean includes = includePSMSets || includePSMs;
-        List<ReportPeptide> report = getFilteredReportPeptides(fileID,
-                filterExport ? getFilters(fileID) : null);
-        List<String> scoreShorts = getScoreShortNames(fileID);
-
-        String separator = ",";
-
-        // write header information
-        if (includes)
-            writer.append("\"COLS_PEPTIDES\"").append(separator);
-
-        writer.append("\"sequence\"").append(separator);
-
-        if (considerModifications)
-            writer.append("\"modifications\"").append(separator);
-
-
-        if (oneAccessionPerLine) {
-            writer.append("\"accession\"").append(separator);
-        } else {
-            writer.append("\"accessions\"").append(separator);
-        }
-
-        writer.append("\"#spectra\"").append(separator).append("\"#PSM sets\"").append(separator);
-
-        if (fileID > 0) {
-            writer.append("\"missed\"").append(separator);
-        }
-
-        writer.append("\"unique\"");
-
-        for (String scoreShort : scoreShorts) {
-            writer.append(separator).append("\"best_").append(scoreShort).append("\"");
-        }
-
-        writer.append("\n");
-
-        if (includePSMSets) {
-            writer.append("\"COLS_PSMSET\"").append(separator).append("\"sequence\"").append(separator);
-
-            if (considerModifications) {
-                writer.append("\"modifications\"").append(separator);
-            }
-
-            writer.append("\"#identifications\"").
-                    append(separator).append("\"charge\"").
-                    append(separator).append("\"m/z\"").
-                    append(separator).append("\"dMass\"").
-                    append(separator).append("\"ppm\"").
-                    append(separator).append("\"RT\"").
-                    append(separator).append("\"missed\"").
-                    append(separator).append("\"sourceID\"").
-                    append(separator).append("\"spectrumTitle\"").
-                    append(separator).append("\"scores\"").
-                    append("\n");
-        }
-
-        if (includePSMs) {
-            writer.append("\"COLS_PSM\"").append(separator).append("\"filename\"").append(separator).append("\"sequence\"").append(separator);
-
-            if (considerModifications) {
-                writer.append("\"modifications\"").append(separator);
-            }
-
-            writer.append("\"charge\"").append(separator).append("\"m/z\"").
-                    append(separator).append("\"dMass\"").append(separator).
-                    append("\"ppm\"").append(separator).append("\"RT\"").
-                    append(separator).append("\"missed\"").append(separator).
-                    append("\"sourceID\"").append(separator).append("\"spectrumTitle\"").
-                    append(separator).append("\"scores\"").append("\n");
-        }
-
-        // write out peptide information
-        for (ReportPeptide peptide : report) {
-            StringBuilder lineFirst = new StringBuilder(64);    // first part of the line, up to the accession(s)
-            StringBuilder lineLast = new StringBuilder(64);     // last part of the line, from the accession(s) to end
-            if (includes) {
-                lineFirst.append("\"PEPTIDE\"").append(separator);
-            }
-
-            lineFirst.append("\"").append(peptide.getSequence()).append("\"").append(separator);
-
-            if (considerModifications)
-                lineFirst.append("\"").
-                        append(peptide.getPSMs().get(0).getModificationsString()).
-                        append("\"").append(separator);
-
-
-            lineLast.append("\"").append(peptide.getNrSpectra()).append("\"").
-                    append(separator).append("\"").
-                    append(peptide.getNrPSMs()).
-                    append("\"").append(separator);
-
-
-            if (fileID > 0)
-                lineLast.append("\"").append(peptide.getMissedCleavages()).
-                        append("\"").
-                        append(separator);
-
-
-            if (peptide.getAccessions().size() > 1) {
-                lineLast.append("\"false\"");
-            } else {
-                lineLast.append("\"true\"");
-            }
-
-            for (String scoreShort : scoreShorts)
-                lineLast.append(separator).
-                        append("\"").append(peptide.getBestScore(scoreShort)).
-                        append("\"");
-
-
-            // either cumulate the accessions or write out one line per accession
-            if (oneAccessionPerLine) {
-                for (Accession acc : peptide.getAccessions()) {
-                    writer.append(lineFirst);
-                    writer.append("\"").
-                            append(acc.getAccession()).
-                            append("\"").append(separator);
-                    writer.append(lineLast);
-                    writer.append("\n");
-                }
-            } else {
-                StringBuilder accessionsSB = new StringBuilder(64);
-                for (Accession acc : peptide.getAccessions()) {
-                    if (accessionsSB.length() > 0) {
-                        accessionsSB.append(",");
-                    }
-
-                    accessionsSB.append(
-                            URLEncoder.encode(acc.getAccession(), "UTF-8").
-                            replace("+", "%20"));
-                }
-
-                writer.append(lineFirst);
-                writer.append("\"").append(accessionsSB).append("\"").append(separator);
-                writer.append(lineLast);
-                writer.append("\n");
-            }
-
-            if (includePSMSets || includePSMs) {
-
-                for (PSMReportItem psm : peptide.getPSMs()) {
-                    StringBuilder row = new StringBuilder();
-
-                    row.append("\"").append(psm.getSequence()).append("\"").append(separator);
-
-                    if (considerModifications) {
-                        row.append("\"").append(psm.getModificationsString()).append("\"").append(separator);
-                    }
-
-                    if (psm instanceof ReportPSMSet) {
-                        row.append("\"").append(((ReportPSMSet) psm).getPSMs().size()).append("\"").append(separator);
-                    }
-
-                    row.append("\"").append(psm.getCharge()).append("\"").append(separator).append("\"").append(psm.getMassToCharge()).append("\"").append(separator).append("\"").append(psm.getDeltaMass()).append("\"").append(separator).append("\"").append(psm.getDeltaPPM()).append("\"").append(separator).append("\"").append(psm.getRetentionTime()).append("\"").append(separator).append("\"").append(psm.getMissedCleavages()).append("\"").append(separator).append("\"").append(psm.getSourceID()).append("\"").append(separator).append("\"").append(psm.getSpectrumTitle()).append("\"").append(separator).append("\"").append(psm.getScoresString()).append("\"");
-
-
-                    if (psm instanceof ReportPSM) {
-                        // write the input file name before the remaining row
-                        if (includePSMs) {
-                            writer.append("\"PSM\"").append(separator).append("\"").append(((ReportPSM) psm).getInputFileName()).append("\"").append(separator);
-                            writer.append(row.toString());
-                            writer.append("\n");
-                        }
-                    } else if (psm instanceof ReportPSMSet) {
-                        if (includePSMSets) {
-                            writer.append("\"PSMSET\"").append(separator);
-                            writer.append(row.toString());
-                            writer.append("\n");
-                        }
-
-                        // include the PSMs, if set
-                        if (includePSMs) {
-                            for (ReportPSM p : ((ReportPSMSet) psm).getPSMs()) {
-                                writer.append("\"PSM\"").
-                                        append(separator).
-                                        append("\"").
-                                        append(p.getInputFileName()).
-                                        append("\"").append(separator).
-                                        append("\"").append(p.getSequence()).
-                                        append("\"").append(separator);
-
-                                if (considerModifications)
-                                    writer.append("\"").
-                                            append(p.getModificationsString()).
-                                            append("\"").append(separator);
-
-
-                                writer.append("\"").append(String.valueOf(p.getCharge())).append("\"").append(separator).append("\"").append(String.valueOf(p.getMassToCharge())).append("\"").append(separator).append("\"").append(String.valueOf(p.getDeltaMass())).append("\"").append(separator).append("\"").append(String.valueOf(p.getDeltaPPM())).append("\"").append(separator).append("\"").append(String.valueOf(p.getRetentionTime())).append("\"").append(separator).append("\"").append(String.valueOf(p.getMissedCleavages())).append("\"").append(separator).append("\"").append(p.getSourceID()).append("\"").append(separator).append("\"").append(p.getSpectrumTitle()).append("\"").append(separator).append("\"").append(p.getScoresString()).append("\"");
-                                writer.append("\n");
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        writer.flush();
     }
 
 
