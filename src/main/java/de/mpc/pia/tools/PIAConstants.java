@@ -32,7 +32,7 @@ public class PIAConstants {
     public static final String PIA_REPOSITORY_LOCATION = "https://github.com/mpc-bioinformatics/pia";
 
     /** the substitute for an FDR Score of 0 (if there were no decoys) */
-    public static final Double SMALL_FDRSCORE_SUBSTITUTE = new Double(1.0E-23);
+    public static final Double SMALL_FDRSCORE_SUBSTITUTE = 1.0E-23;
 
     /** precision for rounding the retention time (e.g. for PSM set generation) */
     public static final Integer RETENTION_TIME_PRECISION = 0;

@@ -368,7 +368,6 @@ class MzIdentMLFileParser {
         Set<String> specIDListsDBRefs = new HashSet<>();
         SpectrumIdentification spectrumID = null;
         Enzymes specIDListsEnzymes = null;
-        Set<InputSpectra> inputSpectraSet = new HashSet<>();
 
         String analysisSoftwareName = null;
 
@@ -381,7 +380,7 @@ class MzIdentMLFileParser {
                 // get the enzymes
                 SpectrumIdentificationProtocol idProtocol = specID.getSpectrumIdentificationProtocol();
                 specIDListsEnzymes = idProtocol.getEnzymes();
-                inputSpectraSet.addAll(specID.getInputSpectra());
+                Set<InputSpectra> inputSpectraSet = new HashSet<>(specID.getInputSpectra());
 
                 // get the analysis software
                 AnalysisSoftware analysisSoftware = idProtocol.getAnalysisSoftware();

@@ -13,12 +13,8 @@ import java.util.Map;
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import de.mpc.pia.modeller.peptide.ReportPeptide;
+import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.modeller.report.filter.impl.PSMSearchEngineFilter;
-import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +32,8 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
+
+import static org.junit.Assert.*;
 
 public class PIACachedCompilerTest {
 
@@ -62,11 +60,66 @@ public class PIACachedCompilerTest {
 
 
     @Test
+    public void testPIASearchEngineFilterAndAnalysis() throws IOException, JAXBException, XMLStreamException {
+        PIACompiler piaCompiler = new PIACachedCompiler();
+
+        assertTrue(piaCompiler.getDataFromFile("tandem", idXMLtandemFile.getAbsolutePath(), null, null));
+        assertTrue(piaCompiler.getDataFromFile("msgf", idXMLmsgfFile.getAbsolutePath(), null, null));
+
+        piaCompiler.buildClusterList();
+        piaCompiler.buildIntermediateStructure();
+
+        piaCompiler.setName("testFile");
+
+
+        // write out the file
+        File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
+        piaCompiler.writeOutXML(piaIntermediateFile);
+        piaCompiler.finish();
+
+
+        // now make an analysis
+        PIAModeller piaModeller = new PIAModeller(piaIntermediateFile.getAbsolutePath());
+
+        piaModeller.setCreatePSMSets(true);
+
+        piaModeller.getPSMModeller().setAllDecoyPattern("s.*");
+        piaModeller.getPSMModeller().setAllTopIdentifications(0);
+
+        piaModeller.getPSMModeller().calculateAllFDR();
+        piaModeller.getPSMModeller().calculateCombinedFDRScore();
+
+        piaModeller.setConsiderModifications(false);
+
+        // protein level
+        SpectrumExtractorInference seInference = new SpectrumExtractorInference();
+
+        seInference.setScoring(new MultiplicativeScoring(new HashMap<>()));
+        seInference.getScoring().setSetting(AbstractScoring.SCORING_SETTING_ID, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
+        seInference.getScoring().setSetting(AbstractScoring.SCORING_SPECTRA_SETTING_ID, PSMForScoring.ONLY_BEST.getShortName());
+
+        piaModeller.getProteinModeller().infereProteins(seInference);
+
+        piaModeller.getProteinModeller().updateFDRData(DecoyStrategy.ACCESSIONPATTERN, "s.*", 0.01);
+        piaModeller.getProteinModeller().updateDecoyStates();
+        piaModeller.getProteinModeller().calculateFDR();
+
+        piaModeller.getPSMModeller().addFilter(0L,
+                new PSMSearchEngineFilter(FilterComparator.is_in_all_search_engines, true)
+        );
+        List<ReportPSMSet> peptides = piaModeller.getPSMModeller().getFilteredReportPSMSets(
+                piaModeller.getPSMModeller().getFilters(0L));
+
+        Assert.assertEquals(4495, peptides.size());
+        piaIntermediateFile.delete();
+    }
+
+    @Test
     public void testPIACompilerCompilationAndAnalysis() throws IOException, JAXBException, XMLStreamException {
         PIACompiler piaCompiler = new PIACachedCompiler();
 
-        assertEquals(true, piaCompiler.getDataFromFile("tandem", idXMLtandemFile.getAbsolutePath(), null, null));
-        assertEquals(true, piaCompiler.getDataFromFile("msgf", idXMLmsgfFile.getAbsolutePath(), null, null));
+        assertTrue(piaCompiler.getDataFromFile("tandem", idXMLtandemFile.getAbsolutePath(), null, null));
+        assertTrue(piaCompiler.getDataFromFile("msgf", idXMLmsgfFile.getAbsolutePath(), null, null));
 
         piaCompiler.buildClusterList();
         piaCompiler.buildIntermediateStructure();
@@ -98,8 +151,6 @@ public class PIACachedCompilerTest {
 
         seInference.addFilter(
                 new PSMScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName()));
-        seInference.addFilter(new PSMSearchEngineFilter(FilterComparator.is_in_all_search_engines, true));
-
 
         seInference.setScoring(new MultiplicativeScoring(new HashMap<>()));
         seInference.getScoring().setSetting(AbstractScoring.SCORING_SETTING_ID, ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
@@ -111,17 +162,15 @@ public class PIACachedCompilerTest {
         piaModeller.getProteinModeller().updateDecoyStates();
         piaModeller.getProteinModeller().calculateFDR();
 
-        piaModeller.getPSMModeller().addFilter(0L,
-                new PSMSearchEngineFilter(FilterComparator.is_in_all_search_engines, true)
-        );
-        List<ReportPeptide> peptides = piaModeller.getPeptideModeller().getFilteredReportPeptides(0L,
-                piaModeller.getPeptideModeller().getFilters(0L));
 
-        Assert.assertTrue(peptides.size() ==  2611);
+        List<ReportPSMSet> peptides = piaModeller.getPSMModeller().getFilteredReportPSMSets(
+                piaModeller.getPSMModeller().getFilters(0L));
+
+        Assert.assertEquals(6522, peptides.size());
 
         List<AbstractFilter> filters = new ArrayList<>();
         filters.add(RegisteredFilters.NR_GROUP_UNIQUE_PEPTIDES_PER_PROTEIN_FILTER.newInstanceOf(
-                        FilterComparator.greater_equal, 2, false));
+                FilterComparator.greater_equal, 2, false));
 
 
         // get the expected values
@@ -175,15 +224,14 @@ public class PIACachedCompilerTest {
     }
 
 
+
     @Test
     public void testPIACompilerMzidFiles() throws IOException {
         PIACompiler piaCompiler = new PIACachedCompiler();
 
-        assertEquals("X!TAndem file could not be parsed", true,
-                piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
+        assertTrue("X!TAndem file could not be parsed", piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
 
-        assertEquals("OMSSA file could not be parsed", true,
-                piaCompiler.getDataFromFile("tandem", mzid55mergeOmssa.getAbsolutePath(), null, null));
+        assertTrue("OMSSA file could not be parsed", piaCompiler.getDataFromFile("tandem", mzid55mergeOmssa.getAbsolutePath(), null, null));
 
         piaCompiler.buildClusterList();
         piaCompiler.buildIntermediateStructure();

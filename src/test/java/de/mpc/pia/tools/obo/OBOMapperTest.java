@@ -1,6 +1,6 @@
 package de.mpc.pia.tools.obo;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
@@ -47,9 +47,9 @@ public class OBOMapperTest {
             }
         }
 
-        assertEquals("trypsin (MS:1001176) should be found in the obo", true, foundTrypsin);
-        assertEquals("Mascot:score should be found in the obo", true, foundMascotScore);
-        assertEquals("MS/GF+ (MS:1002048) should be found in the obo", true, foundMSGF);
+        assertTrue("trypsin (MS:1001176) should be found in the obo", foundTrypsin);
+        assertTrue("Mascot:score should be found in the obo", foundMascotScore);
+        assertTrue("MS/GF+ (MS:1002048) should be found in the obo", foundMSGF);
     }
 
 }

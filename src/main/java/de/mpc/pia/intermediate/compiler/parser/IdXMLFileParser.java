@@ -1015,7 +1015,7 @@ public class IdXMLFileParser {
 
         // evaluate for same hashcodes and equality
         return psmList.stream().
-                anyMatch(s -> (psmHash == s.hashCodeWithoutID()) ? psm.equalsWithoutID(s) : false);
+                anyMatch(s -> (psmHash == s.hashCodeWithoutID()) && psm.equalsWithoutID(s));
     }
 
 

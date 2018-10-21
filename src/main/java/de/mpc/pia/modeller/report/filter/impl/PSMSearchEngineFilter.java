@@ -5,13 +5,12 @@ import de.mpc.pia.modeller.psm.ReportPSM;
 import de.mpc.pia.modeller.psm.ReportPSMSet;
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterComparator;
-import de.mpc.pia.modeller.report.filter.FilterType;
 import de.mpc.pia.modeller.report.filter.RegisteredFilters;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
-import de.mpc.pia.tools.PIAConstants;
 import org.apache.log4j.Logger;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,7 +61,7 @@ public class PSMSearchEngineFilter extends AbstractFilter {
                 log.debug(psmSet.toString());
                 Map<String, List<ScoreModel>> scores = psmSet.getPSMs()
                         .stream().parallel().map(sp -> sp.getSpectrum().getScores())
-                        .flatMap(y -> y.stream())
+                        .flatMap(Collection::stream)
                         .filter(y -> !ScoreModelEnum.nonNativeScoreModels.contains(y.getType()))
                         .collect(Collectors.toList()).stream().collect(Collectors.groupingBy(ScoreModel::getAccession));
                 boolean all = true;
@@ -78,5 +77,22 @@ public class PSMSearchEngineFilter extends AbstractFilter {
         }
 
         return supports;
+    }
+
+    @Override
+    public Object getObjectsValue(Object obj) {
+        if (obj instanceof ReportPSMSet) {
+            ReportPSMSet psmSet = (ReportPSMSet) obj;
+            return psmSet.getPSMs()
+                    .stream().parallel().map(sp -> sp.getSpectrum().getScores())
+                    .flatMap(Collection::stream)
+                    .filter(y -> !ScoreModelEnum.nonNativeScoreModels.contains(y.getType()))
+                    .collect(Collectors.toList()).stream().collect(Collectors.groupingBy(ScoreModel::getAccession));
+        } else if (obj instanceof Number) {
+            return obj;
+        }
+
+        // nothing supported
+        return null;
     }
 }

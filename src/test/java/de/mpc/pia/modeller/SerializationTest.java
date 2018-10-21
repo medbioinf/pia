@@ -161,8 +161,6 @@ public class SerializationTest {
 
             oos.writeObject(piaModeller);
 
-        } catch (IOException e) {
-            throw e;
         }
 
         /*

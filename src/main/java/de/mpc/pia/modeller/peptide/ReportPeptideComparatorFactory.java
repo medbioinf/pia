@@ -52,7 +52,7 @@ public class ReportPeptideComparatorFactory {
         MISSED_SORT {
             @Override
             public Comparator<ReportPeptide> getNewInstance() {
-                return (o1, o2) -> Integer.valueOf(o1.getMissedCleavages()).compareTo(o2.getMissedCleavages());
+                return Comparator.comparingInt(ReportPeptide::getMissedCleavages);
             }
 
             @Override

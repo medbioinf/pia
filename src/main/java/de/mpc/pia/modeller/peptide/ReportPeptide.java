@@ -319,8 +319,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * @return
      */
     public List<String> getPSMsIdentificationKeys(Map<String, Boolean> psmSetSettings) {
-        Set<String> idKeySet = psmList.stream().map(psm -> psm.getIdentificationKey(psmSetSettings)).collect(Collectors.toSet());
-        return new ArrayList<>(idKeySet);
+        return psmList.stream().map(psm -> psm.getIdentificationKey(psmSetSettings)).distinct().collect(Collectors.toList());
     }
 
 
@@ -685,8 +684,10 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * Returns a List of all the sourceIDs in this peptide.
      */
     public List<String> getSourceIDs() {
-        Set<String> sourcesSet = psmList.stream().filter(psm -> psm.getSourceID() != null).map(PSMItem::getSourceID).collect(Collectors.toSet());
-        return new ArrayList<>(sourcesSet);
+        return psmList.stream().filter(psm -> psm.getSourceID() != null)
+                .map(PSMItem::getSourceID)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
 
@@ -694,9 +695,10 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * Returns a List of all the spectrum titles in this peptide.
      */
     public List<String> getSpectrumTitles() {
-        Set<String> titlesSet = psmList.stream().filter(psm -> psm.getSpectrumTitle() != null).map(PSMItem::getSpectrumTitle).collect(Collectors.toSet());
-
-        return new ArrayList<>(titlesSet);
+        return psmList.stream().filter(psm -> psm.getSpectrumTitle() != null)
+                .map(PSMItem::getSpectrumTitle)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
 
