@@ -37,7 +37,7 @@ import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 public class PIACachedCompiler extends PIACompiler {
 
     /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(PIASimpleCompiler.class);
+    private static final Logger LOGGER = Logger.getLogger(PIACachedCompiler.class);
 
 
     /** the cache manager */

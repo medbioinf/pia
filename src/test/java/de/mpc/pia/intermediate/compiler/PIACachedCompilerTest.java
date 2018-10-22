@@ -60,7 +60,7 @@ public class PIACachedCompilerTest {
 
 
     @Test
-    public void testPIASearchEngineFilterAndAnalysis() throws IOException, JAXBException, XMLStreamException {
+    public void testPIASearchEngineFilterAndAnalysis() throws IOException {
         PIACompiler piaCompiler = new PIACachedCompiler();
 
         assertTrue(piaCompiler.getDataFromFile("tandem", idXMLtandemFile.getAbsolutePath(), null, null));
@@ -115,7 +115,7 @@ public class PIACachedCompilerTest {
     }
 
     @Test
-    public void testPIACompilerCompilationAndAnalysis() throws IOException, JAXBException, XMLStreamException {
+    public void testPIACompilerCompilationAndAnalysis() throws IOException {
         PIACompiler piaCompiler = new PIACachedCompiler();
 
         assertTrue(piaCompiler.getDataFromFile("tandem", idXMLtandemFile.getAbsolutePath(), null, null));

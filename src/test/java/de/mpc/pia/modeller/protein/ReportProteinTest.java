@@ -47,7 +47,7 @@ public class ReportProteinTest {
 
 
     @Test
-    public void testReportProteinValues() throws JAXBException, XMLStreamException, IOException, URISyntaxException {
+    public void testReportProteinValues() throws IOException {
 
         PIAModeller piaModeller = new PIAModeller(piaFile.getAbsolutePath());
 

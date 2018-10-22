@@ -96,7 +96,7 @@ public class PIACompilerTest {
     }
 
     @Test
-    public void testPIACompilerCompilationAndAnalysis() throws IOException, JAXBException, XMLStreamException {
+    public void testPIACompilerCompilationAndAnalysis() throws IOException {
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
         assertTrue(piaCompiler.getDataFromFile("tandem", idXMLtandemFile.getAbsolutePath(), null, null));
@@ -126,8 +126,8 @@ public class PIACompilerTest {
 
         piaModeller.setConsiderModifications(false);
 
-        /***
-         * Validation of the filter with PSMs counts by mzIdentFILE
+        /*
+         Validation of the filter with PSMs counts by mzIdentFILE
          */
 
         List<AbstractFilter> filters = new ArrayList<>();

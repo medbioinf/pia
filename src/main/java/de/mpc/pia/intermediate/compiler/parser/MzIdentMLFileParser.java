@@ -832,8 +832,6 @@ class MzIdentMLFileParser {
      *
      * @param oboTerm
      * @param value
-     * @param cvAccession
-     * @param cvName
      * @return
      */
     private ScoreModel parseOBOTermAsScore(Term oboTerm, String value) {

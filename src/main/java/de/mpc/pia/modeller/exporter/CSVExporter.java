@@ -316,8 +316,6 @@ public class CSVExporter {
 
     /**
      * Writes out the data starting at the protein level
-     *
-     * @param writer
      * @throws IOException
      */
     private void writeStartAtProteinLevel() throws IOException {
@@ -369,7 +367,6 @@ public class CSVExporter {
     /**
      * Writes out the data starting at the peptide level
      *
-     * @param writer
      * @throws IOException
      */
     private void writeStartAtPeptideLevel() throws IOException {
@@ -390,7 +387,6 @@ public class CSVExporter {
     /**
      * Writes out the data starting at the PSM sets level
      *
-     * @param writer
      * @throws IOException
      */
     private void writeStartAtPSMSetLevel() throws IOException {
@@ -410,8 +406,6 @@ public class CSVExporter {
 
     /**
      * Writes out the data starting at the PSM level
-     *
-     * @param writer
      * @throws IOException
      */
     private void writeStartAtPSMLevel() throws IOException {
@@ -581,8 +575,6 @@ public class CSVExporter {
 
     /**
      * Create a string representation of the given accessions
-     *
-     * @param accsessions
      * @return
      */
     private static String createAccessionsString(Collection<Accession> accessions) {
@@ -601,7 +593,6 @@ public class CSVExporter {
     /**
      * Create a string representation of the protein's accessions' coverages
      *
-     * @param accsessions
      * @return
      */
     private static String createCoveragesString(ReportProtein protein) {
@@ -627,7 +618,6 @@ public class CSVExporter {
     /**
      * Create a string representation of the protein's accessions' descriptions
      *
-     * @param accsessions
      * @return
      */
     private String createDescriptionsString(Collection<Accession> accessions) {

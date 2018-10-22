@@ -48,8 +48,6 @@ public class PIASimpleCompiler extends PIACompiler {
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(PIASimpleCompiler.class);
 
-
-
     /**
      * Basic constructor
      */

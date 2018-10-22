@@ -327,7 +327,7 @@ public enum ScoreModelEnum {
         }
     },
 
-    /** Beginning of Mascot Scores  **/
+    /* Beginning of Mascot Scores  **/
 
     /**
      *  This Score implements the Mascot expectation value
@@ -572,7 +572,7 @@ public enum ScoreModelEnum {
 
     },
 
-    /** End of Mascot Scores**/
+    /* End of Mascot Scores**/
 
     /**
      *  This Score implements the Sequest Probability.
@@ -997,7 +997,7 @@ public enum ScoreModelEnum {
         }
     },
 
-    /** Beginning of MSGF+ Scores **/
+    /* Beginning of MSGF+ Scores **/
 
     /**
      * The MS-GF+ RawScore
@@ -1201,9 +1201,9 @@ public enum ScoreModelEnum {
 
     },
 
-    /** End of MSGF+ Scores **/
+    /* End of MSGF+ Scores **/
 
-    /** Beginning of MS-Amanda Scores **/
+    /* Beginning of MS-Amanda Scores **/
 
     /**
      * The Amanda score
@@ -1254,7 +1254,7 @@ public enum ScoreModelEnum {
         }
     },
 
-    /** End of the MS-Amanda Scores **/
+    /* End of the MS-Amanda Scores **/
 
 
     /**
@@ -1336,7 +1336,7 @@ public enum ScoreModelEnum {
         }
     },
 
-    /** End of COMET Scores **/
+    /* End of COMET Scores **/
 
     /**
      * The Peaks Scores
@@ -1373,7 +1373,7 @@ public enum ScoreModelEnum {
         }
     },
 
-    /** End of Peaks Scores **/
+    /* End of Peaks Scores **/
 
     /** OMSSA Scores ***/
 
@@ -1453,7 +1453,7 @@ public enum ScoreModelEnum {
 
     },
 
-    /** End OMSSA Scores **/
+    /* End OMSSA Scores **/
 
 
     /**
@@ -1697,7 +1697,7 @@ public enum ScoreModelEnum {
 
     },
 
-    /** Percolator scores END**/
+    /* Percolator scores END**/
 
     /** PeptideShaker Scores**/
 
@@ -1764,7 +1764,7 @@ public enum ScoreModelEnum {
 
     },
 
-    /** End of PeptideShaker Scores **/
+    /* End of PeptideShaker Scores **/
 
 
     /** MyriMatch Scores **/
@@ -1943,7 +1943,7 @@ public enum ScoreModelEnum {
 
 
 
-    /** End Phenyx Score **/
+    /* End Phenyx Score **/
 
 
     /**
@@ -2095,7 +2095,7 @@ public enum ScoreModelEnum {
     },
 
 
-    /** End of Byonic Scores **/
+    /* End of Byonic Scores **/
 
 
     /** Spectrum Mill Score **/
@@ -2134,7 +2134,7 @@ public enum ScoreModelEnum {
 
     },
 
-    /** End Spectrum Mill Score **/
+    /* End Spectrum Mill Score **/
 
     /**
      * The FASTA Sequence Count score.

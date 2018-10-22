@@ -954,8 +954,8 @@ public class IdXMLFileParser {
     /**
      * Getter for the start sites of a given peptide in the given protein sequence.
      *
-     * @param peptideSeq
-     * @param proteinSeq
+     * @param peptide
+     * @param protein
      * @return
      */
     private static List<Integer> getStartSites(String peptide, String protein) {

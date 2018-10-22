@@ -92,7 +92,7 @@ public class PIAConstants {
     public static final String FORMAT_PARAM = "format=";
 
 
-    /**
+    /*
      * Set the version from the properties file, which is always set by maven
      */
     static {

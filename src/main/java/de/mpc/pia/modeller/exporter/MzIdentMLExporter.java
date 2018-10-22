@@ -151,9 +151,7 @@ public class MzIdentMLExporter {
     private static final Map<String, Boolean> SPECTRUM_IDENTIFICATION_RESULT_PSM_SET_SETTINGS;
 
 
-    /**
-     * static initializations
-     */
+    // Static initializations
     static {
         SPECTRUM_IDENTIFICATION_RESULT_PSM_SET_SETTINGS = new HashMap<>();
         SPECTRUM_IDENTIFICATION_RESULT_PSM_SET_SETTINGS.put(IdentificationKeySettings.FILE_ID.toString(), true);
@@ -1888,7 +1886,7 @@ public class MzIdentMLExporter {
 
     /**
      * Refines the SearchDatabase information of the databases in the list
-     * @param databases
+     * @param database
      */
     private static void refineSearchDatabase(SearchDatabase database) {
         String location = encodeLocation(database.getLocation());

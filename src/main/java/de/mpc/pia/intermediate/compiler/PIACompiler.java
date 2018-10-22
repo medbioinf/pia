@@ -683,12 +683,9 @@ public abstract class PIACompiler {
         clusteredPepAccMap = new ArrayList<>();
 
 
-        /**
-           this accession is not yet clustered, so start a new cluster
-           and insert all the "connected" peptides and accessions
-         */
+        // This accession is not yet clustered, so start a new cluster and insert all the "connected" peptides and accessions
         getAllAccessionIDs().stream().filter(accID -> !accessionsDone.contains(accID)).forEach(accID -> {
-            /**
+            /*
                this accession is not yet clustered, so start a new cluster
                and insert all the "connected" peptides and accessions
              */
@@ -1197,7 +1194,7 @@ public abstract class PIACompiler {
     public abstract void finish();
 
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         CommandLineParser parser = new DefaultParser();
         Options options = new Options();
 

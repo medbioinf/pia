@@ -74,7 +74,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
     /**
      * Initializes the worker thread.
      *
-     * @param ID the ID of the thread
+     * @param id the ID of the thread
      * @param parent the caller of this thread
      * @param scoring the applied scoring
      * @param filters the applied inference filters

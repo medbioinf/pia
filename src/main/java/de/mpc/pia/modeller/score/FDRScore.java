@@ -255,8 +255,6 @@ public class FDRScore {
      * @param higherScoreBetter
      * @param bestScore
      * @param g
-     * @param sLast
-     * @param qLast
      * @return
      */
     private static <T extends FDRScoreComputable> double calculateSlopedFDRScore(T item, String scoreShortName,

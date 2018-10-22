@@ -27,7 +27,7 @@ public class PSMFiltersTest {
     private PIAModeller piaModeller = null;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         File piaFile = new File(PSMFiltersTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
 
         // load the PIA XML file

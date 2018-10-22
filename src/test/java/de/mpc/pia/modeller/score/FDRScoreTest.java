@@ -66,7 +66,7 @@ public class FDRScoreTest {
      * @throws IOException
      */
     @Test
-    public void testAllPSMsSameScoreFDRScore() throws IOException  {
+    public void testAllPSMsSameScoreFDRScore() {
         PIAModeller piaModeller = new PIAModeller(inferenceTempFile.getAbsolutePath());
 
         // FDR calculation
