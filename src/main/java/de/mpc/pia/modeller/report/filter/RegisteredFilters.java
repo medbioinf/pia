@@ -24,7 +24,7 @@ import de.mpc.pia.modeller.score.ScoreModel;
 /**
  * All the filters should be registered in this enum.
  *
- * @author julian
+ * @author julianu
  *
  */
 public enum RegisteredFilters {
@@ -103,28 +103,6 @@ public enum RegisteredFilters {
         @Override
         public boolean supportsClass(Object c) {
             return c instanceof PSMReportItem;
-        }
-    },
-
-    SEARCH_ENGINE_PSM_FILTER(FilterType.all_search_engine_found_psm, String.class, "All search engines needs to identified the PSM", "All Search Engine PSM") {
-        @Override
-        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
-            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
-        }
-
-        @Override
-        public Object getObjectsValue(Object o) {
-            if (o instanceof ReportPSM) {
-                return ((ReportPSM) o).getSpectrum().getScores();
-            } else if (o instanceof List<?>) {
-                return ((List<?>) o).stream().filter(obj -> obj instanceof ScoreModel).map(obj -> (ScoreModel) obj).collect(Collectors.toList());
-            }
-            return null;
-        }
-
-        @Override
-        public boolean supportsClass(Object c) {
-            return (c instanceof PSMReportItem);
         }
     },
 
@@ -432,6 +410,51 @@ public enum RegisteredFilters {
         }
 
     },
+
+    PSM_SET_CONTAINS_SCORE_FILTER(FilterType.literal_list, String.class, "PSM Set contains score", "Contains score (PSM)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            List<String> retSet = null;
+
+            if (o instanceof ReportPSMSet) {
+                List<ScoreModel> scores = new ArrayList<>();
+                for (ReportPSM psm : ((ReportPSMSet) o).getPSMs()) {
+                    scores.addAll(psm.getScores());
+                }
+
+                if (((ReportPSMSet) o).getFDRScore() != null) {
+                    scores.add(((ReportPSMSet) o).getFDRScore());
+                }
+                if (((ReportPSMSet) o).getAverageFDRScore() != null) {
+                    scores.add(((ReportPSMSet) o).getAverageFDRScore());
+                }
+
+                retSet = scores.stream()
+                        .map(score -> score.getShortName())
+                        .distinct()
+                        .collect(Collectors.toList());
+            } else if (o instanceof List<?>) {
+                retSet = ((List<?>) o)
+                        .stream()
+                        .filter(obj -> obj instanceof String).map(obj -> (String) obj)
+                        .distinct()
+                        .collect(Collectors.toList());
+            }
+
+            return retSet;
+        }
+
+        @Override
+        public boolean supportsClass(Object obj) {
+            return obj instanceof ReportPSMSet;
+        }
+    },
+
     NR_ACCESSIONS_PER_PSM_FILTER(FilterType.numerical, Number.class, "#accessions per PSM", "#accessions (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {

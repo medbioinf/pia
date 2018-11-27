@@ -1378,7 +1378,6 @@ public enum ScoreModelEnum {
     /** OMSSA Scores ***/
 
     OMSSA_E_VALUE {
-
         @Override
         public String getName() {
             return "OMSSA E-value";
@@ -1418,7 +1417,6 @@ public enum ScoreModelEnum {
     },
 
     OMSSA_P_VALUE {
-
         @Override
         public String getName() {
             return "OMSSA P-value";
@@ -2288,15 +2286,18 @@ public enum ScoreModelEnum {
         }
     };
 
+    /**
+     * These scores are not native searchengine results, but are in some way calculated
+     */
     public static final List<ScoreModelEnum> nonNativeScoreModels = new ArrayList<>(
           Arrays.asList(new ScoreModelEnum[]{
                   AVERAGE_FDR_SCORE,
-        PSM_LEVEL_COMBINED_FDR_SCORE,
-        PSM_LEVEL_FDR_SCORE,
-        PSM_LEVEL_Q_VALUE,
-        PEPTIDE_LEVEL_COMBINED_FDR_SCORE,
-        PEPTIDE_LEVEL_FDR_SCORE,
-        PEPTIDE_LEVEL_Q_VALUE})
+                  PSM_LEVEL_COMBINED_FDR_SCORE,
+                  PSM_LEVEL_FDR_SCORE,
+                  PSM_LEVEL_Q_VALUE,
+                  PEPTIDE_LEVEL_COMBINED_FDR_SCORE,
+                  PEPTIDE_LEVEL_FDR_SCORE,
+                  PEPTIDE_LEVEL_Q_VALUE})
     );
 
 

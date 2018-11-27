@@ -319,7 +319,10 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * @return
      */
     public List<String> getPSMsIdentificationKeys(Map<String, Boolean> psmSetSettings) {
-        return psmList.stream().map(psm -> psm.getIdentificationKey(psmSetSettings)).distinct().collect(Collectors.toList());
+        return psmList.stream()
+                .map(psm -> psm.getIdentificationKey(psmSetSettings))
+                .distinct()
+                .collect(Collectors.toList());
     }
 
 

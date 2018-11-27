@@ -952,7 +952,8 @@ public class IdXMLFileParser {
 
 
     /**
-     * Getter for the start sites of a given peptide in the given protein sequence.
+     * Getter for the start sites of a given peptide in the given protein
+     * sequence.
      *
      * @param peptide
      * @param protein

@@ -56,9 +56,7 @@ public class PIAConstants {
     public static final String MZTAB_NR_SPECTRA_COLUMN_NAME = "number_of_spectra";
 
 
-    /*
-     * options for the command line parsing
-     */
+    // options for the command line parsing
     public static final String INPUT_FILE_OPTION = "infile";
     public static final String PARAM_FILE_OPTION = "paramFile";
     public static final String PARAM_OUT_FILE_OPTION = "paramOutFile";
@@ -88,6 +86,7 @@ public class PIAConstants {
 
     /** constant for fileName= */
     public static final String FILE_NAME_PARAM = "fileName=";
+
     /** constant for format= */
     public static final String FORMAT_PARAM = "format=";
 

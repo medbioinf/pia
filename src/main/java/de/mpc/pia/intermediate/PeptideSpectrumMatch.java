@@ -626,7 +626,8 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
                 .stream()
                 .filter(Map.Entry::getValue)
                 .map(Map.Entry::getKey)
-                .sorted().collect(Collectors.toList());
+                .sorted()
+                .collect(Collectors.toList());
 
         StringBuilder keyKey = new StringBuilder();
 

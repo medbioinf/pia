@@ -3,14 +3,12 @@ package de.mpc.pia.modeller.report.filter;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.mpc.pia.intermediate.Modification;
-import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.tools.unimod.UnimodParser;
+
 
 /**
  * The abstract class of the filters, which are widely used in PIA. Most filters
@@ -159,7 +157,6 @@ public abstract class AbstractFilter implements Serializable {
                         // all objects in collection satisfy the filter, return true
                         return true;
                     } else {
-                        // TODO: throw exception or something
                         return false;
                     }
 
@@ -180,7 +177,6 @@ public abstract class AbstractFilter implements Serializable {
                         // all objects in collection satisfy the filter, return true
                         return true;
                     } else {
-                        // TODO: throw exception or something
                         return false;
                     }
 
@@ -201,43 +197,21 @@ public abstract class AbstractFilter implements Serializable {
                         // all objects in collection satisfy the filter, return true
                         return true;
                     } else {
-                        // TODO: throw exception or something
                         return false;
                     }
 
                 case literal_list:
                     return objValue instanceof List<?> && satisfiesLiteralListFilter((List<String>) objValue);
-// TODO: throw exception or something
 
                 case modification:
                     return objValue instanceof List<?> && satisfiesModificationFilter((List<Modification>) objValue);
-                case all_search_engine_found_psm:
-                    return objValue instanceof Map<?,?> && satisfiesSearchEngineFilter((Map<String, List<ScoreModel>>) objValue);
-// TODO: throw exception or something
+
                 default:
                     return false;
             }
         }
 
         return false;
-    }
-
-    protected boolean satisfiesSearchEngineFilter(Map<String, List<ScoreModel>> scores){
-
-        switch (getFilterComparator()) {
-            case is_in_all_search_engines:
-                boolean all = true;
-                for(Map.Entry score: scores.entrySet()){
-                    List<ScoreModel> keyValue = (List<ScoreModel>) score.getValue();
-                    Optional<ScoreModel> value = keyValue.stream().filter(x -> x.getValue() != 0.0).findAny();
-                    if(!value.isPresent())
-                        all = false;
-                }
-                if(all)
-                    return true;
-            default:
-                return false;
-        }
     }
 
 

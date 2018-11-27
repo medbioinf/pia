@@ -10,9 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
-
 import de.mpc.pia.modeller.peptide.ReportPeptide;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,40 +57,6 @@ public class PIACompilerTest {
         idXMLexpectedFile = new File(PIACompilerTest.class.getResource("/yeast-gold-015-filtered-proteins.csv").getPath());
     }
 
-    @Test
-    public void testPIACompilerNativeFiles() throws IOException {
-        Runtime runtime = Runtime.getRuntime();
-        double mb = 1024*1024;
-        final long startTime = System.nanoTime();
-        final long endTime;
-
-        File tpp = new File(PIACompilerTest.class.getResource("/55merge_mascot_full.mzid").getPath());
-
-
-        PIACompiler piaCompiler = new PIASimpleCompiler();
-
-        assertTrue("Mascot file could not be parsed", piaCompiler.getDataFromFile("tpp", tpp.getAbsolutePath(), null, null));
-
-        piaCompiler.buildClusterList();
-        piaCompiler.buildIntermediateStructure();
-
-        piaCompiler.setName("testFile");
-
-
-        File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
-
-        // test writing using the file
-        piaCompiler.writeOutXML(piaIntermediateFile);
-        piaIntermediateFile.delete();
-
-        // test writing using the file's name
-        piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
-        piaIntermediateFile.delete();
-
-        piaCompiler.finish();
-
-        endTime = System.nanoTime();
-    }
 
     @Test
     public void testPIACompilerCompilationAndAnalysis() throws IOException {
