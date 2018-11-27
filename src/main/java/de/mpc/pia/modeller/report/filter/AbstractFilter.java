@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import de.mpc.pia.intermediate.Modification;
 import de.mpc.pia.tools.unimod.UnimodParser;
 
+
 /**
  * The abstract class of the filters, which are widely used in PIA. Most filters
  * should be instantiated by the {@link RegisteredFilters}, only scores and
@@ -156,7 +157,6 @@ public abstract class AbstractFilter implements Serializable {
                         // all objects in collection satisfy the filter, return true
                         return true;
                     } else {
-                        // TODO: throw exception or something
                         return false;
                     }
 
@@ -177,7 +177,6 @@ public abstract class AbstractFilter implements Serializable {
                         // all objects in collection satisfy the filter, return true
                         return true;
                     } else {
-                        // TODO: throw exception or something
                         return false;
                     }
 
@@ -198,17 +197,15 @@ public abstract class AbstractFilter implements Serializable {
                         // all objects in collection satisfy the filter, return true
                         return true;
                     } else {
-                        // TODO: throw exception or something
                         return false;
                     }
 
                 case literal_list:
                     return objValue instanceof List<?> && satisfiesLiteralListFilter((List<String>) objValue);
-// TODO: throw exception or something
 
                 case modification:
                     return objValue instanceof List<?> && satisfiesModificationFilter((List<Modification>) objValue);
-// TODO: throw exception or something
+
                 default:
                     return false;
             }

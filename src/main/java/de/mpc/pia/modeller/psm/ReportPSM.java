@@ -392,9 +392,8 @@ public class ReportPSM  implements PSMReportItem {
      * @return
      */
     public List<ScoreModel> getScores() {
-        List<ScoreModel> scores = new ArrayList<>();
 
-        scores.addAll(spectrum.getScores());
+        List<ScoreModel> scores = new ArrayList<>(spectrum.getScores());
 
         if (fdrScore != null) {
             scores.add(fdrScore);

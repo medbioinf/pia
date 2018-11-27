@@ -74,7 +74,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
     /**
      * Initializes the worker thread.
      *
-     * @param ID the ID of the thread
+     * @param id the ID of the thread
      * @param parent the caller of this thread
      * @param scoring the applied scoring
      * @param filters the applied inference filters
@@ -235,9 +235,11 @@ public class SpectrumExtractorWorkerThread extends Thread {
                                     ReportPSMSet givenSet = reportPSMSetMap.get(key);
                                     if ((givenSet != null) &&
                                             (givenSet.getFDRScore() != null)) {
-                                        Set<Long> psmIDs = new HashSet<>();
                                         // add the used spectra to the set
-                                        psmIDs.addAll(((ReportPSMSet) psmSet).getPSMs().stream().map(psm -> psm.getSpectrum().getID()).collect(Collectors.toList()));
+                                        Set<Long> psmIDs = new HashSet<>(((ReportPSMSet) psmSet)
+                                                .getPSMs().stream()
+                                                .map(psm -> psm.getSpectrum().getID())
+                                                .collect(Collectors.toList()));
 
                                         // FDR is calculated, so get the scores for it
                                         Set<Long> givenPSMids = givenSet.getPSMs().stream().map(psm -> psm.getSpectrum().getID()).collect(Collectors.toSet());

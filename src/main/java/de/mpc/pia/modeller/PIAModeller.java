@@ -91,43 +91,6 @@ public class PIAModeller implements Serializable {
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(PIAModeller.class);
 
-    /** helper description */
-    private static final String HELP_DESCRIPTION =
-            "PIAModeller... Use a high enough amount of memory (e.g. use the Java setting -Xmx8G).";
-
-    /** argName of for several colon separated parameters*/
-    private static final String COLON_COMMAND_PARAMETERS = "command1[:command2...]";
-
-    /** explanation for CLI option with several colon separated parameters*/
-    private static final String COLON_COMMAND_PARAMETERS_EXPLANATION =
-            ", separated by colons. If params are given to the command, they "
-            + "follow an = and are separated by commata (e.g. command=param1,param2...)"
-            + "\nvalid commands are: ";
-
-    /** constant for fileName= */
-    private static final String FILE_NAME_PARAM = "fileName=";
-    /** constant for format= */
-    private static final String FORMAT_PARAM = "format=";
-
-
-    /*
-     * options for the command line parsing
-     */
-    private static final String INPUT_FILE_OPTION = "infile";
-    private static final String PARAM_FILE_OPTION = "paramFile";
-    private static final String PARAM_OUT_FILE_OPTION = "paramOutFile";
-    private static final String INIT_OPTION = "init";
-    private static final String APPEND_OPTION = "append";
-    private static final String WRITE_INFORMATION_OPTION = "writeInformation";
-    private static final String CALCULATE_INFORMATION_OPTION = "calculateInformation";
-    private static final String PSM_OPTION = "S";
-    private static final String PEPTIDE_OPTION = "E";
-    private static final String PROTEIN_OPTION = "R";
-    private static final String PSM_EXPORT_OPTION = "psmExport";
-    private static final String PEPTIDE_EXPORT_OPTION = "peptideExport";
-    private static final String PROTEIN_EXPORT_OPTION = "proteinExport";
-
-
     /**
      * Very basic constructor.
      */
@@ -666,51 +629,51 @@ public class PIAModeller implements Serializable {
         CommandLineParser parser = new DefaultParser();
         Options options = new Options();
 
-        Option inputFileOpt = Option.builder(INPUT_FILE_OPTION)
+        Option inputFileOpt = Option.builder(PIAConstants.INPUT_FILE_OPTION)
                 .argName("inputFile")
                 .hasArg()
                 .desc("path to the used PIA XML file")
                 .build();
         options.addOption(inputFileOpt);
 
-        Option psmOpt = Option.builder(PSM_OPTION)
-                .argName(COLON_COMMAND_PARAMETERS)
+        Option psmOpt = Option.builder(PIAConstants.PSM_OPTION)
+                .argName(PIAConstants.COLON_COMMAND_PARAMETERS)
                 .hasArg()
                 .desc("commands to be executed on the PSM level, "
-                        + COLON_COMMAND_PARAMETERS_EXPLANATION
+                        + PIAConstants.COLON_COMMAND_PARAMETERS_EXPLANATION
                         + PSMExecuteCommands.getValidCommandsString())
                 .longOpt("psm")
                 .build();
         options.addOption(psmOpt);
 
-        Option peptideOpt = Option.builder(PEPTIDE_OPTION)
-                .argName(COLON_COMMAND_PARAMETERS)
+        Option peptideOpt = Option.builder(PIAConstants.PEPTIDE_OPTION)
+                .argName(PIAConstants.COLON_COMMAND_PARAMETERS)
                 .hasArg()
                 .desc("commands to be executed on the peptide level, "
-                        + COLON_COMMAND_PARAMETERS_EXPLANATION
+                        + PIAConstants.COLON_COMMAND_PARAMETERS_EXPLANATION
                         + PeptideExecuteCommands.getValidCommandsString())
                 .longOpt("peptide")
                 .build();
         options.addOption(peptideOpt);
 
-        Option proteinOpt = Option.builder(PROTEIN_OPTION)
-                .argName(COLON_COMMAND_PARAMETERS)
+        Option proteinOpt = Option.builder(PIAConstants.PROTEIN_OPTION)
+                .argName(PIAConstants.COLON_COMMAND_PARAMETERS)
                 .hasArg()
                 .desc("commands to be executed on the protein level, "
-                        + COLON_COMMAND_PARAMETERS_EXPLANATION
+                        + PIAConstants.COLON_COMMAND_PARAMETERS_EXPLANATION
                         + ProteinExecuteCommands.getValidCommandsString())
                 .longOpt("protein")
                 .build();
         options.addOption(proteinOpt);
 
-        Option paramFileOpt = Option.builder(PARAM_FILE_OPTION)
+        Option paramFileOpt = Option.builder(PIAConstants.PARAM_FILE_OPTION)
                 .argName("filename")
                 .hasArg()
                 .desc("path to the parameter file, which should be executed, created or extended")
                 .build();
         options.addOption(paramFileOpt);
 
-        Option paramOutFileOpt = Option.builder(PARAM_OUT_FILE_OPTION)
+        Option paramOutFileOpt = Option.builder(PIAConstants.PARAM_OUT_FILE_OPTION)
                 .argName("filename")
                 .hasArg()
                 .desc("Path to the parameter file, which will contain the newly added execution. Only used in "
@@ -723,7 +686,7 @@ public class PIAModeller implements Serializable {
                 .build();
         options.addOption(executeOpt);
 
-        Option initOpt = Option.builder(INIT_OPTION)
+        Option initOpt = Option.builder(PIAConstants.INIT_OPTION)
                 .argName("name")
                 .hasArg()
                 .desc("Initialize the parameter file given by paramFile, giving the pipeline the specified name. This "
@@ -732,7 +695,7 @@ public class PIAModeller implements Serializable {
                 .build();
         options.addOption(initOpt);
 
-        Option appendOpt = Option.builder(APPEND_OPTION)
+        Option appendOpt = Option.builder(PIAConstants.APPEND_OPTION)
                 .desc("All free arguments together are appended as one command to the param file. The first argument "
                         + "specifies the command with prefix (e.g. psm_add_filter), all following arguments are passed "
                         + "to the execution of the command. This is mainly used to build a pipeline via KNIME and not "
@@ -740,7 +703,7 @@ public class PIAModeller implements Serializable {
                 .build();
         options.addOption(appendOpt);
 
-        Option psmExportOpt = Option.builder(PSM_EXPORT_OPTION)
+        Option psmExportOpt = Option.builder(PIAConstants.PSM_EXPORT_OPTION)
                 .argName("outfile format [fileID=ID] [spectralCount=true/false]")
                 .valueSeparator(' ')
                 .hasArg()
@@ -751,7 +714,7 @@ public class PIAModeller implements Serializable {
                 .build();
         options.addOption(psmExportOpt);
 
-        Option peptideExportOpt = Option.builder(PEPTIDE_EXPORT_OPTION)
+        Option peptideExportOpt = Option.builder(PIAConstants.PEPTIDE_EXPORT_OPTION)
                 .argName("outfile format [fileID=ID] [exportPSMs=true/false] [exportPSMSets=true/false] "
                         + "[oneAccessionPerLine=true/false]")
                 .valueSeparator(' ')
@@ -763,7 +726,7 @@ public class PIAModeller implements Serializable {
                 .build();
         options.addOption(peptideExportOpt);
 
-        Option proteinExportOpt = Option.builder(PROTEIN_EXPORT_OPTION)
+        Option proteinExportOpt = Option.builder(PIAConstants.PROTEIN_EXPORT_OPTION)
                 .argName("outfile format [exportPSMs=true/false] [exportPSMSets=true/false] "
                         + "[exportPeptides=true/false] [oneAccessionPerLine=true/false] "
                         + "[exportProteinSequences=true/false]")
@@ -776,14 +739,14 @@ public class PIAModeller implements Serializable {
                 .build();
         options.addOption(proteinExportOpt);
 
-        Option writeInfoOpt = Option.builder(WRITE_INFORMATION_OPTION)
+        Option writeInfoOpt = Option.builder(PIAConstants.WRITE_INFORMATION_OPTION)
                 .argName("outfile")
                 .numberOfArgs(1)
                 .desc("Write out basic information and some QC of the file.")
                 .build();
         options.addOption(writeInfoOpt);
 
-        Option calculateInfoOpt = Option.builder(CALCULATE_INFORMATION_OPTION)
+        Option calculateInfoOpt = Option.builder(PIAConstants.CALCULATE_INFORMATION_OPTION)
                 .argName("outfile")
                 .numberOfArgs(1)
                 .desc("Calculate some more information for the writeInformation argument (yes/no)")
@@ -823,7 +786,7 @@ public class PIAModeller implements Serializable {
             } catch (ParseException e) {
                 LOGGER.error("Error parsing command line", e);
                 PIATools.printCommandLineHelp(PIAModeller.class.getSimpleName(),
-                        options, HELP_DESCRIPTION);
+                        options, PIAConstants.HELP_DESCRIPTION);
                 System.exit(-1);
             } catch (Exception e) {
                 LOGGER.error("Error while executing " + PIAModeller.class.getSimpleName(), e);
@@ -834,7 +797,7 @@ public class PIAModeller implements Serializable {
             }
         } else {
             PIATools.printCommandLineHelp(PIAModeller.class.getSimpleName(),
-                    options, HELP_DESCRIPTION);
+                    options, PIAConstants.HELP_DESCRIPTION);
         }
     }
 
@@ -845,24 +808,24 @@ public class PIAModeller implements Serializable {
      * @param line
      */
     private static void parseParameterXMLFile(CommandLine line) {
-        String paramFile = line.getOptionValue(PARAM_FILE_OPTION);
+        String paramFile = line.getOptionValue(PIAConstants.PARAM_FILE_OPTION);
 
-        if (line.hasOption(INIT_OPTION)) {
-            initialisePipelineXML(line.getOptionValue(PARAM_FILE_OPTION),
-                    line.getOptionValue(INIT_OPTION));
-        } else if (line.hasOption(APPEND_OPTION)) {
+        if (line.hasOption(PIAConstants.INIT_OPTION)) {
+            initialisePipelineXML(line.getOptionValue(PIAConstants.PARAM_FILE_OPTION),
+                    line.getOptionValue(PIAConstants.INIT_OPTION));
+        } else if (line.hasOption(PIAConstants.APPEND_OPTION)) {
             String paramOutFile = paramFile;
-            if (line.hasOption(PARAM_OUT_FILE_OPTION)) {
-                paramOutFile = line.getOptionValue(PARAM_OUT_FILE_OPTION);
+            if (line.hasOption(PIAConstants.PARAM_OUT_FILE_OPTION)) {
+                paramOutFile = line.getOptionValue(PIAConstants.PARAM_OUT_FILE_OPTION);
             }
 
             appendToPipelineXML(paramFile, paramOutFile, line.getArgs());
         } else {
             // so the default EXECUTE_OPTION will be performed
-            if (!line.hasOption(INPUT_FILE_OPTION)) {
+            if (!line.hasOption(PIAConstants.INPUT_FILE_OPTION)) {
                 LOGGER.error("execution of paramFile requires an infile");
             } else {
-                processExecuteXMLFile(line.getOptionValue(PARAM_FILE_OPTION), line);
+                processExecuteXMLFile(line.getOptionValue(PIAConstants.PARAM_FILE_OPTION), line);
             }
         }
     }
@@ -875,26 +838,26 @@ public class PIAModeller implements Serializable {
      */
     private static void processExecuteXMLFile(String paramFileName, CommandLine line) {
         try {
-            PIAModeller model = new PIAModeller(line.getOptionValue(INPUT_FILE_OPTION));
+            PIAModeller model = new PIAModeller(line.getOptionValue(PIAConstants.INPUT_FILE_OPTION));
             processPipelineFile(paramFileName, model);
 
-            if (line.hasOption(WRITE_INFORMATION_OPTION)) {
-                processWriteInformation(line.hasOption(CALCULATE_INFORMATION_OPTION) ? line.getOptionValue(CALCULATE_INFORMATION_OPTION) : null,
-                        line.getOptionValue(WRITE_INFORMATION_OPTION), model);
+            if (line.hasOption(PIAConstants.WRITE_INFORMATION_OPTION)) {
+                processWriteInformation(line.hasOption(PIAConstants.CALCULATE_INFORMATION_OPTION) ? line.getOptionValue(PIAConstants.CALCULATE_INFORMATION_OPTION) : null,
+                        line.getOptionValue(PIAConstants.WRITE_INFORMATION_OPTION), model);
             }
 
-            if (line.hasOption(PSM_EXPORT_OPTION)) {
-                String[] params = line.getOptionValues(PSM_EXPORT_OPTION);
+            if (line.hasOption(PIAConstants.PSM_EXPORT_OPTION)) {
+                String[] params = line.getOptionValues(PIAConstants.PSM_EXPORT_OPTION);
                 processPSMExport(params, model);
             }
 
-            if (line.hasOption(PEPTIDE_EXPORT_OPTION)) {
-                String[] params = line.getOptionValues(PEPTIDE_EXPORT_OPTION);
+            if (line.hasOption(PIAConstants.PEPTIDE_EXPORT_OPTION)) {
+                String[] params = line.getOptionValues(PIAConstants.PEPTIDE_EXPORT_OPTION);
                 processPeptideExport(params, model);
             }
 
-            if (line.hasOption(PROTEIN_EXPORT_OPTION)) {
-                String[] params = line.getOptionValues(PROTEIN_EXPORT_OPTION);
+            if (line.hasOption(PIAConstants.PROTEIN_EXPORT_OPTION)) {
+                String[] params = line.getOptionValues(PIAConstants.PROTEIN_EXPORT_OPTION);
                 processProteinExport(params, model);
             }
         } catch (Exception e) {
@@ -990,8 +953,8 @@ public class PIAModeller implements Serializable {
         List<String> paramList = new ArrayList<>();
 
         if (params.length >= 2) {
-            paramList.add(FILE_NAME_PARAM + params[0]);
-            paramList.add(FORMAT_PARAM + params[1]);
+            paramList.add(PIAConstants.FILE_NAME_PARAM + params[0]);
+            paramList.add(PIAConstants.FORMAT_PARAM + params[1]);
 
             if (params.length > 2) {
                 paramList.addAll(Arrays.asList(params).subList(2, params.length));
@@ -1009,17 +972,17 @@ public class PIAModeller implements Serializable {
      * @param line
      */
     private static void parseCommandsFromCommandLine(CommandLine line) {
-        if (!line.hasOption(INPUT_FILE_OPTION)) {
+        if (!line.hasOption(PIAConstants.INPUT_FILE_OPTION)) {
             LOGGER.warn("Nothing to be done, neither paramFile nor infile given.");
             return;
         }
 
         try {
-            PIAModeller model = new PIAModeller(line.getOptionValue(INPUT_FILE_OPTION));
+            PIAModeller model = new PIAModeller(line.getOptionValue(PIAConstants.INPUT_FILE_OPTION));
 
-            if (line.hasOption(PSM_OPTION)) {
+            if (line.hasOption(PIAConstants.PSM_OPTION)) {
                 // perform the PSM commands
-                for (String command : line.getOptionValues(PSM_OPTION)) {
+                for (String command : line.getOptionValues(PIAConstants.PSM_OPTION)) {
                     PSMModeller.processCLI(
                             model.getPSMModeller(),
                             model,
@@ -1027,9 +990,9 @@ public class PIAModeller implements Serializable {
                 }
             }
 
-            if (line.hasOption(PEPTIDE_OPTION)) {
+            if (line.hasOption(PIAConstants.PEPTIDE_OPTION)) {
                 // perform the PSM commands
-                for (String command : line.getOptionValues(PEPTIDE_OPTION)) {
+                for (String command : line.getOptionValues(PIAConstants.PEPTIDE_OPTION)) {
                     PeptideModeller.processCLI(
                             model.getPeptideModeller(),
                             model,
@@ -1037,9 +1000,9 @@ public class PIAModeller implements Serializable {
                 }
             }
 
-            if (line.hasOption(PROTEIN_OPTION)) {
+            if (line.hasOption(PIAConstants.PROTEIN_OPTION)) {
                 // perform the PSM commands
-                for (String command : line.getOptionValues(PROTEIN_OPTION)) {
+                for (String command : line.getOptionValues(PIAConstants.PROTEIN_OPTION)) {
                     ProteinModeller.processCLI(
                             model.getProteinModeller(),
                             model,

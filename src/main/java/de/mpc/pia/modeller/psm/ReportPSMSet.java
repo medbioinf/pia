@@ -910,9 +910,9 @@ public class ReportPSMSet implements PSMReportItem {
 
        bt.append("Protein Accessions: ");
        for(Accession acc: getAccessions())
-           bt.append(acc.getAccession() + "|");
+           bt.append(acc.getAccession()).append("|");
 
-        bt.append(" Sequence: " + getPeptide().getSequence()).append(" | ");
+        bt.append(" Sequence: ").append(getPeptide().getSequence()).append(" | ");
 
         bt.append("Modifications: " );
         for(PSMItem psm: psmsList){

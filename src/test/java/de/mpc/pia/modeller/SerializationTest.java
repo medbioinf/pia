@@ -42,7 +42,7 @@ public class SerializationTest {
 
 
     @Test
-    public void testSerializingDeserializing() throws IOException, ClassNotFoundException {
+    public void testSerializingDeserializing() throws IOException {
 
         PIAModeller piaModeller = new PIAModeller(piaFile.getAbsolutePath());
 
@@ -119,7 +119,7 @@ public class SerializationTest {
 
     @Ignore
     @Test
-    public void testSerializingCustom() throws IOException, ClassNotFoundException {
+    public void testSerializingCustom() throws IOException {
         File mzid55mergeIntermediate = new File(PIACompilerTest.class.getResource("/55merge-tandem_msgf_from_idxml.pia.xml").getPath());
 
 
@@ -161,8 +161,6 @@ public class SerializationTest {
 
             oos.writeObject(piaModeller);
 
-        } catch (IOException e) {
-            throw e;
         }
 
         /*

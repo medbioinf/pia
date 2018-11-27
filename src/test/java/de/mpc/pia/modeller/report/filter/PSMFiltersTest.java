@@ -27,7 +27,7 @@ public class PSMFiltersTest {
     private PIAModeller piaModeller = null;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         File piaFile = new File(PSMFiltersTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
 
         // load the PIA XML file
@@ -130,7 +130,7 @@ public class PSMFiltersTest {
         int nrTop1 = psmList.size();
         assertTrue("Number of top identification not <= number of all PSMs", nrTop1 <= nrAllPSMs);
         for (ReportPSM psm : psmList) {
-            assertTrue("PSM is not top ID for " + testedScoreShort, psm.getIdentificationRank(testedScoreShort) == 1);
+            assertEquals("PSM is not top ID for " + testedScoreShort, 1, (int) psm.getIdentificationRank(testedScoreShort));
         }
 
         // all worse than top ID
@@ -140,7 +140,7 @@ public class PSMFiltersTest {
 
         int nrNotTop1 = psmList.size();
         assertTrue("Number of not top IDs <= number of all PSMs", nrNotTop1 <= nrAllPSMs);
-        assertTrue("Number of top IDs and not topIDs not equal to all PSMs", nrNotTop1 + nrTop1 == nrAllPSMs);
+        assertEquals("Number of top IDs and not topIDs not equal to all PSMs", nrNotTop1 + nrTop1, nrAllPSMs);
         for (ReportPSM psm : psmList) {
             assertTrue("PSM is not 'not top ID' for " + testedScoreShort, psm.getIdentificationRank(testedScoreShort) > 1);
         }

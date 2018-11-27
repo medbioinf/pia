@@ -952,10 +952,11 @@ public class IdXMLFileParser {
 
 
     /**
-     * Getter for the start sites of a given peptide in the given protein sequence.
+     * Getter for the start sites of a given peptide in the given protein
+     * sequence.
      *
-     * @param peptideSeq
-     * @param proteinSeq
+     * @param peptide
+     * @param protein
      * @return
      */
     private static List<Integer> getStartSites(String peptide, String protein) {
@@ -1015,7 +1016,7 @@ public class IdXMLFileParser {
 
         // evaluate for same hashcodes and equality
         return psmList.stream().
-                anyMatch(s -> (psmHash == s.hashCodeWithoutID()) ? psm.equalsWithoutID(s) : false);
+                anyMatch(s -> (psmHash == s.hashCodeWithoutID()) && psm.equalsWithoutID(s));
     }
 
 

@@ -1,6 +1,5 @@
 package de.mpc.pia.modeller.exporter;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -40,7 +39,7 @@ public class MzIdentMLExportAndImportTest {
     public void testMzIdentMLExportAndImport() throws IOException {
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
-        assertEquals(true, piaCompiler.getDataFromFile("tandem", tandemIdXMLResults.getAbsolutePath(), null, null));
+        assertTrue(piaCompiler.getDataFromFile("tandem", tandemIdXMLResults.getAbsolutePath(), null, null));
 
         piaCompiler.buildClusterList();
         piaCompiler.buildIntermediateStructure();
@@ -90,7 +89,7 @@ public class MzIdentMLExportAndImportTest {
         // try to read it back in PIA compiler
         piaCompiler = new PIASimpleCompiler();
 
-        assertEquals(true, piaCompiler.getDataFromFile("mzIdentMLfile", exportFile.getAbsolutePath(), null, null));
+        assertTrue(piaCompiler.getDataFromFile("mzIdentMLfile", exportFile.getAbsolutePath(), null, null));
 
         piaCompiler.buildClusterList();
         piaCompiler.buildIntermediateStructure();

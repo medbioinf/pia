@@ -66,7 +66,7 @@ public class FDRScoreTest {
      * @throws IOException
      */
     @Test
-    public void testAllPSMsSameScoreFDRScore() throws IOException  {
+    public void testAllPSMsSameScoreFDRScore() {
         PIAModeller piaModeller = new PIAModeller(inferenceTempFile.getAbsolutePath());
 
         // FDR calculation
@@ -106,12 +106,10 @@ public class FDRScoreTest {
         if (!peptides.isEmpty()) {
             Double sameFDRScore = peptides.get(0).getScore(ScoreModelEnum.PEPTIDE_LEVEL_Q_VALUE.getShortName());
 
-            assertEquals("Wrong FDR Score for peptides", sameFDRScore, new Double(0.008746355685131196), 0.0000001);
+            assertEquals("Wrong FDR Score for peptides", sameFDRScore, 0.008746355685131196, 0.0000001);
 
-            peptides.forEach(pep -> {
-                assertEquals("All peptides should have the same FDR (which should also equal the q-value)",
-                        sameFDRScore, pep.getScore(ScoreModelEnum.PEPTIDE_LEVEL_FDR_SCORE.getShortName()));
-            });
+            peptides.forEach(pep -> assertEquals("All peptides should have the same FDR (which should also equal the q-value)",
+                    sameFDRScore, pep.getScore(ScoreModelEnum.PEPTIDE_LEVEL_FDR_SCORE.getShortName())));
         }
     }
 
@@ -134,14 +132,10 @@ public class FDRScoreTest {
         assertEquals("There should be no detected decoys",
                 Integer.valueOf(0), piaModeller.getPSMModeller().getFilesFDRData(1L).getNrDecoys());
 
-        piaModeller.getPSMModeller().getFilteredReportPSMs(1L, null).forEach(psm -> {
-            assertEquals("FDR Scores should be the small score substitute",
-                    PIAConstants.SMALL_FDRSCORE_SUBSTITUTE, psm.getFDRScore().getValue());
-        });
+        piaModeller.getPSMModeller().getFilteredReportPSMs(1L, null).forEach(psm -> assertEquals("FDR Scores should be the small score substitute",
+                PIAConstants.SMALL_FDRSCORE_SUBSTITUTE, psm.getFDRScore().getValue()));
 
-        piaModeller.getPSMModeller().getFilteredReportPSMSets(null).forEach(psmSet -> {
-            assertEquals("FDR Scores should be the small score substitute",
-                    PIAConstants.SMALL_FDRSCORE_SUBSTITUTE, psmSet.getFDRScore().getValue());
-        });
+        piaModeller.getPSMModeller().getFilteredReportPSMSets(null).forEach(psmSet -> assertEquals("FDR Scores should be the small score substitute",
+                PIAConstants.SMALL_FDRSCORE_SUBSTITUTE, psmSet.getFDRScore().getValue()));
     }
 }

@@ -327,7 +327,7 @@ public enum ScoreModelEnum {
         }
     },
 
-    /** Beginning of Mascot Scores  **/
+    /* Beginning of Mascot Scores  **/
 
     /**
      *  This Score implements the Mascot expectation value
@@ -572,7 +572,7 @@ public enum ScoreModelEnum {
 
     },
 
-    /** End of Mascot Scores**/
+    /* End of Mascot Scores**/
 
     /**
      *  This Score implements the Sequest Probability.
@@ -997,7 +997,7 @@ public enum ScoreModelEnum {
         }
     },
 
-    /** Beginning of MSGF+ Scores **/
+    /* Beginning of MSGF+ Scores **/
 
     /**
      * The MS-GF+ RawScore
@@ -1201,9 +1201,9 @@ public enum ScoreModelEnum {
 
     },
 
-    /** End of MSGF+ Scores **/
+    /* End of MSGF+ Scores **/
 
-    /** Beginning of MS-Amanda Scores **/
+    /* Beginning of MS-Amanda Scores **/
 
     /**
      * The Amanda score
@@ -1254,7 +1254,7 @@ public enum ScoreModelEnum {
         }
     },
 
-    /** End of the MS-Amanda Scores **/
+    /* End of the MS-Amanda Scores **/
 
 
     /**
@@ -1336,7 +1336,7 @@ public enum ScoreModelEnum {
         }
     },
 
-    /** End of COMET Scores **/
+    /* End of COMET Scores **/
 
     /**
      * The Peaks Scores
@@ -1373,12 +1373,11 @@ public enum ScoreModelEnum {
         }
     },
 
-    /** End of Peaks Scores **/
+    /* End of Peaks Scores **/
 
     /** OMSSA Scores ***/
 
     OMSSA_E_VALUE {
-
         @Override
         public String getName() {
             return "OMSSA E-value";
@@ -1418,7 +1417,6 @@ public enum ScoreModelEnum {
     },
 
     OMSSA_P_VALUE {
-
         @Override
         public String getName() {
             return "OMSSA P-value";
@@ -1453,7 +1451,7 @@ public enum ScoreModelEnum {
 
     },
 
-    /** End OMSSA Scores **/
+    /* End OMSSA Scores **/
 
 
     /**
@@ -1697,7 +1695,7 @@ public enum ScoreModelEnum {
 
     },
 
-    /** Percolator scores END**/
+    /* Percolator scores END**/
 
     /** PeptideShaker Scores**/
 
@@ -1764,7 +1762,7 @@ public enum ScoreModelEnum {
 
     },
 
-    /** End of PeptideShaker Scores **/
+    /* End of PeptideShaker Scores **/
 
 
     /** MyriMatch Scores **/
@@ -1943,7 +1941,7 @@ public enum ScoreModelEnum {
 
 
 
-    /** End Phenyx Score **/
+    /* End Phenyx Score **/
 
 
     /**
@@ -2095,7 +2093,7 @@ public enum ScoreModelEnum {
     },
 
 
-    /** End of Byonic Scores **/
+    /* End of Byonic Scores **/
 
 
     /** Spectrum Mill Score **/
@@ -2134,7 +2132,7 @@ public enum ScoreModelEnum {
 
     },
 
-    /** End Spectrum Mill Score **/
+    /* End Spectrum Mill Score **/
 
     /**
      * The FASTA Sequence Count score.
@@ -2286,9 +2284,21 @@ public enum ScoreModelEnum {
         public Boolean higherScoreBetter() {
             return true;
         }
-    }
+    };
 
-    ;
+    /**
+     * These scores are not native searchengine results, but are in some way calculated
+     */
+    public static final List<ScoreModelEnum> nonNativeScoreModels = new ArrayList<>(
+          Arrays.asList(new ScoreModelEnum[]{
+                  AVERAGE_FDR_SCORE,
+                  PSM_LEVEL_COMBINED_FDR_SCORE,
+                  PSM_LEVEL_FDR_SCORE,
+                  PSM_LEVEL_Q_VALUE,
+                  PEPTIDE_LEVEL_COMBINED_FDR_SCORE,
+                  PEPTIDE_LEVEL_FDR_SCORE,
+                  PEPTIDE_LEVEL_Q_VALUE})
+    );
 
 
     /**

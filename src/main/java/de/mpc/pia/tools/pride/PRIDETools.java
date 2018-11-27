@@ -29,7 +29,7 @@ public class PRIDETools {
 
     private static Cv prideCV = new Cv();
 
-    /**
+    /*
      * static initialization
      */
     static {

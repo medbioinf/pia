@@ -43,7 +43,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem>, Serial
     CHARGE_SORT {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
-            return Integer.valueOf(o1.getCharge()).compareTo(o2.getCharge());
+            return Integer.compare(o1.getCharge(), o2.getCharge());
         }
 
         @Override
@@ -76,7 +76,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem>, Serial
     MASS_TO_CHARGE_SORT {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
-            return Double.valueOf(o1.getMassToCharge()).compareTo(o2.getMassToCharge());
+            return Double.compare(o1.getMassToCharge(), o2.getMassToCharge());
         }
 
         @Override
@@ -87,7 +87,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem>, Serial
     MISSED_SORT {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
-            return Integer.valueOf(o1.getMissedCleavages()).compareTo(o2.getMissedCleavages());
+            return Integer.compare(o1.getMissedCleavages(), o2.getMissedCleavages());
         }
 
         @Override
@@ -122,7 +122,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem>, Serial
     DELTA_MASS_SORT {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
-            return Double.valueOf(o1.getDeltaMass()).compareTo(o2.getDeltaMass());
+            return Double.compare(o1.getDeltaMass(), o2.getDeltaMass());
         }
 
         @Override
@@ -133,7 +133,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem>, Serial
     DELTA_PPM_SORT {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
-            return Double.valueOf(o1.getDeltaPPM()).compareTo(o2.getDeltaPPM());
+            return Double.compare(o1.getDeltaPPM(), o2.getDeltaPPM());
         }
 
         @Override

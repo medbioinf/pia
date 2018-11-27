@@ -42,7 +42,7 @@ public abstract class AbstractScoring implements Serializable {
      * Basic constructor, requires a mapping of the available
      * {@link de.mpc.pia.modeller.score.ScoreModel}s.
      *
-     * @param scoreNameMap
+     * @param aScoreNameMap abstract Score name
      */
     public AbstractScoring(Map<String, String> aScoreNameMap) {
         String initialKey = null;
@@ -160,7 +160,7 @@ public abstract class AbstractScoring implements Serializable {
      * This should be called every time a new {@link de.mpc.pia.modeller.score.ScoreModel} (like e.g. the
      * combined FDR Score) is added / calculated.
      *
-     * @param scoreNameMap map of the {@link de.mpc.pia.modeller.score.ScoreModel}s shortNames to its corresponding name
+     * @param aScoreNameMap map of the {@link de.mpc.pia.modeller.score.ScoreModel}s shortNames to its corresponding name
      */
     public void updateAvailableScores(Map<String, String> aScoreNameMap) {
         HashMap<String, String> scoreNameMap = new HashMap<>();

@@ -64,7 +64,7 @@
 		<BaseLib.version>0.0.1-SNAPSHOT</BaseLib.version>
 		<CvtBaseLib.version>0.0.1-SNAPSHOT</CvtBaseLib.version>
 		<PDLibrary.version>0.0.1-SNAPSHOT</PDLibrary.version>
-		
+
 		<!-- check for these dependencies the available KNIME deps. If these are ok, take them, even if they are older. -->
 		<commons-lang3.version>3.2.1</commons-lang3.version>
 	</properties>
@@ -228,6 +228,13 @@
 			<version>${xercesImpl.version}</version>
       		<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.compomics</groupId>
+			<artifactId>utilities</artifactId>
+			<version>4.12.6</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

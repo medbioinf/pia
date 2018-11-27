@@ -14,7 +14,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -42,13 +41,10 @@ public class PIAPRIDEModellerTest {
         HashMap<String, String> files = new HashMap<>();
         int countAssay = 0;
         if(mzTabFolder.isDirectory() && mzTabFolder.listFiles().length > 0){
-            for(File file: mzTabFolder.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    if(name.endsWith(".mztab"))
-                        return true;
-                    return false;
-                }
+            for(File file: mzTabFolder.listFiles((dir, name) -> {
+                if(name.endsWith(".mztab"))
+                    return true;
+                return false;
             })){
                 files.put(file.getAbsolutePath(), Integer.toString(countAssay));
                 countAssay++;
@@ -99,7 +95,7 @@ public class PIAPRIDEModellerTest {
                 logger.error("There are no peptides at all!");
             }
 
-            Assert.assertTrue(noDecoyPeptides.size() == 10987);
+            Assert.assertEquals(9409, noDecoyPeptides.size());
 
             logger.info("number of FDR 0.01 filtered target peptides: " + noDecoyPeptides.size() + " / " + peptides.size());
         } else {

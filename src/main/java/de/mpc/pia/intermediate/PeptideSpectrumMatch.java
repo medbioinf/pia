@@ -2,7 +2,6 @@ package de.mpc.pia.intermediate;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -551,8 +550,8 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
         List<String> usedSettings = psmSetSettings.entrySet().stream()
                 .filter(Map.Entry::getValue)
                 .map(Map.Entry::getKey)
+                .sorted()
                 .collect(Collectors.toList());
-        Collections.sort(usedSettings);
 
         StringBuilder key = new StringBuilder();
         for (String settingName : usedSettings) {
@@ -623,8 +622,12 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
      * @return
      */
     public String getIdentificationKey(Map<String, Boolean> psmSetSettings) {
-        List<String> usedSettings = psmSetSettings.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList());
-        Collections.sort(usedSettings);
+        List<String> usedSettings = psmSetSettings.entrySet()
+                .stream()
+                .filter(Map.Entry::getValue)
+                .map(Map.Entry::getKey)
+                .sorted()
+                .collect(Collectors.toList());
 
         StringBuilder keyKey = new StringBuilder();
 

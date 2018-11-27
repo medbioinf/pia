@@ -28,8 +28,7 @@ public class PIAModellerTest {
 
 
     @Test
-    public void testBasicFileLoading()
-            throws JAXBException, XMLStreamException, IOException {
+    public void testBasicFileLoading() {
 
         PIAModeller piaModeller = new PIAModeller(piaFile.getAbsolutePath());
 

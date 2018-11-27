@@ -44,7 +44,7 @@ public class MzTabExporterForPRIDEReanalysisTest {
 
     @Ignore
     @Test
-    public void testPeptideLevelExport() throws IOException {
+    public void testPeptideLevelExport() {
         PIAModeller piaModeller = new PIAModeller(piaFile.getAbsolutePath());
 
         Map<String, Boolean> psmSetSettings = piaModeller.getPSMModeller().getMaximalPSMSetSettings();
@@ -79,7 +79,7 @@ public class MzTabExporterForPRIDEReanalysisTest {
 
     @Ignore
     @Test
-    public void testPeptideAndProteinLevelExport() throws IOException {
+    public void testPeptideAndProteinLevelExport() {
         double fdrThreshold = 0.01;
 
         PIAModeller piaModeller = new PIAModeller(piaFile.getAbsolutePath());

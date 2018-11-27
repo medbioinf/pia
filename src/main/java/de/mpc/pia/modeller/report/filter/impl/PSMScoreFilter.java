@@ -9,6 +9,7 @@ import de.mpc.pia.modeller.report.filter.FilterType;
 import de.mpc.pia.modeller.report.filter.RegisteredFilters;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
+import org.apache.log4j.Logger;
 
 /**
  * Implementation of a filter, which filters by a PSM score of a
@@ -17,9 +18,11 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
  * @author julian
  *
  */
+
 public class PSMScoreFilter extends AbstractFilter {
 
     private static final long serialVersionUID = -759288282471703034L;
+    private static final Logger log = Logger.getLogger(PSMScoreFilter.class);
 
 
     public static final FilterType filterType = FilterType.numerical;
@@ -111,7 +114,7 @@ public class PSMScoreFilter extends AbstractFilter {
         if (c instanceof PSMReportItem) {
             // it also depends on the score ("average FDR score" and "combined fdr score" is PSMSet, all other are PSM)
             if (c instanceof ReportPSM) {
-
+                log.debug(((ReportPSM) c).getSpectrum().getScores().toString());
                 if (ScoreModelEnum.PSM_LEVEL_Q_VALUE.isValidDescriptor(scoreShortName)) {
                     supports = true;
                 } else {

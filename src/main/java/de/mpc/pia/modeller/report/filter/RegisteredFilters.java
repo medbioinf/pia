@@ -19,11 +19,12 @@ import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.report.filter.impl.PSMTopIdentificationFilter;
 import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
 import de.mpc.pia.modeller.report.filter.impl.SimpleTypeFilter;
+import de.mpc.pia.modeller.score.ScoreModel;
 
 /**
  * All the filters should be registered in this enum.
  *
- * @author julian
+ * @author julianu
  *
  */
 public enum RegisteredFilters {
@@ -80,6 +81,7 @@ public enum RegisteredFilters {
             return (c instanceof PSMReportItem) || (c instanceof Number);
         }
     },
+
     DELTA_PPM_FILTER(FilterType.numerical, Number.class, "dPPM Filter for PSM", "dPPM (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -103,6 +105,7 @@ public enum RegisteredFilters {
             return c instanceof PSMReportItem;
         }
     },
+
     MZ_FILTER(FilterType.numerical, Number.class, "m/z Filter for PSM", "m/z (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -126,6 +129,7 @@ public enum RegisteredFilters {
             return c instanceof PSMReportItem;
         }
     },
+
     PSM_ACCESSIONS_FILTER(FilterType.literal_list, String.class, "Accessions Filter for PSM", "Accessions (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -175,6 +179,7 @@ public enum RegisteredFilters {
             return strList;
         }
     },
+
     PSM_DESCRIPTION_FILTER(FilterType.literal_list, String.class, "Description Filter for PSM", "Description (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -224,6 +229,7 @@ public enum RegisteredFilters {
             return strList;
         }
     },
+
     PSM_FILE_LIST_FILTER(FilterType.literal_list, String.class, "File List Filter for PSM", "File List (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -274,6 +280,7 @@ public enum RegisteredFilters {
             return strList;
         }
     },
+
     PSM_MISSED_CLEAVAGES_FILTER(FilterType.numerical, Number.class, "Missed Cleavages Filter for PSM", "Missed Cleavages (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -320,6 +327,7 @@ public enum RegisteredFilters {
             return c instanceof PSMReportItem;
         }
     },
+
     PSM_RANK_FILTER(FilterType.numerical, Number.class, "Rank Filter for PSM", "Rank (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -343,6 +351,7 @@ public enum RegisteredFilters {
             return c instanceof PSMReportItem;
         }
     },
+
     PSM_SEQUENCE_FILTER(FilterType.literal, String.class, "Sequence Filter for PSM", "Sequence (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -401,6 +410,51 @@ public enum RegisteredFilters {
         }
 
     },
+
+    PSM_SET_CONTAINS_SCORE_FILTER(FilterType.literal_list, String.class, "PSM Set contains score", "Contains score (PSM)") {
+        @Override
+        public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<>(arg, this, negate, (String) value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            List<String> retSet = null;
+
+            if (o instanceof ReportPSMSet) {
+                List<ScoreModel> scores = new ArrayList<>();
+                for (ReportPSM psm : ((ReportPSMSet) o).getPSMs()) {
+                    scores.addAll(psm.getScores());
+                }
+
+                if (((ReportPSMSet) o).getFDRScore() != null) {
+                    scores.add(((ReportPSMSet) o).getFDRScore());
+                }
+                if (((ReportPSMSet) o).getAverageFDRScore() != null) {
+                    scores.add(((ReportPSMSet) o).getAverageFDRScore());
+                }
+
+                retSet = scores.stream()
+                        .map(score -> score.getShortName())
+                        .distinct()
+                        .collect(Collectors.toList());
+            } else if (o instanceof List<?>) {
+                retSet = ((List<?>) o)
+                        .stream()
+                        .filter(obj -> obj instanceof String).map(obj -> (String) obj)
+                        .distinct()
+                        .collect(Collectors.toList());
+            }
+
+            return retSet;
+        }
+
+        @Override
+        public boolean supportsClass(Object obj) {
+            return obj instanceof ReportPSMSet;
+        }
+    },
+
     NR_ACCESSIONS_PER_PSM_FILTER(FilterType.numerical, Number.class, "#accessions per PSM", "#accessions (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {

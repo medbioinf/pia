@@ -1,7 +1,6 @@
 package de.mpc.pia.intermediate.compiler;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -683,20 +682,16 @@ public abstract class PIACompiler {
         clusteredPepAccMap = new ArrayList<>();
 
 
-        /**
-           this accession is not yet clustered, so start a new cluster
-           and insert all the "connected" peptides and accessions
-         */
+        // This accession is not yet clustered, so start a new cluster and
+        // insert all the "connected" peptides and accessions
         getAllAccessionIDs().stream().filter(accID -> !accessionsDone.contains(accID)).forEach(accID -> {
-            /**
-               this accession is not yet clustered, so start a new cluster
-               and insert all the "connected" peptides and accessions
-             */
-
             Map<Long, Collection<Long>> pepAccMapCluster = createCluster(accID, peptidesDone, accessionsDone);
 
-            if (pepAccMapCluster != null) clusteredPepAccMap.add(pepAccMapCluster);
-            else LOGGER.error("cluster could not be created!");
+            if (pepAccMapCluster != null) {
+                clusteredPepAccMap.add(pepAccMapCluster);
+            } else {
+                LOGGER.error("cluster could not be created!");
+            }
 
         });
 
@@ -1197,7 +1192,7 @@ public abstract class PIACompiler {
     public abstract void finish();
 
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         CommandLineParser parser = new DefaultParser();
         Options options = new Options();
 

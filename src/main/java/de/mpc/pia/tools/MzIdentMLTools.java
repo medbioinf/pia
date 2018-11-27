@@ -44,9 +44,7 @@ public class MzIdentMLTools {
     /** PIA as an {@link AnalysisSoftware} */
     private static final AnalysisSoftware piaAnalysisSoftware = new AnalysisSoftware();
 
-    /**
-     * static initialization
-     */
+    // Static initialization
     static {
         psiMS.setId("PSI-MS");
         psiMS.setFullName("PSI-MS");
@@ -210,7 +208,7 @@ public class MzIdentMLTools {
      * The abstractParam's value should be set before, as it is used for the
      * conversion from mmu to Dalton.
      *
-     * @param unitStr
+     * @param unit
      * @param abstractParam
      * @return
      */

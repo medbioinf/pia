@@ -3,7 +3,7 @@ package de.mpc.pia.intermediate.compiler;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,11 +26,9 @@ public class PIACompilerNativeFilesTest {
     public void testPIACompilerNativeFiles() throws IOException {
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
-        assertEquals("Mascot file could not be parsed", true,
-                piaCompiler.getDataFromFile("mascot", mascotFile.getAbsolutePath(), null, "mascot"));
+        assertTrue("Mascot file could not be parsed", piaCompiler.getDataFromFile("mascot", mascotFile.getAbsolutePath(), null, "mascot"));
 
-        assertEquals("X!TAndem file could not be parsed", true,
-                piaCompiler.getDataFromFile("tandem", tandemFile.getAbsolutePath(), null, "tandem"));
+        assertTrue("X!TAndem file could not be parsed", piaCompiler.getDataFromFile("tandem", tandemFile.getAbsolutePath(), null, "tandem"));
 
         piaCompiler.buildClusterList();
         piaCompiler.buildIntermediateStructure();

@@ -10,12 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import de.mpc.pia.modeller.peptide.ReportPeptide;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +27,8 @@ import de.mpc.pia.modeller.report.filter.RegisteredFilters;
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
+
+import static org.junit.Assert.*;
 
 public class PIACompilerTest {
 
@@ -63,11 +59,11 @@ public class PIACompilerTest {
 
 
     @Test
-    public void testPIACompilerCompilationAndAnalysis() throws IOException, JAXBException, XMLStreamException {
+    public void testPIACompilerCompilationAndAnalysis() throws IOException {
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
-        assertEquals(true, piaCompiler.getDataFromFile("tandem", idXMLtandemFile.getAbsolutePath(), null, null));
-        assertEquals(true, piaCompiler.getDataFromFile("msgf", idXMLmsgfFile.getAbsolutePath(), null, null));
+        assertTrue(piaCompiler.getDataFromFile("tandem", idXMLtandemFile.getAbsolutePath(), null, null));
+        assertTrue(piaCompiler.getDataFromFile("msgf", idXMLmsgfFile.getAbsolutePath(), null, null));
 
         piaCompiler.buildClusterList();
         piaCompiler.buildIntermediateStructure();
@@ -93,8 +89,8 @@ public class PIACompilerTest {
 
         piaModeller.setConsiderModifications(false);
 
-        /***
-         * Validation of the filter with PSMs counts by mzIdentFILE
+        /*
+         Validation of the filter with PSMs counts by mzIdentFILE
          */
 
         List<AbstractFilter> filters = new ArrayList<>();
@@ -183,14 +179,11 @@ public class PIACompilerTest {
     public void testPIACompilerMzidFiles() throws IOException {
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
-        assertEquals("X!TAndem file could not be parsed", true,
-                piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
+        assertTrue("X!TAndem file could not be parsed", piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
 
-        assertEquals("OMSSA file could not be parsed", true,
-                piaCompiler.getDataFromFile("tandem", mzid55mergeOmssa.getAbsolutePath(), null, null));
+        assertTrue("OMSSA file could not be parsed", piaCompiler.getDataFromFile("tandem", mzid55mergeOmssa.getAbsolutePath(), null, null));
 
-        assertEquals("Mascot file could not be parsed", true,
-                piaCompiler.getDataFromFile("mascot", mzid55mergeMascot.getAbsolutePath(), null, null));
+        assertTrue("Mascot file could not be parsed", piaCompiler.getDataFromFile("mascot", mzid55mergeMascot.getAbsolutePath(), null, null));
 
 
         piaCompiler.buildClusterList();
@@ -216,11 +209,9 @@ public class PIACompilerTest {
     public void testPIACompilerWriteXML() throws IOException {
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
-        assertEquals("X!TAndem file could not be parsed", true,
-                piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
+        assertTrue("X!TAndem file could not be parsed", piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
 
-        assertEquals("Mascot file could not be parsed", true,
-                piaCompiler.getDataFromFile("mascot", mzid55mergeMascot.getAbsolutePath(), null, null));
+        assertTrue("Mascot file could not be parsed", piaCompiler.getDataFromFile("mascot", mzid55mergeMascot.getAbsolutePath(), null, null));
 
 
         piaCompiler.buildClusterList();
