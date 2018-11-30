@@ -52,27 +52,21 @@ public class OBOMapper extends AbstractOBOMapper {
      * @param useOnline whether to use the online OBO
      */
     public OBOMapper(boolean useOnline) {
-        InputStream inStream;
-
-        try {
+        try (InputStream inStreamOffline = OBOMapper.class.getResourceAsStream("/de/mpc/pia/psi-ms.obo")) {
             // get the shipped ontology
-            inStream = OBOMapper.class.getResourceAsStream("/de/mpc/pia/psi-ms.obo");
-
             OboParser parser = new OboParser();
-            BufferedReader oboFile = new BufferedReader(new InputStreamReader(inStream));
+            BufferedReader oboFile = new BufferedReader(new InputStreamReader(inStreamOffline));
 
             shippedOntology = parser.parseOBO(oboFile, "PSI-MS", "MS ontology of the HUPO-PSI");
-            inStream.close();
 
-            // get the internet ontology
+            // get the online ontology
             if (useOnline) {
-                inStream = new URL(OntologyConstants.PSI_MS_OBO_URL).openStream();
+                try (InputStream inStreamOnline = new URL(OntologyConstants.PSI_MS_OBO_URL).openStream()) {
+                    parser = new OboParser();
+                    oboFile = new BufferedReader(new InputStreamReader(inStreamOnline));
 
-                parser = new OboParser();
-                oboFile = new BufferedReader(new InputStreamReader(inStream));
-
-                onlineOntology = parser.parseOBO(oboFile, "PSI-MS", "MS ontology of the HUPO-PSI");
-                inStream.close();
+                    onlineOntology = parser.parseOBO(oboFile, "PSI-MS", "MS ontology of the HUPO-PSI");
+                }
             } else {
                 onlineOntology = null;
             }

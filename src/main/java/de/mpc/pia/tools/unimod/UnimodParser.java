@@ -10,7 +10,6 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.log4j.Logger;
@@ -71,33 +70,37 @@ public class UnimodParser {
     public UnimodParser(boolean useOnline) {
         InputStream inStream = null;
 
-        if (useOnline) {
-            try {
-                inStream = new URL("http://www.unimod.org/xml/unimod.xml").openStream();
-            } catch (IOException e) {
-                LOGGER.warn("could not use remote unimod.xml file, check internet connection", e);
-            }
-        }
-
-        if (inStream == null) {
-            try {
-                inStream = this.getClass().getResourceAsStream(PATH_TO_SHIPPED_UNIMOD);
-            } catch (Exception e) {
-                LOGGER.error("could not get unimod.xml file", e);
-                throw new AssertionError(e);
-            }
-        }
-
         try {
+            if (useOnline) {
+                try {
+                    inStream = new URL("http://www.unimod.org/xml/unimod.xml").openStream();
+                } catch (IOException e) {
+                    LOGGER.warn("could not use remote unimod.xml file, check internet connection", e);
+                }
+            }
+
+            if (inStream == null) {
+                // try shipped version
+                inStream = this.getClass().getResourceAsStream(PATH_TO_SHIPPED_UNIMOD);
+            }
+
             JAXBContext context = JAXBContext.newInstance(UnimodT.class.getPackage().getName());
             Unmarshaller um = context.createUnmarshaller();
             @SuppressWarnings("unchecked")
             JAXBElement<UnimodT> doc = (JAXBElement<UnimodT>)um.unmarshal(inStream);
 
             modifications = doc.getValue().getModifications().getMod();
-        } catch (JAXBException e) {
+        } catch (Exception e) {
             LOGGER.error("could not parse unimod.xml file", e);
             throw new AssertionError(e);
+        } finally {
+            try {
+                if (inStream != null) {
+                    inStream.close();
+                }
+            } catch (IOException e) {
+                LOGGER.warn("could not properly close stream", e);
+            }
         }
     }
 

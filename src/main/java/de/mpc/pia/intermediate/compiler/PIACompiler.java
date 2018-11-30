@@ -813,6 +813,7 @@ public abstract class PIACompiler {
                 thread.join();
             } catch (InterruptedException e) {
                 LOGGER.error("thread got interrupted!", e);
+                Thread.currentThread().interrupt();
             }
         }
     }

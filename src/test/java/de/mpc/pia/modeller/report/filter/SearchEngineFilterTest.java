@@ -72,7 +72,7 @@ public class SearchEngineFilterTest {
 
         /* add all nonNativeScores to be needed */
         for (String scoreShort : piaModeller.getPSMModeller().getScoreShortsToScoreNames().keySet()) {
-            if (!ScoreModelEnum.nonNativeScoreModels.contains(ScoreModelEnum.getModelByDescription(scoreShort)) ) {
+            if (!ScoreModelEnum.getNonNativeScoreModels().contains(ScoreModelEnum.getModelByDescription(scoreShort)) ) {
                 piaModeller.getPSMModeller().addFilter(0L,
                         RegisteredFilters.PSM_SET_CONTAINS_SCORE_FILTER.newInstanceOf(FilterComparator.contains, scoreShort, false)
                 );

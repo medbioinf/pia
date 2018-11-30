@@ -130,33 +130,37 @@ public class FilterFactory {
      */
     private static Object parseValueForFilterType(String input, String filterShort,
             StringBuilder messageBuffer) {
-        FilterType type =  getFilterType(filterShort);
-        Object value;
+        FilterType type = getFilterType(filterShort);
+        Object value = null;
 
-        try {
-            switch (type) {
-            case numerical:
-                value = Double.parseDouble(input);
-                break;
+        if (type == null) {
+            messageBuffer.append("invalid filter (null)");
+        } else {
+            try {
+                switch (type) {
+                case numerical:
+                    value = Double.parseDouble(input);
+                    break;
 
-            case bool:
-                value = Boolean.parseBoolean(input);
-                break;
+                case bool:
+                    value = Boolean.parseBoolean(input);
+                    break;
 
-            case literal:
-            case literal_list:
-            case modification:
-                value = input;
-                break;
+                case literal:
+                case literal_list:
+                case modification:
+                    value = input;
+                    break;
 
-            default:
-                // no valid filter selected
-                messageBuffer.append("Please select a filter!");
+                default:
+                    // no valid filter selected
+                    messageBuffer.append("Please select a filter!");
+                    value = null;
+                }
+            } catch (NumberFormatException e) {
+                messageBuffer.append("Please enter a numerical value!");
                 value = null;
             }
-        } catch (NumberFormatException e) {
-            messageBuffer.append("Please enter a numerical value!");
-            value = null;
         }
 
         return value;

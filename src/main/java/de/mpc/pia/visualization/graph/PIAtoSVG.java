@@ -283,6 +283,7 @@ public class PIAtoSVG {
             } catch (IOException ex) {
                 LOGGER.error("Error while executing dot.", ex);
             }
+            Thread.currentThread().interrupt();
         }
     }
 

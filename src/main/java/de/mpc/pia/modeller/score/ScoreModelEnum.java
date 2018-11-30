@@ -74,7 +74,7 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvName() {
-            return "(cvName not set for average_fdr_score)";
+            return CV_NAME_NOT_SET_PREFIX + getShortName() + ")";
         }
 
         @Override
@@ -1519,12 +1519,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return "NO_CV_" + getShortName();
+            return NO_CV_PREFIX + getShortName();
         }
 
         @Override
         public String getCvName() {
-            return "(cvName not set for " + getShortName();
+            return CV_NAME_NOT_SET_PREFIX + getShortName() + ")";
         }
 
         @Override
@@ -1562,12 +1562,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return "NO_CV_" + getShortName();
+            return NO_CV_PREFIX + getShortName();
         }
 
         @Override
         public String getCvName() {
-            return "(cvName not set for " + getShortName();
+            return CV_NAME_NOT_SET_PREFIX + getShortName() + ")";
         }
 
         @Override
@@ -1605,12 +1605,12 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvAccession() {
-            return "NO_CV_" + getShortName();
+            return NO_CV_PREFIX + getShortName();
         }
 
         @Override
         public String getCvName() {
-            return "(cvName not set for " + getShortName();
+            return CV_NAME_NOT_SET_PREFIX + getShortName() + ")";
         }
 
         @Override
@@ -2155,7 +2155,7 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvName() {
-            return "(cvName not set for fasta_sequence_count)";
+            return CV_NAME_NOT_SET_PREFIX + getShortName() + ")";
         }
 
         @Override
@@ -2185,7 +2185,7 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvName() {
-            return "(cvName not set for fasta_accession_count)";
+            return CV_NAME_NOT_SET_PREFIX + getShortName() + ")";
         }
 
         @Override
@@ -2286,26 +2286,33 @@ public enum ScoreModelEnum {
         }
     };
 
+
+    // some statics
+    private static final String NO_CV_PREFIX = "NO_CV_";
+    private static final String CV_NAME_NOT_SET_PREFIX = "(cvName not set for ";
+
+
     /**
      * These scores are not native searchengine results, but are in some way calculated
      */
-    public static final List<ScoreModelEnum> nonNativeScoreModels = new ArrayList<>(
-          Arrays.asList(new ScoreModelEnum[]{
+    protected static final List<ScoreModelEnum> nonNativeScoreModels = new ArrayList<>(
+          Arrays.asList(
                   AVERAGE_FDR_SCORE,
                   PSM_LEVEL_COMBINED_FDR_SCORE,
                   PSM_LEVEL_FDR_SCORE,
                   PSM_LEVEL_Q_VALUE,
                   PEPTIDE_LEVEL_COMBINED_FDR_SCORE,
                   PEPTIDE_LEVEL_FDR_SCORE,
-                  PEPTIDE_LEVEL_Q_VALUE})
-    );
+                  PEPTIDE_LEVEL_Q_VALUE
+                  )
+          );
 
 
     /**
      * The scores in this list should not be used for FDR estimation on PSM level
      */
     protected static final List<ScoreModelEnum> notForPSMFdrScore = new ArrayList<>(
-            Arrays.asList(new ScoreModelEnum[]{
+            Arrays.asList(
                     AVERAGE_FDR_SCORE,
                     FASTA_ACCESSION_COUNT,
                     FASTA_SEQUENCE_COUNT,
@@ -2313,7 +2320,8 @@ public enum ScoreModelEnum {
                     PSM_LEVEL_COMBINED_FDR_SCORE,
                     PSM_LEVEL_FDR_SCORE,
                     PSM_LEVEL_Q_VALUE
-            }));
+                    )
+            );
 
 
     /**
@@ -2451,5 +2459,14 @@ public enum ScoreModelEnum {
      */
     public static final List<ScoreModelEnum> getNotForPSMFdrScore() {
         return notForPSMFdrScore;
+    }
+
+
+    /**
+     * Returns the scores which are not native but somehow calculated.
+     * @return
+     */
+    public static final List<ScoreModelEnum> getNonNativeScoreModels() {
+        return nonNativeScoreModels;
     }
 }
