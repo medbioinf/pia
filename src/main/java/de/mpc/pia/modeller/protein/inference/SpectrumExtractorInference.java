@@ -440,6 +440,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                         workerThread.join();
                     } catch (InterruptedException e) {
                         LOGGER.error("thread got interrupted!", e);
+                        Thread.currentThread().interrupt();
                     }
                 }
 

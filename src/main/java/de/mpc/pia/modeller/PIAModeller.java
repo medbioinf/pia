@@ -151,15 +151,14 @@ public class PIAModeller implements Serializable {
 
     /**
      * Setter for fileName, notifies progress on the given object.
-     * Also initialises the model, if the fileName changed.
+     * Also initializes the model, if the fileName changed.
      *
      * @param filename
      * @param progress the first item in the array holds the current progress
-     * @param notifier progress will be notified on this object
      *
      * @return true, if a new file was loaded
      */
-    public boolean loadFileName(String filename, Long[] progress, Object notifier) {
+    public boolean loadFileName(String filename, Long[] progress) {
         LOGGER.info("start loading file " + filename);
 
         boolean loadOk = false;
@@ -181,26 +180,7 @@ public class PIAModeller implements Serializable {
             }
         }
 
-        if (notifier != null) {
-            synchronized (notifier) {
-                notifier.notifyAll();
-            }
-        }
-
         return loadOk;
-    }
-
-
-    /**
-     * Setter for fileName.
-     * Also initialises the model, if the fileName changed.
-     *
-     * @param filename
-     *
-     * @return true, if a new file was loaded
-     */
-    public boolean loadFileName(String filename, Long[] progress) {
-        return loadFileName(filename, progress, null);
     }
 
 
@@ -285,31 +265,25 @@ public class PIAModeller implements Serializable {
 
     /**
      * Parses in the intermediate structure from the given file.<br/>
-     * The progress gets increased by 100.
      *
-     * @param notifier progress is notified on this object
+     * @param progressMonitor stores the current progress of the parsing, gets increased by 100 by this method
      *
      * @throws IOException
      */
-    private void parseIntermediate(Long[] progressMonitor, Object notifier)
+    private void parseIntermediate(Long[] progressMonitor)
             throws IOException {
         LOGGER.info("loadIntermediate started...");
 
         Long[] progress;
         if ((progressMonitor == null) || (progressMonitor.length < 1) || (progressMonitor[0] == null)) {
-            LOGGER.warn("no progress array given, creating one. But no external" +
-                    "supervision possible");
+            LOGGER.warn("No progress array given, creating one. "
+                    + "But no external supervision will be possible.");
             progress = new Long[1];
         } else {
             progress = progressMonitor;
         }
 
         progress[0] = 0L;
-        if (notifier != null) {
-            synchronized (notifier) {
-                notifier.notifyAll();
-            }
-        }
 
         if (fileName == null) {
             LOGGER.error("no file given!");
@@ -319,7 +293,7 @@ public class PIAModeller implements Serializable {
         LOGGER.info("Starting parse...");
 
         intermediateHandler = new PIAIntermediateJAXBHandler();
-        intermediateHandler.parse(fileName, progress, notifier);
+        intermediateHandler.parse(fileName, progress);
 
         LOGGER.info(fileName + " successfully parsed.\n" +
                 "\t" + intermediateHandler.getFiles().size() + " files\n" +
@@ -350,11 +324,6 @@ public class PIAModeller implements Serializable {
                 getGroups());
 
         progress[0] += 60;
-        if (notifier != null) {
-            synchronized (notifier) {
-                notifier.notifyAll();
-            }
-        }
     }
 
 
@@ -390,17 +359,6 @@ public class PIAModeller implements Serializable {
                 spec.setIsUnique(unique);
             }
         }
-    }
-
-
-    /**
-     * Parses in the intermediate structure from the given file.<br/>
-     * The progress gets increased by 100.
-     * @throws IOException
-     */
-    private void parseIntermediate(Long[] progress)
-            throws IOException {
-        parseIntermediate(progress, null);
     }
 
 

@@ -133,29 +133,13 @@ public class PIAIntermediateJAXBHandler implements Serializable {
 
     /**
      * Parses the file in chunks and thus having a low memory footprint.<br/>
-     * The progress gets increased by 40 (remaining 60 are in the PIAModeller).
      *
      * @param fileName
-     * @param progress
+     * @param progressArr stores the current progress of the parsing, gets increased by 40 by this method (remaining 60 are in the PIAModeller)
      *
      * @throws IOException
      */
-    public void parse(String fileName, Long[] progress)
-            throws IOException {
-        parse(fileName, progress, null);
-    }
-
-
-    /**
-     * Parses the file in chunks and thus having a low memory footprint.<br/>
-     * The progress gets increased by 40 (remaining 60 are in the PIAModeller).
-     *
-     * @param fileName
-     * @param notifier progress is notified on this object
-     *
-     * @throws IOException
-     */
-    public void parse(String fileName, Long[] progressArr, Object notifier)
+    public void parse(String fileName, Long[] progressArr)
             throws IOException {
         Long[] progress = progressArr;
         projectName = null;
@@ -169,13 +153,13 @@ public class PIAIntermediateJAXBHandler implements Serializable {
         groups = new HashMap<>();
 
         if ((progress == null) || (progressArr.length < 1) || (progressArr[0] == null)) {
-            LOGGER.warn("no progress array given, creating one. "
+            LOGGER.warn("No progress array given, creating one. "
                     + "But no external supervision will be possible.");
             progress = new Long[1];
             progress[0] = 0L;
         }
 
-        parseXMLFile(fileName, progress, notifier);
+        parseXMLFile(fileName, progress);
 
         // the source ID and spectrum title needs to be updated -> deactivate for now
         // TODO: review the source ID and use it constantly as in the mzIdentML document, converting everything to index=XXX does not work!
@@ -189,11 +173,10 @@ public class PIAIntermediateJAXBHandler implements Serializable {
      * Actually parses the XML file given by fileName.
      *
      * @param fileName
-     * @param progress
-     * @param notifier
+     * @param progress stores the current progress of the parsing
      * @throws IOException
      */
-    private void parseXMLFile(String fileName, Long[] progress, Object notifier)
+    private void parseXMLFile(String fileName, Long[] progress)
             throws IOException {
         // set up a StAX reader
         XMLInputFactory xmlif = XMLInputFactory.newInstance();
@@ -220,7 +203,6 @@ public class PIAIntermediateJAXBHandler implements Serializable {
 
                 if (tagProgress > 0) {
                     progress[0] += tagProgress;
-                    notifyOnObject(notifier);
                 }
 
                 skipWhitespacesInReader(xmlr);
@@ -235,20 +217,6 @@ public class PIAIntermediateJAXBHandler implements Serializable {
         } catch (IOException | XMLStreamException | JAXBException e) {
             LOGGER.error("Error while parsing PIA XML file", e);
             throw new IOException(e);
-        }
-    }
-
-
-    /**
-     * Notifies all monitors of the given object, if it is not null.
-     *
-     * @param notifier
-     */
-    private static void notifyOnObject(Object notifier) {
-        if (notifier != null) {
-            synchronized (notifier) {
-                notifier.notifyAll();
-            }
         }
     }
 

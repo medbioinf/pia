@@ -28,7 +28,6 @@ import de.mpc.pia.tools.unimod.jaxb.PositionT;
 import de.mpc.pia.tools.unimod.jaxb.SpecificityT;
 import uk.ac.ebi.jmzidml.model.mzidml.Modification;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchModification;
-import uk.ac.ebi.jmzidml.model.mzidml.SpecificityRules;
 
 
 public class PsiModParser extends AbstractOBOMapper {
@@ -59,17 +58,14 @@ public class PsiModParser extends AbstractOBOMapper {
      * @param useOnline whether to use the online OBO
      */
     public PsiModParser(boolean useOnline) {
-        InputStream inStream;
 
-        try {
-            // get the shipped ontology
-            inStream = OBOMapper.class.getResourceAsStream("/de/mpc/pia/PSI-MOD.obo");
 
+        // get the shipped ontology
+        try (InputStream inStream = OBOMapper.class.getResourceAsStream("/de/mpc/pia/PSI-MOD.obo")) {
             OboParser parser = new OboParser();
             BufferedReader oboFile = new BufferedReader(new InputStreamReader(inStream));
 
             ontology = parser.parseOBO(oboFile, "PSI-MOD", "modifications defined by the HUPO-PSI");
-            inStream.close();
         } catch (IOException e) {
             if (!useOnline) {
                 LOGGER.warn("could not read local obo file", e);
@@ -81,15 +77,12 @@ public class PsiModParser extends AbstractOBOMapper {
         }
 
         if (useOnline) {
-            try {
-                // get the internet ontology
-                inStream = new URL(OntologyConstants.PSI_MOD_OBO_URL).openStream();
-
+            // get the online ontology
+            try (InputStream inStream = new URL(OntologyConstants.PSI_MOD_OBO_URL).openStream()) {
                 OboParser parser = new OboParser();
                 BufferedReader oboFile = new BufferedReader(new InputStreamReader(inStream));
 
                 ontology = parser.parseOBO(oboFile, "PSI-MOD", "modifications defined by the HUPO-PSI");
-                inStream.close();
             } catch (IOException e) {
                 LOGGER.warn("Could not read online obo file, check internet connection.", e);
             } catch (Exception e) {
@@ -120,7 +113,6 @@ public class PsiModParser extends AbstractOBOMapper {
         String[] accAndRes = getUnimodAccessionAndResidue(term);
         String accession = accAndRes[0];
         String residue = accAndRes[1];
-        Double massdelta = null;
 
         return unimodParser.getModification(accession, null, null, residue);
     }
@@ -173,23 +165,6 @@ public class PsiModParser extends AbstractOBOMapper {
 
 
     /**
-     * Returns the UniMod object for the given term.
-     *
-     * @param term
-     * @param unimodParser
-     * @return
-     */
-    private static ModT getUnimodByTerm(Term term, UnimodParser unimodParser) {
-        String[] accAndRes = getUnimodAccessionAndResidue(term);
-        String accession = accAndRes[0];
-        String residue = accAndRes[1];
-        Double massdelta = null;
-
-        return unimodParser.getModification(accession, null, null, residue);
-    }
-
-
-    /**
      * Creates the mzIdentML conform modification for the given term.
      *
      * @param pos
@@ -200,7 +175,7 @@ public class PsiModParser extends AbstractOBOMapper {
      */
     public Modification getUnimodEquivalentModification(Integer pos, List<String> residues, Term term,
             UnimodParser unimodParser) {
-        ModT unimod = getUnimodByTerm(term, unimodParser);
+        ModT unimod = getUnimodEquivalent(term, unimodParser);
         Modification mod = null;
 
         if (unimod != null) {
@@ -223,7 +198,7 @@ public class PsiModParser extends AbstractOBOMapper {
         String[] accAndRes = getUnimodAccessionAndResidue(term);
         String residue = accAndRes[1];
 
-        ModT unimod = getUnimodByTerm(term, unimodParser);
+        ModT unimod = getUnimodEquivalent(term, unimodParser);
         List<SearchModification> mods = Collections.emptyList();
 
         if (unimod != null) {
@@ -276,7 +251,6 @@ public class PsiModParser extends AbstractOBOMapper {
 
                 if (!spec.getPosition().equals(PositionT.ANYWHERE)) {
                     // TODO: implement the specificity!!
-                    SpecificityRules specRules = new SpecificityRules();
                     LOGGER.warn("specificity of modifications not yet implemented!! (for " + unimod.getFullName() + ")");
                 } else {
                     mod.getResidues().add(spec.getSite());

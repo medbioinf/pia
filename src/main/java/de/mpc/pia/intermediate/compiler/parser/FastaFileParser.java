@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -284,13 +285,11 @@ public class FastaFileParser {
             compiler.insertCompletePeptideSpectrumMatch(psm);
         } else {
             // increase the "FASTA Sequence Count" score
-            //Todo: Julian you should review this loop because is strange it returns in the first loop.
-            for (PeptideSpectrumMatch psm : peptide.getSpectra()) {
-                ScoreModel score = psm.getScore(ScoreModelEnum.FASTA_SEQUENCE_COUNT.getShortName());
-
+            Optional<PeptideSpectrumMatch> psm = peptide.getSpectra().stream().findFirst();
+            if (psm.isPresent()) {
+                ScoreModel score = psm.get().getScore(ScoreModelEnum.FASTA_SEQUENCE_COUNT.getShortName());
                 Double value = score.getValue();
                 score.setValue(value + 1);
-                break;
             }
         }
 
@@ -304,12 +303,11 @@ public class FastaFileParser {
         }
         if (increaseAccessionCount) {
             // increase the "FASTA Accession Count" score
-            //Todo: Julian you should review this loop because is strange it returns in the first loop.
-            for (PeptideSpectrumMatch psm : peptide.getSpectra()) {
-                ScoreModel score = psm.getScore(ScoreModelEnum.FASTA_ACCESSION_COUNT.getShortName());
+            Optional<PeptideSpectrumMatch> psm = peptide.getSpectra().stream().findFirst();
+            if (psm.isPresent()) {
+                ScoreModel score = psm.get().getScore(ScoreModelEnum.FASTA_ACCESSION_COUNT.getShortName());
                 Double value = score.getValue();
                 score.setValue(value + 1);
-                break;
             }
         }
 
