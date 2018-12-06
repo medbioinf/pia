@@ -75,6 +75,7 @@ public class ProteinVertexBorderColorTransformer
             } else if (vObject instanceof PeptideSpectrumMatch) {
                 return ProteinVertexFillColorTransformer.PSM_COLOR_FAINT;
             }
+            break;
 
         case IN_SUPER_PAG:
         case IN_UNRELATED_PAG:
@@ -85,10 +86,13 @@ public class ProteinVertexBorderColorTransformer
             } else if (vObject instanceof PeptideSpectrumMatch) {
                 return ProteinVertexFillColorTransformer.PSM_COLOR;
             }
+            break;
 
         case IN_NO_PAG:
         default:
             return DEFAULT_BORDER_COLOR;
         }
+
+        return DEFAULT_BORDER_COLOR;
     }
 }

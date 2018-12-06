@@ -70,6 +70,7 @@ public class ProteinVertexFillColorTransformer
             } else if (vObject instanceof PeptideSpectrumMatch) {
                 return PSM_COLOR;
             }
+            break;
 
         case IN_SUB_PAG:
         case IN_SUPER_PAG:
@@ -81,11 +82,14 @@ public class ProteinVertexFillColorTransformer
             } else if (vObject instanceof PeptideSpectrumMatch) {
                 return PSM_COLOR_FAINT;
             }
+            break;
 
         case IN_NO_PAG:
         case IN_UNRELATED_PAG:
         default:
             return FADED_COLOR;
         }
+
+        return FADED_COLOR;
     }
 }
