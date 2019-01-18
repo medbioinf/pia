@@ -81,7 +81,7 @@ public class PIAConstants {
     /** explanation for CLI option with several colon separated parameters*/
     public static final String COLON_COMMAND_PARAMETERS_EXPLANATION =
             ", separated by colons. If params are given to the command, they "
-                    + "follow an = and are separated by commata (e.g. command=param1,param2...)"
+                    + "follow an = and are separated by comma (e.g. command=param1,param2...)"
                     + "\nvalid commands are: ";
 
     /** constant for fileName= */

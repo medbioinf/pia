@@ -1,13 +1,46 @@
 #!/bin/bash
 set -e
 
-if [ "$1" = 'pia' ]; then
-  shift
-  exec java -jar "${PIA_JAR}" "$@"
-elif [ "$1" = 'compiler' ]; then
-  shift
-  exec java -cp "${PIA_JAR}" de.mpc.pia.intermediate.compiler.PIACompiler "$@"
+default_mem_s='-Xms512m'
+mem_t_found=false
+default_mem_t='-Xmx1g'
+mem_s_found=false
+java_params=""
+tool_params=""
+tool_command=""
+
+args_array=("$@")
+args_length=${#args_array[@]}
+for (( i=1; i<${args_length}+1; i++ ));
+do
+  var="${args_array[$i-1]}"
+  if [[ "$var" = 'inference' ]]; then
+    tool_params="-jar "${PIA_JAR}" ${args_array[@]:$i}"
+    break
+  elif [[ "$var" = 'compiler' ]]; then
+    tool_params="-cp "${PIA_JAR}" de.mpc.pia.intermediate.compiler.PIACompiler ${args_array[@]:$i}"
+    break
+  elif [[ "$var" = *"-Xmx"* ]]; then
+    java_params=$java_params" $var"
+    mem_t_found=true
+  elif [[ "$var" = *"-Xms"* ]]; then
+    java_params=$java_params" $var"
+    mem_s_found=true
+  elif [[ "$var" != "pia" ]]; then
+    java_params=$java_params" $var"
+  fi
+done
+
+if [[ $java_params != *"-Xmx"* ]]; then
+   java_params=$java_params" $default_mem_t"
 fi
 
-echo "run either 'pia' or 'compiler' (or anything else to not execute pia but e.g. start the bash)"
+if [[ $java_params != *"-Xms"* ]]; then
+   java_params=$java_params" $default_mem_s"
+fi
+
+echo Executing ... "java $java_params $tool_params"
+exec java $java_params $tool_params
+
+echo "run either 'inference' or 'compiler' (or anything else to not execute pia but e.g. start the bash)"
 exec "$@"

@@ -1,0 +1,46 @@
+MTD	mzTab-version	1.0
+MTD	mzTab-mode	Complete
+MTD	mzTab-type	Identification
+MTD	title	PIA export of /Users/yperez/work/ms_work/nextflow/nf-workflows/xt-msgf-nf/result/test.xml
+MTD	description	PIA export of /Users/yperez/work/ms_work/nextflow/nf-workflows/xt-msgf-nf/result/test.xml
+MTD	sample_processing[1]	[PSI-MS, MS:1001251, Trypsin, ]
+MTD	software[1]	[MS, MS:1001476, X!Tandem, X! Tandem Alanine (2017.2.1.4)]
+MTD	software[1]-setting[1]	fragment search tolerance plus value = 0.5
+MTD	software[1]-setting[2]	fragment search tolerance minus value = 0.5
+MTD	software[1]-setting[3]	parent search tolerance plus value = 10.0 parts per million
+MTD	software[1]-setting[4]	parent search tolerance minus value = 10.0 parts per million
+MTD	software[2]	[MS, MS:1002048, MS-GF+, Release (v2017.07.21)]
+MTD	software[2]-setting[1]	parent search tolerance plus value = 10.0 parts per million
+MTD	software[2]-setting[2]	parent search tolerance minus value = 10.0 parts per million
+MTD	software[3]	[MS, MS:1002387, PIA, 1.3.10]
+MTD	software[3]-setting[1]	mzTab export of PSMs for overview
+MTD	software[3]-setting[2]	PSM-level combined FDRScore was calculated
+MTD	software[3]-setting[3]	base score for FDR calculation for file 1 = xtandem_expect
+MTD	software[3]-setting[4]	base score for FDR calculation for file 2 = msgf_specevalue
+MTD	software[3]-setting[5]	applied filter psm_score_filter (PSM Combined FDR Score) less_equal 0.1
+MTD	psm_search_engine_score[1]	[MS, MS:1002356, PSM-level combined FDRScore, ]
+MTD	psm_search_engine_score[2]	[MS, MS:1001330, X!Tandem:expect, ]
+MTD	psm_search_engine_score[3]	[MS, MS:1001331, X!Tandem:hyperscore, ]
+MTD	psm_search_engine_score[4]	[MS, MS:1002355, PSM-level FDRScore, ]
+MTD	psm_search_engine_score[5]	[MS, MS:1002049, MS-GF:RawScore, ]
+MTD	psm_search_engine_score[6]	[MS, MS:1002052, MS-GF:SpecEValue, ]
+MTD	psm_search_engine_score[7]	[MS, MS:1002053, MS-GF:EValue, ]
+MTD	fixed_mod[1]	[UNIMOD, UNIMOD:4, Carbamidomethyl, ]
+MTD	fixed_mod[1]-site	C
+MTD	variable_mod[1]	[UNIMOD, UNIMOD:35, Oxidation, ]
+MTD	variable_mod[1]-site	M
+MTD	variable_mod[2]	[UNIMOD, UNIMOD:1, Acetyl, ]
+MTD	variable_mod[2]-site	N-term
+MTD	variable_mod[2]-position	Any N-term
+MTD	variable_mod[3]	[UNIMOD, UNIMOD:1, Acetyl, ]
+MTD	variable_mod[3]-site	N-term
+MTD	variable_mod[3]-position	Protein N-term
+MTD	ms_run[1]-format	[PSI-MS, MS:1001062, Mascot MGF format, ]
+MTD	ms_run[1]-location	file:////test.mgf
+MTD	ms_run[1]-id_format	[PSI-MS, MS:1000774, multiple peak list nativeID format, ]
+MTD	ms_run[2]-format	[PSI-MS, MS:1001062, Mascot MGF file, ]
+MTD	ms_run[2]-location	file://///Users/yperez/work/ms_work/nextflow/nf-workflows/xt-msgf-nf/work/08/8165801022ee88d74f8d30e44a8c37/test.mgf
+MTD	ms_run[2]-id_format	[PSI-MS, MS:1000774, multiple peak list nativeID format, ]
+
+PSH	sequence	PSM_ID	accession	unique	database	database_version	search_engine	search_engine_score[1]	search_engine_score[2]	search_engine_score[3]	search_engine_score[4]	search_engine_score[5]	search_engine_score[6]	search_engine_score[7]	modifications	retention_time	charge	exp_mass_to_charge	calc_mass_to_charge	spectra_ref	pre	post	start	end	opt_global_missed_cleavages	opt_global_cv_MS:1002217_decoy_peptide	reliability
+PSM	NMRKVR	1	TRFL_HUMAN	1	user.fasta	null	[MS, MS:1002387, PIA, 1.3.10]|[PSI-MS, MS:1002048, MS-GF+, Release (v2017.07.21)]	0.09325234008318697	null	null	0.12433645344424929	-3.0	3.5938865E-7	0.023195663	null	null	2	402.739990234375	401.734130859375	ms_run[2]:index=135	null	null	44	49	2	0	3
