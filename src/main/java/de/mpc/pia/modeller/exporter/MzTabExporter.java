@@ -1079,7 +1079,7 @@ public class MzTabExporter {
             Set<String> softwareRefs = new HashSet<>();
             for (ReportPSM reportPSM : reportPSMs) {
 
-                addSpecRefForPSM(mztabPsm, psmItem.getSourceID(),
+                addSpecRefForPSM(mztabPsm, reportPSM.getSourceID(),
                         reportPSM.getSpectrum().getSpectrumIdentification().getId());
 
                 softwareRefs.add(reportPSM.getFile().getAnalysisProtocolCollection().

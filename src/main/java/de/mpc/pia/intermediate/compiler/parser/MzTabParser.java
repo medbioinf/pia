@@ -271,11 +271,14 @@ public class MzTabParser {
         proteinsCache = new  HashMap<>();
         Collection<Protein> proteins = tabParser.getMZTabFile().getProteins();
 
-        tabParser.getMZTabFile().getProteinColumnFactory().getColumnMapping().forEach((key, value) -> {
-            if (value.getHeader().endsWith(OPTIONAL_SEQUENCE_COLUMN)) {
-                proteinSequenceLogicalPosition = value.getLogicPosition();
-            }
-        });
+        if(proteins != null && !proteins.isEmpty()){
+            tabParser.getMZTabFile().getProteinColumnFactory().getColumnMapping().forEach((key, value) -> {
+                if (value.getHeader().endsWith(OPTIONAL_SEQUENCE_COLUMN)) {
+                    proteinSequenceLogicalPosition = value.getLogicPosition();
+                }
+            });
+        }
+
 
         if (proteins != null) {
             proteins.forEach(protein -> proteinsCache.put(protein.getAccession(), protein));
@@ -732,7 +735,10 @@ public class MzTabParser {
             // put a score for this param in the map
             ScoreModel score;
 
-            ScoreModelEnum scoreType = ScoreModelEnum.getModelByDescription(searchEngineScoreParam.getAccession());
+            ScoreModelEnum scoreType = ScoreModelEnum.getModelByAccession(searchEngineScoreParam.getAccession());
+
+            if(scoreType.equals(ScoreModelEnum.UNKNOWN_SCORE))
+                scoreType = ScoreModelEnum.getModelByDescription(searchEngineScoreParam.getName());
 
             if (ScoreModelEnum.UNKNOWN_SCORE.equals(scoreType)) {
                 // still unknown -> try name of param
