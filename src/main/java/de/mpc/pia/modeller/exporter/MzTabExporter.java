@@ -565,7 +565,7 @@ public class MzTabExporter {
                         specIdProtocol.getAnalysisSoftwareRef());
                 softwareID = softwareMap.size()+1;
 
-                Param softwareName = software.getSoftwareName();
+                Param softwareName = (software != null)? software.getSoftwareName():null;
                 if ((softwareName != null) && (softwareName.getCvParam() != null)) {
                     mtd.addSoftwareParam(softwareID,
                             new CVParam(OntologyConstants.CV_PSI_MS_LABEL,

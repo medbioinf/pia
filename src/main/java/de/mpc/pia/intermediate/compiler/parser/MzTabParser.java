@@ -153,6 +153,7 @@ public class MzTabParser {
 
     /** Cv label for PSI-MOD */
     private static final String CV_LABEL_PSI_MOD = "MOD";
+    private static final String CV_LABEL_UNIMOD = "UNIMOD";
 
 
     /**
@@ -249,6 +250,9 @@ public class MzTabParser {
             for (SearchDatabase searchDB : searchDBs) {
                 SearchDatabaseRef searchDBRef = new SearchDatabaseRef();
                 searchDBRef.setSearchDatabase(searchDB);
+                SearchDatabase db = searchDBRef.getSearchDatabase();
+                db.setName(searchDB.getName());
+                searchDBRef.setSearchDatabase(db);
 
                 spectrumIdentificationMap.get(id).getSearchDatabaseRef().add(searchDBRef);
             }
@@ -360,12 +364,16 @@ public class MzTabParser {
             searchModificationList =
                     compiler.getPsiModParser().getUnimodEquivalentSearchModifications(psiModTerm,
                             compiler.getUnimodParser());
+        } else if(modParam.getAccession().startsWith(CV_LABEL_UNIMOD)) {
+            searchModificationList =
+                    compiler.getPsiModParser().getUnimodEquivalentSearchModifications(modParam.getAccession(),mod.getSite(), compiler.getUnimodParser());
+
         } else {
             // try the PRIDE conversions
             searchModificationList = new ArrayList<>();
 
             SearchModification searchModification = new SearchModification();
-            searchModification.setFixedMod(false);
+            searchModification.setFixedMod(mod.getElement().getName() == "FIXED_MOD");
 
             searchModification.getCvParam().add(PRIDETools.convertCvParam(modParam));
 
