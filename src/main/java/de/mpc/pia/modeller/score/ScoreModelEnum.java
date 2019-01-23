@@ -2436,7 +2436,7 @@ public enum ScoreModelEnum {
 
     /**
      * Returns the model for the given description (i.e. name, shortName or
-     * cvAccession)or UNKNOWN_SCORE, if there is none for the description.
+     * cvAccession) or UNKNOWN_SCORE, if there is none for the description.
      *
      * @param desc
      * @return
@@ -2453,8 +2453,7 @@ public enum ScoreModelEnum {
     }
 
     /**
-     * Returns the model for the given description (i.e. name, shortName or
-     * cvAccession)or UNKNOWN_SCORE, if there is none for the description.
+     * Returns the model for the given accession or UNKNOWN_SCORE, if there is none for the description.
      *
      * @param accession
      * @return
