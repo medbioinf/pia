@@ -2436,7 +2436,7 @@ public enum ScoreModelEnum {
 
     /**
      * Returns the model for the given description (i.e. name, shortName or
-     * cvAccession)or UNKNOWN_SCORE, if there is none for the description.
+     * cvAccession) or UNKNOWN_SCORE, if there is none for the description.
      *
      * @param desc
      * @return
@@ -2445,6 +2445,22 @@ public enum ScoreModelEnum {
         for (ScoreModelEnum model : values()) {
             if (!model.equals(UNKNOWN_SCORE) &&
                     model.isValidDescriptor(desc)) {
+                return model;
+            }
+        }
+
+        return UNKNOWN_SCORE;
+    }
+
+    /**
+     * Returns the model for the given accession or UNKNOWN_SCORE, if there is none for the description.
+     *
+     * @param accession
+     * @return
+     */
+    public static final ScoreModelEnum getModelByAccession(String accession) {
+        for (ScoreModelEnum model : values()) {
+            if (model != UNKNOWN_SCORE && model.getCvAccession().equals(accession)) {
                 return model;
             }
         }
