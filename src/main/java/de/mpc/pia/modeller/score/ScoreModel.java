@@ -32,18 +32,19 @@ public class ScoreModel implements Serializable, Comparable<ScoreModel> {
 
 
     /**
-     * Basic constructor.
+     * Basic constructor, creating the ScoreModel by accession or name. Accession may also be one of the valid descriptors of the score.
      */
     public ScoreModel(Double score, String cvAccession, String name) {
-
         ScoreModelEnum modelEnum =
                 ScoreModelEnum.getModelByAccession(cvAccession);
 
-        if(modelEnum == ScoreModelEnum.UNKNOWN_SCORE)
+        if(modelEnum == ScoreModelEnum.UNKNOWN_SCORE) {
             modelEnum =  ScoreModelEnum.getModelByDescription(cvAccession);
+        }
 
-        if(modelEnum == ScoreModelEnum.UNKNOWN_SCORE)
+        if(modelEnum == ScoreModelEnum.UNKNOWN_SCORE) {
             modelEnum =  ScoreModelEnum.getModelByDescription(name);
+        }
 
         this.score = score;
         this.type = modelEnum;
