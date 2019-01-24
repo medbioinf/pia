@@ -291,9 +291,6 @@ public class MzTabExporter {
                 if (proteinList == null) {
                     LOGGER.warn("No report protein list, probably inference was not run.");
                 } else {
-                    reportPSMsMap = new HashMap<>();
-
-                    reportPSMs = new ArrayList<>(reportPSMsMap.values());
                     exportReliabilitycolumn = piaModeller.getPSMModeller().isCombinedFDRScoreCalculated();
                 }
             } else {
@@ -318,7 +315,9 @@ public class MzTabExporter {
             if (proteinList != null) {
                 // write out the proteins
                 outWriter.append(MZTabConstants.NEW_LINE);
+                reportPSMsMap = new HashMap<>();
                 writeProteins(proteinList, reportPSMsMap, exportProteinSequences);
+                reportPSMs = new ArrayList<>(reportPSMsMap.values());
             }
 
             // write out the PSMs
@@ -565,7 +564,7 @@ public class MzTabExporter {
                         specIdProtocol.getAnalysisSoftwareRef());
                 softwareID = softwareMap.size()+1;
 
-                Param softwareName = (software != null)? software.getSoftwareName():null;
+                Param softwareName = (software != null) ? software.getSoftwareName():null;
                 if ((softwareName != null) && (softwareName.getCvParam() != null)) {
                     mtd.addSoftwareParam(softwareID,
                             new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
@@ -573,7 +572,7 @@ public class MzTabExporter {
                                     softwareName.getCvParam().getName(),
                                     software.getVersion()));
 
-                } else  {
+                } else if (software != null) {
                     mtd.addSoftwareParam(softwareID,
                             new CVParam(null,
                                     null,
@@ -981,6 +980,8 @@ public class MzTabExporter {
     private void writePSMs(List<PSMReportItem> report, boolean reliabilityCol,
             boolean peptideLevelStatistics, boolean filterExport)
             throws IOException {
+        LOGGER.info("writePSMs called with " + report.size() + " PSMs");
+
         // initialize the columns
         MZTabColumnFactory columnFactory =
                 MZTabColumnFactory.getInstance(Section.PSM_Header);
@@ -1051,6 +1052,8 @@ public class MzTabExporter {
         // the ID of the currently processed PSM
         int mzTabPSMid = 0;
 
+        LOGGER.info("going to write " + report.size() + " PSMs");
+
         // now write the PSMs
         int nrPSMsExport = report.size();
         int count = 0;
@@ -1078,7 +1081,6 @@ public class MzTabExporter {
             // collect the SpectrumIdRefs and softwareRefs from the ReportPSMs
             Set<String> softwareRefs = new HashSet<>();
             for (ReportPSM reportPSM : reportPSMs) {
-
                 addSpecRefForPSM(mztabPsm, reportPSM.getSourceID(),
                         reportPSM.getSpectrum().getSpectrumIdentification().getId());
 
@@ -1390,7 +1392,6 @@ public class MzTabExporter {
         }
 
         // add FDR value, if calculated
-
         if (piaModeller.getProteinModeller().getFDRData().getNrItems() != null) {
             columnFactory.addReliabilityOptionalColumn();
 
@@ -1779,41 +1780,51 @@ public class MzTabExporter {
      */
     private String[] getPeptideOccurrences(Peptide peptide, String accession) {
         String sequence = peptide.getSequence();
-        Map<String, String[]> occurrences = peptideOccurrences.get(sequence);
-
-        if (occurrences == null) {
-            occurrences = new HashMap<>();
-            peptideOccurrences.put(sequence, occurrences);
-
-            // add the occurrences' data to the cache
-            for (AccessionOccurrence occ : peptide.getAccessionOccurrences()) {
-                String[] occData = new String[4];
-
-                String dbSequence = occ.getAccession().getDbSequence();
-                if (dbSequence != null) {
-                    if (occ.getStart() > 1) {
-                        occData[0] = dbSequence.substring(occ.getStart()-2, occ.getStart()-1);
-                    } else {
-                        occData[0] = "-";
-                    }
-
-                    if (occ.getEnd() < dbSequence.length()) {
-                        occData[1] = dbSequence.substring(occ.getEnd(), occ.getEnd()+1);
-                    } else {
-                        occData[1] = "-";
-                    }
-                }
-
-                occData[2] = occ.getStart().toString();
-                occData[3] = occ.getEnd().toString();
-
-                occurrences.put(occ.getAccession().getAccession(), occData);
-                // TODO: multiple occurrences in the the same protein?
-            }
-        }
+        Map<String, String[]> occurrences =
+                peptideOccurrences.computeIfAbsent(sequence, k -> new HashMap<>(calculatePeptideOccurrances(peptide)));
 
         return occurrences.get(accession);
     }
+
+
+    /**
+     * Returns a Map for the occurrences of the given peptide
+     *
+     * @param peptide
+     * @return
+     */
+    private Map<String, String[]> calculatePeptideOccurrances(Peptide peptide) {
+        Map<String, String[]> occurrences = new HashMap<>();
+
+        for (AccessionOccurrence occ : peptide.getAccessionOccurrences()) {
+            String[] occData = new String[4];
+
+            String dbSequence = occ.getAccession().getDbSequence();
+            if (dbSequence != null) {
+                if (occ.getStart() > 1) {
+                    occData[0] = dbSequence.substring(occ.getStart()-2, occ.getStart()-1);
+                } else {
+                    occData[0] = "-";
+                }
+
+                if (occ.getEnd() < dbSequence.length()) {
+                    occData[1] = dbSequence.substring(occ.getEnd(), occ.getEnd()+1);
+                } else {
+                    occData[1] = "-";
+                }
+            }
+
+            occData[2] = occ.getStart().toString();
+            occData[3] = occ.getEnd().toString();
+
+            occurrences.put(occ.getAccession().getAccession(), occData);
+            // TODO: multiple occurrences in the the same protein?
+        }
+
+        return occurrences;
+    }
+
+
 
 
     /**
