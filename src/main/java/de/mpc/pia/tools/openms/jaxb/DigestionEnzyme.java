@@ -93,7 +93,6 @@ public enum DigestionEnzyme {
 
             default:
                 // the above are the only defined enzymes for idXML (at the moment when creating this parser)
-                enzyme = UNKNOWN_ENZYME;
                 break;
             }
         }

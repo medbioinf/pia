@@ -74,10 +74,7 @@ class MzIdentMLFileParser {
 
 
     /** the cvParams which are specially parsed and don't need to be passed for the spectrumIdentificationResults */
-    private static List<String> parsedSpecIdResultCVParams = Arrays.asList(new String[]{
-            OntologyConstants.SCAN_NUMBERS.getPsiAccession(),
-            OntologyConstants.SCAN_START_TIME.getPsiAccession(),
-    });
+    private static List<String> parsedSpecIdResultCVParams = Arrays.asList(OntologyConstants.SCAN_NUMBERS.getPsiAccession(), OntologyConstants.SCAN_START_TIME.getPsiAccession());
 
 
     /**

@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
-import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.FileFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SearchDatabase;
@@ -72,11 +71,11 @@ public class FastaFileParser {
             searchDatabase.setLocation(fileName);
 
             FileFormat fileFormat = new FileFormat();
-            AbstractParam abstractParam = new CvParam();
-            ((CvParam)abstractParam).setAccession("MS:1001348");
-            ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
+            CvParam abstractParam = new CvParam();
+            abstractParam.setAccession("MS:1001348");
+            abstractParam.setCv(MzIdentMLTools.getCvPSIMS());
             abstractParam.setName("FASTA format");
-            fileFormat.setCvParam((CvParam)abstractParam);
+            fileFormat.setCvParam(abstractParam);
             searchDatabase.setFileFormat(fileFormat);
 
             searchDatabase = compiler.putIntoSearchDatabasesMap(searchDatabase);

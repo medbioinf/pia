@@ -41,7 +41,7 @@ public class Modification implements Serializable {
     /** formatter for the mass as string */
     private static final DecimalFormat df;
 
-    private String cvLabel = null;
+    private String cvLabel;
 
     private List<ScoreModel> probability;
 

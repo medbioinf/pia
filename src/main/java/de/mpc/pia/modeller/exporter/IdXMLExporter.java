@@ -688,7 +688,7 @@ public class IdXMLExporter {
 
             // first add the unmodified residues from last to here
             if (pos - lastPos >= 1) {
-                modSequence.append(sequence.substring(lastPos, pos));
+                modSequence.append(sequence, lastPos, pos);
             }
 
             modSequence.append('(');

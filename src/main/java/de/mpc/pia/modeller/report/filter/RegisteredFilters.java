@@ -435,7 +435,7 @@ public enum RegisteredFilters {
                 }
 
                 retSet = scores.stream()
-                        .map(score -> score.getShortName())
+                        .map(ScoreModel::getShortName)
                         .distinct()
                         .collect(Collectors.toList());
             } else if (o instanceof List<?>) {

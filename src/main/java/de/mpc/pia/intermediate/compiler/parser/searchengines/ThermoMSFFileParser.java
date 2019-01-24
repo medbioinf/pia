@@ -718,7 +718,7 @@ public class ThermoMSFFileParser {
         searchMod.setMassDelta(massShift);
 
         split = split[1].
-                substring(split[1].indexOf("(")+1, split[1].indexOf(")")).
+                substring(split[1].indexOf('(')+1, split[1].indexOf(')')).
                 split(",");
 
         for (String res : split) {

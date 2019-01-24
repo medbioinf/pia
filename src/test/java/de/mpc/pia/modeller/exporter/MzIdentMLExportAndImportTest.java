@@ -52,8 +52,6 @@ public class MzIdentMLExportAndImportTest {
         piaCompiler.writeOutXML(piaIntermediateFile);
         piaCompiler.finish();
 
-        piaCompiler = null;
-
 
         // read in PIA XML file and perform analysis
         PIAModeller piaModeller = new PIAModeller(piaIntermediateFile.getAbsolutePath());

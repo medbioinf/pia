@@ -591,9 +591,7 @@ public class ProteinVisualizationGraphHandler {
             if (accessionCount > 1) {
                 collapseAccessions(v);
             }
-            if ((peptideCount > 1) || (accessionCount > 1)) {
-                return true;
-            }
+            return (peptideCount > 1) || (accessionCount > 1);
         }
 
         return false;

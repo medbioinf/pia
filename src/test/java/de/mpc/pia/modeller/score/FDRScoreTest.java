@@ -54,7 +54,6 @@ public class FDRScoreTest {
         inferenceTempFile = File.createTempFile(FDRScoreTest.class.getCanonicalName(), "-test.pia.xml");
         piaCompiler.writeOutXML(inferenceTempFile);
         piaCompiler.finish();
-        piaCompiler = null;
         if (inferenceTempFile.exists()) {
             inferenceTempFile.deleteOnExit();
         }

@@ -281,7 +281,7 @@ public class MzTabExporter {
             boolean exportReliabilitycolumn = false;
 
             List<ReportProtein> proteinList = null;
-            Map<String, PSMReportItem> reportPSMsMap = null;
+            Map<String, PSMReportItem> reportPSMsMap;
 
             if (proteinLevel) {
                 // write the report proteins

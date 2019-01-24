@@ -574,13 +574,13 @@ public class PIAIntermediateJAXBHandler implements Serializable {
             Accession accession;
             Map<Long, String> descriptions = new HashMap<>();
 
-            Set<Long> filesSet = new HashSet<>(accXML.getFileRefs().stream().map(FileRefXML::getFile_ref).collect(Collectors.toList()));
+            Set<Long> filesSet = accXML.getFileRefs().stream().map(FileRefXML::getFile_ref).collect(Collectors.toSet());
 
             for (DescriptionXML descXML : accXML.getDescriptions()) {
                 descriptions.put(descXML.getFileRefID(), descXML.getValue());
             }
 
-            Set<String> searchDatabaseRefs = new HashSet<>(accXML.getSearchDatabaseRefs().stream().map(SearchDatabaseRefXML::getSearchDatabase_ref).collect(Collectors.toList()));
+            Set<String> searchDatabaseRefs = accXML.getSearchDatabaseRefs().stream().map(SearchDatabaseRefXML::getSearchDatabase_ref).collect(Collectors.toSet());
 
             accession = new Accession(accXML.getId(),
                     accXML.getAcc(),

@@ -139,7 +139,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                     peptideModeller.addFilter(Long.parseLong(fileID), newFilter);
                 } else {
                     LOGGER.error("Filter " + filtername
-                            + " could not be added: " + messageBuffer.toString());
+                            + " could not be added: " + messageBuffer);
                 }
             } else {
                 LOGGER.info("Too few parameters to execute " + name()

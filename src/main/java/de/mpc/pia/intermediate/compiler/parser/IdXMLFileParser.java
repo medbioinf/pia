@@ -880,7 +880,7 @@ public class IdXMLFileParser {
 
         int pos;
         while ( -1 < (pos = modificationsSequence.indexOf('('))) {
-            sequence.append(modificationsSequence.substring(0, pos));
+            sequence.append(modificationsSequence, 0, pos);
             modificationsSequence = modificationsSequence.substring(pos);
 
             String residue;

@@ -196,17 +196,17 @@ public class OccamsRazorWorkerThread extends Thread {
         Map<Long, Set<Long>> intersectingProteinMap = new HashMap<>(reportPeptidesMap.size());
         Set<Long> isSubProtein = new HashSet<>();
         Set<String> reportedPeptides = new HashSet<>();
-        for (Long proteinID : proteins.keySet()) {
-            Set<String> peptideKeys = peptideKeysMap.get(proteinID);
+        for (Map.Entry<Long, ReportProtein> longReportProteinEntry : proteins.entrySet()) {
+            Set<String> peptideKeys = peptideKeysMap.get(longReportProteinEntry.getKey());
 
             Set<Long> subProteins = new HashSet<>();
-            subProteinMap.put(proteinID, subProteins);
+            subProteinMap.put(longReportProteinEntry.getKey(), subProteins);
 
             Set<Long> intersectingProteins = new HashSet<>();
-            intersectingProteinMap.put(proteinID, intersectingProteins);
+            intersectingProteinMap.put(longReportProteinEntry.getKey(), intersectingProteins);
 
             for (Long subProtID : proteins.keySet()) {
-                if (Objects.equals(proteinID, subProtID)) {
+                if (Objects.equals(longReportProteinEntry.getKey(), subProtID)) {
                     continue;
                 }
 
@@ -221,7 +221,7 @@ public class OccamsRazorWorkerThread extends Thread {
                         subProteins.add(subProtID);
                     } else if (intersection.size() == peptideKeys.size()) {
                         // the complete proteinID is in subProtID
-                        isSubProtein.add(proteinID);
+                        isSubProtein.add(longReportProteinEntry.getKey());
                     } else if (intersection.size() != peptideKeys.size()) {
                         // subProtID intersects proteinID somehow
                         intersectingProteins.add(subProtID);
@@ -230,14 +230,14 @@ public class OccamsRazorWorkerThread extends Thread {
             }
 
             if ((intersectingProteins.size() == 0) &&
-                    !isSubProtein.contains(proteinID)) {
+                    !isSubProtein.contains(longReportProteinEntry.getKey())) {
                 // this protein is no subProtein and has no intersections (but
                 // maybe subProteins) -> report this protein
-                ReportProtein protein = proteins.get(proteinID);
+                ReportProtein protein = longReportProteinEntry.getValue();
 
                 reportProteins.add(protein);
-                reportedPeptides.addAll(peptideKeysMap.get(proteinID));
-                unreportedProteins.remove(proteinID);
+                reportedPeptides.addAll(peptideKeysMap.get(longReportProteinEntry.getKey()));
+                unreportedProteins.remove(longReportProteinEntry.getKey());
 
                 // add the subproteins
                 for (Long subID : subProteins) {

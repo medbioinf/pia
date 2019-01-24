@@ -802,7 +802,6 @@ public class ReportPSMSet implements PSMReportItem {
         return new ArrayList<>(accs.values());
     }
 
-
     @Override
     public Map<String, Boolean> getAvailableIdentificationKeySettings() {
         return maximalSpectraIdentificationSettings;
