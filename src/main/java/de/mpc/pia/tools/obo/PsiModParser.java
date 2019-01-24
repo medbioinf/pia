@@ -117,6 +117,17 @@ public class PsiModParser extends AbstractOBOMapper {
         return unimodParser.getModification(accession, null, null, residue);
     }
 
+    /**
+     * Gets and returns the equivalent of the given Term from Unimod.
+     *
+     * @param accession unimod accession
+     * @param unimodParser unimod parser
+     * @param residue residue
+     * @return
+     */
+    public ModT getUnimodEquivalent(String accession, String residue, UnimodParser unimodParser) {
+        return unimodParser.getModification(accession, null, null, residue);
+    }
 
     /**
      * Looks for information about the UniMod equivalent in the definition
@@ -216,6 +227,42 @@ public class PsiModParser extends AbstractOBOMapper {
                 mods = createSearchModificationsForResidues(unimod, residues);
             } else {
                 LOGGER.error("No valid sites but a modification found for " + term);
+            }
+        } else {
+            // TODO: implement creation of "unknown modification" with mass shift and residue
+            LOGGER.error("Unknown modification not yet supported");
+        }
+
+        return mods;
+    }
+
+    /**
+     * Creates a UniMod equivalent set of {@link SearchModification}s for the given PSI-MOD term
+     *
+     * @param accession unimod accession
+     * @param unimodParser
+     * @param  residue  residue
+     * @return
+     */
+    public List<SearchModification> getUnimodEquivalentSearchModifications(String accession,  String residue, UnimodParser unimodParser ) {
+        ModT unimod = getUnimodEquivalent(accession,  residue, unimodParser);
+        List<SearchModification> mods = Collections.emptyList();
+
+        if (unimod != null) {
+
+            Set<String> residues = new HashSet<>();
+            if (residue != null) {
+                // set the residue given by PSI-MOD
+                residues.add(residue);
+            } else {
+                // set all allowed residues of unimod
+                unimod.getSpecificity().stream().forEach(spec -> residues.add(spec.getSite()));
+            }
+
+            if (!residues.isEmpty()) {
+                mods = createSearchModificationsForResidues(unimod, residues);
+            } else {
+                LOGGER.error("No valid sites but a modification found for " + accession);
             }
         } else {
             // TODO: implement creation of "unknown modification" with mass shift and residue
