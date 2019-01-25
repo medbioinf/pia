@@ -155,7 +155,7 @@ public class PiaPsmToSpectrum<P extends PSMItem> {
             }
         }
 
-        LOGGER.info("done " + psmToSpectrum.size() + " (nullmatches=" + nrNullMatches + ")");
+        LOGGER.info("done " + psmToSpectrum.size() + " (nullmatches=" + nrNullMatches + ')');
     }
 
 

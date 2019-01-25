@@ -364,7 +364,7 @@ public class TideTXTFileParser {
                 modifications.put(loc, mod);
             } else {
                 LOGGER.error("Could not get information for " +
-                        "modification " + modWeight + "@" + residue + " in " +
+                        "modification " + modWeight + '@' + residue + " in " +
                         sequence);
             }
         }

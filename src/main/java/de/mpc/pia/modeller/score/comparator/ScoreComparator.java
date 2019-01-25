@@ -84,6 +84,6 @@ public class ScoreComparator<T extends ScoreComparable> implements Comparator<T>
 
     @Override
     public String toString() {
-        return scoreModelName + ":" + higherScoreBetter;
+        return scoreModelName + ':' + higherScoreBetter;
     }
 }

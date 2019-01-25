@@ -234,8 +234,8 @@ public class MzIdentMLExporter {
 
         try {
             // XML header
-            outWriter.write(mzidMarshaller.createXmlHeader() + "\n");
-            outWriter.write(mzidMarshaller.createMzIdentMLStartTag("PIAExport for PSMs") + "\n");
+            outWriter.write(mzidMarshaller.createXmlHeader() + '\n');
+            outWriter.write(mzidMarshaller.createMzIdentMLStartTag("PIAExport for PSMs") + '\n');
 
             // there are some variables needed for additional tags later
             analysisCollection = new AnalysisCollection();
@@ -277,13 +277,13 @@ public class MzIdentMLExporter {
             mzidMarshaller.marshal(analysisProtocolCollection, outWriter);
             outWriter.write("\n");
 
-            outWriter.write(mzidMarshaller.createDataCollectionStartTag() + "\n");
+            outWriter.write(mzidMarshaller.createDataCollectionStartTag() + '\n');
 
             mzidMarshaller.marshal(inputs, outWriter);
             outWriter.write("\n");
 
 
-            outWriter.write(mzidMarshaller.createAnalysisDataStartTag() + "\n");
+            outWriter.write(mzidMarshaller.createAnalysisDataStartTag() + '\n');
 
             // write out the spectrum identification lists
             mzidMarshaller.marshal(siList, outWriter);
@@ -295,9 +295,9 @@ public class MzIdentMLExporter {
                 outWriter.write("\n");
             }
 
-            outWriter.write(mzidMarshaller.createAnalysisDataClosingTag() + "\n");
+            outWriter.write(mzidMarshaller.createAnalysisDataClosingTag() + '\n');
 
-            outWriter.write(mzidMarshaller.createDataCollectionClosingTag() + "\n");
+            outWriter.write(mzidMarshaller.createDataCollectionClosingTag() + '\n');
 
 
             outWriter.write(mzidMarshaller.createMzIdentMLClosingTag());
@@ -701,12 +701,12 @@ public class MzIdentMLExporter {
         StringBuilder evidenceIDstr = new StringBuilder(PEPTIDE_EVIDENCE_PREFIX);
         evidenceIDstr.append(peptideStringID);
         if ((start != null) && (end != null)) {
-            evidenceIDstr.append("-");
+            evidenceIDstr.append('-');
             evidenceIDstr.append(start);
-            evidenceIDstr.append("-");
+            evidenceIDstr.append('-');
             evidenceIDstr.append(end);
         }
-        evidenceIDstr.append("-");
+        evidenceIDstr.append('-');
         evidenceIDstr.append(accession.getAccession());
 
         return evidenceIDstr.toString();
@@ -1647,7 +1647,7 @@ public class MzIdentMLExporter {
                     null));
 
             leadingPDHsSB.append(pdh.getId());
-            leadingPDHsSB.append(" ");
+            leadingPDHsSB.append(' ');
 
             leadingPDHsList.add(pdh.getId());
 
@@ -1709,7 +1709,7 @@ public class MzIdentMLExporter {
 
             for (String other : otherPDHsList) {
                 otherPDHs.append(other);
-                otherPDHs.append(" ");
+                otherPDHs.append(' ');
             }
 
             pdh.getCvParam().add(MzIdentMLTools.createPSICvParam(
@@ -1733,7 +1733,7 @@ public class MzIdentMLExporter {
             ReportProtein protein, Boolean passThreshold) {
         ProteinDetectionHypothesis pdh = new ProteinDetectionHypothesis();
 
-        pdh.setId(PROTEIN_DETECTION_HYPOTHESIS_PREFIX + acc.getAccession() + "_" + pagId);
+        pdh.setId(PROTEIN_DETECTION_HYPOTHESIS_PREFIX + acc.getAccession() + '_' + pagId);
 
         DBSequence dbSequence = sequenceMap.get(acc.getAccession());
         if (dbSequence != null) {

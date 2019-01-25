@@ -118,7 +118,7 @@ public class CTDFileHandler {
 				cliElement.setRequired(false);
 				cliElement.setIsList(false);
 				mapping = new MappingType();
-				mapping.setReferenceName(toolName + "." + arg.get(0));
+				mapping.setReferenceName(toolName + '.' + arg.get(0));
 				cliElement.getMapping().add(mapping);
 				cli.getClielement().add(cliElement);
 			}
@@ -195,7 +195,7 @@ public class CTDFileHandler {
 							continue;
 						}
 						if (c > 2) {
-							restrictions.append(",");
+							restrictions.append(',');
 						}
 						restrictions.append(restrict);
 					}
@@ -212,7 +212,7 @@ public class CTDFileHandler {
 		    m.marshal(executor, new File(fileName));
 		} catch (JAXBException e) {
 			logger.error("Error while writing XML information for " + toolName +
-					".", e);
+                    '.', e);
 		}
 		
 	}

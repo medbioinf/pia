@@ -289,7 +289,7 @@ public class PsiModParser extends AbstractOBOMapper {
                 SearchModification mod = new SearchModification();
 
                 mod.getCvParam().add(MzIdentMLTools.createCvParam(
-                        UnimodParser.getCv().getId() + ":" + unimod.getRecordId(),
+                        UnimodParser.getCv().getId() + ':' + unimod.getRecordId(),
                         UnimodParser.getCv(),
                         unimod.getTitle(),
                         null));
@@ -298,7 +298,7 @@ public class PsiModParser extends AbstractOBOMapper {
 
                 if (!spec.getPosition().equals(PositionT.ANYWHERE)) {
                     // TODO: implement the specificity!!
-                    LOGGER.warn("specificity of modifications not yet implemented!! (for " + unimod.getFullName() + ")");
+                    LOGGER.warn("specificity of modifications not yet implemented!! (for " + unimod.getFullName() + ')');
                 } else {
                     mod.getResidues().add(spec.getSite());
                 }

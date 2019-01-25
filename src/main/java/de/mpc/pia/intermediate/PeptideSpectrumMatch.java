@@ -322,9 +322,9 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
         // rebuild the peptideStringID
         StringBuilder modificationSB = new StringBuilder(sequence);
         for (Map.Entry<Integer, Modification> modIt : modifications.entrySet()) {
-            modificationSB.append("(");
-            modificationSB.append(modIt.getKey()).append(";").append(modIt.getValue().getMassString());
-            modificationSB.append(")");
+            modificationSB.append('(');
+            modificationSB.append(modIt.getKey()).append(';').append(modIt.getValue().getMassString());
+            modificationSB.append(')');
         }
         peptideStringID = modificationSB.toString();
 
@@ -367,10 +367,10 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
             if (!first) {
                 modSb.append('|');
             }
-            modSb.append("[").append(modIt.getKey()).append(",");
+            modSb.append('[').append(modIt.getKey()).append(',');
 
             modSb.append(modIt.getValue().getMassString());
-            modSb.append("]");
+            modSb.append(']');
 
             first = false;
         }
@@ -600,7 +600,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
 
             if (value != null) {
                 if (key.length() > 0) {
-                    key.append(":");
+                    key.append(':');
                 }
 
                 key.append(value);
@@ -663,7 +663,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
         spectrumName.append((int)PIATools.round(massToCharge, PIAConstants.MASS_TO_CHARGE_PRECISION));
         spectrumName.append(", ");
         if (charge > 0) {
-            spectrumName.append("+");
+            spectrumName.append('+');
         }
         spectrumName.append(charge);
 
@@ -672,7 +672,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
             spectrumName.append(PIATools.round(retentionTime, PIAConstants.RETENTION_TIME_PRECISION));
         }
 
-        spectrumName.append(")");
+        spectrumName.append(')');
 
         return spectrumName.toString();
     }

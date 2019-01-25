@@ -290,8 +290,8 @@ public class PIACachedCompiler extends PIACompiler {
             } else {
                 // this was called erroneous, insert a null (which will provoke a NullPointerException)
                 LOGGER.error("accession or peptide was not inserted into the compiler. "
-                        + "acc: " + accessionIDsToStrings.containsKey(accId) + " (" + accId + ")"
-                        + ", pep: " +  peptideIDsToSequences.containsKey(pepId) + " (" + pepId + ")");
+                        + "acc: " + accessionIDsToStrings.containsKey(accId) + " (" + accId + ')'
+                        + ", pep: " +  peptideIDsToSequences.containsKey(pepId) + " (" + pepId + ')');
                 accPepMapIDs.put(accId, null);
             }
         }
@@ -302,8 +302,8 @@ public class PIACachedCompiler extends PIACompiler {
             } else {
                 // this was called erroneous, insert a null (which will provoke a NullPointerException)
                 LOGGER.error("accession or peptide was not inserted into the compiler. "
-                        + "acc: " + accessionIDsToStrings.containsKey(accId) + " (" + accId + ")"
-                        + ", pep: " +  peptideIDsToSequences.containsKey(pepId) + " (" + pepId + ")");
+                        + "acc: " + accessionIDsToStrings.containsKey(accId) + " (" + accId + ')'
+                        + ", pep: " +  peptideIDsToSequences.containsKey(pepId) + " (" + pepId + ')');
                 pepAccMapIDs.put(pepId, null);
             }
         }

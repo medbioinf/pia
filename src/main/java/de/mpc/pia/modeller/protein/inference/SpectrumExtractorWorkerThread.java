@@ -646,11 +646,11 @@ public class SpectrumExtractorWorkerThread extends Thread {
                         psmSet = (ReportPSMSet)psmItem;
                     } else {
                         LOGGER.error("Not a ReportPSMSet-instance in peptide for "
-                                + psmKey + "!");
+                                + psmKey + '!');
                     }
                     if (reportPSMSets.size() > 1) {
                         LOGGER.error("More than one PSMReportItem in peptide for "
-                                + psmKey + "!");
+                                + psmKey + '!');
                     }
                 } else {
                     // no set yet, create this

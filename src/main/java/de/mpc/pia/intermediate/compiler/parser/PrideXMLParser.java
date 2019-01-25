@@ -708,7 +708,7 @@ public class PrideXMLParser {
             software = compiler.putIntoSoftwareMap(software);
         } else {
             LOGGER.warn("Could not parse software! Please contact developer and ask to implement software '"
-                    + dataProcessingSection.getSoftware().getName() + "'");
+                    + dataProcessingSection.getSoftware().getName() + '\'');
         }
 
         if (software != null) {

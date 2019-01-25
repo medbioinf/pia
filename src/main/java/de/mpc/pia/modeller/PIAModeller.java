@@ -296,12 +296,12 @@ public class PIAModeller implements Serializable {
         intermediateHandler.parse(fileName, progress);
 
         LOGGER.info(fileName + " successfully parsed.\n" +
-                "\t" + intermediateHandler.getFiles().size() + " files\n" +
-                "\t" + intermediateHandler.getGroups().size() + " groups\n" +
-                "\t" + intermediateHandler.getAccessions().size() + " accessions\n" +
-                "\t" + intermediateHandler.getPeptides().size() + " peptides\n" +
-                "\t" + intermediateHandler.getPSMs().size() + " peptide spectrum matches\n" +
-                "\t" + intermediateHandler.getNrTrees() + " trees");
+                '\t' + intermediateHandler.getFiles().size() + " files\n" +
+                '\t' + intermediateHandler.getGroups().size() + " groups\n" +
+                '\t' + intermediateHandler.getAccessions().size() + " accessions\n" +
+                '\t' + intermediateHandler.getPeptides().size() + " peptides\n" +
+                '\t' + intermediateHandler.getPSMs().size() + " peptide spectrum matches\n" +
+                '\t' + intermediateHandler.getNrTrees() + " trees");
 
         LOGGER.info("loadIntermediate done.");
 
@@ -834,9 +834,8 @@ public class PIAModeller implements Serializable {
     private static void processWriteInformation(String calculateInformationOption, String informationFileName,
             PIAModeller model) {
         boolean calculateInfo = false;
-        if ((calculateInformationOption != null)
-                && ("yes".equalsIgnoreCase(calculateInformationOption)
-                        || "true".equalsIgnoreCase(calculateInformationOption))) {
+        if (("yes".equalsIgnoreCase(calculateInformationOption)
+                || "true".equalsIgnoreCase(calculateInformationOption))) {
             calculateInfo = true;
         }
 

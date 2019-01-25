@@ -287,7 +287,7 @@ public class MascotDatFileParser {
                 regExp.append(enzymeCleavage);
                 regExp.append("])(?!");
                 regExp.append(enzymeRestrict);
-                regExp.append(")");
+                regExp.append(')');
             }
             enzyme.setSiteRegexp(regExp.toString());
 
@@ -385,7 +385,7 @@ public class MascotDatFileParser {
                 }
             } catch (NumberFormatException e) {
                 charge = 0;
-                LOGGER.warn("could not parse charge '" + currQuery.getChargeString() + "' for '" + currQuery.getTitle() + "'");
+                LOGGER.warn("could not parse charge '" + currQuery.getChargeString() + "' for '" + currQuery.getTitle() + '\'');
             }
 
             double precursorMZ = currQuery.getPrecursorMZ();

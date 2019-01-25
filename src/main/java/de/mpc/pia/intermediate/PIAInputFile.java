@@ -62,32 +62,24 @@ public class PIAInputFile implements Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if ( !(obj instanceof PIAInputFile) ) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        PIAInputFile objFile = (PIAInputFile)obj;
-        return new EqualsBuilder()
-                .append(id, objFile.id)
-                .append(fileName, objFile.fileName)
-                .append(format, objFile.format)
-                .isEquals();
+        PIAInputFile that = (PIAInputFile) o;
+
+        if (id != that.id) return false;
+        if (fileName != null ? !fileName.equals(that.fileName) : that.fileName != null) return false;
+        return format != null ? format.equals(that.format) : that.format == null;
     }
-
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(23, 31)
-                .append(id)
-                .append(fileName)
-                .append(format)
-                .toHashCode();
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (fileName != null ? fileName.hashCode() : 0);
+        result = 31 * result + (format != null ? format.hashCode() : 0);
+        return result;
     }
-
 
     /**
      * Getter for the ID.
@@ -130,7 +122,7 @@ public class PIAInputFile implements Serializable {
      */
     public String addSpectrumIdentification(SpectrumIdentification si) {
         String strID = PIAConstants.spectrum_identification_prefix + this.id +
-                "_" + (analysisCollection.getSpectrumIdentification().size() + 1L);
+                '_' + (analysisCollection.getSpectrumIdentification().size() + 1L);
         si.setId(strID);
         // we don't have any SpectrumIdentificationList in the PIA file
         si.setSpectrumIdentificationList(null);
@@ -172,7 +164,7 @@ public class PIAInputFile implements Serializable {
      */
     public String addSpectrumIdentificationProtocol(SpectrumIdentificationProtocol sip) {
         String strID = PIAConstants.identification_protocol_prefix + this.id +
-                "_" + (analysisProtocolCollection.getSpectrumIdentificationProtocol().size() + 1L);
+                '_' + (analysisProtocolCollection.getSpectrumIdentificationProtocol().size() + 1L);
         String ref = sip.getId();
         sip.setId(strID);
         analysisProtocolCollection.getSpectrumIdentificationProtocol().add(sip);
@@ -184,7 +176,7 @@ public class PIAInputFile implements Serializable {
         int idx = 1;
         if (sip.getEnzymes() != null) {
             for (Enzyme enzyme : sip.getEnzymes().getEnzyme()) {
-                enzyme.setId(PIAConstants.enzyme_prefix + this.id + "_" + idx);
+                enzyme.setId(PIAConstants.enzyme_prefix + this.id + '_' + idx);
                 idx++;
             }
         }

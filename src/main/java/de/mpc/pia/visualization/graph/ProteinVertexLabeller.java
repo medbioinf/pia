@@ -109,9 +109,9 @@ public class ProteinVertexLabeller
             if (((PeptideSpectrumMatch) vObject).getCharge() != 0)  {
                 lblSb.append(", ");
                 if (((PeptideSpectrumMatch) vObject).getCharge() > 0) {
-                    lblSb.append("+");
+                    lblSb.append('+');
                 } else {
-                    lblSb.append("-");
+                    lblSb.append('-');
                 }
                 lblSb.append(((PeptideSpectrumMatch) vObject).getCharge());
             }
@@ -128,7 +128,7 @@ public class ProteinVertexLabeller
             }
 
             lblSb.append(((Collection<?>)vertex.getObject()).size());
-            lblSb.append(")");
+            lblSb.append(')');
             return lblSb.toString();
         }
 

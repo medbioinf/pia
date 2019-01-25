@@ -561,9 +561,9 @@ public class CSVExporter {
             appendQuoted(outWriter, String.valueOf(((ReportPSMSet) psm).getPSMs().size()));
             outWriter.append(SEPARATOR);
         } else {
-            appendQuoted(outWriter, ((ReportPSM) psm).getSourceID());
+            appendQuoted(outWriter, psm.getSourceID());
             outWriter.append(SEPARATOR);
-            appendQuoted(outWriter, ((ReportPSM) psm).getSpectrumTitle());
+            appendQuoted(outWriter, psm.getSpectrumTitle());
             outWriter.append(SEPARATOR);
         }
 

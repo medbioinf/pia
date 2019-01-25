@@ -44,45 +44,29 @@ public class Peptide implements Serializable {
         this.occurrences = new HashSet<>();
     }
 
-
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Peptide)) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        Peptide objPeptide = (Peptide)obj;
-        return new EqualsBuilder().
-                append(id, objPeptide.id).
-                append(sequence, objPeptide.sequence).
-                append(spectra, objPeptide.spectra).
-                append(pGroup, objPeptide.pGroup).
-                append(occurrences, objPeptide.occurrences).
-                isEquals();
+        Peptide peptide = (Peptide) o;
+
+        if (id != peptide.id) return false;
+        if (!sequence.equals(peptide.sequence)) return false;
+        if (spectra != null ? !spectra.equals(peptide.spectra) : peptide.spectra != null) return false;
+        if (pGroup != null ? pGroup.getID() != peptide.pGroup.getID() : peptide.pGroup != null) return false;
+        return occurrences.equals(peptide.occurrences);
     }
-
 
     @Override
     public int hashCode() {
-        HashCodeBuilder hcb = new HashCodeBuilder(23, 31).
-                append(id).
-                append(sequence);
-
-        if (spectra != null) {
-            hcb.append(spectra.hashCode());
-        }
-        if (pGroup != null) {
-            hcb.append(pGroup.getID());
-        }
-
-        hcb.append(occurrences);
-
-        return hcb.toHashCode();
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + sequence.hashCode();
+        result = 31 * result + (spectra != null ? spectra.hashCode() : 0);
+        result = 31 * result + (pGroup != null ? (int) (pGroup.getID() ^ (pGroup.getID() >>>32)) : 0);
+        result = 31 * result + occurrences.hashCode();
+        return result;
     }
-
 
     /**
      * Getter for the ID.

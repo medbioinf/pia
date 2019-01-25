@@ -290,7 +290,7 @@ public enum FilterComparator {
         // build the regex for the comparators
         for (FilterComparator fc : FilterComparator.values()) {
             if (comparatorRegex.length() > 0) {
-                comparatorRegex.append("|");
+                comparatorRegex.append('|');
             }
             comparatorRegex.append(fc.getCliShort());
         }

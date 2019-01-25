@@ -409,7 +409,7 @@ public class IdXMLExporter {
                 StringBuilder sbProteinRefs = new StringBuilder();
                 psm.getAccessions().stream().filter(acc -> accessionToPH.containsKey(acc.getAccession())).forEach(acc -> {
                     sbProteinRefs.append(accessionToPH.get(acc.getAccession()));
-                    sbProteinRefs.append(" ");
+                    sbProteinRefs.append(' ');
                 });
                 if (sbProteinRefs.length() > 0) {
                     streamWriter.writeAttribute("protein_refs", sbProteinRefs.toString().trim());

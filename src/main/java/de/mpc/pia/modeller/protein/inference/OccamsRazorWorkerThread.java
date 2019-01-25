@@ -114,7 +114,7 @@ public class OccamsRazorWorkerThread extends Thread {
             pepGroupIDs.stream().filter(reportPeptidesMap::containsKey).forEach(pepGroupID -> {
                 for (ReportPeptide peptide : reportPeptidesMap.get(pepGroupID)) {
                     if (!peptideKeys.add(peptide.getStringID())) {
-                        LOGGER.warn("Peptide already in list of peptides '" + peptide.getStringID() + "'");
+                        LOGGER.warn("Peptide already in list of peptides '" + peptide.getStringID() + '\'');
                     } else {
                         protein.addPeptide(peptide);
                     }
@@ -272,7 +272,7 @@ public class OccamsRazorWorkerThread extends Thread {
                 }
             }
 
-            for (Long protID : mostPepsIDs != null ? mostPepsIDs : null) {
+            for (Long protID : mostPepsIDs) {
                 ReportProtein protein = proteins.get(protID);
                 if (nrMostPeps > 0) {
                     // TODO: for now, the proteins which "explain" no more peptides are not reported (this happens sometimes)

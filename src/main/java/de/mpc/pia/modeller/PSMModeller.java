@@ -810,7 +810,7 @@ public class PSMModeller implements Serializable {
 
             LOGGER.debug("setHigherScoreBetter: " + scoreShortToComparator.get(scoreShort));
         } else {
-            LOGGER.warn("The comparator for " + scoreShort + "(" +
+            LOGGER.warn("The comparator for " + scoreShort + '(' +
                     scoreShortToScoreName.get(scoreShort) +
                     ") may not be changed!");
         }
@@ -1373,7 +1373,7 @@ public class PSMModeller implements Serializable {
 
                     for (Long file : files) {
                         if (sbKey.length() > 0) {
-                            sbKey.append(":");
+                            sbKey.append(':');
                         }
                         sbKey.append(file);
                     }

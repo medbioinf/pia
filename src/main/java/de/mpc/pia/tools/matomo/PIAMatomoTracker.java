@@ -213,14 +213,14 @@ public class PIAMatomoTracker {
 
             // the custom variables are json encoded
             String customVariablesString = "&cvar="
-                    + URLEncoder.encode("{"
+                    + URLEncoder.encode('{'
                             + "\"1\":[\"operating_system\",\"" + System.getProperty("os.name") + "\"],"
                             + "\"2\":[\"pia_version\",\"" + PIAConstants.version + "\"]"
-                            + "}", UTF8);
+                            + '}', UTF8);
             getRequest += customVariablesString;
 
             // make the actual request via GET
-            HttpsURLConnection connection = (HttpsURLConnection) new URL(PIA_MATOMO_TRACKING_URL + "?" +
+            HttpsURLConnection connection = (HttpsURLConnection) new URL(PIA_MATOMO_TRACKING_URL + '?' +
                     getRequest).openConnection();
             connection.setRequestMethod("GET");
             connection.getResponseCode();

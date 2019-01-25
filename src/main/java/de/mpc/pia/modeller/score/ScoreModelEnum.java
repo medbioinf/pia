@@ -74,7 +74,7 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvName() {
-            return CV_NAME_NOT_SET_PREFIX + getShortName() + ")";
+            return CV_NAME_NOT_SET_PREFIX + getShortName() + ')';
         }
 
         @Override
@@ -1524,7 +1524,7 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvName() {
-            return CV_NAME_NOT_SET_PREFIX + getShortName() + ")";
+            return CV_NAME_NOT_SET_PREFIX + getShortName() + ')';
         }
 
         @Override
@@ -1567,7 +1567,7 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvName() {
-            return CV_NAME_NOT_SET_PREFIX + getShortName() + ")";
+            return CV_NAME_NOT_SET_PREFIX + getShortName() + ')';
         }
 
         @Override
@@ -1610,7 +1610,7 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvName() {
-            return CV_NAME_NOT_SET_PREFIX + getShortName() + ")";
+            return CV_NAME_NOT_SET_PREFIX + getShortName() + ')';
         }
 
         @Override
@@ -2155,7 +2155,7 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvName() {
-            return CV_NAME_NOT_SET_PREFIX + getShortName() + ")";
+            return CV_NAME_NOT_SET_PREFIX + getShortName() + ')';
         }
 
         @Override
@@ -2185,7 +2185,7 @@ public enum ScoreModelEnum {
 
         @Override
         public String getCvName() {
-            return CV_NAME_NOT_SET_PREFIX + getShortName() + ")";
+            return CV_NAME_NOT_SET_PREFIX + getShortName() + ')';
         }
 
         @Override

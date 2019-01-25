@@ -259,7 +259,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                 try {
                     fileID = Long.parseLong(commandMap.get(ID_FILE_ID));
                 } catch (NumberFormatException e) {
-                    LOGGER.error("could not parse " + ID_FILE_ID + "=" + commandMap.get(ID_FILE_ID), e);
+                    LOGGER.error("could not parse " + ID_FILE_ID + '=' + commandMap.get(ID_FILE_ID), e);
                     fileID = 0L;
                 }
                 commandMap.remove(ID_FILE_ID);

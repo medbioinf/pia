@@ -445,7 +445,7 @@ public class InputFileParserFactory {
         if (fileType == null) {
             InputFileTypes type = getFileTypeByContent(fileName);
             if (type != null) {
-                LOGGER.info("'" + fileName + "' seems to be a " +
+                LOGGER.info('\'' + fileName + "' seems to be a " +
                         type.getFileTypeName()+" file");
                 return type.parseFile(name, fileName, compiler, additionalInfoFileName);
             }
@@ -455,7 +455,7 @@ public class InputFileParserFactory {
         } else {
             InputFileTypes type = getFileTypeByShortName(fileType);
             if (type != null) {
-                LOGGER.info("'" + fileName + "' should be a " +
+                LOGGER.info('\'' + fileName + "' should be a " +
                         type.getFileTypeName()+" file");
                 return type.parseFile(name, fileName, compiler, additionalInfoFileName);
             }

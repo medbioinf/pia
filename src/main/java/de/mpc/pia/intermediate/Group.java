@@ -45,60 +45,44 @@ public class Group implements Serializable {
         this.allAccessions = new HashMap<>();
     }
 
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Group)) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
-
-        Group objGroup = (Group)obj;
-        return new EqualsBuilder()
-                .append(id, objGroup.id)
-                .append(treeID, objGroup.treeID)
-                .append(peptides, objGroup.peptides)
-                .append(children, objGroup.children)
-                .append(parents, objGroup.parents)
-                .append(accessions, objGroup.accessions)
-                .append(allAccessions, objGroup.allAccessions)
-                .isEquals();
-    }
-
-
     @Override
     public int hashCode() {
-        HashCodeBuilder hcb = new HashCodeBuilder(23, 31).
-                append(id).
-                append(treeID);
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (int) (treeID ^ (treeID >>> 32));
+        result = 31 * result + (peptides != null ? peptides.hashCode() : 0);
+        if(children != null) {
+            for (Group group : children.values())
+                result = result * 31 + Long.hashCode(group.getID());
+        }else
+            result = 31 * result;
 
-        if (peptides != null) {
-            hcb.append(peptides.hashCode());
-        }
+        if(parents != null) {
+            for (Group group : parents.values())
+                result = result * 31 + Long.hashCode(group.getID());
+        }else
+            result = 31 * result;
 
-        // we can't take the children's hashcode directly, as the group is referenced as parent
-        if (children != null) {
-            children.forEach((key, childGroup) -> hcb.append(childGroup.getID()));
-        }
-
-        // we can't take the parents' hashcode directly, as the group is referenced as child
-        if (parents != null) {
-            parents.forEach((key, parentGroup) -> hcb.append(parentGroup.getID()));
-        }
-
-        if (accessions != null) {
-            hcb.append(accessions.hashCode());
-        }
-
-        if (allAccessions != null) {
-            hcb.append(allAccessions.hashCode());
-        }
-
-        return hcb.toHashCode();
+        result = 31 * result + (accessions != null ? accessions.hashCode() : 0);
+        result = 31 * result + (allAccessions != null ? allAccessions.hashCode() : 0);
+        return result;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Group group = (Group) o;
+
+        if (id != group.id) return false;
+        if (treeID != group.treeID) return false;
+        if (peptides != null ? !peptides.equals(group.peptides) : group.peptides != null) return false;
+        if (children != null ? !children.equals(group.children) : group.children != null) return false;
+        if (parents != null ? !parents.equals(group.parents) : group.parents != null) return false;
+        if (accessions != null ? !accessions.equals(group.accessions) : group.accessions != null) return false;
+        return allAccessions != null ? allAccessions.equals(group.allAccessions) : group.allAccessions == null;
+    }
 
     /**
      * Getter for the ID.
@@ -335,7 +319,7 @@ public class Group implements Serializable {
     public String getAccessionsStr() {
         StringBuilder sb = new StringBuilder();
         if (accessions != null) {
-            accessions.keySet().stream().forEach( key -> sb.append(key).append(" "));
+            accessions.keySet().stream().forEach( key -> sb.append(key).append(' '));
         }
         return sb.toString();
     }
@@ -372,7 +356,7 @@ public class Group implements Serializable {
 
         if (peptides != null) {
             for (Map.Entry<String, Peptide> pep : peptides.entrySet()) {
-                sb.append(pep.getKey()).append(" ");
+                sb.append(pep.getKey()).append(' ');
             }
         }
 

@@ -132,15 +132,15 @@ public class PSMScoreFilter extends AbstractFilter {
     public String toString() {
         StringBuilder str = new StringBuilder(getShortName());
 
-        str.append(" (").append(modelName).append(")");
+        str.append(" (").append(modelName).append(')');
         if (getFilterNegate()) {
             str.append(" not");
         }
 
-        str.append(" ");
+        str.append(' ');
         str.append(getFilterComparator().toString());
 
-        str.append(" ");
+        str.append(' ');
         str.append(getFilterValue());
 
         return str.toString();

@@ -313,7 +313,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                     + " id. Filters are added by their name, an abbreviation"
                     + " for the camparison, the compared value and (optional),"
                     + " whether the comparison should be negated, e.g. "
-                    + "\"" + name() + "=1,charge_filter,EQ,2,no\". \n"
+                    + '"' + name() + "=1,charge_filter,EQ,2,no\". \n"
                     + "Registered PSM filters are: " + RegisteredFilters.getPSMFilterShortsForHelp();
         }
 
@@ -474,7 +474,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                 try {
                     fileID = Long.parseLong(commandMap.get(ID_FILE_ID));
                 } catch (NumberFormatException e) {
-                    LOGGER.error("could not parse " + ID_FILE_ID + "=" + commandMap.get(ID_FILE_ID), e);
+                    LOGGER.error("could not parse " + ID_FILE_ID + '=' + commandMap.get(ID_FILE_ID), e);
                     fileID = 0L;
                 }
                 commandMap.remove(ID_FILE_ID);

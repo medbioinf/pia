@@ -437,9 +437,8 @@ public class MzTabExporter {
                 modName = searchMod.getCvParam().get(0).getName();
             }
 
-            if ((modAccession != null)
-                    && (OntologyConstants.NO_FIXED_MODIFICATIONS_SEARCHED.getPsiAccession().equals(modAccession)
-                            || OntologyConstants.NO_VARIABLE_MODIFICATIONS_SEARCHED.getPsiAccession().equals(modAccession))) {
+            if ((OntologyConstants.NO_FIXED_MODIFICATIONS_SEARCHED.getPsiAccession().equals(modAccession)
+                    || OntologyConstants.NO_VARIABLE_MODIFICATIONS_SEARCHED.getPsiAccession().equals(modAccession))) {
                 continue;
             }
 
@@ -472,7 +471,7 @@ public class MzTabExporter {
 
                 if (uniMod != null) {
                     cvParam = new CVParam(UnimodParser.getCv().getId(),
-                            UnimodParser.getCv().getId() + ":" + uniMod.getRecordId(),
+                            UnimodParser.getCv().getId() + ':' + uniMod.getRecordId(),
                             uniMod.getTitle(),
                             null);
                 } else {
@@ -594,7 +593,7 @@ public class MzTabExporter {
                     sb.append(" = ");
                     sb.append(param.getValue());
                     if (param.getUnitName() != null) {
-                        sb.append(" ");
+                        sb.append(' ');
                         sb.append(param.getUnitName());
                     }
 
@@ -609,7 +608,7 @@ public class MzTabExporter {
                     sb.append(" = ");
                     sb.append(param.getValue());
                     if (param.getUnitName() != null) {
-                        sb.append(" ");
+                        sb.append(' ');
                         sb.append(param.getUnitName());
                     }
 
@@ -1262,7 +1261,7 @@ public class MzTabExporter {
             count++;
             if (count % 10000 == 0) {
                 LOGGER.debug("exported " + count + " / " + nrPSMsExport + " PSMs "
-                        + "(" + (100.0 * count / nrPSMsExport) + "%)");
+                        + '(' + (100.0 * count / nrPSMsExport) + "%)");
             }
         }
     }

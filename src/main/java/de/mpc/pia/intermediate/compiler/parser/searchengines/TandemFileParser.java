@@ -106,7 +106,7 @@ public class TandemFileParser {
         if ((rtMapFileName != null) && (rtMapFileName.length() > 0)) {
             // additional RT info is given, parse the file
             try (FileInputStream rtStream = new FileInputStream(rtMapFileName)) {
-                LOGGER.info("Parsing the file '" + rtMapFileName + "'"
+                LOGGER.info("Parsing the file '" + rtMapFileName + '\''
                         + " for RT information.");
 
                 DataInputStream in = new DataInputStream(rtStream);
@@ -392,12 +392,12 @@ public class TandemFileParser {
                     // X stands for any, make it \S in PCRE for "not whitespace"
                     pre = "\\S";
                 } else if (pre.length() > 1) {
-                    pre = "[" + pre + "]";
+                    pre = '[' + pre + ']';
                 }
                 if (values[0].startsWith("[") && values[0].endsWith("]")) {
-                    pre = "(?<=" + pre + ")";
+                    pre = "(?<=" + pre + ')';
                 } else if (values[0].startsWith("{") && values[0].endsWith("}")) {
-                    pre = "(?<!" + pre + ")";
+                    pre = "(?<!" + pre + ')';
                 }
 
                 String post = values[1].substring(1, values[1].length() - 1);
@@ -405,12 +405,12 @@ public class TandemFileParser {
                     // X stands for any, make it \S in PCRE for "not whitespace"
                     post = "\\S";
                 } else if (post.length() > 1) {
-                    post = "[" + post + "]";
+                    post = '[' + post + ']';
                 }
                 if (values[1].startsWith("[") && values[1].endsWith("]")) {
-                    post = "(?=" + post + ")";
+                    post = "(?=" + post + ')';
                 } else if (values[1].startsWith("{") && values[1].endsWith("}")) {
-                    post = "(?!" + post + ")";
+                    post = "(?!" + post + ')';
                 }
 
                 enzyme.setSiteRegexp(pre + post);
@@ -677,7 +677,7 @@ public class TandemFileParser {
 
                     if (fastaInfo == null) {
                         LOGGER.error("Could not parse '" +
-                                protein.getLabel() + "'");
+                                protein.getLabel() + '\'');
                         continue;
                     }
 
@@ -708,7 +708,7 @@ public class TandemFileParser {
                                 LOGGER.warn("Different DBSequences found for same Accession, this is not suported!\n" +
                                         "\t Accession: " + acc.getAccession() +
                                         "\t'" + proteinSequence + "'\n" +
-                                        "\t'" + acc.getDbSequence() + "'");
+                                        "\t'" + acc.getDbSequence() + '\'');
                             }
                         } else {
                             acc.setDbSequence(proteinSequence);

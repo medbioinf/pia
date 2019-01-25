@@ -155,7 +155,7 @@ public class PIACompilerTest {
             StringBuilder accSb = new StringBuilder();
             for (Accession acc : prot.getAccessions()) {
                 accSb.append(acc.getAccession());
-                accSb.append(",");
+                accSb.append(',');
             }
             accSb.deleteCharAt(accSb.length()-1);
 

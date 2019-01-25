@@ -146,7 +146,7 @@ public class ProteinVisualizationGraphHandler {
             if (group.getChildren() != null) {
                 for (Group child : group.getChildren().values()) {
                     VertexObject childV = addGroupVertex(child);
-                    String edgeName = "groupGroup_" + groupV.getLabel() + "_" + childV.getLabel();
+                    String edgeName = "groupGroup_" + groupV.getLabel() + '_' + childV.getLabel();
                     graph.addEdge(edgeName, groupV, childV);
                 }
             }
@@ -188,7 +188,7 @@ public class ProteinVisualizationGraphHandler {
             graph.addVertex(proteinsV);
             proteins.add(proteinsV);
 
-            String edgeName = "proteinGroup_" + proteinLabel + "_" + groupV.getLabel();
+            String edgeName = "proteinGroup_" + proteinLabel + '_' + groupV.getLabel();
             graph.addEdge(edgeName, proteinsV, groupV);
 
             expandedAccessionsMap.put(groupV.getLabel(), false);
@@ -202,7 +202,7 @@ public class ProteinVisualizationGraphHandler {
                 graph.addVertex(proteinV);
                 proteins.add(proteinV);
 
-                String edgeName = "proteinGroup_" + proteinLabel + "_" + groupV.getLabel();
+                String edgeName = "proteinGroup_" + proteinLabel + '_' + groupV.getLabel();
                 graph.addEdge(edgeName, proteinV, groupV);
 
                 // TODO: check if this is the reference protein
@@ -232,7 +232,7 @@ public class ProteinVisualizationGraphHandler {
             graph.addVertex(peptidesV);
             peptides.add(peptidesV);
 
-            String edgeName = "groupPeptide_" + groupV.getLabel() + "_" + peptidesLabel;
+            String edgeName = "groupPeptide_" + groupV.getLabel() + '_' + peptidesLabel;
             graph.addEdge(edgeName, groupV, peptidesV);
 
             expandedPeptidesMap.put(groupV.getLabel(), false);
@@ -245,7 +245,7 @@ public class ProteinVisualizationGraphHandler {
                 graph.addVertex(peptideV);
                 peptides.add(peptideV);
 
-                String edgeName = "groupPeptide_" + groupV.getLabel() + "_" + peptideLabel;
+                String edgeName = "groupPeptide_" + groupV.getLabel() + '_' + peptideLabel;
                 graph.addEdge(edgeName, groupV, peptideV);
 
                 showPSMsMap.put(peptideLabel, false);
@@ -277,7 +277,7 @@ public class ProteinVisualizationGraphHandler {
             graph.addVertex(psmV);
             psms.add(psmV);
 
-            String psmEdgeName = "peptidePSM_" + peptideV.getLabel() + "_" + psmLabel;
+            String psmEdgeName = "peptidePSM_" + peptideV.getLabel() + '_' + psmLabel;
             graph.addEdge(psmEdgeName, peptideV, psmV);
         }
 
