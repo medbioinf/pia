@@ -44,9 +44,9 @@
 		<commons-cli.version>1.4</commons-cli.version>
 		<commons-collections.version>4.1</commons-collections.version>
 		<jmzidentml.version>1.2.11</jmzidentml.version>
-		<jmztab.version>3.0.7</jmztab.version>
+		<jmztab.version>3.0.8</jmztab.version>
 		<pride-mod.version>2.1.8</pride-mod.version>
-		<pride-jaxb.version>1.0.20-SNAPSHOT</pride-jaxb.version>
+		<pride-jaxb.version>1.0.22</pride-jaxb.version>
 		<xxindex.version>0.23</xxindex.version>
 		<mascotdatfile.version>3.6.0</mascotdatfile.version>
 		<xtandem-parser.version>1.13.0</xtandem-parser.version>
