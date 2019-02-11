@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 
 public class Group implements Serializable {
 
@@ -50,17 +47,21 @@ public class Group implements Serializable {
         int result = (int) (id ^ (id >>> 32));
         result = 31 * result + (int) (treeID ^ (treeID >>> 32));
         result = 31 * result + (peptides != null ? peptides.hashCode() : 0);
-        if(children != null) {
-            for (Group group : children.values())
+        if (children != null) {
+            for (Group group : children.values()) {
                 result = result * 31 + Long.hashCode(group.getID());
-        }else
+            }
+        } else {
             result = 31 * result;
+        }
 
         if(parents != null) {
-            for (Group group : parents.values())
+            for (Group group : parents.values()) {
                 result = result * 31 + Long.hashCode(group.getID());
-        }else
+            }
+        } else {
             result = 31 * result;
+        }
 
         result = 31 * result + (accessions != null ? accessions.hashCode() : 0);
         result = 31 * result + (allAccessions != null ? allAccessions.hashCode() : 0);

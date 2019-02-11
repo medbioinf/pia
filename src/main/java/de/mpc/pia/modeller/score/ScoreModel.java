@@ -2,9 +2,6 @@ package de.mpc.pia.modeller.score;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 /**
  * This class models all scores in PIA.
  *
@@ -35,8 +32,7 @@ public class ScoreModel implements Serializable, Comparable<ScoreModel> {
      * Basic constructor, creating the ScoreModel by accession or name. Accession may also be one of the valid descriptors of the score.
      */
     public ScoreModel(Double score, String cvAccession, String name) {
-        ScoreModelEnum modelEnum =
-                ScoreModelEnum.getModelByAccession(cvAccession);
+        ScoreModelEnum modelEnum = ScoreModelEnum.getModelByAccession(cvAccession);
 
         if(modelEnum == ScoreModelEnum.UNKNOWN_SCORE) {
             modelEnum =  ScoreModelEnum.getModelByDescription(cvAccession);

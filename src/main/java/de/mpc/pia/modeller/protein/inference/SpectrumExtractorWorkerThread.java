@@ -236,10 +236,8 @@ public class SpectrumExtractorWorkerThread extends Thread {
                                     if ((givenSet != null) &&
                                             (givenSet.getFDRScore() != null)) {
                                         // add the used spectra to the set
-                                        Set<Long> psmIDs = ((ReportPSMSet) psmSet)
-                                                .getPSMs().stream()
-                                                .map(psm -> psm.getSpectrum()
-                                                        .getID())
+                                        Set<Long> psmIDs = ((ReportPSMSet) psmSet).getPSMs().stream()
+                                                .map(psm -> psm.getSpectrum().getID())
                                                 .collect(Collectors.toSet());
 
                                         // FDR is calculated, so get the scores for it
@@ -288,8 +286,7 @@ public class SpectrumExtractorWorkerThread extends Thread {
                                             score = repPSM.getCompareScore(scoreShort);
                                         }
 
-                                        Object[] pepData =
-                                                spectraToPeptides.get(specIDKey);
+                                        Object[] pepData = spectraToPeptides.get(specIDKey);
                                         if (pepData == null) {
                                             pepData = new Object[3];
                                             // the peptide IDs
