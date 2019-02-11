@@ -46,9 +46,6 @@ class MzIdentMLFileParser {
     /** the used unmarshaller */
     private MzIdentMLUnmarshaller unmarshaller;
 
-    /** maps from the ID to the SpectrumIdentificationList */
-    private Map<String, SpectrumIdentificationList> specIdLists;
-
     /** maps from the ID to the peptides */
     private Map<String, uk.ac.ebi.jmzidml.model.mzidml.Peptide> peptides;
 
@@ -130,8 +127,8 @@ class MzIdentMLFileParser {
         pepNr = 0;
         specNr = 0;
 
-        // get the SpectrumIdentificationLists
-        specIdLists = getSpectrumIdentificationLists();
+        // maps from the ID to the SpectrumIdentificationList
+        Map<String, SpectrumIdentificationList> specIdLists = getSpectrumIdentificationLists();
         specIdListIDtoSpecIdID = new HashMap<>();
 
         // get the AnalysisCollection:SpectrumIdentification for the SpectrumIdentificationLists
