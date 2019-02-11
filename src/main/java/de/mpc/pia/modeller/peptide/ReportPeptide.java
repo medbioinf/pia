@@ -718,7 +718,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
         }
 
         if ((psms.size() > 1) && (name != null)) {
-            name += " [" + psms.size() + "]";
+            name += " [" + psms.size() + ']';
         }
 
         return name;

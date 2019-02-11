@@ -12,9 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -117,20 +114,20 @@ public class ReportProteinTest {
             StringBuilder accSb = new StringBuilder();
             for (Accession acc : prot.getAccessions()) {
                 accSb.append(acc.getAccession());
-                accSb.append(",");
+                accSb.append(',');
             }
             accSb.deleteCharAt(accSb.length()-1);
 
             List<Object> values = expectedValues.get(accSb.toString());
-            assertNotNull("These accessions are not expected: " + accSb.toString(), values);
+            assertNotNull("These accessions are not expected: " + accSb, values);
 
-            assertEquals("Wrong score for " + accSb.toString(), (Double)(values.get(0)), prot.getScore(), scoreDelta);
-            assertEquals("Wrong number of peptides for " + accSb.toString(), values.get(1), prot.getNrPeptides());
-            assertEquals("Wrong number of PSMs for " + accSb.toString(), values.get(2), prot.getNrPSMs());
-            assertEquals("Wrong number of spectra for " + accSb.toString(), values.get(3), prot.getNrSpectra());
-            assertEquals("Wrong decoy state for " + accSb.toString(), values.get(4), prot.getIsDecoy());
-            assertEquals("Wrong FDR for " + accSb.toString(), (Double)(values.get(5)), prot.getFDR(), scoreDelta);
-            assertEquals("Wrong q-value for " + accSb.toString(), (Double)(values.get(6)), prot.getQValue(), scoreDelta);
+            assertEquals("Wrong score for " + accSb, (Double)(values.get(0)), prot.getScore(), scoreDelta);
+            assertEquals("Wrong number of peptides for " + accSb, values.get(1), prot.getNrPeptides());
+            assertEquals("Wrong number of PSMs for " + accSb, values.get(2), prot.getNrPSMs());
+            assertEquals("Wrong number of spectra for " + accSb, values.get(3), prot.getNrSpectra());
+            assertEquals("Wrong decoy state for " + accSb, values.get(4), prot.getIsDecoy());
+            assertEquals("Wrong FDR for " + accSb, (Double)(values.get(5)), prot.getFDR(), scoreDelta);
+            assertEquals("Wrong q-value for " + accSb, (Double)(values.get(6)), prot.getQValue(), scoreDelta);
         }
     }
 }

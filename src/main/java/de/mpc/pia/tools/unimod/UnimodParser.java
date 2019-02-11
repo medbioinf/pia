@@ -130,7 +130,7 @@ public class UnimodParser {
         modification.getResidues().addAll(residues);
 
         CvParam cvParam = new CvParam();
-        cvParam.setAccession(cvUnimod.getId() + ":" + uniMod.getRecordId());
+        cvParam.setAccession(cvUnimod.getId() + ':' + uniMod.getRecordId());
         cvParam.setCv(cvUnimod);
         cvParam.setName(uniMod.getTitle());
         modification.getCvParam().add(cvParam);

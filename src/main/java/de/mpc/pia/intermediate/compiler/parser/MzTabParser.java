@@ -51,13 +51,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -373,7 +367,7 @@ public class MzTabParser {
             searchModificationList = new ArrayList<>();
 
             SearchModification searchModification = new SearchModification();
-            searchModification.setFixedMod(mod.getElement().getName() == "FIXED_MOD");
+            searchModification.setFixedMod(Objects.equals(mod.getElement().getName(), "FIXED_MOD"));
 
             searchModification.getCvParam().add(PRIDETools.convertCvParam(modParam));
 
@@ -625,7 +619,7 @@ public class MzTabParser {
                     LOGGER.error("Old modification which is changed: " + oldMod.toString());
                     PTM ptm = compiler.getModReader().getPTMbyAccession(oldAccession);
                     if (ptm == null && oldMod.getType() == Modification.Type.CHEMMOD) {
-                        List<PTM> ptms = compiler.getModReader().getAnchorModification(Modification.Type.CHEMMOD.toString() + ":" +oldAccession, charMod.toString());
+                        List<PTM> ptms = compiler.getModReader().getAnchorModification(Modification.Type.CHEMMOD.toString() + ':' +oldAccession, charMod.toString());
                         if(ptms != null && ptms.size() == 1)
                             ptm = ptms.get(0);
                     }
@@ -863,7 +857,7 @@ public class MzTabParser {
     private static String createPSMKey(String psmID, Map<Integer, de.mpc.pia.intermediate.Modification> modifications,
             int charge, String sequence, double precursorMZ, Double rt) {
         // PSM_ID with same mods, charge, sequence (and RT and M/Z)
-        return psmID + ":" +
+        return psmID + ':' +
                 PeptideSpectrumMatch.getModificationString(modifications) +
                 ':' +
                 charge +

@@ -26,7 +26,6 @@ import com.compomics.mascotdatfile.util.mascot.enumeration.MascotDatfileType;
 import com.compomics.mascotdatfile.util.mascot.factory.MascotDatfileFactory;
 import com.compomics.mascotdatfile.util.mascot.iterator.QueryEnumerator;
 
-import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
@@ -288,7 +287,7 @@ public class MascotDatFileParser {
                 regExp.append(enzymeCleavage);
                 regExp.append("])(?!");
                 regExp.append(enzymeRestrict);
-                regExp.append(")");
+                regExp.append(')');
             }
             enzyme.setSiteRegexp(regExp.toString());
 
@@ -297,19 +296,19 @@ public class MascotDatFileParser {
 
         Tolerance tolerance = new Tolerance();
 
-        AbstractParam abstractParam = MzIdentMLTools.createPSICvParam(
+        CvParam abstractParam = MzIdentMLTools.createPSICvParam(
                 OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE,
                 mascotFile.getParametersSection().getITOL());
         MzIdentMLTools.setUnitParameterFromString(
                 mascotFile.getParametersSection().getITOLU(), abstractParam);
-        tolerance.getCvParam().add((CvParam)abstractParam);
+        tolerance.getCvParam().add(abstractParam);
 
         abstractParam = MzIdentMLTools.createPSICvParam(
                 OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE,
                 mascotFile.getParametersSection().getITOL());
         MzIdentMLTools.setUnitParameterFromString(
                 mascotFile.getParametersSection().getITOLU(), abstractParam);
-        tolerance.getCvParam().add((CvParam)abstractParam);
+        tolerance.getCvParam().add(abstractParam);
 
         spectrumIDProtocol.setFragmentTolerance(tolerance);
 
@@ -321,14 +320,14 @@ public class MascotDatFileParser {
                 mascotFile.getParametersSection().getTOL());
         MzIdentMLTools.setUnitParameterFromString(
                 mascotFile.getParametersSection().getTOLU(), abstractParam);
-        tolerance.getCvParam().add((CvParam)abstractParam);
+        tolerance.getCvParam().add(abstractParam);
 
         abstractParam = MzIdentMLTools.createPSICvParam(
                 OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE,
                 mascotFile.getParametersSection().getTOL());
         MzIdentMLTools.setUnitParameterFromString(
                 mascotFile.getParametersSection().getTOLU(), abstractParam);
-        tolerance.getCvParam().add((CvParam)abstractParam);
+        tolerance.getCvParam().add(abstractParam);
 
         spectrumIDProtocol.setParentTolerance(tolerance);
 
@@ -386,7 +385,7 @@ public class MascotDatFileParser {
                 }
             } catch (NumberFormatException e) {
                 charge = 0;
-                LOGGER.warn("could not parse charge '" + currQuery.getChargeString() + "' for '" + currQuery.getTitle() + "'");
+                LOGGER.warn("could not parse charge '" + currQuery.getChargeString() + "' for '" + currQuery.getTitle() + '\'');
             }
 
             double precursorMZ = currQuery.getPrecursorMZ();

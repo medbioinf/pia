@@ -41,7 +41,7 @@ public class Modification implements Serializable {
     /** formatter for the mass as string */
     private static final DecimalFormat df;
 
-    private String cvLabel = null;
+    private String cvLabel;
 
     private List<ScoreModel> probability;
 
@@ -181,39 +181,38 @@ public class Modification implements Serializable {
 
     @Override
     public int hashCode() {
-        HashCodeBuilder hcb = new HashCodeBuilder(23, 31)
-                .append(accession)
-                .append(description)
-                .append(mass)
-                .append(residue)
-                .append(cvLabel);
 
-        if (probability != null) {
-            hcb.append(probability.hashCode());
-        }
-
-        return hcb.toHashCode();
+        int result = 31;
+        result = 31 * result + ((accession!=null)?accession.hashCode():0);
+        result = 31 * result + ((description!=null)?description.hashCode():0);
+        long doubleFieldBits = Double.doubleToLongBits(mass);
+        result = 31 * result + (int)(doubleFieldBits ^ (doubleFieldBits >>> 32));
+        result = 31 * result + ((residue!=null)?residue:0);
+        result = 31 * result + ((cvLabel!=null)?cvLabel.hashCode():0);
+        result = 31 * result + ((probability!=null)?probability.hashCode():0);
+        return result;
     }
 
-
+    /**
+     * This is a better version of the EqualsBuilder because is not using reflection and object
+     * creation. This implementation is faster than previous ones.
+     *
+     * @param o Modification to be compare.
+     * @return
+     */
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Modification)) {
-           return false;
-       }
-       if (obj == this) {
-           return true;
-       }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-       Modification mod = (Modification)obj;
-       return new EqualsBuilder()
-               .append(accession, mod.accession)
-               .append(description, mod.description)
-               .append(mass, mod.mass)
-               .append(residue, mod.residue)
-               .append(cvLabel, mod.cvLabel)
-               .append(probability, mod.probability)
-               .isEquals();
+        Modification that = (Modification) o;
+
+        if (residue != null ? !residue.equals(that.residue) : that.residue != null) return false;
+        if (mass != null ? !mass.equals(that.mass) : that.mass != null) return false;
+        if (description != null ? !description.equals(that.description) : that.description != null) return false;
+        if (accession != null ? !accession.equals(that.accession) : that.accession != null) return false;
+        if (cvLabel != null ? !cvLabel.equals(that.cvLabel) : that.cvLabel != null) return false;
+        return probability != null ? probability.equals(that.probability) : that.probability == null;
     }
 
     @Override

@@ -114,38 +114,29 @@ public class ReportPSM  implements PSMReportItem {
                 IdentificationKeySettings.noRedundantSettings(maximalSpectraIdentificationSettings);
     }
 
-
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof ReportPSM)) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        ReportPSM objReportPSM = (ReportPSM)obj;
-        return new EqualsBuilder().
-                append(id, objReportPSM.id).
-                append(spectrum, objReportPSM.spectrum).
-                append(isDecoy, objReportPSM.isDecoy).
-                append(isFDRGood, objReportPSM.isFDRGood).
-                append(accessions, objReportPSM.accessions).
-                isEquals();
+        ReportPSM reportPSM = (ReportPSM) o;
+
+        if (isDecoy != reportPSM.isDecoy) return false;
+        if (isFDRGood != reportPSM.isFDRGood) return false;
+        if (!id.equals(reportPSM.id)) return false;
+        if (spectrum != null ? !spectrum.equals(reportPSM.spectrum) : reportPSM.spectrum != null) return false;
+        return accessions != null ? accessions.equals(reportPSM.accessions) : reportPSM.accessions == null;
     }
-
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(23, 31).
-                append(id).
-                append(spectrum).
-                append(isDecoy).
-                append(isFDRGood).
-                append(accessions).
-                toHashCode();
+        int result = id.hashCode();
+        result = 31 * result + (spectrum != null ? spectrum.hashCode() : 0);
+        result = 31 * result + (isDecoy ? 1 : 0);
+        result = 31 * result + (isFDRGood ? 1 : 0);
+        result = 31 * result + (accessions != null ? accessions.hashCode() : 0);
+        return result;
     }
-
 
     /**
      * Getter for the ID
@@ -375,10 +366,10 @@ public class ReportPSM  implements PSMReportItem {
 
         for (ScoreModel model : getScores()) {
             if (scoresSB.length() > 0) {
-                scoresSB.append(",");
+                scoresSB.append(',');
             }
             scoresSB.append(model.getName());
-            scoresSB.append(":");
+            scoresSB.append(':');
             scoresSB.append(model.getValue());
         }
 

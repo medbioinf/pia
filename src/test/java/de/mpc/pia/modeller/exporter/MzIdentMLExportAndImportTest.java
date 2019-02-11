@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,6 +27,8 @@ public class MzIdentMLExportAndImportTest {
 
     private File tandemIdXMLResults;
     private String piaIntermediateFileName;
+    /** logger for this class */
+    private static final Logger LOGGER = Logger.getLogger(PIACompiler.class);
 
     @Before
     public void setUp() {
@@ -51,8 +54,6 @@ public class MzIdentMLExportAndImportTest {
         File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
         piaCompiler.writeOutXML(piaIntermediateFile);
         piaCompiler.finish();
-
-        piaCompiler = null;
 
 
         // read in PIA XML file and perform analysis
@@ -87,6 +88,7 @@ public class MzIdentMLExportAndImportTest {
 
 
         // try to read it back in PIA compiler
+        LOGGER.info("Try to read back the mzIdentML previously compiled");
         piaCompiler = new PIASimpleCompiler();
 
         assertTrue(piaCompiler.getDataFromFile("mzIdentMLfile", exportFile.getAbsolutePath(), null, null));

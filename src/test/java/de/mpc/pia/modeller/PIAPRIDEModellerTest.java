@@ -41,11 +41,7 @@ public class PIAPRIDEModellerTest {
         HashMap<String, String> files = new HashMap<>();
         int countAssay = 0;
         if(mzTabFolder.isDirectory() && mzTabFolder.listFiles().length > 0){
-            for(File file: mzTabFolder.listFiles((dir, name) -> {
-                if(name.endsWith(".mztab"))
-                    return true;
-                return false;
-            })){
+            for(File file: mzTabFolder.listFiles((dir, name) -> name.endsWith(".mztab"))){
                 files.put(file.getAbsolutePath(), Integer.toString(countAssay));
                 countAssay++;
             }
@@ -118,8 +114,8 @@ public class PIAPRIDEModellerTest {
 
         if (mzTabFileMap != null && !mzTabFileMap.isEmpty()) {
             for (Map.Entry<String, String> entry : mzTabFileMap.entrySet()) {
-                String assayKey = (String) entry.getValue();
-                String fileName = (String) entry.getKey();
+                String assayKey = entry.getValue();
+                String fileName = entry.getKey();
                 piaCompiler.getDataFromFile(assayKey, fileName, null,
                         InputFileParserFactory.InputFileTypes.MZTAB_INPUT.getFileTypeShort());
             }

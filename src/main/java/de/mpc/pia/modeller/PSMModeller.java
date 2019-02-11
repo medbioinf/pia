@@ -810,7 +810,7 @@ public class PSMModeller implements Serializable {
 
             LOGGER.debug("setHigherScoreBetter: " + scoreShortToComparator.get(scoreShort));
         } else {
-            LOGGER.warn("The comparator for " + scoreShort + "(" +
+            LOGGER.warn("The comparator for " + scoreShort + '(' +
                     scoreShortToScoreName.get(scoreShort) +
                     ") may not be changed!");
         }
@@ -1369,11 +1369,11 @@ public class PSMModeller implements Serializable {
                             !psm.getFDRScore().getValue().equals(Double.NaN)).map(ReportPSM::getFileID).collect(Collectors.toCollection(TreeSet::new));
                     // the psm has a valid FDR for this file
 
-                    StringBuilder sbKey = new StringBuilder("");
+                    StringBuilder sbKey = new StringBuilder();
 
                     for (Long file : files) {
                         if (sbKey.length() > 0) {
-                            sbKey.append(":");
+                            sbKey.append(':');
                         }
                         sbKey.append(file);
                     }
@@ -1830,29 +1830,29 @@ public class PSMModeller implements Serializable {
         writer.append("PSM information about ").append(fileName).append(nl);
 
         // numbers for each file
-        for (Long fileID : inputFiles.keySet()) {
-            if (fileID < 1) {
+        for (Map.Entry<Long, PIAInputFile> longPIAInputFileEntry : inputFiles.entrySet()) {
+            if (longPIAInputFileEntry.getKey() < 1) {
                 // skip the overview, combined FDR is added later
                 continue;
             }
 
-            writer.append(nl).append("PSMs in file #").append(String.valueOf(fileID)).append(" (").append(inputFiles.get(fileID).getName()).append(")").append(nl);
+            writer.append(nl).append("PSMs in file #").append(String.valueOf(longPIAInputFileEntry.getKey())).append(" (").append(longPIAInputFileEntry.getValue().getName()).append(")").append(nl);
             writer.append("==============================").append(nl);
             writer.append("#PSMs: ");
-            writer.append(Integer.toString(getNrReportPSMs(fileID)));
+            writer.append(Integer.toString(getNrReportPSMs(longPIAInputFileEntry.getKey())));
             writer.append(nl);
 
-            Boolean fdrCalculated = isFDRCalculated(fileID);
+            Boolean fdrCalculated = isFDRCalculated(longPIAInputFileEntry.getKey());
             if (fdrCalculated == null) {
                 writer.append("FDR was not calculated or was not able to be calculated.");
                 writer.append(nl);
             } else if (fdrCalculated) {
-                fdrData = getFileFDRData().get(fileID);
+                fdrData = getFileFDRData().get(longPIAInputFileEntry.getKey());
                 originalFDRThreshold = fdrData.getFDRThreshold();
 
                 writer.append(nl);
                 writer.append("FDR is calculated with ").append(getScoreName(fdrData.getScoreShortName()));
-                writer.append(" using ").append(String.valueOf(getFilesTopIdentifications(fileID))).append(" top identifications");
+                writer.append(" using ").append(String.valueOf(getFilesTopIdentifications(longPIAInputFileEntry.getKey()))).append(" top identifications");
                 writer.append(nl);
                 if (fdrData.getDecoyStrategy().equals(DecoyStrategy.ACCESSIONPATTERN)) {
                     writer.append("Regular expression used to identify decoys: ").append(fdrData.getDecoyPattern());
@@ -1891,7 +1891,7 @@ public class PSMModeller implements Serializable {
                     for (Double thr : fdrThresholds) {
                         if (!thr.equals(fdrData.getFDRThreshold())) {
                             fdrData.setFDRThreshold(thr);
-                            calculateFDR(fileID);
+                            calculateFDR(longPIAInputFileEntry.getKey());
                         }
 
                         writer.append("FDR ").append(String.valueOf(thr)).append(":").append(nl);
@@ -1908,7 +1908,7 @@ public class PSMModeller implements Serializable {
 
                     // reset the FDR data
                     fdrData.setFDRThreshold(originalFDRThreshold);
-                    calculateFDR(fileID);
+                    calculateFDR(longPIAInputFileEntry.getKey());
                 }
             }
         }

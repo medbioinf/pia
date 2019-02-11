@@ -172,35 +172,25 @@ public class ScoreModel implements Serializable, Comparable<ScoreModel> {
         return getName() + ": " + score;
     }
 
-
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof ScoreModel)) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        ScoreModel objScoreModel = (ScoreModel)obj;
+        ScoreModel that = (ScoreModel) o;
 
-        return new EqualsBuilder().
-                append(type, objScoreModel.type).
-                append(score, objScoreModel.score).
-                append(cvAccession, objScoreModel.cvAccession).
-                append(name, objScoreModel.name).
-                isEquals();
+        if (!score.equals(that.score)) return false;
+        if (type != that.type) return false;
+        if (cvAccession != null ? !cvAccession.equals(that.cvAccession) : that.cvAccession != null) return false;
+        return name != null ? name.equals(that.name) : that.name == null;
     }
 
-
     @Override
-    public final int hashCode() {
-        return new HashCodeBuilder(23, 31).
-                append(name).
-                append(score).
-                toHashCode();
+    public int hashCode() {
+        int result = score.hashCode();
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
     }
-
 
     @Override
     public int compareTo(ScoreModel s) {

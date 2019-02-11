@@ -512,17 +512,17 @@ public class MzIdentMLTools {
 
         Tolerance tolerance = new Tolerance();
 
-        AbstractParam abstractParam = MzIdentMLTools.createPSICvParam(
+        CvParam abstractParam = MzIdentMLTools.createPSICvParam(
                 OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE,
                 toleranceValue);
         MzIdentMLTools.setUnitParameterFromString(unit, abstractParam);
-        tolerance.getCvParam().add((CvParam)abstractParam);
+        tolerance.getCvParam().add(abstractParam);
 
         abstractParam = MzIdentMLTools.createPSICvParam(
                 OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE,
                 toleranceValue);
         MzIdentMLTools.setUnitParameterFromString(unit, abstractParam);
-        tolerance.getCvParam().add((CvParam)abstractParam);
+        tolerance.getCvParam().add(abstractParam);
 
         return tolerance;
     }

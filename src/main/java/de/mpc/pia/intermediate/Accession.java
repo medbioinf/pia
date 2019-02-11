@@ -79,42 +79,33 @@ public class Accession implements Serializable {
 
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Accession)) {
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Accession accession = (Accession) o;
+
+        if (id != null ? !id.equals(accession.id) : accession.id != null) return false;
+        if (accessionStr != null ? !accessionStr.equals(accession.accessionStr) : accession.accessionStr != null)
             return false;
-        }
-        if (this == obj) {
-            return true;
-        }
-
-        Accession objAccession = (Accession)obj;
-        return new EqualsBuilder().
-                append(id, objAccession.id).
-                append(accessionStr, objAccession.accessionStr).
-                append(descriptions, objAccession.descriptions).
-                append(dbSequence, objAccession.dbSequence).
-                append(searchDatabaseRefs, objAccession.searchDatabaseRefs).
-                append(pGroup, objAccession.pGroup).
-                isEquals();
+        if (descriptions != null ? !descriptions.equals(accession.descriptions) : accession.descriptions != null)
+            return false;
+        if (dbSequence != null ? !dbSequence.equals(accession.dbSequence) : accession.dbSequence != null) return false;
+        if (searchDatabaseRefs != null ? !searchDatabaseRefs.equals(accession.searchDatabaseRefs) : accession.searchDatabaseRefs != null)
+            return false;
+        return pGroup != null ? pGroup.getID() == accession.pGroup.getID() : accession.pGroup == null;
     }
-
 
     @Override
     public int hashCode() {
-        HashCodeBuilder hcb = new HashCodeBuilder(23, 31).
-                append(id).
-                append(accessionStr).
-                append(descriptions).
-                append(dbSequence).
-                append(searchDatabaseRefs);
-
-        if (pGroup != null) {
-            hcb.append(pGroup.getID());
-        }
-
-        return hcb.toHashCode();
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (accessionStr != null ? accessionStr.hashCode() : 0);
+        result = 31 * result + (descriptions != null ? descriptions.hashCode() : 0);
+        result = 31 * result + (dbSequence != null ? dbSequence.hashCode() : 0);
+        result = 31 * result + (searchDatabaseRefs != null ? searchDatabaseRefs.hashCode() : 0);
+        result = 31 * result + (pGroup != null ? (int) (pGroup.getID() ^ (pGroup.getID() >>>32)) : 0);
+        return result;
     }
-
 
     /**
      * Getter for the ID.
@@ -179,7 +170,7 @@ public class Accession implements Serializable {
             if (!differentDescriptions.isEmpty()) {
                 StringBuilder descSB = new StringBuilder();
                 differentDescriptions.stream().forEach(description ->
-                        descSB.append(description).append(";"));
+                        descSB.append(description).append(';'));
                 desc = descSB.substring(0, descSB.length()-1);
             }
         }

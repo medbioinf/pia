@@ -3,10 +3,6 @@ package de.mpc.pia.modeller;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.io.IOException;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
 
 import org.junit.BeforeClass;
 import org.junit.Test;

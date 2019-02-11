@@ -87,6 +87,6 @@ public class ScoreXML {
 
 	@Override
 	public String toString() {
-		return "["+cvLabel + "," + cvAccession + ',' + name + ',' + value + ']';
+		return '[' +cvLabel + ',' + cvAccession + ',' + name + ',' + value + ']';
 	}
 }

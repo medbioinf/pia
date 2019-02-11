@@ -329,9 +329,9 @@ public class ThermoMSFFileParser {
 
             if (nodeNumbersToIdentifications.size() > 1) {
                 // more than one identification in the MSF file -> make several PIAInputFiles
-                String searchName = name + "_" +
+                String searchName = name + '_' +
                         nodeNumbersToSoftwares.get(idIt.getKey()).getName() +
-                        "_" + idIt.getKey();
+                        '_' + idIt.getKey();
                 file = compiler.insertNewFile(searchName, fileName,
                         InputFileParserFactory.InputFileTypes.THERMO_MSF_INPUT.getFileSuffix());
             } else {
@@ -718,7 +718,7 @@ public class ThermoMSFFileParser {
         searchMod.setMassDelta(massShift);
 
         split = split[1].
-                substring(split[1].indexOf("(")+1, split[1].indexOf(")")).
+                substring(split[1].indexOf('(')+1, split[1].indexOf(')')).
                 split(",");
 
         for (String res : split) {
@@ -956,7 +956,7 @@ public class ThermoMSFFileParser {
                     FastaHeaderInfos.parseHeaderInfos(annotationsMap.get(proteinID));
             if (fastaInfo == null) {
                 LOGGER.error("Could not parse protein annotation '" +
-                        annotationsMap.get(proteinID) + "'");
+                        annotationsMap.get(proteinID) + '\'');
                 continue;
             }
 
@@ -987,7 +987,7 @@ public class ThermoMSFFileParser {
                         LOGGER.warn("Different DBSequences found for same Accession, this is not supported!\n" +
                                 "\t Accession: " + acc.getAccession() +
                                 "\t'" + proteinSequence + "'\n" +
-                                "\t'" + acc.getDbSequence() + "'");
+                                "\t'" + acc.getDbSequence() + '\'');
                     }
                 }
             }

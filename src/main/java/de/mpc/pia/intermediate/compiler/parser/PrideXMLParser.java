@@ -43,22 +43,19 @@ public class PrideXMLParser {
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(PrideXMLParser.class);
 
-    private static final Set<String> chargeAccessions = new HashSet<>(Arrays.asList(new String[]{
-            "PSI:1000041",
-            "MS:1000041"}));
+    private static final Set<String> chargeAccessions = new HashSet<>(Arrays.asList("PSI:1000041",
+            "MS:1000041"));
 
-    private static final Set<String> mzAccessions = new HashSet<>(Arrays.asList(new String[]{
-            "PSI:1000040",
+    private static final Set<String> mzAccessions = new HashSet<>(Arrays.asList("PSI:1000040",
             "MS:1000040",
             "PSI:1000744",
-            "MS:1000744"}));
+            "MS:1000744"));
 
-    private static final Set<String> rtAccessions = new HashSet<>(Arrays.asList(new String[]{
-            "PRIDE:0000203",
+    private static final Set<String> rtAccessions = new HashSet<>(Arrays.asList("PRIDE:0000203",
             "PSI:1000894",
             "MS:1000894",
             "PSI:1000016",
-            "MS:1000016"}));
+            "MS:1000016"));
 
 
     /**
@@ -667,7 +664,7 @@ public class PrideXMLParser {
      */
     private static void parseInstrumentInformations(Instrument instrumentSection,
             ParamList additionalInformation, PIACompiler compiler) {
-        AbstractParam abstractParam;
+        CvParam abstractParam;
 
         String instrumentName = instrumentSection.getInstrumentName();
         if ((instrumentName != null) && !instrumentName.isEmpty()) {
@@ -685,7 +682,7 @@ public class PrideXMLParser {
                         "instrument model",
                         instrumentName);
             }
-            additionalInformation.getCvParam().add((CvParam)abstractParam);
+            additionalInformation.getCvParam().add(abstractParam);
         }
     }
 
@@ -711,7 +708,7 @@ public class PrideXMLParser {
             software = compiler.putIntoSoftwareMap(software);
         } else {
             LOGGER.warn("Could not parse software! Please contact developer and ask to implement software '"
-                    + dataProcessingSection.getSoftware().getName() + "'");
+                    + dataProcessingSection.getSoftware().getName() + '\'');
         }
 
         if (software != null) {

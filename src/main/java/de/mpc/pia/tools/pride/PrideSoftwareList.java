@@ -1,7 +1,6 @@
 package de.mpc.pia.tools.pride;
 
 import de.mpc.pia.tools.MzIdentMLTools;
-import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Param;
@@ -89,11 +88,11 @@ public enum PrideSoftwareList {
             software.setUri(uri);
         }
 
-        AbstractParam abstractParam;
+        CvParam abstractParam;
         Param param = new Param();
         abstractParam = new CvParam();
-        ((CvParam)abstractParam).setAccession(psiAccession);
-        ((CvParam)abstractParam).setCv(MzIdentMLTools.getCvPSIMS());
+        abstractParam.setAccession(psiAccession);
+        abstractParam.setCv(MzIdentMLTools.getCvPSIMS());
         abstractParam.setName(psiName);
         param.setParam(abstractParam);
 

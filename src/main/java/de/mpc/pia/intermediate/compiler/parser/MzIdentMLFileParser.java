@@ -74,10 +74,7 @@ class MzIdentMLFileParser {
 
 
     /** the cvParams which are specially parsed and don't need to be passed for the spectrumIdentificationResults */
-    private static List<String> parsedSpecIdResultCVParams = Arrays.asList(new String[]{
-            OntologyConstants.SCAN_NUMBERS.getPsiAccession(),
-            OntologyConstants.SCAN_START_TIME.getPsiAccession(),
-    });
+    private static List<String> parsedSpecIdResultCVParams = Arrays.asList(OntologyConstants.SCAN_NUMBERS.getPsiAccession(), OntologyConstants.SCAN_START_TIME.getPsiAccession());
 
 
     /**
@@ -522,7 +519,7 @@ class MzIdentMLFileParser {
                 rt = Double.parseDouble(cvParam.getValue());
 
                 String unitAccession = cvParam.getUnitAccession();
-                if ((unitAccession != null) && (UNIT_ACCESSION_MINUTES.equals(unitAccession))) {
+                if ((UNIT_ACCESSION_MINUTES.equals(unitAccession))) {
                     rt = rt * 60.0;
                 }
 
@@ -753,8 +750,8 @@ class MzIdentMLFileParser {
                     !proteinSequence.equals(acc.getDbSequence())) {
                 LOGGER.warn("Different DBSequences found for same Accession, this is not suported!\n" +
                         "\t Accession: " + acc.getAccession() +
-                        "\t" + dbSeq.getSeq() + "\n" +
-                        "\t" + acc.getDbSequence());
+                        '\t' + dbSeq.getSeq() + '\n' +
+                        '\t' + acc.getDbSequence());
             } else if (acc.getDbSequence() == null) {
                 // found a sequence now
                 acc.setDbSequence(proteinSequence);
@@ -873,7 +870,7 @@ class MzIdentMLFileParser {
         Character residue;
         String description = null;
         String accession = null;
-        Double massDelta = (mod.getMonoisotopicMassDelta() != null) ? mod.getMonoisotopicMassDelta() : null;
+        Double massDelta = mod.getMonoisotopicMassDelta();
 
         if ((mod.getLocation() == 0) || (mod.getLocation() > sequence.length())) {
             residue = '.';

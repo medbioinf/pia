@@ -120,15 +120,15 @@ public class PSMTopIdentificationFilter extends AbstractFilter {
     public String toString() {
         StringBuilder str = new StringBuilder(getShortName());
 
-        str.append(" (").append(getScoreShortName()).append(")");
+        str.append(" (").append(getScoreShortName()).append(')');
         if (getFilterNegate()) {
             str.append(" not");
         }
 
-        str.append(" ");
+        str.append(' ');
         str.append(getFilterComparator().toString());
 
-        str.append(" ");
+        str.append(' ');
         str.append(getFilterValue());
 
         return str.toString();

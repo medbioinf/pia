@@ -585,16 +585,16 @@ public class ReportPSMSet implements PSMReportItem {
 
         if (averageFDRScore != null) {
             scoresSB.append(averageFDRScore.getName());
-            scoresSB.append(":");
+            scoresSB.append(':');
             scoresSB.append(averageFDRScore.getValue());
         }
 
         if (fdrScore != null) {
             if (scoresSB.length() > 0) {
-                scoresSB.append(",");
+                scoresSB.append(',');
             }
             scoresSB.append(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getName());
-            scoresSB.append(":");
+            scoresSB.append(':');
             scoresSB.append(fdrScore.getValue());
         }
 
@@ -802,7 +802,6 @@ public class ReportPSMSet implements PSMReportItem {
         return new ArrayList<>(accs.values());
     }
 
-
     @Override
     public Map<String, Boolean> getAvailableIdentificationKeySettings() {
         return maximalSpectraIdentificationSettings;
@@ -870,38 +869,29 @@ public class ReportPSMSet implements PSMReportItem {
         peptideStringID = null;         // this gets rebuild on next call
     }
 
-
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof ReportPSMSet)) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        ReportPSMSet objReportPSMSet = (ReportPSMSet)obj;
-        return new EqualsBuilder().
-                append(isDecoy, objReportPSMSet.isDecoy).
-                append(isFDRGood, objReportPSMSet.isFDRGood).
-                append(getModificationsString(), objReportPSMSet.getModificationsString()).
-                append(getSequence(), objReportPSMSet.getSequence()).
-                append(psmsList, objReportPSMSet.psmsList).
-                isEquals();
+        ReportPSMSet that = (ReportPSMSet) o;
+
+        if (isDecoy != that.isDecoy) return false;
+        if (isFDRGood != that.isFDRGood) return false;
+        if (psmsList != null ? !psmsList.equals(that.psmsList) : that.psmsList != null) return false;
+        if (getSequence() != null ? !getSequence().equals(that.getSequence()) : that.getSequence() != null) return false;
+        return getModificationsString() != null ? getModificationsString().equals(that.getModificationsString()) : that.getModificationsString() == null;
     }
-
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(23, 31).
-                append(isDecoy).
-                append(isFDRGood).
-                append(getModificationsString()).
-                append(getSequence()).
-                append(psmsList).
-                toHashCode();
+        int result = psmsList != null ? psmsList.hashCode() : 0;
+        result = 31 * result + (isDecoy ? 1 : 0);
+        result = 31 * result + (isFDRGood ? 1 : 0);
+        result = 31 * result + (getSequence() != null ? getSequence().hashCode() : 0);
+        result = 31 * result + (getModificationsString() != null ? getModificationsString().hashCode() : 0);
+        return result;
     }
-
 
     @Override
     public String toString() {
@@ -910,7 +900,7 @@ public class ReportPSMSet implements PSMReportItem {
 
        bt.append("Protein Accessions: ");
        for(Accession acc: getAccessions())
-           bt.append(acc.getAccession()).append("|");
+           bt.append(acc.getAccession()).append('|');
 
         bt.append(" Sequence: ").append(getPeptide().getSequence()).append(" | ");
 

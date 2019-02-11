@@ -221,9 +221,9 @@ public abstract class AbstractFilter implements Serializable {
      * @param o Comparator Object
      */
     private boolean satisfiesBooleanFilter(Boolean o) {
-        switch (getFilterComparator()) {
+        switch (comparator) {
         case equal:
-            return getFilterNegate() ^ getFilterValue().equals(o);
+            return negate ^ getFilterValue().equals(o);
 
         default:
             return false;
@@ -451,10 +451,10 @@ public abstract class AbstractFilter implements Serializable {
             str.append(" not");
         }
 
-        str.append(" ");
+        str.append(' ');
         str.append(getFilterComparator().toString());
 
-        str.append(" ");
+        str.append(' ');
         str.append(getFilterValue());
 
         return str.toString();

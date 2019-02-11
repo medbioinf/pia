@@ -18,8 +18,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem>, Serial
     RANK_SORT {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
-            RankComparator<PSMReportItem> comparator =
-                    new RankComparator<>();
+            RankComparator<PSMReportItem> comparator = new RankComparator<>();
 
             return comparator.compare(o1, o2);
         }

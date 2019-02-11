@@ -89,7 +89,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                             + "' added to report filters");
                 } else {
                     LOGGER.error("Filter " + filtername
-                            + " could not be added: " + messageBuffer.toString());
+                            + " could not be added: " + messageBuffer);
                 }
             } else {
                 LOGGER.info("Too few parameters to execute " + name()
@@ -212,7 +212,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
                             + "' added to inference filters");
                 } else {
                     LOGGER.error("Filter " + filtername
-                            + " could not be added: " + messageBuffer.toString());
+                            + " could not be added: " + messageBuffer);
                 }
             } else {
                 LOGGER.info("Too few parameters to execute " + name()

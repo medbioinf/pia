@@ -43,20 +43,16 @@
 		<junit.version>4.12</junit.version>
 		<commons-cli.version>1.4</commons-cli.version>
 		<commons-collections.version>4.1</commons-collections.version>
-		<jmzidentml.version>1.2.5</jmzidentml.version>
-		<jmztab.version>3.0.7</jmztab.version>
+		<jmzidentml.version>1.2.11</jmzidentml.version>
+		<jmztab.version>3.0.8</jmztab.version>
 		<pride-mod.version>2.1.8</pride-mod.version>
-		<pride-jaxb.version>1.0.20</pride-jaxb.version>
-		<xxindex.version>0.21</xxindex.version>
+		<pride-jaxb.version>1.0.22</pride-jaxb.version>
+		<xxindex.version>0.23</xxindex.version>
 		<mascotdatfile.version>3.6.0</mascotdatfile.version>
 		<xtandem-parser.version>1.13.0</xtandem-parser.version>
 		<biojava-ontology.version>4.2.8</biojava-ontology.version>
 		<sqlite4java.version>1.0.392</sqlite4java.version>
 		<sqlite-jdbc.version>3.8.10.1</sqlite-jdbc.version>
-		<jfreechart.version>1.0.19</jfreechart.version>		
-		<jung-graph-impl.version>2.0.1</jung-graph-impl.version>		
-		<jung-visualization.version>2.0.1</jung-visualization.version>
-		<inspector-mzgraph-browser.version>2.0.5</inspector-mzgraph-browser.version>
 		<ehcache.version>3.1.1</ehcache.version>
 		<xercesImpl.version>2.11.0</xercesImpl.version>
 		
@@ -189,32 +185,7 @@
 			<version>${sqlite-jdbc.version}</version>
 		</dependency>
 		<!-- End SQlite support for MSF files -->
-		
-		<!-- visualization packages -->
-		<dependency>
-			<groupId>net.sf.jung</groupId>
-			<artifactId>jung-graph-impl</artifactId>
-			<version>${jung-graph-impl.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.jung</groupId>
-			<artifactId>jung-visualization</artifactId>
-			<version>${jung-visualization.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>uk.ac.ebi.pride.toolsuite</groupId>
-			<artifactId>inspector-mzgraph-browser</artifactId>
-			<version>${inspector-mzgraph-browser.version}</version>
-		</dependency>
-		<!-- only needed to use more current version than delivered by inspector-mzgraph-browser -->
-		<dependency>
-			<groupId>org.jfree</groupId>
-			<artifactId>jfreechart</artifactId>
-			<version>${jfreechart.version}</version>
-		</dependency>
-		<!-- End visualization packages -->
-		
+
 		<dependency>
 			<groupId>org.ehcache</groupId>
 			<artifactId>ehcache</artifactId>

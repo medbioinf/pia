@@ -155,8 +155,7 @@ public abstract class AbstractProteinInference implements Serializable {
 
         for (RegisteredFilters filter : getAvailablePSMFilters()) {
             if (!filter.equals(RegisteredFilters.PSM_SCORE_FILTER)) {
-                availableFilters.add(new LabelValueContainer<>(
-                        filter.getShortName(), filter.getFilteringListName()));
+                availableFilters.add(new LabelValueContainer<>(filter.getShortName(), filter.getFilteringListName()));
             } else {
                 for (Map.Entry<String, String>  scoreIt : getAvailableScoreShorts().entrySet()) {
                     String[] filterNames = PSMScoreFilter.getShortAndFilteringName(
@@ -359,7 +358,7 @@ public abstract class AbstractProteinInference implements Serializable {
                             if (setList.size() > 1) {
                                 // TODO: better error
                                 LOGGER.warn("more than one ReportPSMSet in setList for "
-                                        + reportPSM.getSourceID() + "!");
+                                        + reportPSM.getSourceID() + '!');
                             }
 
                             for (PSMReportItem psmItem : setList) {

@@ -211,7 +211,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         LOGGER.info("scoring: " + getScoring().getName() + " with " +
                 scoreShort + ", " +
                 getScoring().getPSMForScoringSetting().getValue() +
-                "\n\tfilters: " + filterSB.toString() +
+                "\n\tfilters: " + filterSB +
                 "\n\tpsmSetSettings: " + psmSetSettings +
 
                 "\n\tgroupMap: " + groupMap.size() +

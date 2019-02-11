@@ -23,7 +23,7 @@ public class PrideXMLParserTest {
 
     private PrideXmlReader reader;
 
-    private final String piaIntermediateFileName = "PrideParser.pia.xml";
+    private static final String piaIntermediateFileName = "PrideParser.pia.xml";
 
     @Before
     public void setUp() throws Exception {

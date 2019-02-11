@@ -306,7 +306,7 @@ public class TideTXTFileParser {
 
         int pos;
         while ( -1 < (pos = modificationsSequence.indexOf('['))) {
-            sequence.append(modificationsSequence.substring(0, pos));
+            sequence.append(modificationsSequence, 0, pos);
             modificationsSequence = modificationsSequence.substring(pos);
 
             int openBr = 0;
@@ -364,7 +364,7 @@ public class TideTXTFileParser {
                 modifications.put(loc, mod);
             } else {
                 LOGGER.error("Could not get information for " +
-                        "modification " + modWeight + "@" + residue + " in " +
+                        "modification " + modWeight + '@' + residue + " in " +
                         sequence);
             }
         }

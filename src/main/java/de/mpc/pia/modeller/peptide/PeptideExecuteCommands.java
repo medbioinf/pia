@@ -139,7 +139,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                     peptideModeller.addFilter(Long.parseLong(fileID), newFilter);
                 } else {
                     LOGGER.error("Filter " + filtername
-                            + " could not be added: " + messageBuffer.toString());
+                            + " could not be added: " + messageBuffer);
                 }
             } else {
                 LOGGER.info("Too few parameters to execute " + name()
@@ -259,7 +259,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
                 try {
                     fileID = Long.parseLong(commandMap.get(ID_FILE_ID));
                 } catch (NumberFormatException e) {
-                    LOGGER.error("could not parse " + ID_FILE_ID + "=" + commandMap.get(ID_FILE_ID), e);
+                    LOGGER.error("could not parse " + ID_FILE_ID + '=' + commandMap.get(ID_FILE_ID), e);
                     fileID = 0L;
                 }
                 commandMap.remove(ID_FILE_ID);

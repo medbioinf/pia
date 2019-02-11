@@ -543,7 +543,7 @@ public class IdXMLFileParser {
         // try to add it as a score
         ScoreModel score;
         ScoreModelEnum scoreModel = ScoreModelEnum.getModelByDescription(
-                idRun.getSearchEngine() + "_" + userParam.getName());
+                idRun.getSearchEngine() + '_' + userParam.getName());
 
         // if the score was not found with this, try another way
         if (scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)
@@ -604,7 +604,7 @@ public class IdXMLFileParser {
             long fileID, String searchDbID) {
         FastaHeaderInfos fastaInfo = FastaHeaderInfos.parseHeaderInfos(protHit.getAccession());
         if (fastaInfo == null) {
-            LOGGER.error("Could not parse '" + protHit.getAccession() + "'");
+            LOGGER.error("Could not parse '" + protHit.getAccession() + '\'');
             return 0;
         }
 
@@ -880,7 +880,7 @@ public class IdXMLFileParser {
 
         int pos;
         while ( -1 < (pos = modificationsSequence.indexOf('('))) {
-            sequence.append(modificationsSequence.substring(0, pos));
+            sequence.append(modificationsSequence, 0, pos);
             modificationsSequence = modificationsSequence.substring(pos);
 
             String residue;

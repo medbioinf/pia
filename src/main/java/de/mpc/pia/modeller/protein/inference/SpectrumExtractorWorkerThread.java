@@ -236,10 +236,11 @@ public class SpectrumExtractorWorkerThread extends Thread {
                                     if ((givenSet != null) &&
                                             (givenSet.getFDRScore() != null)) {
                                         // add the used spectra to the set
-                                        Set<Long> psmIDs = new HashSet<>(((ReportPSMSet) psmSet)
+                                        Set<Long> psmIDs = ((ReportPSMSet) psmSet)
                                                 .getPSMs().stream()
-                                                .map(psm -> psm.getSpectrum().getID())
-                                                .collect(Collectors.toList()));
+                                                .map(psm -> psm.getSpectrum()
+                                                        .getID())
+                                                .collect(Collectors.toSet());
 
                                         // FDR is calculated, so get the scores for it
                                         Set<Long> givenPSMids = givenSet.getPSMs().stream().map(psm -> psm.getSpectrum().getID()).collect(Collectors.toSet());
@@ -645,11 +646,11 @@ public class SpectrumExtractorWorkerThread extends Thread {
                         psmSet = (ReportPSMSet)psmItem;
                     } else {
                         LOGGER.error("Not a ReportPSMSet-instance in peptide for "
-                                + psmKey + "!");
+                                + psmKey + '!');
                     }
                     if (reportPSMSets.size() > 1) {
                         LOGGER.error("More than one PSMReportItem in peptide for "
-                                + psmKey + "!");
+                                + psmKey + '!');
                     }
                 } else {
                     // no set yet, create this
