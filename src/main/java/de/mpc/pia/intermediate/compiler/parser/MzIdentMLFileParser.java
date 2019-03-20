@@ -129,6 +129,8 @@ class MzIdentMLFileParser {
 
         // maps from the ID to the SpectrumIdentificationList
         Map<String, SpectrumIdentificationList> specIdLists = getSpectrumIdentificationLists();
+        LOGGER.error("File has " + specIdLists.size() + " specIdLists");
+
         specIdListIDtoSpecIdID = new HashMap<>();
 
         // get the AnalysisCollection:SpectrumIdentification for the SpectrumIdentificationLists
@@ -162,6 +164,8 @@ class MzIdentMLFileParser {
                     SpectraData sd = compiler.putIntoSpectraDataMap(spectraData);
                     spectraDataRefs.put(ref, sd);
                 });
+
+        LOGGER.debug("Number of spectraData in inputs: " + inputs.getSpectraData().size());
 
         // get the necessary inputs:SearchDBs
         inputs.getSearchDatabase().stream()
@@ -244,7 +248,7 @@ class MzIdentMLFileParser {
                 InputFileParserFactory.InputFileTypes.MZIDENTML_INPUT.getFileSuffix());
 
         unmarshaller = new MzIdentMLUnmarshaller(mzidFile);
-
+        LOGGER.debug("Version of mzIdentML file: " + unmarshaller.getMzIdentMLVersion());
         return true;
     }
 
@@ -385,6 +389,7 @@ class MzIdentMLFileParser {
         }
 
         // go through all the SpectrumIdentificationResults and build the PSMs
+        LOGGER.debug("Processing " + specIDList.getSpectrumIdentificationResult().size() + " specIdResults");
         boolean ok = true;
         for (SpectrumIdentificationResult specIdRes : specIDList.getSpectrumIdentificationResult()) {
             ok = addSpectrumIdentificationResult(specIdRes, spectrumID, specIDListsDBRefs, specIDListsEnzymes,
@@ -704,6 +709,10 @@ class MzIdentMLFileParser {
         }
 
         if ((proteinSequence != null) && (peptide != null)) {
+            // some exporters get the start and stop of sequences wrong
+            if (start-1 < 0) {
+                start++;
+            }
             String dbEvSeq = proteinSequence.substring(start-1, end);
 
             if ((dbEvSeq != null) && !dbEvSeq.equals(pepEvSequence)) {
@@ -1044,7 +1053,7 @@ class MzIdentMLFileParser {
      */
     public static boolean checkFileType(String fileName) {
         boolean isMzIdentMLFile = false;
-        LOGGER.debug("checking whether this is an idXML file: " + fileName);
+        LOGGER.error("checking whether this is an mzIdentML file: " + fileName);
 
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
             // read in the first 10, not empty lines
@@ -1056,24 +1065,24 @@ class MzIdentMLFileParser {
             int idx = 0;
 
             // optional declaration
-            if (lines.get(idx).trim().matches("<\\?xml version=\"[0-9.]+\"( encoding=\"[^\"]+\"){0,1}\\?>")) {
-                LOGGER.debug("file has the XML declaration line:" + lines.get(idx));
+            if (lines.get(idx).trim().matches("<\\?xml version=\"[0-9.]+\"( encoding=\"[^\"]+\"){0,1}( standalone=\\\"[^\\\"]+\\\"){0,1}\\?>")) {
+                LOGGER.error("file has the XML declaration line:" + lines.get(idx));
                 idx++;
             }
 
             // optional stylesheet declaration
             if (lines.get(idx).trim().matches("<\\?xml-stylesheet.+\\?>")) {
-                LOGGER.debug("file has the XML stylesheet line:" + lines.get(idx));
+                LOGGER.error("file has the XML stylesheet line:" + lines.get(idx));
                 idx++;
             }
 
             // now the MzIdentML element must be next
             if (lines.get(idx).trim().matches("<MzIdentML .+")) {
                 isMzIdentMLFile = true;
-                LOGGER.debug("file has the MzIdentML element: " + lines.get(idx));
+                LOGGER.error("file has the MzIdentML element: " + lines.get(idx));
             }
         } catch (Exception e) {
-            LOGGER.debug("Could not check file " + fileName, e);
+            LOGGER.error("Could not check file " + fileName, e);
         }
 
         return isMzIdentMLFile;

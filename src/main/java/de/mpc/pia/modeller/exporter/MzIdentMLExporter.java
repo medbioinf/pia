@@ -79,7 +79,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationList;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationResult;
 import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
-import uk.ac.ebi.jmzidml.model.utils.MzIdentMLVersion;
 import uk.ac.ebi.jmzidml.xml.io.MzIdentMLMarshaller;
 
 public class MzIdentMLExporter {
@@ -227,7 +226,7 @@ public class MzIdentMLExporter {
 
         outWriter = new BufferedWriter(exportWriter);
         unimodParser = new UnimodParser();
-        mzidMarshaller = new MzIdentMLMarshaller(MzIdentMLVersion.Version_1_2);
+        mzidMarshaller = new MzIdentMLMarshaller(); // the reading of 1.2 is broken right now... MzIdentMLVersion.Version_1_2);
 
         piaAnalysisSoftware = MzIdentMLTools.getPIAAnalysisSoftware();
 

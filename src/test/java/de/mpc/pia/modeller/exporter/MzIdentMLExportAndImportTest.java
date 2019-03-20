@@ -1,5 +1,6 @@
 package de.mpc.pia.modeller.exporter;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -49,6 +50,9 @@ public class MzIdentMLExportAndImportTest {
 
         piaCompiler.setName("testFile");
 
+        assertEquals("Wrong number of imported peptides", 2286, piaCompiler.getNrPeptides());
+        assertEquals("Wrong number of imported PSMs", 5573, piaCompiler.getNrPeptideSpectrumMatches());
+
 
         // write out the file
         File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
@@ -97,6 +101,9 @@ public class MzIdentMLExportAndImportTest {
         piaCompiler.buildIntermediateStructure();
 
         piaCompiler.setName("testFileBackIn");
+
+        assertEquals("Wrong number of re-imported peptides", 2286, piaCompiler.getNrPeptides());
+        assertEquals("Wrong number of re-imported PSMs", 5573, piaCompiler.getNrPeptideSpectrumMatches());
 
         // write out the file
         piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
