@@ -1053,7 +1053,7 @@ class MzIdentMLFileParser {
      */
     public static boolean checkFileType(String fileName) {
         boolean isMzIdentMLFile = false;
-        LOGGER.error("checking whether this is an mzIdentML file: " + fileName);
+        LOGGER.debug("checking whether this is an mzIdentML file: " + fileName);
 
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
             // read in the first 10, not empty lines
@@ -1066,20 +1066,20 @@ class MzIdentMLFileParser {
 
             // optional declaration
             if (lines.get(idx).trim().matches("<\\?xml version=\"[0-9.]+\"( encoding=\"[^\"]+\"){0,1}( standalone=\\\"[^\\\"]+\\\"){0,1}\\?>")) {
-                LOGGER.error("file has the XML declaration line:" + lines.get(idx));
+                LOGGER.debug("file has the XML declaration line:" + lines.get(idx));
                 idx++;
             }
 
             // optional stylesheet declaration
             if (lines.get(idx).trim().matches("<\\?xml-stylesheet.+\\?>")) {
-                LOGGER.error("file has the XML stylesheet line:" + lines.get(idx));
+                LOGGER.debug("file has the XML stylesheet line:" + lines.get(idx));
                 idx++;
             }
 
             // now the MzIdentML element must be next
             if (lines.get(idx).trim().matches("<MzIdentML .+")) {
                 isMzIdentMLFile = true;
-                LOGGER.error("file has the MzIdentML element: " + lines.get(idx));
+                LOGGER.debug("file has the MzIdentML element: " + lines.get(idx));
             }
         } catch (Exception e) {
             LOGGER.error("Could not check file " + fileName, e);
