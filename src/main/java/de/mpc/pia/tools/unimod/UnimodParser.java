@@ -26,7 +26,7 @@ import de.mpc.pia.tools.unimod.jaxb.UnimodT;
 public class UnimodParser {
 
     /** the mass tolerance for finding a modification by mass in Unimod */
-    public static final Double UNIMOD_MASS_TOLERANCE = 0.009;
+    public static final Double UNIMOD_MASS_TOLERANCE = 0.001;
 
     /** the path to the packaged unimod */
     private static final String PATH_TO_SHIPPED_UNIMOD =  "/de/mpc/pia/unimod.xml";
