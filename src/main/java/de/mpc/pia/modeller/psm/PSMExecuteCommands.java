@@ -467,7 +467,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
                 fileName = commandMap.get(ID_FILENAME_STRING);
                 commandMap.remove(ID_FILENAME_STRING);
             } else {
-                fileName = "report-psms." + format;
+                fileName = "report-peptide." + format;
             }
 
             if (commandMap.containsKey(ID_FILE_ID)) {

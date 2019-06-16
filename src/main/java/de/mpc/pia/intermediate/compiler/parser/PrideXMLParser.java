@@ -425,7 +425,7 @@ public class PrideXMLParser {
                             residue,
                             unimod.getDelta().getMonoMass(),
                             unimod.getTitle(),
-                            "UNIMOD:" + unimod.getRecordId());
+                            "UNIMOD:" + unimod.getRecordId(), "UNIMOD", Collections.EMPTY_LIST);
                 } else {
                     modification = new Modification(
                             residue,
