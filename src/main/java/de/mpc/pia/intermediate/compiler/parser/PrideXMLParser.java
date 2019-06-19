@@ -206,7 +206,7 @@ public class PrideXMLParser {
                             null,
                             null,
                             String.valueOf(spectrum.getId()),
-                            null,
+                            String.valueOf(spectrum.getId()),
                             null);
 
                     Peptide peptide;
@@ -253,7 +253,7 @@ public class PrideXMLParser {
                                 sequence,
                                 missedCleavages,
                                 String.valueOf(spectrum.getId()),
-                                null,
+                                String.valueOf(spectrum.getId()),
                                 file,
                                 spectrumID);
                         specNr++;
