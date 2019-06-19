@@ -592,8 +592,7 @@ class MzIdentMLFileParser {
 
         // add the userParam to the params of the PSM
 
-        specIdItem.getUserParam().forEach(
-                userParam -> addUserParamToPSM(psm, userParam, analysisSoftwareName));
+        specIdItem.getUserParam().forEach(userParam -> addUserParamToPSM(psm, userParam, analysisSoftwareName));
 
         // add the params from the specIdResult to the PSM
         resultParams.getParamGroup().forEach(psm::addParam);
@@ -904,19 +903,22 @@ class MzIdentMLFileParser {
     private static void addUserParamToPSM(PeptideSpectrumMatch psm, UserParam userParam, String analysisSoftwareName) {
         boolean processed = false;
 
-        if ("comet".equalsIgnoreCase(analysisSoftwareName.trim())) {
-            // this score seems to originate from a Comet identification
-            processed = checkParamForCometSpecifics(psm, userParam);
-            if (!processed) {
+        if(analysisSoftwareName != null){
+            if ("comet".equalsIgnoreCase(analysisSoftwareName.trim())) {
+                // this score seems to originate from a Comet identification
+                processed = checkParamForCometSpecifics(psm, userParam);
+                if (!processed) {
+                    processed = checkParamForPercolatorSpecifics(psm, userParam);
+                }
+            } else if ("mascot".equalsIgnoreCase(analysisSoftwareName.trim())) {
                 processed = checkParamForPercolatorSpecifics(psm, userParam);
             }
-        } else if ("mascot".equalsIgnoreCase(analysisSoftwareName.trim())) {
-            processed = checkParamForPercolatorSpecifics(psm, userParam);
+
+            if (!processed) {
+                psm.addParam(userParam);
+            }
         }
 
-        if (!processed) {
-            psm.addParam(userParam);
-        }
     }
 
 
