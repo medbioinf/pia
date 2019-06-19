@@ -9,8 +9,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.log4j.Logger;
 
 import de.mpc.pia.intermediate.Accession;
@@ -174,9 +172,8 @@ public class ReportPSMSet implements PSMReportItem {
             return;
         }
 
-        if (niceSpectrumName == null) {
-            niceSpectrumName = psm.getNiceSpectrumName();
-        } else if (psm.getNiceSpectrumName().length() > niceSpectrumName.length()) {
+        if ((niceSpectrumName == null)
+                || (psm.getNiceSpectrumName().length() > niceSpectrumName.length())) {
             niceSpectrumName = psm.getNiceSpectrumName();
         }
 

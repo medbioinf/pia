@@ -1,7 +1,7 @@
 language: java
 
 jdk:
-- oraclejdk8
+- openjdk8
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
@@ -10,6 +10,7 @@ before_deploy:
   - "mvn -DskipTests package"
   - export RELEASE_ZIP_FILE=$(ls target/pia-*.zip)
   - echo "deploying $RELEASE_ZIP_FILE to GitHub releases"
+
 deploy:
   provider: releases
   api_key:
@@ -18,4 +19,4 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    jdk: oraclejdk8
+    jdk: openjdk8

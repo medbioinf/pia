@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Locale;
 
 import de.mpc.pia.modeller.score.ScoreModel;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * A ModificationType describes the type of a modification via its amino acids,
@@ -181,8 +179,8 @@ public class Modification implements Serializable {
 
     @Override
     public int hashCode() {
-
         int result = 31;
+
         result = 31 * result + ((accession!=null)?accession.hashCode():0);
         result = 31 * result + ((description!=null)?description.hashCode():0);
         long doubleFieldBits = Double.doubleToLongBits(mass);
@@ -194,8 +192,8 @@ public class Modification implements Serializable {
     }
 
     /**
-     * This is a better version of the EqualsBuilder because is not using reflection and object
-     * creation. This implementation is faster than previous ones.
+     * Fast implementation of equals because it is not using reflection and
+     * object creation.
      *
      * @param o Modification to be compare.
      * @return

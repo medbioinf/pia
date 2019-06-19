@@ -226,9 +226,7 @@ public class MzIdentMLExporter {
 
         outWriter = new BufferedWriter(exportWriter);
         unimodParser = new UnimodParser();
-        mzidMarshaller = new MzIdentMLMarshaller();
-        // change, if new version of jMzIdentML is available
-        // mzidMarshaller = new MzIdentMLMarshaller(MzIdentMLVersion.Version_1_2);
+        mzidMarshaller = new MzIdentMLMarshaller(); // the reading of 1.2 is broken right now... MzIdentMLVersion.Version_1_2);
 
         piaAnalysisSoftware = MzIdentMLTools.getPIAAnalysisSoftware();
 

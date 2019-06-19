@@ -8,9 +8,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 
@@ -130,19 +127,13 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof PeptideSpectrumMatch)) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
+        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj) return true;
 
         PeptideSpectrumMatch objSpectrum = (PeptideSpectrumMatch)obj;
 
-        return new EqualsBuilder().
-                append(id, objSpectrum.id).
-                appendSuper(equalsWithoutID(obj)).
-                isEquals();
+        if (id != objSpectrum.id) return false;
+        return equalsWithoutID(objSpectrum);
     }
 
 
@@ -153,40 +144,51 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
      * @return
      */
     public boolean equalsWithoutID(Object obj) {
-        if (!(obj instanceof PeptideSpectrumMatch)) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
+        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj) return true;
 
         PeptideSpectrumMatch objSpectrum = (PeptideSpectrumMatch)obj;
 
-        return new EqualsBuilder().
-                append(scores, objSpectrum.scores).
-                append(charge, objSpectrum.charge).
-                append(massToCharge, objSpectrum.massToCharge).
-                append(deltaMass, objSpectrum.deltaMass).
-                append(retentionTime, objSpectrum.retentionTime).
-                append(missed, objSpectrum.missed).
-                append(sequence, objSpectrum.sequence).
-                append(modifications, objSpectrum.modifications).
-                append(sourceID, objSpectrum.sourceID).
-                append(spectrumTitle, objSpectrum.spectrumTitle).
-                append(pFile, objSpectrum.pFile).
-                append(spectrumID, objSpectrum.spectrumID).
-                append(isUnique, objSpectrum.isUnique).
-                append(isDecoy, objSpectrum.isDecoy).
-                isEquals();
+        if (!equalsBasics(objSpectrum)) return false;
+
+        if (sourceID != null ? !sourceID.equals(objSpectrum.sourceID) : objSpectrum.sourceID != null) return false;
+        if (spectrumTitle != null ? !spectrumTitle.equals(objSpectrum.spectrumTitle) : objSpectrum.spectrumTitle != null) return false;
+
+        if (!scores.equals(objSpectrum.scores)) return false;
+        if (!modifications.equals(objSpectrum.modifications)) return false;
+
+        if (!spectrumID.equals(objSpectrum.spectrumID)) return false;
+        return (pFile.equals(objSpectrum.pFile));
+    }
+
+
+    /**
+     * Tests whether the basic values of this and the given object are equal.
+     *
+     * @param objSpectrum
+     * @return
+     */
+    private boolean equalsBasics(PeptideSpectrumMatch objSpectrum) {
+        if (charge != objSpectrum.charge) return false;
+        if (massToCharge != objSpectrum.massToCharge) return false;
+        if (deltaMass != objSpectrum.deltaMass) return false;
+        if (missed != objSpectrum.missed) return false;
+
+        if (isUnique != null ? !isUnique.equals(objSpectrum.isUnique) : objSpectrum.isUnique != null) return false;
+        if (isDecoy != null ? !isDecoy.equals(objSpectrum.isDecoy) : objSpectrum.isDecoy != null) return false;
+
+        if (retentionTime != null ? !retentionTime.equals(objSpectrum.retentionTime) : objSpectrum.retentionTime != null) return false;
+
+        return (sequence.equals(objSpectrum.sequence));
     }
 
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(23, 31).
-                append(id).
-                appendSuper(hashCodeWithoutID()).
-                toHashCode();
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + hashCodeWithoutID();
+
+        return result;
     }
 
 
@@ -196,21 +198,27 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
      * @return
      */
     public int hashCodeWithoutID() {
-        return new HashCodeBuilder(23, 31).
-                append(scores).
-                append(charge).
-                append(massToCharge).
-                append(deltaMass).
-                append(retentionTime).
-                append(missed).
-                append(sequence).
-                append(modifications).
-                append(sourceID).
-                append(spectrumTitle).
-                append(pFile).
-                append(isUnique).
-                append(spectrumID).
-                toHashCode();
+        int result = charge;
+        result = 31 * result + (scores != null ? scores.hashCode() : 0);
+        long bits = Double.doubleToLongBits(massToCharge);
+        result = 31 * result + (int)(bits ^ (bits >>> 32));
+        bits = Double.doubleToLongBits(deltaMass);
+        result = 31 * result + (int)(bits ^ (bits >>> 32));
+        if (retentionTime != null) {
+            bits = Double.doubleToLongBits(retentionTime);
+            result = 31 * result + (int)(bits ^ (bits >>> 32));
+        }
+        result = 31 * result + missed;
+        result = 31 * result + sequence.hashCode();
+        result = 31 * result + modifications.hashCode();
+        result = 31 * result + (sourceID != null ? sourceID.hashCode() : 0);
+        result = 31 * result + (spectrumTitle != null ? spectrumTitle.hashCode() : 0);
+        result = 31 * result + pFile.hashCode();
+        result = 31 * result + (isUnique != null ? isUnique.hashCode() : 0);
+        result = 31 * result + (isDecoy != null ? isDecoy.hashCode() : 0);
+        result = 31 * result + (spectrumID != null ? spectrumID.hashCode() : 0);
+
+        return result;
     }
 
 

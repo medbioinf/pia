@@ -2,9 +2,6 @@ package de.mpc.pia.intermediate;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 /**
  * This class describes the occurrence of an Accession's dbSequence of a
  * Peptide.

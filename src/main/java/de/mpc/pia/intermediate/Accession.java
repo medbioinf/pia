@@ -7,9 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 
 /**
  * Accession for the intermediate structure.
@@ -86,13 +83,16 @@ public class Accession implements Serializable {
         Accession accession = (Accession) o;
 
         if (id != null ? !id.equals(accession.id) : accession.id != null) return false;
-        if (accessionStr != null ? !accessionStr.equals(accession.accessionStr) : accession.accessionStr != null)
+        if (accessionStr != null ? !accessionStr.equals(accession.accessionStr) : accession.accessionStr != null) {
             return false;
-        if (descriptions != null ? !descriptions.equals(accession.descriptions) : accession.descriptions != null)
+        }
+        if (descriptions != null ? !descriptions.equals(accession.descriptions) : accession.descriptions != null) {
             return false;
+        }
         if (dbSequence != null ? !dbSequence.equals(accession.dbSequence) : accession.dbSequence != null) return false;
-        if (searchDatabaseRefs != null ? !searchDatabaseRefs.equals(accession.searchDatabaseRefs) : accession.searchDatabaseRefs != null)
+        if (searchDatabaseRefs != null ? !searchDatabaseRefs.equals(accession.searchDatabaseRefs) : accession.searchDatabaseRefs != null) {
             return false;
+        }
         return pGroup != null ? pGroup.getID() == accession.pGroup.getID() : accession.pGroup == null;
     }
 

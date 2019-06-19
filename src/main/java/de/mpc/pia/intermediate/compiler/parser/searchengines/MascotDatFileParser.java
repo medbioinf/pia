@@ -136,8 +136,6 @@ public class MascotDatFileParser {
                     }
                 }
             }
-
-            rd.close();
         } catch (IOException e) {
             LOGGER.error("could not read '" + fileName + "' for index parsing.", e);
             return false;
@@ -574,11 +572,7 @@ public class MascotDatFileParser {
     private static SearchModification createPSIModification(com.compomics.mascotdatfile.util.interfaces.Modification mod, UnimodParser uniModParser) {
         SearchModification searchMod = new SearchModification();
 
-        if (mod instanceof VariableModification) {
-            searchMod.setFixedMod(false);
-        } else {
-            searchMod.setFixedMod(true);
-        }
+        searchMod.setFixedMod(!(mod instanceof VariableModification));
 
         if (mod.getLocation().contains("term") || mod.getLocation().contains("Term")) {
 
