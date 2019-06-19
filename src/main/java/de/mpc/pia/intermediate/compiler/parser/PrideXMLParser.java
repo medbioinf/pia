@@ -116,7 +116,7 @@ public class PrideXMLParser {
         additionalInformation.getUserParam().add(
                 MzIdentMLTools.createUserParam("PRIDE XML conversion", null, null));
 
-        parseAdminInformations(prideParser.getAdmin(), additionalInformation,
+        parseAdminInformations(prideParser.getSpectrumIds().size(), prideFile, prideParser.getAdmin(), additionalInformation,
                 spectraData, sourceIdBuilder);
 
         parseInstrumentInformations(prideParser.getInstrument(), additionalInformation, compiler);
@@ -555,7 +555,7 @@ public class PrideXMLParser {
      * @param adminSection
      * @param additionalInformation
      */
-    private static void parseAdminInformations(Admin adminSection,
+    private static void parseAdminInformations(int numberSpectra, File fileName, Admin adminSection,
             ParamList additionalInformation, SpectraData spectraData, StringBuilder sourceIdBase) {
         AbstractParam abstractParam;
 
@@ -585,13 +585,13 @@ public class PrideXMLParser {
         }
 
         // the original source file
-        if (adminSection.getSourceFile() != null) {
+        if (adminSection.getSourceFile() != null && numberSpectra > 0) {
 
-            SpectraData specData = spectraDataFromSourceFile(adminSection.getSourceFile(), sourceIdBase);
+            SpectraData specData = spectraDataFromSourceFile();
 
             if (specData != null) {
-                spectraData.setLocation(adminSection.getSourceFile().getPathToFile());
-                spectraData.setName(adminSection.getSourceFile().getNameOfFile());
+                spectraData.setLocation(fileName.getParentFile().getAbsolutePath());
+                spectraData.setName(fileName.getName());
                 spectraData.setSpectrumIDFormat(specData.getSpectrumIDFormat());
                 spectraData.setFileFormat(specData.getFileFormat());
             } else {
@@ -636,39 +636,30 @@ public class PrideXMLParser {
 
 
     /**
-     * Checks whether the given sourceFile contains a valid fileType and
-     * creates an mzIdentML SpectraData if it is.
+     * The @{@link uk.ac.ebi.jmzidml.xml.jaxb.adapters.SpectraDataAdapter } This will return a pointer to
+     * the same file the spectra of a PRIDE XML is contain in the same file.
      *
      * @return
      */
-    private static SpectraData spectraDataFromSourceFile(SourceFile sourceFile,
-            StringBuilder sourceIdBase) {
-        SpectraData specData = null;
+    private static SpectraData spectraDataFromSourceFile() {
 
-        if ("Mascot dat file".equalsIgnoreCase(sourceFile.getFileType())) {
-            specData = new SpectraData();
+        SpectraData specData = new SpectraData();
 
-            FileFormat fileFormat = new FileFormat();
-            CvParam cvParam = MzIdentMLTools.createPSICvParam(
-                    OntologyConstants.MASCOT_DAT_FORMAT,
-                    null
-                    );
-            fileFormat.setCvParam(cvParam);
-            specData.setFileFormat(fileFormat);
+        FileFormat fileFormat = new FileFormat();
+        CvParam cvParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.PRIDE_XML,
+                null
+        );
+        fileFormat.setCvParam(cvParam);
+        specData.setFileFormat(fileFormat);
 
-            SpectrumIDFormat idFormat = new SpectrumIDFormat();
-            cvParam = MzIdentMLTools.createPSICvParam(
-                    OntologyConstants.MASCOT_QUERY_NUMBER,
-                    null
-                    );
-            idFormat.setCvParam(cvParam);
-            specData.setSpectrumIDFormat(idFormat);
-
-            if (sourceIdBase != null) {
-                sourceIdBase.delete(0, sourceIdBase.length());
-                sourceIdBase.append("query=");
-            }
-        }
+        SpectrumIDFormat idFormat = new SpectrumIDFormat();
+        cvParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.SINGLE_PEAK_LIST,
+                null
+        );
+        idFormat.setCvParam(cvParam);
+        specData.setSpectrumIDFormat(idFormat);
 
         return specData;
     }

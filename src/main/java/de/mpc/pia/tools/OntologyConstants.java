@@ -95,8 +95,10 @@ public enum OntologyConstants {
     MASCOT_MGF_FORMAT("Mascot MGF format", "MS:1001062"),
     THERMO_RAW_FORMAT("Thermo RAW format", "MS:1000563"),
 
+
     PRIDE_XML("PRIDE XML", "MS:1002600"),
     MASCOT_QUERY_NUMBER("Mascot query number", "MS:1001528"),
+    SINGLE_PEAK_LIST("single peak list nativeID format", "MS:1000775"),
 
     PROTEOMEXCHANGE_ACCESSION_NUMBER("ProteomeXchange accession number", "MS:1001919", "ProteomExchange project accession number", "PRIDE:0000216"),
     PRIDE_PROJECT_NAME(null, null, "Project", "PRIDE:0000097"),
