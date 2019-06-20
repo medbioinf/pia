@@ -452,7 +452,7 @@ class MzIdentMLFileParser {
             // in some files, the spectrumID has a longer description, which needs some parsing
             Matcher matcher = MzIdentMLTools.patternScanInTitle.matcher(sourceID);
             if (matcher.matches()) {
-                sourceID = "index=" + matcher.group(1);
+                sourceID = "scan=" + matcher.group(1);
             }
         } else {
             // the sourceID is the same as the scan number in the cvParam
@@ -486,7 +486,7 @@ class MzIdentMLFileParser {
             .filter(cvParam -> cvParam.getAccession().equals(OntologyConstants.SPECTRUM_TITLE.getPsiAccession()))
             .collect(Collectors.toList());
 
-        if (!spectrumTitleCvParams.isEmpty()) {
+        if (!spectrumTitleCvParams.isEmpty() && spectrumTitleCvParams.get(0).getValue().contains("scan")) {
             spectrumTitle = spectrumTitleCvParams.get(0).getValue();
         }
 
@@ -707,7 +707,7 @@ class MzIdentMLFileParser {
             LOGGER.error("No peptide sequence found for a peptide!");
         }
 
-        if ((proteinSequence != null) && (peptide != null)) {
+        if ((proteinSequence != null) && (peptide != null) && proteinSequence.trim().length() > 0) {
             // some exporters get the start and stop of sequences wrong
             if (start-1 < 0) {
                 start++;
