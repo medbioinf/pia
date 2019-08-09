@@ -9,6 +9,10 @@ import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
 import uk.ac.ebi.pride.jaxb.model.Identification;
 import uk.ac.ebi.pride.jaxb.model.Protocol;
 import uk.ac.ebi.pride.jmztab.model.Param;
+import uk.ac.ebi.pride.jmztab.model.Protein;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
@@ -25,6 +29,11 @@ public class PRIDETools {
     // PRIDE CVTerms
     public static final String PRIDE_DECOY_HIT_ACCESSION = "PRIDE:0000303";
     public static final String PRIDE_DECOY_HIT_NAME = "Decoy";
+
+    public static final List<String> PREFIX_PRIDE_DECOY_ENTRIES  = Arrays.asList("DECOY_", "#C#", "#DECOY#", "###REV###", "REV_", "REVERSE_", "##REV", "DECOY_REV", "RANDOM_", "###RND###", "##RND","REV");
+    public static final List<String> POSTFIX_PRIDE_DECOY_ENTRIES = Arrays.asList("_REVERSED", "-DECOY", "RANDOM_","|RND");
+    public static final List<String> MIDDLE_PRIDE_DECOY_ENTRIES = Arrays.asList("RANDOM_", "REV_", "_REVERSED");
+
 
 
     private static Cv prideCV = new Cv();
@@ -141,6 +150,20 @@ public class PRIDETools {
             }
         }
 
+        return isAccessionDecoy(identification);
+    }
+
+    public static boolean isAccessionDecoy(Identification identification) {
+        String accession = identification.getAccession();
+        for(String prefix: PREFIX_PRIDE_DECOY_ENTRIES)
+            if(accession.toUpperCase().startsWith(prefix.toUpperCase()))
+                return true;
+        for(String postfix: POSTFIX_PRIDE_DECOY_ENTRIES)
+            if(accession.toUpperCase().endsWith(postfix.toUpperCase()))
+                return true;
+        for(String middle: MIDDLE_PRIDE_DECOY_ENTRIES)
+            if(accession.toUpperCase().contains(middle.toUpperCase()))
+                return true;
         return false;
     }
 

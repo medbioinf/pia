@@ -59,7 +59,21 @@ public class TideTXTFileParser {
     public static final String HEADER_SEQUENCE = "sequence";
     public static final String HEADER_CLEAVAGE_TYPE = "cleavage type";
     public static final String HEADER_SCAN = "scan";
+    /**
+     * Scores in Tide are xcorr or refactored xcorr
+     * Todo: We should use in the future the proper TIDE scores.
+     */
     public static final String HEADER_XCORR = "xcorr score";
+    public static final String HEADER_REFACTORED_XCORR = "refactored xcorr";
+
+    public static final String HEADER_DELTA_CN = "delta_cn";
+    public static final String HEADER_DELTA_LCN= "delta_lcn";
+    public static final String HEADER_SP_SCORE = "sp score";
+    public static final String HEADER_SP_RANK  = "sp rank";
+    public static final String HEADER_P_VALUE  = "exact p-value";
+    public static final String HEADER_XCORR_RANK = "xcorr rank";
+
+
     public static final String HEADER_PROTEINID = "protein id";
 
     /** pattern to match and grep the accession */
@@ -74,7 +88,13 @@ public class TideTXTFileParser {
             HEADER_XCORR, "xcorr rank",
             "distinct matches/spectrum", HEADER_SEQUENCE,
             HEADER_CLEAVAGE_TYPE,
-            HEADER_PROTEINID, "flanking aa");
+            HEADER_PROTEINID, "flanking aa", HEADER_REFACTORED_XCORR,
+            HEADER_DELTA_CN,
+            HEADER_DELTA_LCN,
+            HEADER_SP_SCORE,
+            HEADER_SP_RANK,
+            HEADER_P_VALUE, HEADER_XCORR_RANK
+            );
 
     /**
      * We don't ever want to instantiate this class
@@ -231,18 +251,48 @@ public class TideTXTFileParser {
                 // add the scores
                 ScoreModel score;
 
+                /**
+                 * New versions of XCORR are named REFACTORED XCORR.
+                 * Todo: Create the proper CVTerm for it.
+                 */
                 Double scoreValue;
-                try {
+                if(columnMap.get(HEADER_XCORR) !=null ){
                     scoreValue = Double.parseDouble(columns[columnMap.get(HEADER_XCORR)]);
                     score = new ScoreModel(scoreValue,
                             ScoreModelEnum.SEQUEST_XCORR);
                     psm.addScore(score);
+                } else if(columnMap.get(HEADER_REFACTORED_XCORR) !=null){
+                    scoreValue = Double.parseDouble(columns[columnMap.get(HEADER_REFACTORED_XCORR)]);
+                    score = new ScoreModel(scoreValue,
+                            ScoreModelEnum.SEQUEST_XCORR);
+                    psm.addScore(score);
+                }else
+                    LOGGER.error("could not parse the xcorr in line " + lineNr);
 
-                } catch (Exception e) {
-                    LOGGER.error("could not parse the xcorr in line " + lineNr, e);
+                /**
+                 * Parse the other values or scores.
+                 */
+
+                if(columnMap.get(HEADER_DELTA_CN) != null){
+                    scoreValue = Double.parseDouble(columns[columnMap.get(HEADER_DELTA_CN)]);
+                    score = new ScoreModel(scoreValue,
+                            ScoreModelEnum.SEQUEST_DELTACN);
+                    psm.addScore(score);
                 }
-                // TODO: add the other score( like value)s
 
+                if(columnMap.get(HEADER_SP_SCORE) != null){
+                    scoreValue = Double.parseDouble(columns[columnMap.get(HEADER_SP_SCORE)]);
+                    score = new ScoreModel(scoreValue,
+                            ScoreModelEnum.SEQUEST_SPSCORE);
+                    psm.addScore(score);
+                }
+
+                if(columnMap.get(HEADER_SP_RANK) != null){
+                    scoreValue = Double.parseDouble(columns[columnMap.get(HEADER_SP_RANK)]);
+                    score = new ScoreModel(scoreValue,
+                            ScoreModelEnum.SEQUEST_PEPTIDE_RANK_SP);
+                    psm.addScore(score);
+                }
 
                 // add the protein/accession info
 

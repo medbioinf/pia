@@ -364,6 +364,11 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable, Seria
         return score.getValue();
     }
 
+    /** Score Model to be used **/
+    public ScoreModel getScoreModel(){
+        return score;
+    }
+
 
     /**
      * Getter for the protein coverage of the given accession

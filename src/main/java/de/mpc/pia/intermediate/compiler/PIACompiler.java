@@ -720,6 +720,7 @@ public abstract class PIACompiler {
         // initialize the cluster's peptides with the peptides of the given accession
         int newPeptides = 0;
         int newAccessions = 1;  // for the given accession
+
         for (Long pepId : getPepIDsFromConnectionMap(accessionID)) {
             clusterPeptides.add(pepId);
             newPeptides++;

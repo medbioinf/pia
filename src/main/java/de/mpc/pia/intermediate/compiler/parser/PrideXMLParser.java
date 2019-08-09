@@ -112,12 +112,15 @@ public class PrideXMLParser {
         StringBuilder sourceIdBuilder = new StringBuilder();
 
         prideParser.getAdditionalParams();
+
         additionalInformation.getUserParam().add(
                 MzIdentMLTools.createUserParam("PRIDE XML conversion", null, null));
 
-        parseAdminInformations(prideParser.getAdmin(), additionalInformation,
+        parseAdminInformations(prideParser.getSpectrumIds().size(), prideFile, prideParser.getAdmin(), additionalInformation,
                 spectraData, sourceIdBuilder);
+
         parseInstrumentInformations(prideParser.getInstrument(), additionalInformation, compiler);
+
         parseDataProcessingInformations(prideParser.getDataProcessing(),
                 spectrumIDProtocol, additionalInformation, compiler);
         parseAdditionalInformations(prideParser.getAdditionalParams(), additionalInformation);
@@ -169,164 +172,178 @@ public class PrideXMLParser {
         // go through the identifications (they refer to accessions)
         for (String identifier: prideParser.getIdentIds()) {
             Identification identification = prideParser.getIdentById(identifier);
-
-            // add the Accession to the compiler (if it is not already there)
-            Accession acc = compiler.getAccession(identification.getAccession());
-            if (acc == null) {
-                // no sequence information available in the PRIDE XML
-                acc = compiler.insertNewAccession(
-                        identification.getAccession(), null);
-                accNr++;
-
-                uk.ac.ebi.pride.jaxb.model.CvParam descParam =
-                        identification.getAdditional().getCvParamByAcc("PRIDE:0000063");
-                if (descParam != null) {
-                    acc.addDescription(file.getID(), descParam.getValue());
-                }
-            }
-            acc.addFile(file.getID());
-
-            // add the searchDB to the accession
-            if ((identification.getDatabase() != null) &&
-                    !identification.getDatabase().isEmpty()) {
-                SearchDatabase sDB = createSearchDatabase(
-                        identification.getDatabase(), identification.getDatabaseVersion());
-                sDB = compiler.putIntoSearchDatabasesMap(sDB);
-                acc.addSearchDatabaseRef(sDB.getId());
-            }
+            Accession acc = null;
 
             for (PeptideItem peptideItem : identification.getPeptideItem()) {
-                String sequence = peptideItem.getSequence();
 
-                Spectrum spectrum = peptideItem.getSpectrum();
-                SpectrumDesc spectrumDesc = spectrum.getSpectrumDesc();
+                if(peptideItem.getSequence() != null && peptideItem.getStart() != null && peptideItem.getEnd() != null){
 
-                Integer charge = null;
-                String chargeStr = getValueFromSpectrumPrecursor(spectrumDesc, chargeAccessions);
-                if (chargeStr != null) {
-                    charge = Integer.parseInt(chargeStr);
-                }
-                String sourceID = sourceIdBase + spectrum.getId();
+                    String sequence = peptideItem.getSequence();
 
-                Map<Integer, Modification> modifications =
-                        transformModifications(sequence, peptideItem.getModificationItem(), compiler.getUnimodParser());
+                    Spectrum spectrum = peptideItem.getSpectrum();
+                    SpectrumDesc spectrumDesc = spectrum.getSpectrumDesc();
 
-                foundModifications.addAll(modifications.values());
-
-                if(charge == null)
-                    charge = -1;
-
-                String psmKey = PeptideSpectrumMatch.getIdentificationKey(
-                        psmSetSettings,
-                        sequence,
-                        PeptideSpectrumMatch.getModificationString(modifications),  // no different rounding in the same file, so this should be safe
-                        charge,
-                        null,
-                        null,
-                        sourceID,
-                        null,
-                        null);
-
-                Peptide peptide;
-
-                PeptideSpectrumMatch psm = keysToPSMs.get(psmKey);
-                if (psm == null) {
-                    String mzStr = getValueFromSpectrumPrecursor(spectrumDesc, mzAccessions);
-                    Double precursorMZ;
-                    double deltaMass = Double.NaN;
-                    if (mzStr != null) {
-                        precursorMZ = Double.parseDouble(mzStr);
-
-                        double theoreticalMass = MoleculeUtilities.calculateTheoreticalMass(sequence,
-                                getPtmMassesForTheoreticalMass(modifications));
-                        double precursorMass = precursorMZ*charge -
-                                charge*PIAConstants.H_MASS.doubleValue();
-                        deltaMass = precursorMass - theoreticalMass;
-                    } else {
-                        precursorMZ = Double.NaN;
+                    Integer charge = null;
+                    String chargeStr = getValueFromSpectrumPrecursor(spectrumDesc, chargeAccessions);
+                    if (chargeStr != null) {
+                        charge = Integer.parseInt(chargeStr);
                     }
+                    String sourceID = sourceIdBase + spectrum.getId();
 
-                    Double rt = null;
-                    String rtStr = getValueFromSpectrumPrecursor(spectrumDesc, rtAccessions);
-                    if (rtStr != null) {
-                        if (rtStr.contains("-")) {
-                            rtStr = rtStr.split("-")[0].trim();
-                        }
-                        rt = Double.parseDouble(rtStr);
-                    }
+                    Map<Integer, Modification> modifications =
+                            transformModifications(sequence, peptideItem.getModificationItem(), compiler.getUnimodParser());
 
-                    int missedCleavages = MzIdentMLTools.calculateMissedCleavages(sequence,
-                            enzymes, enzymesToRegexes, compiler.getOBOMapper());
+                    foundModifications.addAll(modifications.values());
 
-                    psm = compiler.createNewPeptideSpectrumMatch(
-                            charge,
-                            precursorMZ,
-                            deltaMass,
-                            rt,
+                    if(charge == null)
+                        charge = -1;
+
+                    String psmKey = PeptideSpectrumMatch.getIdentificationKey(
+                            psmSetSettings,
                             sequence,
-                            missedCleavages,
-                            sourceID,
+                            PeptideSpectrumMatch.getModificationString(modifications),  // no different rounding in the same file, so this should be safe
+                            charge,
                             null,
-                            file,
-                            spectrumID);
-                    specNr++;
-                    keysToPSMs.put(psmKey, psm);
+                            null,
+                            String.valueOf(spectrum.getId()),
+                            String.valueOf(spectrum.getId()),
+                            null);
 
-                    // get the peptide or create it
-                    peptide = compiler.getPeptide(sequence);
-                    if (peptide == null) {
-                        peptide = compiler.insertNewPeptide(sequence);
-                        pepNr++;
+                    Peptide peptide;
+
+                    PeptideSpectrumMatch psm = keysToPSMs.get(psmKey);
+                    if (psm == null) {
+                        String mzStr = getValueFromSpectrumPrecursor(spectrumDesc, mzAccessions);
+                        Double precursorMZ;
+                        double deltaMass = Double.NaN;
+                        if (mzStr != null) {
+                            precursorMZ = Double.parseDouble(mzStr);
+
+                            double theoreticalMass = MoleculeUtilities.calculateTheoreticalMass(sequence,
+                                    getPtmMassesForTheoreticalMass(modifications));
+                            double precursorMass = precursorMZ*charge -
+                                    charge*PIAConstants.H_MASS.doubleValue();
+                            deltaMass = precursorMass - theoreticalMass;
+                        } else {
+                            precursorMZ = Double.NaN;
+                        }
+
+                        Double rt = null;
+                        String rtStr = getValueFromSpectrumPrecursor(spectrumDesc, rtAccessions);
+                        if (rtStr != null) {
+                            if (rtStr.contains("-")) {
+                                rtStr = rtStr.split("-")[0].trim();
+                            }
+                            if(rtStr.startsWith("PT"))
+                                rtStr = rtStr.replace("PT", "");
+                            if(rtStr.contains("S"))
+                                rtStr = rtStr.replace("S", "");
+
+                            rt = Double.parseDouble(rtStr);
+                        }
+
+                        int missedCleavages = MzIdentMLTools.calculateMissedCleavages(sequence,
+                                enzymes, enzymesToRegexes, compiler.getOBOMapper());
+
+                        psm = compiler.createNewPeptideSpectrumMatch(
+                                charge,
+                                precursorMZ,
+                                deltaMass,
+                                rt,
+                                sequence,
+                                missedCleavages,
+                                String.valueOf(spectrum.getId()),
+                                String.valueOf(spectrum.getId()),
+                                file,
+                                spectrumID);
+                        specNr++;
+                        keysToPSMs.put(psmKey, psm);
+
+                        // get the peptide or create it
+                        peptide = compiler.getPeptide(sequence);
+                        if (peptide == null) {
+                            peptide = compiler.insertNewPeptide(sequence);
+                            pepNr++;
+                        }
+
+                        // add the spectrum to the peptide
+                        peptide.addSpectrum(psm);
+
+                        // add the modifications
+                        for (Map.Entry<Integer, Modification> mod
+                                : modifications.entrySet()) {
+                            psm.addModification(mod.getKey(), mod.getValue());
+                        }
+                    } else {
+                        // if the PSM is already in the compiler, the peptide must be there as well
+                        peptide = compiler.getPeptide(sequence);
+                        if (peptide == null) {
+                            LOGGER.error("The peptide " + sequence + " was not found in the compiler!");
+                            continue;
+                        }
                     }
 
-                    // add the spectrum to the peptide
-                    peptide.addSpectrum(psm);
-
-                    // add the modifications
-                    for (Map.Entry<Integer, Modification> mod
-                            : modifications.entrySet()) {
-                        psm.addModification(mod.getKey(), mod.getValue());
+                    // setting of decoy parameter, but only, if it was calculated anywhere
+                    if(identification.getAccession().contains("DECOY"))
+                        System.out.println("2");
+                    boolean isDecoy = PRIDETools.isDecoyHit(identification);
+                    if (isDecoy) {
+                        decoysFound = true;
                     }
-                } else {
-                    // if the PSM is already in the compiler, the peptide must be there as well
-                    peptide = compiler.getPeptide(sequence);
-                    if (peptide == null) {
-                        LOGGER.error("The peptide " + sequence + " was not found in the compiler!");
-                        continue;
+                    if (((psm.getIsDecoy() == null) || psm.getIsDecoy()) && isDecoy) {
+                        // either not set, or it is a decoy (which may become target)
+                        psm.setIsDecoy(isDecoy);
                     }
-                }
-
-                // setting of decoy parameter, but only, if it was calculated anywhere
-                boolean isDecoy = PRIDETools.isDecoyHit(identification);
-                if (isDecoy) {
-                    decoysFound = true;
-                }
-                if ((psm.getIsDecoy() == null) || psm.getIsDecoy()) {
-                    // either not set, or it is a decoy (which may become target)
-                    psm.setIsDecoy(isDecoy);
-                }
 
 
-                // add the scores (if not already in the PSM)
-                List<ScoreModel> scores = transformScoreModels(peptideItem.getAdditional());
+                    // add the scores (if not already in the PSM)
+                    List<ScoreModel> scores = transformScoreModels(peptideItem.getAdditional());
 
-                for (ScoreModel score : scores) {
-                    if (!psm.getScores().contains(score)) {
-                        psm.addScore(score);
+                    for (ScoreModel score : scores) {
+                        if (!psm.getScores().contains(score)) {
+                            psm.addScore(score);
+                        }
                     }
+
+                    if(acc == null){
+                        // add the Accession to the compiler (if it is not already there)
+                        acc = compiler.getAccession(identification.getAccession());
+                        if (acc == null) {
+                            // no sequence information available in the PRIDE XML
+                            acc = compiler.insertNewAccession(identification.getAccession(), null);
+                            accNr++;
+
+                            uk.ac.ebi.pride.jaxb.model.CvParam descParam =
+                                    identification.getAdditional().getCvParamByAcc("PRIDE:0000063");
+                            if (descParam != null) {
+                                acc.addDescription(file.getID(), descParam.getValue());
+                            }
+                        }
+                        acc.addFile(file.getID());
+
+                        // add the searchDB to the accession
+                        if ((identification.getDatabase() != null) &&
+                                !identification.getDatabase().isEmpty()) {
+                            SearchDatabase sDB = createSearchDatabase(
+                                    identification.getDatabase(), identification.getDatabaseVersion());
+                            sDB = compiler.putIntoSearchDatabasesMap(sDB);
+                            acc.addSearchDatabaseRef(sDB.getId());
+                        }
+                    }
+
+                    // add the accession occurrence to the peptide
+                    peptide.addAccessionOccurrence(acc,
+                            peptideItem.getStart().intValue(), peptideItem.getEnd().intValue());
+
+                    // now insert the connection between peptide and accession into the compiler
+                    compiler.addAccessionPeptideConnection(acc, peptide);
+
+                    // add the PSM in the compiler (or overwrite it), this might give warning
+                    compiler.insertCompletePeptideSpectrumMatch(psm);
+
+                    // TODO: this should be restructured: first get a list of all peptides, then add them to avoid adding a PSM multiple times
+
                 }
-
-                // add the accession occurrence to the peptide
-                peptide.addAccessionOccurrence(acc,
-                        peptideItem.getStart().intValue(), peptideItem.getEnd().intValue());
-
-                // now insert the connection between peptide and accession into the compiler
-                compiler.addAccessionPeptideConnection(acc, peptide);
-
-                // add the PSM in the compiler (or overwrite it), this might give warning
-                compiler.insertCompletePeptideSpectrumMatch(psm);
-
-                // TODO: this should be restructured: first get a list of all peptides, then add them to avoid adding a PSM multiple times
             }
         }
 
@@ -408,7 +425,7 @@ public class PrideXMLParser {
                             residue,
                             unimod.getDelta().getMonoMass(),
                             unimod.getTitle(),
-                            "UNIMOD:" + unimod.getRecordId());
+                            "UNIMOD:" + unimod.getRecordId(), "UNIMOD", Collections.EMPTY_LIST);
                 } else {
                     modification = new Modification(
                             residue,
@@ -538,7 +555,7 @@ public class PrideXMLParser {
      * @param adminSection
      * @param additionalInformation
      */
-    private static void parseAdminInformations(Admin adminSection,
+    private static void parseAdminInformations(int numberSpectra, File fileName, Admin adminSection,
             ParamList additionalInformation, SpectraData spectraData, StringBuilder sourceIdBase) {
         AbstractParam abstractParam;
 
@@ -568,13 +585,13 @@ public class PrideXMLParser {
         }
 
         // the original source file
-        if (adminSection.getSourceFile() != null) {
+        if (adminSection.getSourceFile() != null && numberSpectra > 0) {
 
-            SpectraData specData = spectraDataFromSourceFile(adminSection.getSourceFile(), sourceIdBase);
+            SpectraData specData = spectraDataFromSourceFile();
 
             if (specData != null) {
-                spectraData.setLocation(adminSection.getSourceFile().getPathToFile());
-                spectraData.setName(adminSection.getSourceFile().getNameOfFile());
+                spectraData.setLocation(fileName.getParentFile().getAbsolutePath());
+                spectraData.setName(fileName.getName());
                 spectraData.setSpectrumIDFormat(specData.getSpectrumIDFormat());
                 spectraData.setFileFormat(specData.getFileFormat());
             } else {
@@ -619,39 +636,30 @@ public class PrideXMLParser {
 
 
     /**
-     * Checks whether the given sourceFile contains a valid fileType and
-     * creates an mzIdentML SpectraData if it is.
+     * The @{@link uk.ac.ebi.jmzidml.xml.jaxb.adapters.SpectraDataAdapter } This will return a pointer to
+     * the same file the spectra of a PRIDE XML is contain in the same file.
      *
      * @return
      */
-    private static SpectraData spectraDataFromSourceFile(SourceFile sourceFile,
-            StringBuilder sourceIdBase) {
-        SpectraData specData = null;
+    private static SpectraData spectraDataFromSourceFile() {
 
-        if ("Mascot dat file".equalsIgnoreCase(sourceFile.getFileType())) {
-            specData = new SpectraData();
+        SpectraData specData = new SpectraData();
 
-            FileFormat fileFormat = new FileFormat();
-            CvParam cvParam = MzIdentMLTools.createPSICvParam(
-                    OntologyConstants.MASCOT_DAT_FORMAT,
-                    null
-                    );
-            fileFormat.setCvParam(cvParam);
-            specData.setFileFormat(fileFormat);
+        FileFormat fileFormat = new FileFormat();
+        CvParam cvParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.PRIDE_XML,
+                null
+        );
+        fileFormat.setCvParam(cvParam);
+        specData.setFileFormat(fileFormat);
 
-            SpectrumIDFormat idFormat = new SpectrumIDFormat();
-            cvParam = MzIdentMLTools.createPSICvParam(
-                    OntologyConstants.MASCOT_QUERY_NUMBER,
-                    null
-                    );
-            idFormat.setCvParam(cvParam);
-            specData.setSpectrumIDFormat(idFormat);
-
-            if (sourceIdBase != null) {
-                sourceIdBase.delete(0, sourceIdBase.length());
-                sourceIdBase.append("query=");
-            }
-        }
+        SpectrumIDFormat idFormat = new SpectrumIDFormat();
+        cvParam = MzIdentMLTools.createPSICvParam(
+                OntologyConstants.SINGLE_PEAK_LIST,
+                null
+        );
+        idFormat.setCvParam(cvParam);
+        specData.setSpectrumIDFormat(idFormat);
 
         return specData;
     }
@@ -721,8 +729,18 @@ public class PrideXMLParser {
             if ("PRIDE:0000161".equals(param.getAccession())) {
                 // "Fragment mass tolerance setting"
                 String[] splitString = param.getValue().split(" ");
+                String fragmentValue = "5";
+                String fragmentUnit  = "ppm";
+                if(splitString.length == 2){
+                    fragmentValue = splitString[0];
+                    fragmentUnit = splitString[1];
+                }else if (splitString.length == 1){ // No Unit
+                    fragmentValue = splitString[0];
+                     if(Double.valueOf(splitString[0]) < 0)
+                         fragmentUnit = "Da";
+                }
                 Tolerance tolerance = MzIdentMLTools.createSearchTolerance(
-                        splitString[0], splitString[1]);
+                        fragmentValue, fragmentUnit);
 
                 if (tolerance != null) {
                     spectrumIdProtocol.setFragmentTolerance(tolerance);
@@ -730,8 +748,21 @@ public class PrideXMLParser {
             } else if ("PRIDE:0000078".equals(param.getAccession())) {
                 // "Peptide mass tolerance setting"
                 String[] splitString = param.getValue().split(" ");
-                Tolerance tolerance = MzIdentMLTools.createSearchTolerance(
-                        splitString[0], splitString[1]);
+
+                String parentValue = "20";
+                String parentUnit  = "ppm";
+
+                if(splitString.length == 2){
+                    parentValue = splitString[0];
+                    parentUnit = splitString[1];
+                }else if (splitString.length == 1){ // No Unit
+                    parentValue = splitString[0];
+                    if(Double.valueOf(splitString[0]) > 100)
+                        parentUnit = "Da";
+                }
+
+                Tolerance tolerance = MzIdentMLTools.createSearchTolerance(parentValue, parentUnit);
+
 
                 if (tolerance != null) {
                     spectrumIdProtocol.setParentTolerance(tolerance);
@@ -739,8 +770,10 @@ public class PrideXMLParser {
             } else if ("PRIDE:0000162".equals(param.getAccession())) {
                 // "Allowed missed cleavages"
                 int missed = Integer.parseInt(param.getValue());
-                for (Enzyme enzyme : spectrumIdProtocol.getEnzymes().getEnzyme()) {
-                    enzyme.setMissedCleavages(missed);
+                if(spectrumIdProtocol.getEnzymes() != null){
+                    for (Enzyme enzyme : spectrumIdProtocol.getEnzymes().getEnzyme()) {
+                        enzyme.setMissedCleavages(missed);
+                    }
                 }
             } else {
                 // needs no further processing (or unknown) -> add to additional
