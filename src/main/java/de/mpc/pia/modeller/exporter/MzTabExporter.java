@@ -391,7 +391,7 @@ public class MzTabExporter {
             try {
                 locationUrl = new URL(sd.getLocation());
             } catch (MalformedURLException ex) {
-                locationUrl = new URL("file", "//", sd.getLocation());
+                locationUrl = new URL("file", "", sd.getLocation());
             }
             msRun.setLocation(locationUrl);
 
