@@ -555,6 +555,14 @@ class MzIdentMLFileParser {
         uk.ac.ebi.jmzidml.model.mzidml.Peptide peptide = peptides.get(specIdItem.getPeptideRef());
 
         Peptide pep = parseSIIPeptideEvidences(specIdItem.getPeptideEvidenceRef(), peptide, specIDListsDBRefs);
+
+        boolean isDecoy = false;
+        for(PeptideEvidenceRef peptideEvidenceRef: specIdItem.getPeptideEvidenceRef()){
+            if(peptideEvidenceRef != null && peptideEvidenceRef.getPeptideEvidence() != null &&
+                    peptideEvidenceRef.getPeptideEvidence().isIsDecoy())
+                isDecoy = true;
+
+        }
         if (pep == null) {
             return false;
         }
@@ -576,6 +584,8 @@ class MzIdentMLFileParser {
                 spectrumTitle,
                 file,
                 spectrumID);
+        psm.setIsDecoy(isDecoy);
+
         pep.addSpectrum(psm);
         specNr++;
 
