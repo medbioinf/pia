@@ -556,11 +556,11 @@ class MzIdentMLFileParser {
 
         Peptide pep = parseSIIPeptideEvidences(specIdItem.getPeptideEvidenceRef(), peptide, specIDListsDBRefs);
 
-        boolean isDecoy = false;
+        boolean isDecoy = true;
         for(PeptideEvidenceRef peptideEvidenceRef: specIdItem.getPeptideEvidenceRef()){
             if(peptideEvidenceRef != null && peptideEvidenceRef.getPeptideEvidence() != null &&
-                    peptideEvidenceRef.getPeptideEvidence().isIsDecoy())
-                isDecoy = true;
+                    !peptideEvidenceRef.getPeptideEvidence().isIsDecoy())
+                isDecoy = false;
 
         }
         if (pep == null) {
