@@ -158,6 +158,56 @@ public class PIACachedCompilerTest {
         piaIntermediateFile.delete();
     }
 
+    @Test
+    public void testPIACompilerMzidFDRNative() throws IOException {
+        PIACompiler piaCompiler = new PIACachedCompiler();
+
+        assertEquals("X!TAndem file could not be parsed", true,
+                piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
+
+        piaCompiler.buildClusterList();
+        piaCompiler.buildIntermediateStructure();
+
+        piaCompiler.setName("testFile");
+
+        File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
+
+        // test writing using the file's name
+        piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
+        piaIntermediateFile.delete();
+
+        // test writing using the file object
+        piaCompiler.writeOutXML(piaIntermediateFile);
+
+        String filePath = piaIntermediateFile.getAbsolutePath();
+
+        PIAModeller piaModeller = new PIAModeller(filePath);
+        piaModeller.setCreatePSMSets(true);
+        piaModeller.getPSMModeller().setAllDecoyPattern("searchengine");
+        piaModeller.getPSMModeller().setAllTopIdentifications(1);
+
+        piaModeller.getPSMModeller().calculateAllFDR();
+        piaModeller.getPSMModeller().calculateCombinedFDRScore();
+
+        piaModeller.getPSMModeller().addFilter(0L,
+                new PSMScoreFilter(FilterComparator.less_equal, false, 0.5, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()));
+
+        assertEquals("number of filtered PSM sets is wrong", 7,
+                piaModeller.getPSMModeller().getFilteredReportPSMSets(piaModeller.getPSMModeller().getFilters(0L)).size());
+
+
+
+        piaIntermediateFile.delete();
+
+        // test writing using the file stream
+        try (FileOutputStream fos = new FileOutputStream(piaIntermediateFile)) {
+            piaCompiler.writeOutXML(fos);
+            piaIntermediateFile.delete();
+        }
+
+        piaIntermediateFile.delete();
+    }
+
 
     @Test
     public void testPIACompilerMzidFiles() throws IOException {

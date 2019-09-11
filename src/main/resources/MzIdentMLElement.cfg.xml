@@ -433,7 +433,7 @@ Configurations for various properties of model classes.
         <xpath>/MzIdentML/SequenceCollection/Peptide</xpath>
     </configurations>
     <configurations>
-        <autoRefResolving>false</autoRefResolving>
+        <autoRefResolving>true</autoRefResolving>
         <cached>false</cached>
         <clazz>uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence</clazz>
         <cvParamClass>uk.ac.ebi.jmzidml.model.mzidml.params.PeptideEvidenceCvParam</cvParamClass>
@@ -458,7 +458,7 @@ Configurations for various properties of model classes.
     </configurations>
     -->
     <configurations>
-        <autoRefResolving>false</autoRefResolving>
+        <autoRefResolving>true</autoRefResolving>
         <cached>false</cached>
         <clazz>uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidenceRef</clazz>
         <idMapped>false</idMapped>
