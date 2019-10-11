@@ -99,6 +99,26 @@
 			<artifactId>jmzidentml</artifactId>
 			<version>${jmzidentml.version}</version>
 		</dependency>
+		
+		<!-- JAXB needs to be added for Java >= 9 -->
+    	<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-impl</artifactId>
+			<version>2.3.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-core</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+		<!-- JAXB additions --> 
 
 		<!-- pride mod dependency -->
 		<dependency>
