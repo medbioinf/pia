@@ -8,6 +8,7 @@ import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.OntologyConstants;
+import de.mpc.pia.tools.obo.AbstractOBOMapper;
 import de.mpc.pia.tools.obo.OBOMapper;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -337,7 +338,7 @@ class MzIdentMLFileParser {
 
             // get the regexes
             List<String> regexes = tripleSet.stream()
-                    .filter(triple -> triple.getPredicate().getName().equals(OBOMapper.OBO_RELATIONSHIP)
+                    .filter(triple -> triple.getPredicate().getName().equals(AbstractOBOMapper.OBO_RELATIONSHIP)
                             && triple.getObject().getName().startsWith(OBOMapper.OBO_HAS_REGEXP))
                     .map(triple -> {
                         // put filtered regExes into the map
@@ -853,7 +854,7 @@ class MzIdentMLFileParser {
             Set<Triple> tripleSet = compiler.getOBOMapper().getTriples(oboTerm, null, null);
 
             for (Triple triple : tripleSet) {
-                if (triple.getPredicate().getName().equals(OBOMapper.OBO_IS_A) &&
+                if (triple.getPredicate().getName().equals(AbstractOBOMapper.OBO_IS_A) &&
                         triple.getObject().getName().equals(OntologyConstants.SEARCH_ENGINE_PSM_SCORE.getPsiAccession())) {
                     // subject is a "search engine specific score for PSM"
                     double doubleValue = Double.parseDouble(value);

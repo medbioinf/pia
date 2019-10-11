@@ -116,7 +116,7 @@ class CompilerWorkerThread extends Thread {
             //  => assign all to a new group
 
             // create the new group
-            Group group = new Group(subGroups.size()+1);
+            Group group = new Group(subGroups.size() + 1L);
             subGroups.put(group.getID(), group);
 
             // connect peptide and group
@@ -148,7 +148,7 @@ class CompilerWorkerThread extends Thread {
                         //      group and move the accessions there
 
                         // create the new group
-                        Group betweenGroup = new Group(subGroups.size()+1);
+                        Group betweenGroup = new Group(subGroups.size() + 1L);
                         subGroups.put(betweenGroup.getID(), betweenGroup);
 
                         // add group to peptide and vice versa
@@ -172,16 +172,16 @@ class CompilerWorkerThread extends Thread {
                 Set<Long> subTreeSet = getSubtreeGroups(accessions,
                         remainingGroups, subGroups);
 
-                if ((remainingGroups.size() == 0) &&
+                if (remainingGroups.isEmpty() &&
                         (((subTreeSet.size() == 1) && !subTreeSet.contains(-1L)) ||             // either there is only one group (and it's not -1, the unassigned)
                                 ((subTreeSet.size() == 2) && subTreeSet.contains(-1L)))) {      // or there are 2 groups and one of it are the unassigned accessions
                     // the already assigned accessions build up a whole subtree
 
                     // get the group building up the subtree (the one with the assigned)
                     Group group = null;
-                    for (Long id : subTreeSet) {
-                        if (id > 0) {
-                            group = subGroups.get(id);
+                    for (Long treeId : subTreeSet) {
+                        if (treeId > 0) {
+                            group = subGroups.get(treeId);
                         }
                     }
 
@@ -190,7 +190,7 @@ class CompilerWorkerThread extends Thread {
                             // we have some unassigned accessions as well
 
                             // create a between group
-                            Group betweenGroup = new Group(subGroups.size()+1);
+                            Group betweenGroup = new Group(subGroups.size() + 1L);
                             subGroups.put(betweenGroup.getID(), betweenGroup);
 
                             // add the unassigned accessions to the between group
@@ -213,7 +213,7 @@ class CompilerWorkerThread extends Thread {
                     // can't say much about the constellation of groups
 
                     // create new group for peptide
-                    Group pepGroup = new Group(subGroups.size()+1);
+                    Group pepGroup = new Group(subGroups.size() + 1L);
                     subGroups.put(pepGroup.getID(), pepGroup);
 
                     // add group to peptide and vice versa
@@ -242,7 +242,7 @@ class CompilerWorkerThread extends Thread {
                         Group group = subGroups.get(remGroupId);
 
                         // create an between group
-                        Group betweenGroup = new Group(subGroups.size()+1);
+                        Group betweenGroup = new Group(subGroups.size() + 1L);
                         subGroups.put(betweenGroup.getID(), betweenGroup);
 
                         // connect the between group to the remaining and the pepGroup
