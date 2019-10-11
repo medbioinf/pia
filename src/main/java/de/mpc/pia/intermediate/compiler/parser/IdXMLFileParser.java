@@ -967,7 +967,7 @@ public class IdXMLFileParser {
 
         if (peptideSeq.contains("X")) {
             // replace the X by "." for regular expression matching
-            peptideSeq = peptideSeq.replaceAll("X", ".");
+            peptideSeq = peptideSeq.replace("X", ".");
         }
 
         Matcher matcher;
