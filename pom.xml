@@ -334,18 +334,5 @@
             <layout>default</layout>
         </repository>
 
-		<!-- local files for the PD parser -->
-		<repository>
-			<id>pia-shipped-repo</id>
-			<name>pia-shipped-repo</name>
-			<releases>
-				<enabled>true</enabled>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<url>file://${project.basedir}/libs</url>
-		</repository>
 	</repositories>
 </project>
