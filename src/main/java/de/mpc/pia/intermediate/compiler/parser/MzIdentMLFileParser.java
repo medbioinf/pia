@@ -15,6 +15,7 @@ import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
 import uk.ac.ebi.jmzidml.model.mzidml.*;
 import uk.ac.ebi.jmzidml.xml.io.MzIdentMLUnmarshaller;
+import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -72,6 +73,9 @@ class MzIdentMLFileParser {
 
     /** the cvParams which are specially parsed and don't need to be passed for the spectrumIdentificationResults */
     private static List<String> parsedSpecIdResultCVParams = Arrays.asList(OntologyConstants.SCAN_NUMBERS.getPsiAccession(), OntologyConstants.SCAN_START_TIME.getPsiAccession());
+
+    // Map modifications when is needed.
+    private static ModReader modReader;
 
 
     /**
@@ -352,6 +356,22 @@ class MzIdentMLFileParser {
                 enzyme.setSiteRegexp(regexes.get(0));
             }
         }
+    }
+
+    /**
+     * Getter for the Pride Mod Reader allowing to retrieve information from
+     * UNIMOD and PSI-MOD at the same time.
+     *
+     * Unimod and PSI-MOD
+     *
+     * @return
+     */
+    public static final ModReader getModReader() {
+        if (modReader == null) {
+            LOGGER.info("Initializing PRIDE ModReader parser...");
+            modReader = ModReader.getInstance();
+        }
+        return modReader;
     }
 
 
@@ -902,6 +922,9 @@ class MzIdentMLFileParser {
             }
         }
 
+        if(massDelta == null && accession.contains("UNIMOD")){
+            massDelta = getModReader().getPTMbyAccession(accession).getMonoDeltaMass();
+        }
         modification = new de.mpc.pia.intermediate.Modification(
                 residue, massDelta, description,
                 accession);
