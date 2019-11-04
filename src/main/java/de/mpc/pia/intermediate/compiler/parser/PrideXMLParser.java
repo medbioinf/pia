@@ -295,6 +295,13 @@ public class PrideXMLParser {
                         psm.setIsDecoy(isDecoy);
                     }
 
+                    AbstractParam cv = new CvParam();
+                    ((CvParam) cv).setCv(PRIDETools.PrideOntologyConstants.PRIDE_SUBMITTERS_THERSHOLD.getCv());
+                    ((CvParam) cv).setAccession(PRIDETools.PrideOntologyConstants.PRIDE_SUBMITTERS_THERSHOLD.getAccession());
+                    cv.setName(PRIDETools.PrideOntologyConstants.PRIDE_SUBMITTERS_THERSHOLD.getName());
+                    cv.setValue(Boolean.toString(true));
+                    psm.addParam(cv);
+
 
                     // add the scores (if not already in the PSM)
                     List<ScoreModel> scores = transformScoreModels(peptideItem.getAdditional());

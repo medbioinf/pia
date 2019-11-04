@@ -9,6 +9,7 @@ import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.OntologyConstants;
 import de.mpc.pia.tools.obo.OBOMapper;
+import de.mpc.pia.tools.pride.PRIDETools;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.biojava.nbio.ontology.Term;
@@ -605,6 +606,13 @@ class MzIdentMLFileParser {
                 file,
                 spectrumID);
         psm.setIsDecoy(isDecoy);
+
+        AbstractParam cv = new CvParam();
+        ((CvParam) cv).setCv(PRIDETools.PrideOntologyConstants.PRIDE_SUBMITTERS_THERSHOLD.getCv());
+        ((CvParam) cv).setAccession(PRIDETools.PrideOntologyConstants.PRIDE_SUBMITTERS_THERSHOLD.getAccession());
+        cv.setName(PRIDETools.PrideOntologyConstants.PRIDE_SUBMITTERS_THERSHOLD.getName());
+        cv.setValue(Boolean.toString(specIdItem.isPassThreshold()));
+        psm.addParam(cv);
 
         pep.addSpectrum(psm);
         specNr++;

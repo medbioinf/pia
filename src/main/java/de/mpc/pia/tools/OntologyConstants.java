@@ -179,7 +179,6 @@ public enum OntologyConstants {
     BYONIC_DELTA_SCORE("Byonic:Delta Score",  "MS:1002263"),
     BYONIC_DELTA_MOD_SCORE("Byonic:DeltaMod Score", "MS:1002264"),
 
-
     NUMBER_MATCHED_PEAKS("number of matched peaks","MS:1001121");
 
 
