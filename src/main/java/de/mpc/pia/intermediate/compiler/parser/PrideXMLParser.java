@@ -23,7 +23,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
 import uk.ac.ebi.jmzidml.model.mzidml.Param;
 import uk.ac.ebi.jmzidml.model.mzidml.UserParam;
 import uk.ac.ebi.pride.jaxb.model.*;
-import uk.ac.ebi.pride.jaxb.model.SourceFile;
 import uk.ac.ebi.pride.jaxb.xml.PrideXmlReader;
 import uk.ac.ebi.pride.utilities.mol.MoleculeUtilities;
 
@@ -57,6 +56,7 @@ public class PrideXMLParser {
             "PSI:1000016",
             "MS:1000016"));
 
+    private static final String STRING_TYPE = "string";
 
     /**
      * We don't ever want to instantiate this class
@@ -109,7 +109,6 @@ public class PrideXMLParser {
 
         // add all additional information
         ParamList additionalInformation = new ParamList();
-        StringBuilder sourceIdBuilder = new StringBuilder();
 
         prideParser.getAdditionalParams();
 
@@ -117,7 +116,7 @@ public class PrideXMLParser {
                 MzIdentMLTools.createUserParam("PRIDE XML conversion", null, null));
 
         parseAdminInformations(prideParser.getSpectrumIds().size(), prideFile, prideParser.getAdmin(), additionalInformation,
-                spectraData, sourceIdBuilder);
+                spectraData);
 
         parseInstrumentInformations(prideParser.getInstrument(), additionalInformation, compiler);
 
@@ -143,9 +142,6 @@ public class PrideXMLParser {
         }
 
         file.addSpectrumIdentification(spectrumID);
-
-
-        String sourceIdBase = sourceIdBuilder.toString();
 
         int accNr = 0;
         int pepNr = 0;
@@ -188,7 +184,6 @@ public class PrideXMLParser {
                     if (chargeStr != null) {
                         charge = Integer.parseInt(chargeStr);
                     }
-                    String sourceID = sourceIdBase + spectrum.getId();
 
                     Map<Integer, Modification> modifications =
                             transformModifications(sequence, peptideItem.getModificationItem(), compiler.getUnimodParser());
@@ -284,8 +279,6 @@ public class PrideXMLParser {
                     }
 
                     // setting of decoy parameter, but only, if it was calculated anywhere
-                    if(identification.getAccession().contains("DECOY"))
-                        System.out.println("2");
                     boolean isDecoy = PRIDETools.isDecoyHit(identification);
                     if (isDecoy) {
                         decoysFound = true;
@@ -425,7 +418,7 @@ public class PrideXMLParser {
                             residue,
                             unimod.getDelta().getMonoMass(),
                             unimod.getTitle(),
-                            "UNIMOD:" + unimod.getRecordId(), "UNIMOD", Collections.EMPTY_LIST);
+                            "UNIMOD:" + unimod.getRecordId(), "UNIMOD", Collections.emptyList());
                 } else {
                     modification = new Modification(
                             residue,
@@ -556,7 +549,7 @@ public class PrideXMLParser {
      * @param additionalInformation
      */
     private static void parseAdminInformations(int numberSpectra, File fileName, Admin adminSection,
-            ParamList additionalInformation, SpectraData spectraData, StringBuilder sourceIdBase) {
+            ParamList additionalInformation, SpectraData spectraData) {
         AbstractParam abstractParam;
 
         // the sample name
@@ -599,19 +592,19 @@ public class PrideXMLParser {
                 abstractParam = MzIdentMLTools.createUserParam(
                         "original file name",
                         adminSection.getSourceFile().getNameOfFile(),
-                        "string");
+                        STRING_TYPE);
                 additionalInformation.getUserParam().add((UserParam)abstractParam);
 
                 abstractParam = MzIdentMLTools.createUserParam(
                         "original file path",
                         adminSection.getSourceFile().getPathToFile(),
-                        "string");
+                        STRING_TYPE);
                 additionalInformation.getUserParam().add((UserParam)abstractParam);
 
                 abstractParam = MzIdentMLTools.createUserParam(
                         "original file type",
                         adminSection.getSourceFile().getFileType(),
-                        "string");
+                        STRING_TYPE);
                 additionalInformation.getUserParam().add((UserParam)abstractParam);
             }
         }
@@ -890,7 +883,7 @@ public class PrideXMLParser {
 
         // databaseName
         Param param = new Param();
-        param.setParam(MzIdentMLTools.createUserParam(name, null, "string"));
+        param.setParam(MzIdentMLTools.createUserParam(name, null, STRING_TYPE));
         sDB.setDatabaseName(param);
 
         return sDB;

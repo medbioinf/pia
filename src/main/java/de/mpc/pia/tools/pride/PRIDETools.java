@@ -9,7 +9,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
 import uk.ac.ebi.pride.jaxb.model.Identification;
 import uk.ac.ebi.pride.jaxb.model.Protocol;
 import uk.ac.ebi.pride.jmztab.model.Param;
-import uk.ac.ebi.pride.jmztab.model.Protein;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,11 +29,9 @@ public class PRIDETools {
     public static final String PRIDE_DECOY_HIT_ACCESSION = "PRIDE:0000303";
     public static final String PRIDE_DECOY_HIT_NAME = "Decoy";
 
-    public static final List<String> PREFIX_PRIDE_DECOY_ENTRIES  = Arrays.asList("DECOY_", "#C#", "#DECOY#", "###REV###", "REV_", "REVERSE_", "##REV", "DECOY_REV", "RANDOM_", "###RND###", "##RND","REV");
-    public static final List<String> POSTFIX_PRIDE_DECOY_ENTRIES = Arrays.asList("_REVERSED", "-DECOY", "RANDOM_","|RND");
-    public static final List<String> MIDDLE_PRIDE_DECOY_ENTRIES = Arrays.asList("RANDOM_", "REV_", "_REVERSED");
-
-
+    private static final List<String> PREFIX_PRIDE_DECOY_ENTRIES  = Arrays.asList("DECOY_", "#C#", "#DECOY#", "###REV###", "REV_", "REVERSE_", "##REV", "DECOY_REV", "RANDOM_", "###RND###", "##RND","REV");
+    private static final List<String> POSTFIX_PRIDE_DECOY_ENTRIES = Arrays.asList("_REVERSED", "-DECOY", "RANDOM_","|RND");
+    private static final List<String> MIDDLE_PRIDE_DECOY_ENTRIES = Arrays.asList("RANDOM_", "REV_", "_REVERSED");
 
     private static Cv prideCV = new Cv();
 
