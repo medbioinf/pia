@@ -54,7 +54,7 @@
 		<sqlite4java.version>1.0.392</sqlite4java.version>
 		<sqlite-jdbc.version>3.8.10.1</sqlite-jdbc.version>
 		<ehcache.version>3.1.1</ehcache.version>
-		<xercesImpl.version>2.11.0</xercesImpl.version>
+		<xercesImpl.version>2.12.0</xercesImpl.version>
 
 		<!-- these are "internal" dependencies, the jar files are delivered together with the source -->
 		<BaseLib.version>0.0.1-SNAPSHOT</BaseLib.version>
