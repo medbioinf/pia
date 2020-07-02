@@ -78,7 +78,6 @@ class MzIdentMLFileParser {
     // Map modifications when is needed.
     private static ModReader modReader;
 
-
     /**
      * We don't ever want to instantiate this class outside
      */
