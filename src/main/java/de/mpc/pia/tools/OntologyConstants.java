@@ -181,7 +181,9 @@ public enum OntologyConstants {
 
     NUMBER_MATCHED_PEAKS("number of matched peaks","MS:1001121"),
     ANDROMEDA_PEPVALUE("Andromeda:PEP", "MS:1002995"),
-    ANDROMEDA_SCORE("Andromeda:score", "MS:1002338");
+    ANDROMEDA_SCORE("Andromeda:score", "MS:1002338"),
+    MAXQUANT_DIA_PEPVALUE("MaxQuant-DIA:PEP", "MS:1003101"),
+    MAXQUANT_DIA_SCORE("MaxQuant-DIA:score","MS:1003100");
 
 
     /** URL to the current psi-ms.obo file */

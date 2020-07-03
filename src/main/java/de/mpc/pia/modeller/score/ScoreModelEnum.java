@@ -2346,6 +2346,68 @@ public enum ScoreModelEnum {
             return true;
         }
 
+    },
+
+    /**
+     * The MaxQuant-DIA PEP
+     */
+    MAXQUANT_DIA_PEPQVALUE {
+        @Override
+        public String getName() {
+            return "MaxQuant-DIA:PEP";
+        }
+
+        @Override
+        public String getShortName() {
+            return "maxquant_dia_pepvalue";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.MAXQUANT_DIA_PEPVALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.MAXQUANT_DIA_PEPVALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+    },
+
+    /**
+     * The MaxQuant-DIA PEP
+     */
+    MAXQUANT_DIA_SCORE {
+        @Override
+        public String getName() {
+            return "MaxQuant-DIA:score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "maxquant_dia_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.MAXQUANT_DIA_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.MAXQUANT_DIA_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
     };
 
 
