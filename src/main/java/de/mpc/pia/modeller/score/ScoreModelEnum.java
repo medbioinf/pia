@@ -2284,7 +2284,70 @@ public enum ScoreModelEnum {
         public Boolean higherScoreBetter() {
             return true;
         }
+    },
+
+    /**
+     * The Andromeda PEP
+     */
+    ANDROMEDA_PEPQVALUE {
+        @Override
+        public String getName() {
+            return "Andromeda:PEP";
+        }
+
+        @Override
+        public String getShortName() {
+            return "andromeda_pepvalue";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.ANDROMEDA_PEPVALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.ANDROMEDA_PEPVALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+    },
+
+    /**
+     * The Andromeda PEP
+     */
+    ANDROMEDA_SCORE {
+        @Override
+        public String getName() {
+            return "Andromeda:score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "andromeda_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.ANDROMEDA_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.ANDROMEDA_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
     };
+
 
 
     // some statics
