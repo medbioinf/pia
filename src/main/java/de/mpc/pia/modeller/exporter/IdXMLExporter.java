@@ -106,7 +106,7 @@ public class IdXMLExporter {
                 inputFileIDToSearchParameter.put(0L, "SP_0");
                 writeSearchParameters(streamWriter,
                         "SP_0", "", "", "", MassType.MONOISOTOPIC, "", DigestionEnzyme.UNKNOWN_ENZYME,
-                        0, 0.0, false, 0.0, false);
+                        0, 0.0, false, 0.0, false, true);
             } else {
                 inputFileIDToSearchParameter.put(fileID, "SP_0");
 
@@ -120,7 +120,8 @@ public class IdXMLExporter {
                         getDigestionEnzyme(fileID),
                         0,              // TODO: get the missed cleavages
                         0.0, false,     // TODO: get the precursor tolerances
-                        0.0, false);    // TODO: get the peak mass tolerances
+                        0.0, false,     // TODO: get the peak mass tolerances
+                        false);
             }
 
             writeIdentificationRun(streamWriter, fileID, inputFileIDToSearchParameter.get(fileID),
@@ -175,7 +176,8 @@ public class IdXMLExporter {
             String id, String db, String dbVersion, String taxonomy, MassType massType,
             String charges, DigestionEnzyme enzyme, Integer missedCleavages,
             Double precursorPeakTolerance, Boolean precursorPeakTolerancePPM,
-            Double peakMassTolerance, Boolean peakMassTolerancePPM)
+            Double peakMassTolerance, Boolean peakMassTolerancePPM,
+            boolean inferenceEngine)
             throws XMLStreamException {
         streamWriter.writeStartElement("SearchParameters");
 
@@ -191,6 +193,10 @@ public class IdXMLExporter {
         streamWriter.writeAttribute("precursor_peak_tolerance_ppm", precursorPeakTolerancePPM.toString());
         streamWriter.writeAttribute("peak_mass_tolerance", peakMassTolerance.toString());
         streamWriter.writeAttribute("peak_mass_tolerance_ppm", peakMassTolerancePPM.toString());
+        
+        if (inferenceEngine) {
+        	writeUserParam(streamWriter, "InferenceEngine", "string", "PIA", null, null, null);
+        }
 
         streamWriter.writeEndElement();
     }
@@ -260,7 +266,6 @@ public class IdXMLExporter {
 
         // ---- Protein Identifications ----
         streamWriter.writeStartElement("ProteinIdentification");
-        //<ProteinIdentification score_type="Mascot" higher_score_better="true" significance_threshold="0" >
 
         streamWriter.writeAttribute("score_type", proteinScore);
         if (proteinScoreHigherBetter != null) {
@@ -278,7 +283,7 @@ public class IdXMLExporter {
 
             for (ReportProtein protein : piaModeller.getProteinModeller().getFilteredReportProteins(filters)) {
                 Double qvalue = null;
-
+                
                 List<String> phIDs = writeAccessionsToXML(streamWriter, protein.getAccessions(), protein.getScore(), qvalue, fileID, accessionToPH);
 
                 Object[] indisObject = new Object[protein.getAccessions().size() + 1];
@@ -389,9 +394,14 @@ public class IdXMLExporter {
                 if (psmIter.previousIndex() == 0) {
                     // this is the first, add RT and MZ to PeptideIdentification
                     streamWriter.writeAttribute("MZ", Double.toString(psm.getMassToCharge()));
+                    
                     Double rt = psm.getRetentionTime();
                     if (rt != null) {
                         streamWriter.writeAttribute("RT", rt.toString());
+                    }
+                    
+                    if (!psm.getSpectrumTitle().trim().isEmpty()) {
+                    	streamWriter.writeAttribute("spectrum_reference", psm.getSpectrumTitle().trim());
                     }
                 }
 

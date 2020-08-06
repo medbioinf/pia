@@ -331,8 +331,9 @@ public class IdXMLFileParser {
 
         // get sourceID, if possible
         String sourceID = getSpectrumSourceIDFromUserParams(pepID.getUserParam());
-        if (sourceID == null) {
-            sourceID = getSpectrumSourceIDFromSpectrumReference(pepID.getSpectrumReference());
+        String spectrumReference = pepID.getSpectrumReference();
+        if ((spectrumReference != null) && (sourceID == null)) {
+        	sourceID = getSpectrumSourceIDFromSpectrumReference(pepID.getSpectrumReference());
         }
         if (sourceID == null) {
             // nothing given in this file, create an ID using M/Z and RT
@@ -374,7 +375,7 @@ public class IdXMLFileParser {
                     sequence,
                     missedCleavages,
                     sourceID,
-                    null,
+                    spectrumReference,
                     file,
                     spectrumID);
             specNr++;
@@ -451,6 +452,8 @@ public class IdXMLFileParser {
     private static String getSpectrumSourceIDFromSpectrumReference(String spectrumReference) {
         String sourceID = null;
 
+        LOGGER.debug("spectrumReference: " + spectrumReference);
+        
         if (spectrumReference != null) {
             Matcher matcher = MzIdentMLTools.patternScanInTitle.matcher(spectrumReference);
             if (matcher.matches()) {
