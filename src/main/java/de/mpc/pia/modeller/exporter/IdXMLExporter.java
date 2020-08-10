@@ -671,13 +671,14 @@ public class IdXMLExporter {
 
                 streamWriter.writeAttribute("score", score.toString());
                 
+                if ((acc.getDbSequence() != null) && (acc.getDbSequence().trim().length() > 0)) {
+                	streamWriter.writeAttribute("sequence", acc.getDbSequence());
+                }
+                
                 if (isDecoyMap.get(accStr) != null) {
                 	writeTargetDecoyUserParam(streamWriter, isDecoyMap.get(accStr));
                 }
 
-                if ((acc.getDbSequence() != null) && (acc.getDbSequence().trim().length() > 0)) {
-                    streamWriter.writeAttribute("sequence", acc.getDbSequence());
-                }
                 String description = acc.getDescription(fileID);
                 if (description != null) {
                     writeUserParam(streamWriter, "Description", STRING_TYPE, description,
