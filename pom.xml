@@ -2,9 +2,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>de.mpc.pia</groupId>
+	<groupId>io.github.bigbio.external</groupId>
 	<artifactId>pia</artifactId>
-	<version>1.3.15</version>
+	<version>1.3.16-SNAPSHOT</version>
 	<name>PIA - Protein Inference Algorithms</name>
 	<url>https://github.com/mpc-bioinformatics/pia</url>
 
@@ -50,7 +50,7 @@
 		<commons-cli.version>1.4</commons-cli.version>
 		<commons-collections.version>4.1</commons-collections.version>
 		<jmzidentml.version>1.2.11</jmzidentml.version>
-		<jmztab.version>3.0.8</jmztab.version>
+		<jmztab.version>3.0.10-SNAPSHOT</jmztab.version>
 		<pride-mod.version>2.1.8</pride-mod.version>
 		<pride-jaxb.version>1.0.22</pride-jaxb.version>
 		<xxindex.version>0.23</xxindex.version>
@@ -116,17 +116,12 @@
 
 		<!-- mzTab dependencies -->
 		<dependency>
-			<groupId>uk.ac.ebi.pride</groupId>
+			<groupId>io.github.bigbio.external</groupId>
 			<artifactId>jmztab-modular-model</artifactId>
 			<version>${jmztab.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>uk.ac.ebi.pride</groupId>
-			<artifactId>jmztab-modular-util</artifactId>
-			<version>${jmztab.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>uk.ac.ebi.pride</groupId>
+			<groupId>io.github.bigbio.external</groupId>
 			<artifactId>jmztab-modular-converters</artifactId>
 			<version>${jmztab.version}</version>
 		</dependency>
@@ -335,4 +330,18 @@
         </repository>
 
 	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>sonatype-release</id>
+			<name>Central Repository OSSRH</name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
+		<snapshotRepository>
+			<id>sonatype-snapshopt</id>
+			<name>Central Repository OSSRH</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 </project>

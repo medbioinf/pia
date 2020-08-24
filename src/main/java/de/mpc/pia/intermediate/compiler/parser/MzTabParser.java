@@ -12,8 +12,6 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
-import de.mpc.pia.tools.obo.OBOMapper;
-import de.mpc.pia.tools.obo.PsiModParser;
 import de.mpc.pia.tools.pride.PRIDETools;
 
 import de.mpc.pia.tools.unimod.UnimodParser;
