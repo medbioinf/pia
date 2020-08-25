@@ -6,6 +6,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.*;
 import uk.ac.ebi.pride.jaxb.model.Identification;
 import uk.ac.ebi.pride.jaxb.model.Protocol;
 import uk.ac.ebi.pride.jmztab.model.Param;
+import uk.ac.ebi.pride.jmztab.model.Protein;
 
 import java.util.Arrays;
 import java.util.List;

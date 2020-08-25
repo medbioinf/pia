@@ -78,22 +78,20 @@ public class IdXMLExporter {
 
     public boolean exportToIdXML(Long fileID, File exportFile,
             boolean proteinLevel, boolean filterExport) {
-        OutputStream out = null;
         boolean error = false;
 
-        try {
-            out = new FileOutputStream(exportFile, false);
+        try (OutputStream out = new FileOutputStream(exportFile, false)) {
             // create an XMLOutputFactory
             String encoding = StandardCharsets.UTF_8.name();
             XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
             XMLStreamWriter streamWriter = new IndentingXMLStreamWriter(outputFactory.createXMLStreamWriter(out, encoding));
-
+            
             // write common idXML header
             streamWriter.writeStartDocument(encoding, "1.0");
             streamWriter.writeProcessingInstruction("xml-stylesheet",
                     "type=\"text/xsl\" href=\"http://open-ms.sourceforge.net/XSL/IdXML.xsl\"");
             streamWriter.writeCharacters("\n");
-
+            
             streamWriter.writeStartElement("IdXML");
 
             // <SearchParameters                one for each IdentificationRun
@@ -106,7 +104,7 @@ public class IdXMLExporter {
                 inputFileIDToSearchParameter.put(0L, "SP_0");
                 writeSearchParameters(streamWriter,
                         "SP_0", "", "", "", MassType.MONOISOTOPIC, "", DigestionEnzyme.UNKNOWN_ENZYME,
-                        0, 0.0, false, 0.0, false);
+                        0, 0.0, false, 0.0, false, true);
             } else {
                 inputFileIDToSearchParameter.put(fileID, "SP_0");
 
@@ -120,7 +118,8 @@ public class IdXMLExporter {
                         getDigestionEnzyme(fileID),
                         0,              // TODO: get the missed cleavages
                         0.0, false,     // TODO: get the precursor tolerances
-                        0.0, false);    // TODO: get the peak mass tolerances
+                        0.0, false,     // TODO: get the peak mass tolerances
+                        false);
             }
 
             writeIdentificationRun(streamWriter, fileID, inputFileIDToSearchParameter.get(fileID),
@@ -138,15 +137,6 @@ public class IdXMLExporter {
         } catch (XMLStreamException e) {
             LOGGER.error("Error while writing XML to " + exportFile.getAbsolutePath(), e);
             error = true;
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    LOGGER.error("Error while trying to close " + exportFile.getAbsolutePath(), e);
-                    error = true;
-                }
-            }
         }
 
         return !error;
@@ -175,7 +165,8 @@ public class IdXMLExporter {
             String id, String db, String dbVersion, String taxonomy, MassType massType,
             String charges, DigestionEnzyme enzyme, Integer missedCleavages,
             Double precursorPeakTolerance, Boolean precursorPeakTolerancePPM,
-            Double peakMassTolerance, Boolean peakMassTolerancePPM)
+            Double peakMassTolerance, Boolean peakMassTolerancePPM,
+            boolean inferenceEngine)
             throws XMLStreamException {
         streamWriter.writeStartElement("SearchParameters");
 
@@ -191,6 +182,10 @@ public class IdXMLExporter {
         streamWriter.writeAttribute("precursor_peak_tolerance_ppm", precursorPeakTolerancePPM.toString());
         streamWriter.writeAttribute("peak_mass_tolerance", peakMassTolerance.toString());
         streamWriter.writeAttribute("peak_mass_tolerance_ppm", peakMassTolerancePPM.toString());
+        
+        if (inferenceEngine) {
+        	writeUserParam(streamWriter, "InferenceEngine", STRING_TYPE, "PIA", null, null, null);
+        }
 
         streamWriter.writeEndElement();
     }
@@ -230,6 +225,11 @@ public class IdXMLExporter {
             // only the IdentificationRun for the selected file will be written
             // TODO: set the searchEngine and version
         }
+        
+        boolean isFDRCalculated = false;
+        if (piaModeller.getPSMModeller().isFDRCalculated(fileID) != null) {
+        	isFDRCalculated = piaModeller.getPSMModeller().isFDRCalculated(fileID);
+        }
 
         streamWriter.writeAttribute("date", date);
         streamWriter.writeAttribute("search_engine", searchEngine);
@@ -260,7 +260,6 @@ public class IdXMLExporter {
 
         // ---- Protein Identifications ----
         streamWriter.writeStartElement("ProteinIdentification");
-        //<ProteinIdentification score_type="Mascot" higher_score_better="true" significance_threshold="0" >
 
         streamWriter.writeAttribute("score_type", proteinScore);
         if (proteinScoreHigherBetter != null) {
@@ -275,11 +274,18 @@ public class IdXMLExporter {
         List<Object[]> indistinguishableList = new ArrayList<>();
 
         if (proteinLevel) {
-
             for (ReportProtein protein : piaModeller.getProteinModeller().getFilteredReportProteins(filters)) {
                 Double qvalue = null;
-
-                List<String> phIDs = writeAccessionsToXML(streamWriter, protein.getAccessions(), protein.getScore(), qvalue, fileID, accessionToPH);
+                
+                Map<String, Boolean> isDecoyMap = new HashMap<>();
+            	if (isFDRCalculated) {
+	                for (Accession acc : protein.getAccessions()) {
+	                	isDecoyMap.put(acc.getAccession(), protein.getAccessionDecoyState(acc.getAccession()));
+	                }
+            	}
+                
+                List<String> phIDs = writeAccessionsToXML(streamWriter, protein.getAccessions(),
+                		protein.getScore(), qvalue, fileID, accessionToPH, isDecoyMap);
 
                 Object[] indisObject = new Object[protein.getAccessions().size() + 1];
 
@@ -291,13 +297,19 @@ public class IdXMLExporter {
                 indistinguishableList.add(indisObject);
             }
         }
-
+        
         Iterator<List<PSMReportItem>> peptideHitIter = peptideIdentifications.values().iterator();
         while (peptideHitIter.hasNext()) {
-
             for (PSMReportItem psmReportItem : peptideHitIter.next()) {
+                Map<String, Boolean> isDecoyMap = new HashMap<>();
+            	if (isFDRCalculated) {
+	                for (Accession acc : psmReportItem.getAccessions()) {
+	                	isDecoyMap.put(acc.getAccession(), psmReportItem.getIsDecoy());
+	                }
+            	}
+                
                 writeAccessionsToXML(streamWriter, psmReportItem.getAccessions(), 0.0,
-                        null, fileID, accessionToPH);
+                        null, fileID, accessionToPH, isDecoyMap);
             }
         }
 
@@ -333,7 +345,7 @@ public class IdXMLExporter {
         if (proteinLevel || (fileID < 1)) {
             if (proteinLevel) {
                 AbstractProteinInference protInference = piaModeller.getProteinModeller().getAppliedProteinInference();
-                for (Setting setting : protInference.getScoring().getSettings()) {
+                for (Setting<HashMap<String, String>> setting : protInference.getScoring().getSettings()) {
                     if (setting.getShortName().equals(AbstractScoring.SCORING_SETTING_ID)) {
                         mainScoreShort = setting.getValue();
                         mainScore = piaModeller.getPSMModeller().getScoreName(mainScoreShort);
@@ -350,7 +362,7 @@ public class IdXMLExporter {
             }
         } else {
             // get the main score of the exported file or overview
-            if (piaModeller.getPSMModeller().isFDRCalculated(fileID)) {
+            if (Boolean.TRUE.equals(isFDRCalculated)) {
                 // if the FDR is calculated, use PSM_LEVEL_FDR_SCORE
                 mainScore = ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getName();
                 mainScoreShort = ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName();
@@ -389,9 +401,14 @@ public class IdXMLExporter {
                 if (psmIter.previousIndex() == 0) {
                     // this is the first, add RT and MZ to PeptideIdentification
                     streamWriter.writeAttribute("MZ", Double.toString(psm.getMassToCharge()));
+                    
                     Double rt = psm.getRetentionTime();
                     if (rt != null) {
                         streamWriter.writeAttribute("RT", rt.toString());
+                    }
+                    
+                    if (!psm.getSpectrumTitle().trim().isEmpty()) {
+                    	streamWriter.writeAttribute("spectrum_reference", psm.getSpectrumTitle().trim());
                     }
                 }
 
@@ -418,8 +435,8 @@ public class IdXMLExporter {
                 // if there is decoy information, write it out
                 boolean writeDecoyInfo = false;
                 if (fileID > 0) {
-                    if (piaModeller.getPSMModeller().getFileHasInternalDecoy(fileID) || // file has internal decoy info
-                            piaModeller.getPSMModeller().isFDRCalculated(fileID)) {     // FDR is calculated for the file
+                    if (piaModeller.getPSMModeller().getFileHasInternalDecoy(fileID).booleanValue() ||	// file has internal decoy info
+                    		isFDRCalculated) {     														// FDR is calculated for the file
                         writeDecoyInfo = true;
                     }
                 } else {
@@ -428,8 +445,7 @@ public class IdXMLExporter {
                     }
                 }
                 if (writeDecoyInfo) {
-                    writeUserParam(streamWriter, "target_decoy", STRING_TYPE,
-                            psm.getIsDecoy() ? "decoy" : "target", null, null, null);
+                	writeTargetDecoyUserParam(streamWriter, psm.getIsDecoy());
                 }
 
                 // write additional scores
@@ -609,6 +625,14 @@ public class IdXMLExporter {
         }
         streamWriter.writeEndElement();
     }
+    
+    
+    private static void writeTargetDecoyUserParam(XMLStreamWriter streamWriter, boolean isDecoy)
+    		throws XMLStreamException{
+    	writeUserParam(streamWriter, "target_decoy", STRING_TYPE,
+        		isDecoy ? "decoy" : "target",
+                null, null, null);
+    }
 
 
     /**
@@ -627,14 +651,15 @@ public class IdXMLExporter {
      * @throws XMLStreamException
      */
     private static List<String> writeAccessionsToXML(XMLStreamWriter streamWriter, List<Accession> accessionsList,
-            Double score, Double qvalue, Long fileID, Map<String, String> accessionToPH)
+            Double score, Double qvalue, Long fileID, Map<String, String> accessionToPH, Map<String, Boolean> isDecoyMap)
             throws XMLStreamException {
         ListIterator<Accession> accIt = accessionsList.listIterator();
         List<String> writtenPHs = new ArrayList<>(accessionsList.size());
+        
         while (accIt.hasNext()) {
             Accession acc = accIt.next();
             String accStr = acc.getAccession();
-
+            
             if (!accessionToPH.containsKey(accStr)) {
                 String proteinHitID = "PH_" + accessionToPH.size();
                 accessionToPH.put(accStr, proteinHitID);
@@ -645,10 +670,15 @@ public class IdXMLExporter {
                 streamWriter.writeAttribute("accession", accStr);
 
                 streamWriter.writeAttribute("score", score.toString());
-
+                
                 if ((acc.getDbSequence() != null) && (acc.getDbSequence().trim().length() > 0)) {
-                    streamWriter.writeAttribute("sequence", acc.getDbSequence());
+                	streamWriter.writeAttribute("sequence", acc.getDbSequence());
                 }
+                
+                if (isDecoyMap.get(accStr) != null) {
+                	writeTargetDecoyUserParam(streamWriter, isDecoyMap.get(accStr));
+                }
+
                 String description = acc.getDescription(fileID);
                 if (description != null) {
                     writeUserParam(streamWriter, "Description", STRING_TYPE, description,
@@ -659,8 +689,6 @@ public class IdXMLExporter {
                     writeUserParam(streamWriter, "q-value_score", "float", qvalue.toString(),
                             null, null, null);
                 }
-
-                // TODO: add decoy information, if it was set on the protein level
 
                 streamWriter.writeEndElement();
 

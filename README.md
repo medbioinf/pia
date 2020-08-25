@@ -80,9 +80,11 @@ issue tracker of github (https://github.com/mpc-bioinformatics/pia/issues).
 
 ## Citation and Publication
 
-If you found PIA useful for your work, please cite the following publication:
+If you found PIA useful for your work, please cite the following publications:
 
-http://www.ncbi.nlm.nih.gov/pubmed/25938255
+https://www.ncbi.nlm.nih.gov/pubmed/25938255
+
+https://www.ncbi.nlm.nih.gov/pubmed/30474983
 
 
 ## Usage Statistics
@@ -103,7 +105,7 @@ or inside the KNIME preferences.
 The development of PIA is funded by the BMBF as part of de.NBI, the German
 Network for Bioinformatics Infrastructure.
 
-[![de.NBI logo](https://www.denbi.de/templates/de.nbi2/img/deNBI_logo.jpg)](https://www.denbi.de/)
+[![de.NBI logo](https://www.denbi.de/templates/nbimaster/img/denbi-logo-color.svg)](https://www.denbi.de/)
 
 
 ## Authors of PIA

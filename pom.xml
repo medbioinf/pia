@@ -8,12 +8,6 @@
 	<name>PIA - Protein Inference Algorithms</name>
 	<url>https://github.com/mpc-bioinformatics/pia</url>
 
-	<parent>
-		<groupId>uk.ac.ebi.pride.architectural</groupId>
-		<artifactId>pride-core</artifactId>
-		<version>1.0.3-SNAPSHOT</version>
-	</parent>
-
 	<organization>
 		<url>http://www.ruhr-uni-bochum.de/mpc/medical_bioinformatics</url>
 		<name>Medizinisches Proteom-Center, Medical Bioinformatics</name>
