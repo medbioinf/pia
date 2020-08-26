@@ -1,7 +1,5 @@
 # PIA - Protein Inference Algorithms
 
-[![Build Status](https://api.travis-ci.org/mpc-bioinformatics/pia.svg)](https://travis-ci.org/mpc-bioinformatics/pia)
-
 PIA is a toolbox for MS based protein inference and identification analysis.
 
 PIA allows you to inspect the results of common proteomics spectrum
@@ -20,9 +18,9 @@ peptides and proteins.
 
 Most search engines for protein identification in MS/MS experiments return
 protein lists, although the actual search yields a set of peptide spectrum
-matches (PSMs). The step from PSMs to proteins is called “protein inference”.
+matches (PSMs). The step from PSMs to proteins is called "protein inference".
 If a set of identified PSMs supports the detection of more than one protein in
-the searched database (“protein ambiguity”), usually only one representative
+the searched database ("protein ambiguity"), usually only one representative
 accession is reported. These representatives may differ according to the used
 search engine and settings. Thus the protein lists of different search engines
 generally cannot be compared with one another. PSMs of complementary search
@@ -30,16 +28,15 @@ engines are often combined to enhance the number of reported proteins or to
 verify the evidence of a peptide, which is improved by detection with distinct
 algorithms.
 
-We developed an algorithm suite written in Java, including a fully
-parametrisable web-interface (using JavaServer Faces), which combines PSMs from
-different experiments and/or search engines, and reports consistent and thus
-comparable results. None of the parameters for the inference, like filtering or
-scoring, are fixed as in prior approaches, but held as flexible as possible, to
-allow for any adjustments needed by the user.
+We developed an algorithm suite written in Java, including fully parametrisable
+KNIME nodes, which combine PSMs from different experiments and/or search engines,
+and reports consistent and thus comparable results. None of the parameters, like
+filtering or scoring, are fixed as in prior approaches, but held as flexible as
+possible, to allow for any adjustments needed by the user.
 
-PIA can be called via the command line, in the workflow environment KNIME or
-using a web-interface (which requires an installation of a web server, but feel
-free to test it using the test server).
+PIA can be called via the command line (also in Docker containers) or in the
+workflow environment KNIME, which allows a seamless integration into OpenMS
+workflows.
 
 ![The PIA Analysis Viewer in KNIME](https://github.com/mpc-bioinformatics/pia/wiki/KNIME_analysis_view.png)
 
@@ -50,7 +47,7 @@ PIA is fully integrated into KNIME. You can easily install it from the trusted
 community contributions repository, which is available in all newer KNIME
 versions. Please use always the newest version of KNIME before submitting any
 bugs or issues.
-More information on how to install and run PIA inside KNIME are in 
+More information on how to install and run PIA inside KNIME can be found in 
 [the wiki about PIA in KNIME](https://github.com/mpc-bioinformatics/pia/wiki/Running-PIA-via-KNIME).
 
 For the command line you can download the latest released version
