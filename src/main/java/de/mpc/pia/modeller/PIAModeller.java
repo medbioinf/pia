@@ -998,9 +998,9 @@ public class PIAModeller implements Serializable {
                 GZIPOutputStream gzo = new GZIPOutputStream(fos);
                 ObjectOutputStream oos = new ObjectOutputStream(gzo)) {
             oos.writeObject(piaModeller);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.error("Could not write whole PIA model to " + file.getAbsolutePath(), e);
-            throw e;
+            throw new IOException(e.getMessage());
         }
     }
 
