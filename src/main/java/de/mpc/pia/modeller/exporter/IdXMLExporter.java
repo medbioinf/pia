@@ -213,18 +213,15 @@ public class IdXMLExporter {
         String proteinScore = "";
         Boolean proteinScoreHigherBetter = null;
         Double proteinScoreSignificanceThreshold = null;
-        if (proteinLevel || (fileID < 1)) {
-            // only one IdentificationRun will be written (for the consensus)
-            searchEngine = "PIA";
-            searchEngineVersion = PIAConstants.version;
+        
+        // only one IdentificationRun will be written (for the consensus)
+        // TODO: change the search engine to the correct engine
+        searchEngine = "PIA";
+        searchEngineVersion = PIAConstants.version;
 
-            proteinScore = OntologyConstants.PIA_PROTEIN_SCORE.getPsiName();
-            proteinScoreHigherBetter = true;
-            proteinScoreSignificanceThreshold = 0.0;    // TODO: this might be set by filters
-        } else {
-            // only the IdentificationRun for the selected file will be written
-            // TODO: set the searchEngine and version
-        }
+        proteinScore = OntologyConstants.PIA_PROTEIN_SCORE.getPsiName();
+        proteinScoreHigherBetter = true;
+        proteinScoreSignificanceThreshold = 0.0;    // TODO: this might be set by filters
         
         boolean isFDRCalculated = false;
         if (piaModeller.getPSMModeller().isFDRCalculated(fileID) != null) {
@@ -407,7 +404,8 @@ public class IdXMLExporter {
                         streamWriter.writeAttribute("RT", rt.toString());
                     }
                     
-                    if (!psm.getSpectrumTitle().trim().isEmpty()) {
+                    if ((psm.getSpectrumTitle() != null)
+                    		&& (!psm.getSpectrumTitle().trim().isEmpty())) {
                     	streamWriter.writeAttribute("spectrum_reference", psm.getSpectrumTitle().trim());
                     }
                 }
