@@ -39,7 +39,7 @@ public class PsiModParser extends AbstractOBOMapper {
     private Ontology ontology;
 
     /** pattern to identify the unimod id in a definition */
-    private static Pattern unimodInDescription = Pattern.compile(".+\\[.*UniMod:([^, ]+).*\\].*$");
+    private static Pattern unimodInDescription = Pattern.compile(".+\\[.*Unimod:([^, ]+).*\\].*$");
 
 
     /**
