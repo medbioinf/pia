@@ -321,22 +321,6 @@
 	</build>
 
 	<repositories>
-        <!-- EBI repo -->
-        <!--
-		<repository>
-            <id>pst-release</id>
-            <name>EBI Nexus Repository</name>
-            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
-        </repository>
-        -->
-        <!-- EBI SNAPSHOT repo -->
-        <!--
-        <repository>
-            <id>pst-snapshots</id>
-            <name>EBI Nexus Snapshots Repository</name>
-            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
-        </repository>
-        -->
         <!-- Nexus EBI repo -->
         <repository>
             <id>nexus-ebi-release-repo</id>
