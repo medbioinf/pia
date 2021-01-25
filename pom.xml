@@ -321,17 +321,18 @@
 	</build>
 
 	<repositories>
-        <!-- EBI repo -->
-		<repository>
-            <id>pst-release</id>
-            <name>EBI Nexus Repository</name>
-            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
-        </repository>
-        <!-- EBI SNAPSHOT repo -->
+        <!-- Nexus EBI repo -->
         <repository>
-            <id>pst-snapshots</id>
-            <name>EBI Nexus Snapshots Repository</name>
-            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
+            <id>nexus-ebi-release-repo</id>
+            <name>The EBI Maven 2 Nexus release repository</name>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+        </repository>
+        
+        <repository>
+            <!-- This repo is required for cpdetector (required by jmzidml->pride-xml-handler->xxindex->cpdetector) and related libraries -->
+            <!-- This is supplied here because of an HTTP 301 Permanent Redirect on the old URL that xxindex supplies, which breaks fresh builds. -->
+            <id>sammoa-group</id>
+            <url>https://nexus.nuiton.org/nexus/content/groups/sammoa-group/</url>
         </repository>
 
 		<!-- UGent Genesis repository -->
