@@ -40,7 +40,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<log4j.version>1.2.17</log4j.version>
-		<junit.version>4.12</junit.version>
+		<junit.version>4.13.1</junit.version>
 		<commons-cli.version>1.4</commons-cli.version>
 		<commons-collections.version>4.1</commons-collections.version>
 		<jmzidentml.version>1.2.11</jmzidentml.version>
@@ -52,9 +52,9 @@
 		<xtandem-parser.version>1.13.0</xtandem-parser.version>
 		<biojava-ontology.version>4.2.8</biojava-ontology.version>
 		<sqlite4java.version>1.0.392</sqlite4java.version>
-		<sqlite-jdbc.version>3.8.10.1</sqlite-jdbc.version>
+		<sqlite-jdbc.version>3.20.1</sqlite-jdbc.version>
 		<ehcache.version>3.1.1</ehcache.version>
-		<xercesImpl.version>2.11.0</xercesImpl.version>
+		<xercesImpl.version>2.12.0</xercesImpl.version>
 
 		<!-- these are "internal" dependencies, the jar files are delivered together with the source -->
 		<BaseLib.version>0.0.1-SNAPSHOT</BaseLib.version>
@@ -327,6 +327,13 @@
             <id>pst-snapshots</id>
             <name>EBI Nexus Snapshots Repository</name>
             <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
+        </repository>
+
+        <repository>
+            <!-- This repo is required for cpdetector (required by jmzidml->pride-xml-handler->xxindex->cpdetector) and related libraries -->
+            <!-- This is supplied here because of an HTTP 301 Permanent Redirect on the old URL that xxindex supplies, which breaks fresh builds. -->
+            <id>sammoa-group</id>
+            <url>https://nexus.nuiton.org/nexus/content/groups/sammoa-group/</url>
         </repository>
 
 		<!-- UGent Genesis repository -->

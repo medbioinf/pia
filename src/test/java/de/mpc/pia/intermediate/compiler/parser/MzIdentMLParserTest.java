@@ -84,7 +84,7 @@ public class MzIdentMLParserTest {
     public void testPIACompilerMzidFiles() throws IOException {
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
-        assertEquals("X!TAndem file could not be parsed", true,
+        assertEquals("X!Tandem file could not be parsed", true,
                 piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
 
         assertEquals("OMSSA file could not be parsed", true,
