@@ -745,7 +745,9 @@ class MzIdentMLFileParser {
             LOGGER.error("No peptide sequence found for a peptide!");
         }
 
-        if ((proteinSequence != null) && (peptide != null) && proteinSequence.trim().length() > 0) {
+        if ((start != null) && (end != null) && (proteinSequence != null) && (peptide != null)
+                && proteinSequence.trim().length() > 0) {
+
             // some exporters get the start and stop of sequences wrong
             if (start-1 < 0) {
                 start++;
