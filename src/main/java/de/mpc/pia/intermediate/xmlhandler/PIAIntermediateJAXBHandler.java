@@ -180,6 +180,7 @@ public class PIAIntermediateJAXBHandler implements Serializable {
             throws IOException {
         // set up a StAX reader
         XMLInputFactory xmlif = XMLInputFactory.newInstance();
+        xmlif.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
         try (FileReader fileReader = new FileReader(fileName)) {
             XMLStreamReader xmlr = xmlif.createXMLStreamReader(fileReader);
 

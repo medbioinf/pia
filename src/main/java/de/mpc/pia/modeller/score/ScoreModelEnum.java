@@ -1546,6 +1546,37 @@ public enum ScoreModelEnum {
             return descs;
         }
     },
+
+    /**
+     * The OpenMS Posterior Error Probability
+     */
+    OPENMS_CONSENSUSID_PEP {
+        @Override
+        public String getName() {
+            return "OpenMS:ConsensusID PEP";
+        }
+
+        @Override
+        public String getShortName() {
+            return "OpenMS:ConsensusID_PEP";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.OMSSA_P_VALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.OMSSA_P_VALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+    },
+
     /**
      * The OpenMS Posterior Probability
      */

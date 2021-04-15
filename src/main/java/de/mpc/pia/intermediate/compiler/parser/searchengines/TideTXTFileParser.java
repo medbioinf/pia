@@ -84,8 +84,8 @@ public class TideTXTFileParser {
     private static final List<String> colNames = Arrays.asList(
             "file", HEADER_SCAN,
             HEADER_CHARGE, HEADER_PRECURSOR_MZ,
-            HEADER_SPECTRUM_NEUTRAL_MASS, HEADER_PEPTIDE_MASS, "delta_cn",
-            HEADER_XCORR, "xcorr rank",
+            HEADER_SPECTRUM_NEUTRAL_MASS, HEADER_PEPTIDE_MASS, HEADER_DELTA_CN,
+            HEADER_XCORR, HEADER_XCORR_RANK,
             "distinct matches/spectrum", HEADER_SEQUENCE,
             HEADER_CLEAVAGE_TYPE,
             HEADER_PROTEINID, "flanking aa", HEADER_REFACTORED_XCORR,
@@ -138,11 +138,9 @@ public class TideTXTFileParser {
 
                 if (columnMap.get(HEADER_SEQUENCE) == null) {
                     LOGGER.error("the sequence header is missing");
-                    br.close();
                     return false;
                 } else if (columnMap.get(HEADER_PROTEINID) == null) {
                     LOGGER.error("the proteinid (accession) header is missing");
-                    br.close();
                     return false;
                 }
             }

@@ -2,13 +2,11 @@ package de.mpc.pia.tools.pride;
 
 import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.OntologyConstants;
-import uk.ac.ebi.jmzidml.model.mzidml.Cv;
-import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
-import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
-import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
+import uk.ac.ebi.jmzidml.model.mzidml.*;
 import uk.ac.ebi.pride.jaxb.model.Identification;
 import uk.ac.ebi.pride.jaxb.model.Protocol;
 import uk.ac.ebi.pride.jmztab.model.Param;
+import uk.ac.ebi.pride.jmztab.model.Protein;
 
 import java.util.Arrays;
 import java.util.List;
@@ -171,6 +169,17 @@ public class PRIDETools {
         return cvParam;
     }
 
+    public static UserParam convertUserParam(Param param){
+        UserParam userParam = null;
+
+        if (param != null) {
+            userParam = new UserParam();
+            userParam.setValue(param.getValue());
+            userParam.setName(param.getName());
+        }
+        return userParam;
+    }
+
     /**
      * This return an mzIdentML Param
      * @param param
@@ -178,8 +187,14 @@ public class PRIDETools {
      */
     public static uk.ac.ebi.jmzidml.model.mzidml.Param convertParam(Param param){
         uk.ac.ebi.jmzidml.model.mzidml.Param newParam = new uk.ac.ebi.jmzidml.model.mzidml.Param();
-        CvParam cvParam = convertCvParam(param);
-        newParam.setParam(cvParam);
+        if(param.getAccession() != null){
+            CvParam cvParam = convertCvParam(param);
+            newParam.setParam(cvParam);
+        }else{
+            UserParam userParam = convertUserParam(param);
+            newParam.setParam(userParam);
+        }
+
         return newParam;
     }
 

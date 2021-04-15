@@ -2,7 +2,6 @@ package de.mpc.pia.intermediate.compiler;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.Ignore;
 
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.modeller.PIAModeller;
@@ -32,29 +31,23 @@ import de.mpc.pia.modeller.score.FDRData.DecoyStrategy;
 
 public class PIACachedCompilerTest {
 
-    private File mzid55mergeTandem;
-    private File mzid55mergeOmssa;
-
     private File idXMLtandemFile;
     private File idXMLmsgfFile;
     private File idXMLexpectedFile;
     private double scoreDelta = 0.000001;
 
-    private String piaIntermediateFileName = "PIACompilerTest.pia.xml";
+    private String piaIntermediateFileName = "PIACachedCompilerTest.pia.xml";
 
 
     @Before
     public void setUp() {
-        mzid55mergeTandem = new File(PIACachedCompilerTest.class.getResource("/55merge_tandem.mzid").getPath());
-        mzid55mergeOmssa = new File(PIACachedCompilerTest.class.getResource("/55merge_omssa.mzid").getPath());
-
         idXMLtandemFile = new File(PIACompilerTest.class.getResource("/merge1-tandem-fdr_filtered-015.idXML").getPath());
         idXMLmsgfFile = new File(PIACompilerTest.class.getResource("/merge1-msgf-fdr_filtered-015.idXML").getPath());
         idXMLexpectedFile = new File(PIACompilerTest.class.getResource("/yeast-gold-015-filtered-proteins.csv").getPath());
     }
 
 
-    @Test
+    @Ignore
     public void testPIACompilerCompilationAndAnalysis() throws IOException {
         PIACompiler piaCompiler = new PIACachedCompiler();
 
@@ -158,88 +151,4 @@ public class PIACachedCompilerTest {
         piaIntermediateFile.delete();
     }
 
-    @Test
-    public void testPIACompilerMzidFDRNative() throws IOException {
-        PIACompiler piaCompiler = new PIACachedCompiler();
-
-        assertEquals("X!TAndem file could not be parsed", true,
-                piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
-
-        piaCompiler.buildClusterList();
-        piaCompiler.buildIntermediateStructure();
-
-        piaCompiler.setName("testFile");
-
-        File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
-
-        // test writing using the file's name
-        piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
-        piaIntermediateFile.delete();
-
-        // test writing using the file object
-        piaCompiler.writeOutXML(piaIntermediateFile);
-
-        String filePath = piaIntermediateFile.getAbsolutePath();
-
-        PIAModeller piaModeller = new PIAModeller(filePath);
-        piaModeller.setCreatePSMSets(true);
-        piaModeller.getPSMModeller().setAllDecoyPattern("searchengine");
-        piaModeller.getPSMModeller().setAllTopIdentifications(1);
-
-        piaModeller.getPSMModeller().calculateAllFDR();
-        piaModeller.getPSMModeller().calculateCombinedFDRScore();
-
-        piaModeller.getPSMModeller().addFilter(0L,
-                new PSMScoreFilter(FilterComparator.less_equal, false, 0.5, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()));
-
-        assertEquals("number of filtered PSM sets is wrong", 7,
-                piaModeller.getPSMModeller().getFilteredReportPSMSets(piaModeller.getPSMModeller().getFilters(0L)).size());
-
-
-
-        piaIntermediateFile.delete();
-
-        // test writing using the file stream
-        try (FileOutputStream fos = new FileOutputStream(piaIntermediateFile)) {
-            piaCompiler.writeOutXML(fos);
-            piaIntermediateFile.delete();
-        }
-
-        piaIntermediateFile.delete();
-    }
-
-
-    @Test
-    public void testPIACompilerMzidFiles() throws IOException {
-        PIACompiler piaCompiler = new PIACachedCompiler();
-
-        assertEquals("X!TAndem file could not be parsed", true,
-                piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
-
-        assertEquals("OMSSA file could not be parsed", true,
-                piaCompiler.getDataFromFile("tandem", mzid55mergeOmssa.getAbsolutePath(), null, null));
-
-        piaCompiler.buildClusterList();
-        piaCompiler.buildIntermediateStructure();
-
-        piaCompiler.setName("testFile");
-
-        File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
-
-        // test writing using the file's name
-        piaCompiler.writeOutXML(piaIntermediateFile.getAbsolutePath());
-        piaIntermediateFile.delete();
-
-        // test writing using the file object
-        piaCompiler.writeOutXML(piaIntermediateFile);
-        piaIntermediateFile.delete();
-
-        // test writing using the file stream
-        try (FileOutputStream fos = new FileOutputStream(piaIntermediateFile)) {
-            piaCompiler.writeOutXML(fos);
-            piaIntermediateFile.delete();
-        }
-
-        piaIntermediateFile.delete();
-    }
 }

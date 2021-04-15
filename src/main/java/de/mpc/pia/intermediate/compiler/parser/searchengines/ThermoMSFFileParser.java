@@ -22,6 +22,7 @@ import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.model.mzidml.Tolerance;
+import de.mpc.PD.ABaseClass;
 import de.mpc.PD.APeptideScores;
 import de.mpc.PD.APeptides;
 import de.mpc.PD.APeptidesAminoAcidModifications;
@@ -109,7 +110,7 @@ public class ThermoMSFFileParser {
 
         // iterate through the ProcessingNodes and get the settings etc.
         for (Map.Entry<Object, Object> nodeObjectIt
-                : ProcessingNodes.getObjectMap(fileConnectionParams, ProcessingNodes.class).entrySet()) {
+                : ABaseClass.getObjectMap(fileConnectionParams, ProcessingNodes.class).entrySet()) {
 
             if (!(nodeObjectIt.getValue() instanceof ProcessingNodes)) {
                 LOGGER.warn("not a processingNodes " + nodeObjectIt.getValue().getClass().getCanonicalName());
@@ -364,24 +365,24 @@ public class ThermoMSFFileParser {
                 new HashMap<>();
 
         LOGGER.info("get spectra info...");
-        Map<Object, Object> spectraMap = SpectrumHeaders.getObjectMap(fileConnectionParams, SpectrumHeaders.class);
+        Map<Object, Object> spectraMap = ABaseClass.getObjectMap(fileConnectionParams, SpectrumHeaders.class);
         LOGGER.info("#spectra: " + spectraMap.size());
 
         LOGGER.info("get peak info...");
-        Map<Object, Object> massPeakMap = MassPeaks.getObjectMap(fileConnectionParams, MassPeaks.class);
+        Map<Object, Object> massPeakMap = ABaseClass.getObjectMap(fileConnectionParams, MassPeaks.class);
         LOGGER.info("#peaks: " + massPeakMap.size());
 
         LOGGER.info("get file info...");
-        Map<Object, Object> fileMap = FileInfos.getObjectMap(fileConnectionParams, FileInfos.class);
+        Map<Object, Object> fileMap = ABaseClass.getObjectMap(fileConnectionParams, FileInfos.class);
         LOGGER.info("#files: " + fileMap.size());
 
         LOGGER.info("get amino acid modifications...");
-        Map<Object, Object> modificationsMap = AminoAcidModifications.getObjectMap(fileConnectionParams, AminoAcidModifications.class);
+        Map<Object, Object> modificationsMap = ABaseClass.getObjectMap(fileConnectionParams, AminoAcidModifications.class);
         LOGGER.info("#amino acid modifications: " + modificationsMap.size());
 
         LOGGER.info("get protein sequences...");
         Map<Long, String> sequencesMap = new HashMap<>();
-        for (Object proteinObj : Proteins.getObjectMap(fileConnectionParams, Proteins.class).values()) {
+        for (Object proteinObj : ABaseClass.getObjectMap(fileConnectionParams, Proteins.class).values()) {
             Proteins protein = (Proteins)proteinObj;
             sequencesMap.put(protein.getProteinID(), protein.getSequence());
         }
@@ -389,7 +390,7 @@ public class ThermoMSFFileParser {
 
         LOGGER.info("get protein annotations...");
         Map<Long, String> annotationsMap = new HashMap<>();
-        for (Object annotationObj : ProteinAnnotations.getObjectMap(fileConnectionParams, ProteinAnnotations.class).values()) {
+        for (Object annotationObj : ABaseClass.getObjectMap(fileConnectionParams, ProteinAnnotations.class).values()) {
             ProteinAnnotations annotation = (ProteinAnnotations)annotationObj;
             annotationsMap.put(annotation.getProteinID(), annotation.getDescription());
         }
@@ -398,7 +399,7 @@ public class ThermoMSFFileParser {
         LOGGER.info("get scores...");
         // mapping from scoreID to scoreName
         Map<Long, String> scoresMap = new HashMap<>();
-        for (Object scoreObj : ProcessingNodeScores.getObjectMap(fileConnectionParams, ProcessingNodeScores.class).values()) {
+        for (Object scoreObj : ABaseClass.getObjectMap(fileConnectionParams, ProcessingNodeScores.class).values()) {
             ProcessingNodeScores score = (ProcessingNodeScores)scoreObj;
             scoresMap.put(score.getScoreID(), score.getFriendlyName());
         }
@@ -407,14 +408,14 @@ public class ThermoMSFFileParser {
 
         // parse the peptides
         LOGGER.info("get peptide info...");
-        Collection<Object> peptides = Peptides.getObjectMap(fileConnectionParams, Peptides.class).values();
+        Collection<Object> peptides = ABaseClass.getObjectMap(fileConnectionParams, Peptides.class).values();
         LOGGER.info("#peptides: " + peptides.size());
 
         LOGGER.info("get modifications info...");
         // map from peptideID to modifications
         Map<Long, List<APeptidesAminoAcidModifications>> peptidesModifications =
                 new HashMap<>();
-        for (Object modObj : PeptidesAminoAcidModifications.getObjectMap(fileConnectionParams, PeptidesAminoAcidModifications.class).values()) {
+        for (Object modObj : ABaseClass.getObjectMap(fileConnectionParams, PeptidesAminoAcidModifications.class).values()) {
             APeptidesAminoAcidModifications mod = (APeptidesAminoAcidModifications)modObj;
 
             List<APeptidesAminoAcidModifications> modList = peptidesModifications.computeIfAbsent(mod.getPeptideID(), k -> new ArrayList<>());
@@ -427,7 +428,7 @@ public class ThermoMSFFileParser {
         // map from peptideID to terminal modifications
         Map<Long, List<AminoAcidModifications>> terminalModifications =
                 new HashMap<>();
-        for (Object modObj : PeptidesTerminalModifications.getObjectMap(fileConnectionParams, PeptidesTerminalModifications.class).values()) {
+        for (Object modObj : ABaseClass.getObjectMap(fileConnectionParams, PeptidesTerminalModifications.class).values()) {
             APeptidesTerminalModifications termMod = (APeptidesTerminalModifications)modObj;
 
             List<AminoAcidModifications> termModList = terminalModifications.computeIfAbsent(termMod.getPeptideID(), k -> new ArrayList<>());
@@ -439,7 +440,7 @@ public class ThermoMSFFileParser {
         LOGGER.info("get peptides/proteins information...");
         //map from peptideID to proteins
         Map<Long, List<Long>> peptidesProteins = new HashMap<>();
-        for (Object pepProtObj : PeptidesProteins.getObjectMap(fileConnectionParams, PeptidesProteins.class).values()) {
+        for (Object pepProtObj : ABaseClass.getObjectMap(fileConnectionParams, PeptidesProteins.class).values()) {
             PeptidesProteins pepProt = (PeptidesProteins)pepProtObj;
 
             List<Long> proteinList = peptidesProteins.computeIfAbsent(pepProt.getPeptideID(), k -> new ArrayList<>());
@@ -451,7 +452,7 @@ public class ThermoMSFFileParser {
         LOGGER.info("get peptides/scores information...");
         // map from peptideID to scores
         Map<Long, List<APeptideScores>> peptidesScores = new HashMap<>();
-        for (Object scoreObject : PeptideScores.getObjectMap(fileConnectionParams, PeptideScores.class).values()) {
+        for (Object scoreObject : ABaseClass.getObjectMap(fileConnectionParams, PeptideScores.class).values()) {
             PeptideScores score = (PeptideScores)scoreObject;
 
             List<APeptideScores> scoreList = peptidesScores.computeIfAbsent(score.getPeptideID(), k -> new ArrayList<>());
@@ -475,14 +476,14 @@ public class ThermoMSFFileParser {
 
         // parse the decoy peptides
         LOGGER.info("get decoy peptide info...");
-        peptides = Peptides_decoy.getObjectMap(fileConnectionParams, Peptides_decoy.class).values();
+        peptides = ABaseClass.getObjectMap(fileConnectionParams, Peptides_decoy.class).values();
         LOGGER.info("#decoy peptides: " + peptides.size());
 
         if (!peptides.isEmpty()) {
             LOGGER.info("get decoy modifications info...");
             // map from peptideID to modifications
             peptidesModifications = new HashMap<>();
-            for (Object modObj : PeptidesAminoAcidModifications_decoy.getObjectMap(fileConnectionParams, PeptidesAminoAcidModifications_decoy.class).values()) {
+            for (Object modObj : ABaseClass.getObjectMap(fileConnectionParams, PeptidesAminoAcidModifications_decoy.class).values()) {
                 APeptidesAminoAcidModifications mod = (APeptidesAminoAcidModifications)modObj;
 
                 List<APeptidesAminoAcidModifications> modList = peptidesModifications.computeIfAbsent(mod.getPeptideID(), k -> new ArrayList<>());
@@ -493,7 +494,7 @@ public class ThermoMSFFileParser {
             LOGGER.info("get decoy terminal modifications info...");
             // map from peptideID to terminal modifications
             terminalModifications = new HashMap<>();
-            for (Object modObj : PeptidesTerminalModifications_decoy.getObjectMap(fileConnectionParams, PeptidesTerminalModifications_decoy.class).values()) {
+            for (Object modObj : ABaseClass.getObjectMap(fileConnectionParams, PeptidesTerminalModifications_decoy.class).values()) {
                 APeptidesTerminalModifications termMod = (APeptidesTerminalModifications)modObj;
 
                 List<AminoAcidModifications> termModList = terminalModifications.computeIfAbsent(termMod.getPeptideID(), k -> new ArrayList<>());
@@ -505,7 +506,7 @@ public class ThermoMSFFileParser {
             LOGGER.info("get decoy peptides/proteins information...");
             // map from peptideID to proteins
             peptidesProteins = new HashMap<>();
-            for (Object pepProtObj : PeptidesProteins_decoy.getObjectMap(fileConnectionParams, PeptidesProteins_decoy.class).values()) {
+            for (Object pepProtObj : ABaseClass.getObjectMap(fileConnectionParams, PeptidesProteins_decoy.class).values()) {
                 PeptidesProteins_decoy pepProt = (PeptidesProteins_decoy)pepProtObj;
 
                 List<Long> proteinList = peptidesProteins.computeIfAbsent(pepProt.getPeptideID(), k -> new ArrayList<>());
@@ -517,7 +518,7 @@ public class ThermoMSFFileParser {
             LOGGER.info("get decoy peptides/scores information...");
             // map from peptideID to scores
             peptidesScores = new HashMap<>();
-            for (Object scoreObject : PeptideScores_decoy.getObjectMap(fileConnectionParams, PeptideScores_decoy.class).values()) {
+            for (Object scoreObject : ABaseClass.getObjectMap(fileConnectionParams, PeptideScores_decoy.class).values()) {
                 PeptideScores_decoy score = (PeptideScores_decoy)scoreObject;
 
                 List<APeptideScores> scoreList = peptidesScores.computeIfAbsent(score.getPeptideID(), k -> new ArrayList<>());
@@ -1033,7 +1034,7 @@ public class ThermoMSFFileParser {
     private static Map<Character, AminoAcids> getAminoAcids(SimpleProgramParameters spp) {
         Map<Character, AminoAcids> aminoAcidMap = new HashMap<>(25);
 
-        for (Object aaObj : AminoAcids.getObjectMap(spp, AminoAcids.class).values()) {
+        for (Object aaObj : ABaseClass.getObjectMap(spp, AminoAcids.class).values()) {
             AminoAcids aa = (AminoAcids)aaObj;
 
             if (aa.getOneLetterCode() != ' ') {
@@ -1090,7 +1091,7 @@ public class ThermoMSFFileParser {
         fileConnectionParams.setJDBCAccess(jdbc);
 
         try {
-            if (!ProcessingNodes.getObjectMap(fileConnectionParams, ProcessingNodes.class).isEmpty()) {
+            if (!ABaseClass.getObjectMap(fileConnectionParams, ProcessingNodes.class).isEmpty()) {
                 isMSFFile = true;
             }
 
