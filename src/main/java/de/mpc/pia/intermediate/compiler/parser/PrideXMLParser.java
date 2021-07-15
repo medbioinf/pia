@@ -250,7 +250,8 @@ public class PrideXMLParser {
                                 String.valueOf(spectrum.getId()),
                                 String.valueOf(spectrum.getId()),
                                 file,
-                                spectrumID);
+                                spectrumID,
+                                null);
                         specNr++;
                         keysToPSMs.put(psmKey, psm);
 

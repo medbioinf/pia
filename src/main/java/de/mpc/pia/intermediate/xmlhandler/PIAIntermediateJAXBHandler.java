@@ -450,7 +450,8 @@ public class PIAIntermediateJAXBHandler implements Serializable {
                 psmXML.getSourceID(),
                 psmXML.getTitle(),
                 files.get(psmXML.getFileRef()),
-                spectrumID
+                spectrumID,
+                null
                 );
 
         // add the scores

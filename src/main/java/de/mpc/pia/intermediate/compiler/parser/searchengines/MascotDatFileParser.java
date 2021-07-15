@@ -461,7 +461,8 @@ public class MascotDatFileParser {
                     sourceIdStr,
                     spectrumTitle,
                     file,
-                    spectrumID);
+                    spectrumID,
+                    null);
 
             psm.setIsDecoy(isDecoy);
 

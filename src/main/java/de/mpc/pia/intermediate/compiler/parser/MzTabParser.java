@@ -331,11 +331,23 @@ public class MzTabParser {
         mzTabaccessionToSearchModifications = new HashMap<>();
 
         if (metadata.getFixedModMap() != null) {
-            metadata.getFixedModMap().forEach((key, mod) -> createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add));
+            metadata.getFixedModMap().forEach((key, mod) -> {
+                try {
+                    createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add);
+                } catch (PTMMappingException e) {
+                    e.printStackTrace();
+                }
+            });
         }
 
         if (metadata.getVariableModMap() != null) {
-            metadata.getVariableModMap().forEach((key, mod) -> createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add));
+            metadata.getVariableModMap().forEach((key, mod) -> {
+                try {
+                    createModificationListFromMzTabParamMod(mod).forEach(modifications.getSearchModification()::add);
+                } catch (PTMMappingException e) {
+                    e.printStackTrace();
+                }
+            });
         }
 
         return modifications;
@@ -349,39 +361,42 @@ public class MzTabParser {
      * @param mod Modifications
      * @return
      */
-    private List<SearchModification> createModificationListFromMzTabParamMod(Mod mod) {
+    private List<SearchModification> createModificationListFromMzTabParamMod(Mod mod) throws PTMMappingException {
         Param modParam = mod.getParam();
         List<SearchModification> searchModificationList;
 
-        if (modParam.getAccession().startsWith(CV_LABEL_PSI_MOD)) {
-            Term psiModTerm = compiler.getPsiModParser().getTerm(modParam.getAccession());
-            searchModificationList =
-                    compiler.getPsiModParser().getUnimodEquivalentSearchModifications(psiModTerm,
-                            compiler.getUnimodParser());
-        } else if(modParam.getAccession().startsWith(CV_LABEL_UNIMOD)) {
-            searchModificationList =
-                    compiler.getPsiModParser().getUnimodEquivalentSearchModifications(modParam.getAccession(),mod.getSite(), compiler.getUnimodParser());
+        if(modParam != null && modParam.getAccession() != null){
+            if (modParam.getAccession().startsWith(CV_LABEL_PSI_MOD)) {
+                Term psiModTerm = compiler.getPsiModParser().getTerm(modParam.getAccession());
+                searchModificationList =
+                        compiler.getPsiModParser().getUnimodEquivalentSearchModifications(psiModTerm,
+                                compiler.getUnimodParser());
+            } else if(modParam.getAccession().startsWith(CV_LABEL_UNIMOD)) {
+                searchModificationList =
+                        compiler.getPsiModParser().getUnimodEquivalentSearchModifications(modParam.getAccession(),mod.getSite(), compiler.getUnimodParser());
 
-        } else {
-            // try the PRIDE conversions
-            searchModificationList = new ArrayList<>();
+            } else {
+                // try the PRIDE conversions
+                searchModificationList = new ArrayList<>();
 
-            SearchModification searchModification = new SearchModification();
-            searchModification.setFixedMod(Objects.equals(mod.getElement().getName(), "FIXED_MOD"));
+                SearchModification searchModification = new SearchModification();
+                searchModification.setFixedMod(Objects.equals(mod.getElement().getName(), "FIXED_MOD"));
 
-            searchModification.getCvParam().add(PRIDETools.convertCvParam(modParam));
+                searchModification.getCvParam().add(PRIDETools.convertCvParam(modParam));
 
-            float valueDeltaMass = (modParam.getValue() != null) ?
-                    new Float(modParam.getValue()) : new Float(-1.0) ;
-            searchModification.setMassDelta(valueDeltaMass);
+                float valueDeltaMass = (modParam.getValue() != null) ?
+                        new Float(modParam.getValue()) : new Float(-1.0) ;
+                searchModification.setMassDelta(valueDeltaMass);
 
-            searchModificationList.add(searchModification);
+                searchModificationList.add(searchModification);
+            }
+
+            if (!searchModificationList.isEmpty()) {
+                mzTabaccessionToSearchModifications.put(modParam.getAccession(), searchModificationList);
+            }
+        }else{
+            throw new PTMMappingException("No accession found in PTM : " + modParam.toString());
         }
-
-        if (!searchModificationList.isEmpty()) {
-            mzTabaccessionToSearchModifications.put(modParam.getAccession(), searchModificationList);
-        }
-
         return searchModificationList;
     }
 
@@ -572,7 +587,7 @@ public class MzTabParser {
         for (SpectraRef spectraRef : mzTabPSM.getSpectraRef()) {
             parsePSMsSpectra(mzTabPSM, spectraRef, peptide,
                     charge, precursorMZ, deltaMass, rt, sequence,
-                    scores, modifications);
+                    scores, modifications, spectraRef.toString().split(":")[0]);
         }
     }
 
@@ -786,7 +801,7 @@ public class MzTabParser {
      */
     private void parsePSMsSpectra(PSM mzTabPSM, SpectraRef spectraRef, Peptide peptide,
             int charge, double precursorMZ, double deltaMass, Double rt, String sequence,
-            List<ScoreModel> scores, Map<Integer, de.mpc.pia.intermediate.Modification> modifications) {
+            List<ScoreModel> scores, Map<Integer, de.mpc.pia.intermediate.Modification> modifications, String spectraDataRef) {
 
         MsRun msRun = spectraRef.getMsRun();
         PIAInputFile piaFile = inputFileMap.get(msRun.getId());
@@ -808,7 +823,8 @@ public class MzTabParser {
                     sourceID,
                     spectraTitle,
                     piaFile,
-                    spectrumIdentificationMap.get(msRun.getId()));
+                    spectrumIdentificationMap.get(msRun.getId()),
+                    spectraDataRef);
 
             compiler.insertCompletePeptideSpectrumMatch(psm);
             psmNr++;

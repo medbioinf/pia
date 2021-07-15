@@ -267,7 +267,8 @@ public class FastaFileParser {
                     sourceID,
                     sequence,
                     inputFile,
-                    spectrumID);
+                    spectrumID,
+                    null);
 
             peptide.addSpectrum(psm);
 

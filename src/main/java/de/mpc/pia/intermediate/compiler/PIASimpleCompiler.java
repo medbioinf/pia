@@ -159,13 +159,13 @@ public class PIASimpleCompiler extends PIACompiler {
     public PeptideSpectrumMatch createNewPeptideSpectrumMatch(Integer charge,
             double massToCharge, double deltaMass, Double rt, String sequence,
             int missed, String sourceID, String spectrumTitle,
-            PIAInputFile file, SpectrumIdentification spectrumID) {
+            PIAInputFile file, SpectrumIdentification spectrumID, String spectraDataRef) {
         PeptideSpectrumMatch psm;
         Long id = spectra.size() + 1L;
 
         psm = new PeptideSpectrumMatch(id, charge, massToCharge, deltaMass, rt,
                 sequence, missed, sourceID, spectrumTitle,
-                file, spectrumID);
+                file, spectrumID, spectraDataRef);
 
         return psm;
     }
@@ -191,6 +191,9 @@ public class PIASimpleCompiler extends PIACompiler {
         return spectra.keySet();
     }
 
+    public Map<Long, PeptideSpectrumMatch> getAllPeptideSpectrumMatches() {
+        return spectra;
+    }
 
     @Override
     public Set<Peptide> getPeptidesFromConnectionMap(String acc) {

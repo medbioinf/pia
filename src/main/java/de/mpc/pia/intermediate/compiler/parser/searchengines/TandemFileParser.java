@@ -626,7 +626,8 @@ public class TandemFileParser {
                                 sourceID,
                                 spectrumTitle,
                                 file,
-                                spectrumID);
+                                spectrumID,
+                                null);
                         specNr++;
                         keysToPSMs.put(psmKey, psm);
 

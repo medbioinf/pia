@@ -377,7 +377,8 @@ public class IdXMLFileParser {
                     sourceID,
                     spectrumReference,
                     file,
-                    spectrumID);
+                    spectrumID,
+                    null);
             specNr++;
 
             // set the main score

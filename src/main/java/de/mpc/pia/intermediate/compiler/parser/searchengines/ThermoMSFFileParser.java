@@ -913,7 +913,8 @@ public class ThermoMSFFileParser {
                 sourceID,
                 null,
                 file,
-                spectrumID);
+                spectrumID,
+                null);
 
         psm.setIsDecoy(isDecoy);
 

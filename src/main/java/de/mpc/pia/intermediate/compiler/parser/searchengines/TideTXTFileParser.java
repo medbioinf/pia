@@ -227,7 +227,8 @@ public class TideTXTFileParser {
                         sourceID,
                         null,
                         file,
-                        spectrumID);
+                        spectrumID,
+                        null);
 
                 // get the peptide or create it
                 peptide = compiler.getPeptide(sequence);

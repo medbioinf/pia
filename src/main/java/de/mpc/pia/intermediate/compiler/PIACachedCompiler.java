@@ -208,13 +208,13 @@ public class PIACachedCompiler extends PIACompiler {
     public PeptideSpectrumMatch createNewPeptideSpectrumMatch(Integer charge,
             double massToCharge, double deltaMass, Double rt, String sequence,
             int missed, String sourceID, String spectrumTitle,
-            PIAInputFile file, SpectrumIdentification spectrumID) {
+            PIAInputFile file, SpectrumIdentification spectrumID, String spectraDataRef) {
         Long id = (long) (spectraIDs.size() + 1);
 
         // the PSM is added later, as it might be changed
         return  new PeptideSpectrumMatch(id, charge,
                 massToCharge, deltaMass, rt, sequence, missed, sourceID,
-                spectrumTitle, file, spectrumID);
+                spectrumTitle, file, spectrumID, spectraDataRef);
     }
 
 

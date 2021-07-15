@@ -93,14 +93,15 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
     /** the finished peptide, only used after reading in a PIA file */
     private Peptide peptide;
 
+    private String spectraDataRef;
 
     /**
      * Basic constructor
      */
     public PeptideSpectrumMatch(long id, int charge, double massToCharge,
-            double deltaMass, Double rt, String sequence, int missed,
-            String sourceID, String title, PIAInputFile file,
-            SpectrumIdentification spectrumID) {
+                                double deltaMass, Double rt, String sequence, int missed,
+                                String sourceID, String title, PIAInputFile file,
+                                SpectrumIdentification spectrumID, String spectraDataRef) {
         this.id = id;
         this.charge = charge;
         this.massToCharge = massToCharge;
@@ -122,6 +123,7 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
         this.identificationKeys = new HashMap<>(2);
 
         this.peptide = null;
+        this.spectraDataRef = spectraDataRef;
     }
 
 
@@ -723,5 +725,13 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
                 this.scores = new ArrayList<>();
             this.scores.addAll(scores);
         }
+    }
+
+    public String getSpectraDataRef() {
+        return spectraDataRef;
+    }
+
+    public void setSpectraDataRef(String spectraDataRef) {
+        this.spectraDataRef = spectraDataRef;
     }
 }
