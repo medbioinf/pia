@@ -99,26 +99,26 @@
 			<artifactId>jmzidentml</artifactId>
 			<version>${jmzidentml.version}</version>
 		</dependency>
-		
+
 		<!-- JAXB needs to be added for Java >= 9 -->
     	<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
 			<version>2.3.1</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
 			<artifactId>jaxb-impl</artifactId>
 			<version>2.3.1</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
 			<artifactId>jaxb-core</artifactId>
 			<version>2.3.0</version>
 		</dependency>
-		<!-- JAXB additions --> 
+		<!-- JAXB additions -->
 
 		<!-- pride mod dependency -->
 		<dependency>
@@ -130,17 +130,12 @@
 
 		<!-- mzTab dependencies -->
 		<dependency>
-			<groupId>uk.ac.ebi.pride</groupId>
+			<groupId>io.github.bigbio.external</groupId>
 			<artifactId>jmztab-modular-model</artifactId>
 			<version>${jmztab.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>uk.ac.ebi.pride</groupId>
-			<artifactId>jmztab-modular-util</artifactId>
-			<version>${jmztab.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>uk.ac.ebi.pride</groupId>
+			<groupId>io.github.bigbio.external</groupId>
 			<artifactId>jmztab-modular-converters</artifactId>
 			<version>${jmztab.version}</version>
 		</dependency>
@@ -321,13 +316,19 @@
 	</build>
 
 	<repositories>
-        <!-- Nexus EBI repo -->
-        <repository>
-            <id>nexus-ebi-release-repo</id>
-            <name>The EBI Maven 2 Nexus release repository</name>
-            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+        <!-- EBI repo -->
+		<repository>
+            <id>pst-release</id>
+            <name>EBI Nexus Repository</name>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
         </repository>
-        
+        <!-- EBI SNAPSHOT repo -->
+        <repository>
+            <id>pst-snapshots</id>
+            <name>EBI Nexus Snapshots Repository</name>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
+        </repository>
+
         <repository>
             <!-- This repo is required for cpdetector (required by jmzidml->pride-xml-handler->xxindex->cpdetector) and related libraries -->
             <!-- This is supplied here because of an HTTP 301 Permanent Redirect on the old URL that xxindex supplies, which breaks fresh builds. -->
@@ -343,18 +344,13 @@
             <layout>default</layout>
         </repository>
 
-		<!-- local files for the PD parser -->
 		<repository>
-			<id>pia-shipped-repo</id>
-			<name>pia-shipped-repo</name>
-			<releases>
-				<enabled>true</enabled>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<url>file://${project.basedir}/libs</url>
+			<id>sonatype-release</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
+		<repository>
+			<id>sonatype-snapshopt</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</repository>
 		<repository>
 			<id>nexus-ebi-snapshot-repo</id>

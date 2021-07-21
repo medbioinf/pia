@@ -182,6 +182,7 @@ public abstract class AbstractFilter implements Serializable {
 
                 case literal:
                     if (objValue instanceof String) {
+                        System.out.println(objValue + " " + Boolean.toString(satisfiesLiteralFilter((String) objValue)));
                         return satisfiesLiteralFilter((String) objValue);
                     } else if (objValue instanceof Collection<?>) {
                         for (Object obj : (Collection<?>) objValue) {
