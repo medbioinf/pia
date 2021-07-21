@@ -4,7 +4,7 @@
 
 	<groupId>io.github.bigbio.external</groupId>
 	<artifactId>pia</artifactId>
-	<version>1.3.17-SNAPSHOT</version>
+	<version>1.3.18</version>
 	<name>PIA - Protein Inference Algorithms</name>
 	<url>https://github.com/mpc-bioinformatics/pia</url>
 
