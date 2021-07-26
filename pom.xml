@@ -316,32 +316,33 @@
 	</build>
 
 	<repositories>
+        <!-- EBI repo -->
 		<repository>
-			<id>pst-release</id>
-			<name>EBI Nexus Repository</name>
-			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
-		</repository>
-		<repository>
-			<id>nexus-ebi-release-repo</id>
-			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
-		</repository>
-		<repository>
-			<id>nexus-ebi-snapshot-repo</id>
-			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
-		</repository>
-		<repository>
-			<!-- This repo is required for cpdetector (required by jmzidml->pride-xml-handler->xxindex->cpdetector) and related libraries -->
-			<!-- This is supplied here because of an HTTP 301 Permanent Redirect on the old URL that xxindex supplies, which breaks fresh builds. -->
-			<id>sammoa-group</id>
-			<url>https://nexus.nuiton.org/nexus/content/groups/sammoa-group/</url>
-		</repository>
+            <id>pst-release</id>
+            <name>EBI Nexus Repository</name>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
+        </repository>
+        <!-- EBI SNAPSHOT repo -->
+        <repository>
+            <id>pst-snapshots</id>
+            <name>EBI Nexus Snapshots Repository</name>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
+        </repository>
+
+        <repository>
+            <!-- This repo is required for cpdetector (required by jmzidml->pride-xml-handler->xxindex->cpdetector) and related libraries -->
+            <!-- This is supplied here because of an HTTP 301 Permanent Redirect on the old URL that xxindex supplies, which breaks fresh builds. -->
+            <id>sammoa-group</id>
+            <url>https://nexus.nuiton.org/nexus/content/groups/sammoa-group/</url>
+        </repository>
+
 		<!-- UGent Genesis repository -->
-		<repository>
-			<id>genesis-maven2-repository</id>
-			<name>Genesis maven2 repository</name>
-			<url>http://genesis.ugent.be/maven2</url>
-			<layout>default</layout>
-		</repository>
+        <repository>
+            <id>genesis-maven2-repository</id>
+            <name>Genesis maven2 repository</name>
+            <url>http://genesis.ugent.be/maven2</url>
+            <layout>default</layout>
+        </repository>
 	</repositories>
 	<distributionManagement>
 		<repository>
@@ -355,4 +356,5 @@
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
+
 </project>
