@@ -1546,6 +1546,37 @@ public enum ScoreModelEnum {
             return descs;
         }
     },
+
+    /**
+     * The OpenMS Posterior Error Probability
+     */
+    OPENMS_CONSENSUSID_PEP {
+        @Override
+        public String getName() {
+            return "OpenMS:ConsensusID PEP";
+        }
+
+        @Override
+        public String getShortName() {
+            return "OpenMS:ConsensusID_PEP";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.OMSSA_P_VALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.OMSSA_P_VALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+    },
+
     /**
      * The OpenMS Posterior Probability
      */
@@ -2284,7 +2315,132 @@ public enum ScoreModelEnum {
         public Boolean higherScoreBetter() {
             return true;
         }
+    },
+
+    /**
+     * The Andromeda PEP
+     */
+    ANDROMEDA_PEPQVALUE {
+        @Override
+        public String getName() {
+            return "Andromeda:PEP";
+        }
+
+        @Override
+        public String getShortName() {
+            return "andromeda_pepvalue";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.ANDROMEDA_PEPVALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.ANDROMEDA_PEPVALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+    },
+
+    /**
+     * The Andromeda PEP
+     */
+    ANDROMEDA_SCORE {
+        @Override
+        public String getName() {
+            return "Andromeda:score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "andromeda_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.ANDROMEDA_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.ANDROMEDA_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
+    },
+
+    /**
+     * The MaxQuant-DIA PEP
+     */
+    MAXQUANT_DIA_PEPQVALUE {
+        @Override
+        public String getName() {
+            return "MaxQuant-DIA:PEP";
+        }
+
+        @Override
+        public String getShortName() {
+            return "maxquant_dia_pepvalue";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.MAXQUANT_DIA_PEPVALUE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.MAXQUANT_DIA_PEPVALUE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+    },
+
+    /**
+     * The MaxQuant-DIA PEP
+     */
+    MAXQUANT_DIA_SCORE {
+        @Override
+        public String getName() {
+            return "MaxQuant-DIA:score";
+        }
+
+        @Override
+        public String getShortName() {
+            return "maxquant_dia_score";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.MAXQUANT_DIA_SCORE.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.MAXQUANT_DIA_SCORE.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+
     };
+
 
 
     // some statics

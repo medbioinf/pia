@@ -10,12 +10,14 @@ import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.OntologyConstants;
 import de.mpc.pia.tools.obo.AbstractOBOMapper;
 import de.mpc.pia.tools.obo.OBOMapper;
+import de.mpc.pia.tools.pride.PRIDETools;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
 import uk.ac.ebi.jmzidml.model.mzidml.*;
 import uk.ac.ebi.jmzidml.xml.io.MzIdentMLUnmarshaller;
+import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -74,6 +76,8 @@ class MzIdentMLFileParser {
     /** the cvParams which are specially parsed and don't need to be passed for the spectrumIdentificationResults */
     private static List<String> parsedSpecIdResultCVParams = Arrays.asList(OntologyConstants.SCAN_NUMBERS.getPsiAccession(), OntologyConstants.SCAN_START_TIME.getPsiAccession());
 
+    // Map modifications when is needed.
+    private static ModReader modReader;
 
     /**
      * We don't ever want to instantiate this class outside
@@ -355,6 +359,22 @@ class MzIdentMLFileParser {
         }
     }
 
+    /**
+     * Getter for the Pride Mod Reader allowing to retrieve information from
+     * UNIMOD and PSI-MOD at the same time.
+     *
+     * Unimod and PSI-MOD
+     *
+     * @return
+     */
+    public static final ModReader getModReader() {
+        if (modReader == null) {
+            LOGGER.info("Initializing PRIDE ModReader parser...");
+            modReader = ModReader.getInstance();
+        }
+        return modReader;
+    }
+
 
     /**
      * Add the SpectrumIdentificationList and all its contents to the compiler.
@@ -588,6 +608,13 @@ class MzIdentMLFileParser {
                 spectraDataRef);
         psm.setIsDecoy(isDecoy);
 
+        AbstractParam cv = new CvParam();
+        ((CvParam) cv).setCv(PRIDETools.PrideOntologyConstants.PRIDE_SUBMITTERS_THERSHOLD.getCv());
+        ((CvParam) cv).setAccession(PRIDETools.PrideOntologyConstants.PRIDE_SUBMITTERS_THERSHOLD.getAccession());
+        cv.setName(PRIDETools.PrideOntologyConstants.PRIDE_SUBMITTERS_THERSHOLD.getName());
+        cv.setValue(Boolean.toString(specIdItem.isPassThreshold()));
+        psm.addParam(cv);
+
         pep.addSpectrum(psm);
         specNr++;
 
@@ -721,6 +748,7 @@ class MzIdentMLFileParser {
 
        if ((start != null) && (end != null) && (proteinSequence != null) && (peptide != null)
                     && proteinSequence.trim().length() > 0) {
+
             // some exporters get the start and stop of sequences wrong
             if (start-1 < 0) {
                 start++;
@@ -905,6 +933,9 @@ class MzIdentMLFileParser {
             }
         }
 
+        if(massDelta == null && accession.contains("UNIMOD")){
+            massDelta = getModReader().getPTMbyAccession(accession).getMonoDeltaMass();
+        }
         modification = new de.mpc.pia.intermediate.Modification(
                 residue, massDelta, description,
                 accession);

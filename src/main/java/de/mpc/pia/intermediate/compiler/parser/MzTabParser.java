@@ -9,10 +9,12 @@ import de.mpc.pia.intermediate.compiler.PIACachedCompiler;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
+import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
 import de.mpc.pia.tools.pride.PRIDETools;
 
+import de.mpc.pia.tools.unimod.UnimodParser;
 import org.apache.log4j.Logger;
 import org.biojava.nbio.ontology.Term;
 
@@ -43,6 +45,7 @@ import uk.ac.ebi.pride.jmztab.model.SpectraRef;
 import uk.ac.ebi.pride.jmztab.model.SplitList;
 import uk.ac.ebi.pride.jmztab.model.VariableMod;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileParser;
+import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 import uk.ac.ebi.pride.utilities.pridemod.model.PTM;
 
 import java.io.File;
@@ -150,6 +153,12 @@ public class MzTabParser {
     private static final String CV_LABEL_UNIMOD = "UNIMOD";
 
 
+    /** gets modificatiosn in PRIDE style **/
+    private static ModReader modReader;
+
+
+
+
     /**
      * We don't ever want to instantiate this class
      */
@@ -160,6 +169,22 @@ public class MzTabParser {
 
         this.psmDecoyStateLogicalPosition = null;
         this.proteinSequenceLogicalPosition = null;
+    }
+
+    /**
+     * Getter for the Pride Mod Reader allowing to retrieve information from
+     * UNIMOD and PSI-MOD at the same time.
+     *
+     * Unimod and PSI-MOD
+     *
+     * @return
+     */
+    public static final ModReader getModReader() {
+        if (modReader == null) {
+            LOGGER.info("Initializing PRIDE ModReader parser...");
+            modReader = ModReader.getInstance();
+        }
+        return modReader;
     }
 
 
@@ -365,6 +390,7 @@ public class MzTabParser {
         Param modParam = mod.getParam();
         List<SearchModification> searchModificationList;
 
+
         if(modParam != null && modParam.getAccession() != null){
             if (modParam.getAccession().startsWith(CV_LABEL_PSI_MOD)) {
                 Term psiModTerm = compiler.getPsiModParser().getTerm(modParam.getAccession());
@@ -378,7 +404,6 @@ public class MzTabParser {
             } else {
                 // try the PRIDE conversions
                 searchModificationList = new ArrayList<>();
-
                 SearchModification searchModification = new SearchModification();
                 searchModification.setFixedMod(Objects.equals(mod.getElement().getName(), "FIXED_MOD"));
 
@@ -611,6 +636,7 @@ public class MzTabParser {
             for(Integer pos : oldMod.getPositionMap().keySet()) {
                 String oldAccession = (oldMod.getType() == Modification.Type.MOD
                         && !oldMod.getAccession().startsWith("MOD")) ? "MOD:" + oldMod.getAccession(): oldMod.getAccession();
+                oldAccession = oldAccession.replace("\"", "");
 
                 Character charMod = (pos == 0 || pos > sequence.length()) ? '.' : sequence.charAt(pos-1);
 
