@@ -328,6 +328,17 @@
             <name>EBI Nexus Snapshots Repository</name>
             <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
         </repository>
+		<!-- EBI SNAPSHOT repo -->
+		<repository>
+			<id>biopax-snapshots</id>
+			<name>EBI Nexus Snapshots Repository</name>
+			<url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/biopax-snapshots</url>
+		</repository>
+		<repository>
+			<id>biopax-release</id>
+			<name>EBI Nexus Snapshots Repository</name>
+			<url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/biopax-release</url>
+		</repository>
 
         <repository>
             <!-- This repo is required for cpdetector (required by jmzidml->pride-xml-handler->xxindex->cpdetector) and related libraries -->
