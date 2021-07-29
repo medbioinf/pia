@@ -518,7 +518,9 @@ public abstract class PIACompiler {
                 equal &= PIATools.bothNullOrEqual(swIt.getValue().getVersion(),
                         software.getVersion());
 
-                // TODO: maybe check for the contact as well... for now, assume if everything is equal, the contact does not matter
+                // TODO: maybe check for the contact as well...
+                //  for now, assume if everything is equal, the contact does
+                //  not matter
 
                 equal &= PIATools.bothNullOrEqual(swIt.getValue().getCustomizations(),
                         software.getCustomizations());
