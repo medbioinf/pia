@@ -150,7 +150,7 @@ public class IdXMLFileParser {
                 LOGGER.error("This identification has no protein information, so PIA cannot use it.");
                 break;
             }
-
+            
             // create the analysis software and add it to the compiler
             AnalysisSoftware topp = new AnalysisSoftware();
             topp.setId("topp");
@@ -339,6 +339,11 @@ public class IdXMLFileParser {
             // nothing given in this file, create an ID using M/Z and RT
             sourceID = pepID.getMZ() + "__" + pepID.getRT();
         }
+        
+        String searchEngine = idRun.getSearchEngine();
+        if ((searchEngine != null) && searchEngine.trim().isEmpty()) {
+        	searchEngine = null;
+        }
 
         // the distinct PSMs in this pepID
         List<PeptideSpectrumMatch> hitsPSMs = new ArrayList<>();
@@ -381,7 +386,7 @@ public class IdXMLFileParser {
             specNr++;
 
             // set the main score
-            parsePeptideHitMainScore(psm, pepID, pepHit);
+            parsePeptideHitMainScore(psm, pepID, pepHit, searchEngine);
 
 
             // add additional userParams Scores
@@ -452,8 +457,6 @@ public class IdXMLFileParser {
     private static String getSpectrumSourceIDFromSpectrumReference(String spectrumReference) {
         String sourceID = null;
 
-        LOGGER.debug("spectrumReference: " + spectrumReference);
-        
         if (spectrumReference != null) {
             Matcher matcher = MzIdentMLTools.patternScanInTitle.matcher(spectrumReference);
             if (matcher.matches()) {
@@ -472,10 +475,19 @@ public class IdXMLFileParser {
      * @param pepHit
      */
     private static void parsePeptideHitMainScore(PeptideSpectrumMatch psm, PeptideIdentification pepID,
-            PeptideHit pepHit) {
+            PeptideHit pepHit, String searchEngine) {
         ScoreModel score;
-        ScoreModelEnum scoreModel = ScoreModelEnum.getModelByDescription(pepID.getScoreType() + "_openmsmainscore");
-
+        ScoreModelEnum scoreModel = ScoreModelEnum.UNKNOWN_SCORE;
+        
+        if (searchEngine != null) {
+        	scoreModel = ScoreModelEnum.getModelByDescription(searchEngine + ScoreModelEnum.OPENMS_MAINSCORE_PREFIX);
+        }
+        
+        if (scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+        	// first way did not work, try this
+        	scoreModel = ScoreModelEnum.getModelByDescription(pepID.getScoreType() + ScoreModelEnum.OPENMS_MAINSCORE_PREFIX);
+        }
+        
         if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
             score = new ScoreModel(
                     // looks weird, but so the decimals are correct
@@ -483,7 +495,7 @@ public class IdXMLFileParser {
                     scoreModel);
             psm.addScore(score);
         } else {
-            // try another way
+            // try as search engines main score way
             scoreModel = ScoreModelEnum.getModelByDescription(pepID.getScoreType());
 
             if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
@@ -495,7 +507,7 @@ public class IdXMLFileParser {
             } else {
                 score = new ScoreModel(
                         Double.parseDouble(String.valueOf(pepHit.getScore())),
-                        pepID.getScoreType() + "_openmsmainscore",
+                        pepID.getScoreType() + ScoreModelEnum.OPENMS_MAINSCORE_PREFIX,
                         pepID.getScoreType());
                 psm.addScore(score);
             }
@@ -545,8 +557,12 @@ public class IdXMLFileParser {
 
         // try to add it as a score
         ScoreModel score;
-        ScoreModelEnum scoreModel = ScoreModelEnum.getModelByDescription(
-                idRun.getSearchEngine() + '_' + userParam.getName());
+        ScoreModelEnum scoreModel = ScoreModelEnum.getModelByDescription(userParam.getName());
+        
+        if (scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+        	scoreModel = ScoreModelEnum.getModelByDescription(
+        			idRun.getSearchEngine() + '_' + userParam.getName());
+        }
 
         // if the score was not found with this, try another way
         if (scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)
@@ -556,13 +572,14 @@ public class IdXMLFileParser {
             scoreModel = ScoreModelEnum.getModelByDescription(userParam.getName());
         }
 
-        if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
-            // a valid score was found now
-            score = new ScoreModel(
-                    Double.parseDouble(userParam.getValue()),
-                    scoreModel);
-            psm.addScore(score);
-            paramAdded = true;
+        if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE) &&
+        		(psm.getScore(scoreModel.getName()) == null)) {
+            // a valid score was found now and not yet in the scores
+        	score = new ScoreModel(
+        			Double.parseDouble(userParam.getValue()),
+        			scoreModel);
+        	psm.addScore(score);
+        	paramAdded = true;
         }
 
         return paramAdded;
@@ -585,7 +602,7 @@ public class IdXMLFileParser {
 
         // filter for correct references and connect them
         proteinRefs.stream()
-                .filter(ref -> ref instanceof ProteinHit)
+                .filter(ProteinHit.class::isInstance)
                 .forEach(protHit -> addedAccs.addAndGet(connectProtein((ProteinHit)protHit, compiler, peptide, fileID, searchDbID))
                 );
 
