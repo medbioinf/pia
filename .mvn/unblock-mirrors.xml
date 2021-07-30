@@ -9,5 +9,55 @@
             <url>http://genesis.ugent.be/maven2</url>
             <blocked>false</blocked>
         </mirror>
+        <!-- genesis depends on these -->
+        <mirror>
+            <id>ebi-repo-http-unblocker</id>
+            <mirrorOf>ebi-repo</mirrorOf>
+            <url>http://www.ebi.ac.uk/~maven/m2repo</url>
+            <blocked>false</blocked>
+        </mirror>
+        <mirror>
+            <id>pst-release-unblocker</id>
+            <mirrorOf>pst-release</mirrorOf>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
+            <blocked>false</blocked>
+        </mirror>
+        <mirror>
+            <id>pst-snapshots-unblocker</id>
+            <mirrorOf>pst-snapshots</mirrorOf>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
+            <blocked>false</blocked>
+        </mirror>
+        <mirror>
+            <id>ebi-repo-snapshots-http-unblocker</id>
+            <mirrorOf>ebi-repo-snapshots</mirrorOf>
+            <url>http://www.ebi.ac.uk/~maven/m2repo_snapshots</url>
+            <blocked>false</blocked>
+        </mirror>
+
+        <mirror>
+            <id>com.springsource.repository.bundles.release-http-unblocker</id>
+            <mirrorOf>com.springsource.repository.bundles.release</mirrorOf>
+            <url>http://repository.springsource.com/maven/bundles/release</url>
+            <blocked>false</blocked>
+        </mirror>
+        <mirror>
+            <id>com.springsource.repository.bundles.external-http-unblocker</id>
+            <mirrorOf>com.springsource.repository.bundles.external</mirrorOf>
+            <url>http://repository.springsource.com/maven/bundles/external</url>
+            <blocked>false</blocked>
+        </mirror>
+        <mirror>
+            <id>maven repository-http-unblocker</id>
+            <mirrorOf>maven repository</mirrorOf>
+            <url>http://download.java.net/maven/1/</url>
+            <blocked>false</blocked>
+        </mirror>
+        <mirror>
+            <id>codehaus-http-unblocker</id>
+            <mirrorOf>codehaus</mirrorOf>
+            <url>http://repository.codehaus.org/</url>
+            <blocked>false</blocked>
+        </mirror>
     </mirrors>
 </settings>
