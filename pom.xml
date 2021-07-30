@@ -325,7 +325,7 @@
         <repository>
             <id>nexus-ebi-release-repo</id>
             <name>The EBI Maven 2 Nexus release repository</name>
-            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
         </repository>
         
         <repository>
