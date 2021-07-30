@@ -179,13 +179,8 @@ public enum OntologyConstants {
     BYONIC_DELTA_SCORE("Byonic:Delta Score",  "MS:1002263"),
     BYONIC_DELTA_MOD_SCORE("Byonic:DeltaMod Score", "MS:1002264"),
 
-    OPENMS_CONSENSUSID_PEP("OpenMS:ConsensusID PEP", "MS:1003113"),
 
-    NUMBER_MATCHED_PEAKS("number of matched peaks","MS:1001121"),
-    ANDROMEDA_PEPVALUE("Andromeda:PEP", "MS:1002995"),
-    ANDROMEDA_SCORE("Andromeda:score", "MS:1002338"),
-    MAXQUANT_DIA_PEPVALUE("MaxQuant-DIA:PEP", "MS:1003101"),
-    MAXQUANT_DIA_SCORE("MaxQuant-DIA:score","MS:1003100");
+    NUMBER_MATCHED_PEAKS("number of matched peaks","MS:1001121");
 
 
     /** URL to the current psi-ms.obo file */

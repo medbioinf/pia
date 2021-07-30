@@ -2,11 +2,13 @@ package de.mpc.pia.tools.pride;
 
 import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.OntologyConstants;
-import uk.ac.ebi.jmzidml.model.mzidml.*;
+import uk.ac.ebi.jmzidml.model.mzidml.Cv;
+import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
+import uk.ac.ebi.jmzidml.model.mzidml.Enzyme;
+import uk.ac.ebi.jmzidml.model.mzidml.Enzymes;
 import uk.ac.ebi.pride.jaxb.model.Identification;
 import uk.ac.ebi.pride.jaxb.model.Protocol;
 import uk.ac.ebi.pride.jmztab.model.Param;
-import uk.ac.ebi.pride.jmztab.model.Protein;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,70 +29,9 @@ public class PRIDETools {
     public static final String PRIDE_DECOY_HIT_ACCESSION = "PRIDE:0000303";
     public static final String PRIDE_DECOY_HIT_NAME = "Decoy";
 
-    public static final List<String> PREFIX_PRIDE_DECOY_ENTRIES  = Arrays.asList("DECOY_", "#C#", "#DECOY#", "###REV###", "REV_", "REVERSE_", "##REV", "DECOY_REV", "RANDOM_", "###RND###", "##RND","REV");
-    public static final List<String> POSTFIX_PRIDE_DECOY_ENTRIES = Arrays.asList("_REVERSED", "-DECOY", "RANDOM_","|RND");
-    public static final List<String> MIDDLE_PRIDE_DECOY_ENTRIES = Arrays.asList("RANDOM_", "REV_", "_REVERSED");
-
-    public enum PrideOntologyConstants {
-
-        PRIDE_SUBMITTERS_THERSHOLD("PRIDE", "PRIDE:0000511", "Pass submitter threshold", null, prideCV);
-
-        String cvLabel;
-        String accession;
-        String name;
-        String value;
-        Cv cv;
-
-        PrideOntologyConstants(String cvLabel, String accession, String name, String value, Cv cv) {
-            this.cvLabel = cvLabel;
-            this.accession = accession;
-            this.name = name;
-            this.value = value;
-            this.cv = cv;
-        }
-
-        public String getCvLabel() {
-            return cvLabel;
-        }
-
-        public void setCvLabel(String cvLabel) {
-            this.cvLabel = cvLabel;
-        }
-
-        public String getAccession() {
-            return accession;
-        }
-
-        public void setAccession(String accession) {
-            this.accession = accession;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public Cv getCv() {
-            return cv;
-        }
-
-        public void setCv(Cv cv) {
-            this.cv = cv;
-        }
-    }
-
-
+    private static final List<String> PREFIX_PRIDE_DECOY_ENTRIES  = Arrays.asList("DECOY_", "#C#", "#DECOY#", "###REV###", "REV_", "REVERSE_", "##REV", "DECOY_REV", "RANDOM_", "###RND###", "##RND","REV");
+    private static final List<String> POSTFIX_PRIDE_DECOY_ENTRIES = Arrays.asList("_REVERSED", "-DECOY", "RANDOM_","|RND");
+    private static final List<String> MIDDLE_PRIDE_DECOY_ENTRIES = Arrays.asList("RANDOM_", "REV_", "_REVERSED");
 
     private static Cv prideCV = new Cv();
 
@@ -169,17 +110,6 @@ public class PRIDETools {
         return cvParam;
     }
 
-    public static UserParam convertUserParam(Param param){
-        UserParam userParam = null;
-
-        if (param != null) {
-            userParam = new UserParam();
-            userParam.setValue(param.getValue());
-            userParam.setName(param.getName());
-        }
-        return userParam;
-    }
-
     /**
      * This return an mzIdentML Param
      * @param param
@@ -187,14 +117,8 @@ public class PRIDETools {
      */
     public static uk.ac.ebi.jmzidml.model.mzidml.Param convertParam(Param param){
         uk.ac.ebi.jmzidml.model.mzidml.Param newParam = new uk.ac.ebi.jmzidml.model.mzidml.Param();
-        if(param.getAccession() != null){
-            CvParam cvParam = convertCvParam(param);
-            newParam.setParam(cvParam);
-        }else{
-            UserParam userParam = convertUserParam(param);
-            newParam.setParam(userParam);
-        }
-
+        CvParam cvParam = convertCvParam(param);
+        newParam.setParam(cvParam);
         return newParam;
     }
 

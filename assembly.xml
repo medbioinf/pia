@@ -7,6 +7,16 @@
     
     <includeBaseDirectory>false</includeBaseDirectory>
     
+    <dependencySets>
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>lib</outputDirectory>
+            <unpack>false</unpack>
+            <scope>runtime</scope>
+            <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+    </dependencySets>
+    
     <fileSets>
         <fileSet>
             <directory>${project.basedir}/target</directory>

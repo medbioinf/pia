@@ -191,10 +191,6 @@ public class PIASimpleCompiler extends PIACompiler {
         return spectra.keySet();
     }
 
-    public Map<Long, PeptideSpectrumMatch> getAllPeptideSpectrumMatches() {
-        return spectra;
-    }
-
 
     @Override
     public Set<Peptide> getPeptidesFromConnectionMap(String acc) {
