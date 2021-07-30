@@ -1,6 +1,3 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
 name: Java CI with Maven
 
 on:
@@ -29,11 +26,13 @@ jobs:
       run: mvn -B package --settings ./.mvn/unblock-mirrors.xml --file pom.xml 
     - name: Copy artifacts
       run: mkdir staging && cp target/*.jar staging  && cp target/*.zip staging
-    - uses: actions/upload-artifact@v2
+    - name: Package
+      uses: actions/upload-artifact@v2
       with:
-        name: PIA package
+        name: package
         path: staging
-    - uses: codecov/codecov-action@v1
+    - name: CodeCov
+      uses: codecov/codecov-action@v1
       with:
         flags: unittests # optional
         name: codecov-umbrella # optional
