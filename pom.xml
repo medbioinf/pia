@@ -343,6 +343,20 @@
             <layout>default</layout>
         </repository>
 
+        <!-- depending repos, necessary as long as genesis uses them via http -->
+        <repository>
+            <id>pst-release</id>
+            <name>The EBI Maven 2 Nexus pst-release repository</name>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release/</url>
+        </repository>
+        
+        <repository>
+            <id>pst-snapshots</id>
+            <name>The EBI Maven 2 Nexus pst-snapshots repository</name>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots/</url>
+        </repository>
+        
+        
 		<!-- local files for the PD parser -->
 		<repository>
 			<id>pia-shipped-repo</id>
