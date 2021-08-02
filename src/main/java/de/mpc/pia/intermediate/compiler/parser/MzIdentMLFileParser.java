@@ -130,7 +130,6 @@ class MzIdentMLFileParser {
 
         // maps from the ID to the SpectrumIdentificationList
         Map<String, SpectrumIdentificationList> specIdLists = getSpectrumIdentificationLists();
-        LOGGER.error("File has " + specIdLists.size() + " specIdLists");
 
         specIdListIDtoSpecIdID = new HashMap<>();
 
