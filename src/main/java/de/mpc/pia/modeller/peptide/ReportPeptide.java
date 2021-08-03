@@ -520,7 +520,7 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
         List<Modification> modList = new ArrayList<>();
 
         for (PSMReportItem psm : psmList) {
-            modList.addAll(psm.getModifications().entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
+            modList.addAll(new ArrayList<>(psm.getModifications().values()));
         }
 
         return modList;
@@ -687,8 +687,8 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * Returns a List of all the sourceIDs in this peptide.
      */
     public List<String> getSourceIDs() {
-        return psmList.stream().filter(psm -> psm.getSourceID() != null)
-                .map(PSMItem::getSourceID)
+        return psmList.stream().map(PSMItem::getSourceID)
+                .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -698,8 +698,8 @@ public class ReportPeptide implements Rankable, Filterable, FDRComputable, FDRSc
      * Returns a List of all the spectrum titles in this peptide.
      */
     public List<String> getSpectrumTitles() {
-        return psmList.stream().filter(psm -> psm.getSpectrumTitle() != null)
-                .map(PSMItem::getSpectrumTitle)
+        return psmList.stream().map(PSMItem::getSpectrumTitle)
+                .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
     }

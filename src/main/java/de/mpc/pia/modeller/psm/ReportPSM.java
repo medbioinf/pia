@@ -215,7 +215,7 @@ public class ReportPSM  implements PSMReportItem {
         List<Accession> accList = new ArrayList<>(accessions.size());
 
         // only add the accession, if it was found in the file
-        accList.addAll(accessions.entrySet().stream().filter(accIt -> accIt.getValue().foundInFile(spectrum.getFile().getID())).map(Map.Entry::getValue).collect(Collectors.toList()));
+        accList.addAll(accessions.values().stream().filter(accession -> accession.foundInFile(spectrum.getFile().getID())).collect(Collectors.toList()));
 
         return accList;
     }

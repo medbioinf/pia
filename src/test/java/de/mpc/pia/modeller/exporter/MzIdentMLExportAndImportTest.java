@@ -42,7 +42,7 @@ public class MzIdentMLExportAndImportTest {
 
 
     @Test
-    public void testMzIdentMLv1_1_0Import() throws IOException {
+    public void testMzIdentMLv1_1_0Import() {
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
         assertTrue(piaCompiler.getDataFromFile("mzid", tandemMzidResults.getAbsolutePath(), null, null));

@@ -171,7 +171,7 @@ public class PeptideModeller implements Serializable {
 
         // create a List of the Map
         List<ReportPeptide> repList = new ArrayList<>(peptides.size());
-        repList.addAll(peptides.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
+        repList.addAll(new ArrayList<>(peptides.values()));
 
         // put this new list into the peptides' list
         fileReportPeptides.put(fileID, repList);

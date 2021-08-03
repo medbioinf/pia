@@ -220,7 +220,7 @@ public class PsiModParser extends AbstractOBOMapper {
                 residues.add(residue);
             } else {
                 // set all allowed residues of unimod
-                unimod.getSpecificity().stream().forEach(spec -> residues.add(spec.getSite()));
+                unimod.getSpecificity().forEach(spec -> residues.add(spec.getSite()));
             }
 
             if (!residues.isEmpty()) {
@@ -256,7 +256,7 @@ public class PsiModParser extends AbstractOBOMapper {
                 residues.add(residue);
             } else {
                 // set all allowed residues of unimod
-                unimod.getSpecificity().stream().forEach(spec -> residues.add(spec.getSite()));
+                unimod.getSpecificity().forEach(spec -> residues.add(spec.getSite()));
             }
 
             if (!residues.isEmpty()) {

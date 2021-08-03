@@ -513,16 +513,16 @@ public class MzTabExporter {
                     mod.setSite(site);
 
                     if (searchMod.isFixedMod()) {
-                        if (!fixedMods.contains(position + site + cvParam.toString())) {
+                        if (!fixedMods.contains(position + site + cvParam)) {
                             nrFixedMods++;
                             mtd.addFixedMod((FixedMod)mod);
-                            fixedMods.add(position + site + cvParam.toString());
+                            fixedMods.add(position + site + cvParam);
                         }
                     } else {
-                        if (!variableMods.contains(position + site + cvParam.toString())) {
+                        if (!variableMods.contains(position + site + cvParam)) {
                             nrVariableMods++;
                             mtd.addVariableMod((VariableMod)mod);
-                            variableMods.add(position + site + cvParam.toString());
+                            variableMods.add(position + site + cvParam);
                         }
                     }
                 }

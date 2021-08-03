@@ -199,7 +199,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         LOGGER.info("calculateInference started...");
 
         StringBuilder filterSB = new StringBuilder();
-        getFilters().stream().forEach(filter -> {
+        getFilters().forEach(filter -> {
             if(filterSB.length() > 0) {
                 filterSB.append(", ");
             }

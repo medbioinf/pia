@@ -186,7 +186,7 @@ public class Group implements Serializable {
     public void addChild(Group child) {
         children.put(child.getID(), child);
         if (allAccessions != null) {
-            allAccessions.values().stream().forEach(child::addToAllAccessions);
+            allAccessions.values().forEach(child::addToAllAccessions);
         }
     }
 
@@ -255,7 +255,7 @@ public class Group implements Serializable {
     public void addParent(Group parent) {
         parents.put(parent.getID(), parent);
         if (parent.getAllAccessions() != null) {
-            parent.getAllAccessions().values().stream().forEach(this::addToAllAccessions);
+            parent.getAllAccessions().values().forEach(this::addToAllAccessions);
         }
     }
 
@@ -299,7 +299,7 @@ public class Group implements Serializable {
      */
     protected void addToAllAccessions(Accession accession) {
         allAccessions.put(accession.getAccession(), accession);
-        children.values().stream().forEach(child -> child.addToAllAccessions(accession));
+        children.values().forEach(child -> child.addToAllAccessions(accession));
     }
 
 
@@ -321,7 +321,7 @@ public class Group implements Serializable {
     public String getAccessionsStr() {
         StringBuilder sb = new StringBuilder();
         if (accessions != null) {
-            accessions.keySet().stream().forEach( key -> sb.append(key).append(' '));
+            accessions.keySet().forEach(key -> sb.append(key).append(' '));
         }
         return sb.toString();
     }

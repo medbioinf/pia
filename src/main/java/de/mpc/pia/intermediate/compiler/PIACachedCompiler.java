@@ -248,7 +248,7 @@ public class PIACachedCompiler extends PIACompiler {
 
         if ((accId != null) && accPepMapIDs.containsKey(accId)) {
             Set<Peptide> pepSet = new HashSet<>();
-            accPepMapIDs.get(accId).stream().forEach( pepId -> pepSet.add(peptides.get(pepId.intValue() -1)));
+            accPepMapIDs.get(accId).forEach(pepId -> pepSet.add(peptides.get(pepId.intValue() -1)));
             return pepSet;
         }
         return null;
@@ -260,7 +260,7 @@ public class PIACachedCompiler extends PIACompiler {
         Long pepId = peptideIDsToSequences.getKey(pep);
         if ((pepId != null) && pepAccMapIDs.containsKey(pepId)) {
             Set<Accession> accSet = new HashSet<>();
-            pepAccMapIDs.get(pepId).stream().forEach( accId -> accSet.add(accessions.get(accId.intValue() - 1)));
+            pepAccMapIDs.get(pepId).forEach(accId -> accSet.add(accessions.get(accId.intValue() - 1)));
             return accSet;
         }
         return null;

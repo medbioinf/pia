@@ -161,12 +161,12 @@ public class Accession implements Serializable {
         if (fileID > 0) {
             desc = descriptions.get(fileID);
         } else {
-            Set<String> differentDescriptions = descriptions.entrySet().stream().filter(descIt -> (descIt.getValue() != null) &&
-                    !descIt.getValue().trim().isEmpty()).map(descIt -> descIt.getValue().trim()).collect(Collectors.toSet());
+            Set<String> differentDescriptions = descriptions.values().stream().filter(s -> (s != null) &&
+                    !s.trim().isEmpty()).map(String::trim).collect(Collectors.toSet());
 
             if (!differentDescriptions.isEmpty()) {
                 StringBuilder descSB = new StringBuilder();
-                differentDescriptions.stream().forEach(description ->
+                differentDescriptions.forEach(description ->
                         descSB.append(description).append(';'));
                 desc = descSB.substring(0, descSB.length()-1);
             }

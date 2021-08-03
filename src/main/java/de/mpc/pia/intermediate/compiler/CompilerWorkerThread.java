@@ -58,7 +58,7 @@ class CompilerWorkerThread extends Thread {
         cluster = parent.getNextCluster();
         while (cluster != null) {
             Map<Long, Group> subGroups = new HashMap<>();
-            cluster.entrySet().stream().forEach( pepIt -> insertIntoMap(parent.getPeptide(pepIt.getKey()), pepIt.getValue(), subGroups));
+            cluster.forEach((key, value) -> insertIntoMap(parent.getPeptide(key), value, subGroups));
 
             // merge the groups into the thread groups
             workedClusters++;

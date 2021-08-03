@@ -218,7 +218,7 @@ public enum RegisteredFilters {
                         if ((fileID > 0) && (((Accession)obj).foundInFile(fileID))) {
                             strList.add(((Accession)obj).getDescription(fileID));
                         } else if (fileID == 0) {
-                            strList.addAll(((Accession) obj).getDescriptions().entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
+                            strList.addAll(new ArrayList<>(((Accession) obj).getDescriptions().values()));
                         }
                     } else if (obj instanceof String) {
                         strList.add((String)obj);
@@ -313,7 +313,7 @@ public enum RegisteredFilters {
         @Override
         public Object getObjectsValue(Object o) {
             if (o instanceof PSMReportItem) {
-                return ((PSMReportItem) o).getModifications().entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+                return new ArrayList<>(((PSMReportItem) o).getModifications().values());
             } else if (o instanceof List<?>) {
                 return ((List<?>) o).stream().filter(obj -> obj instanceof Modification).map(obj -> (Modification) obj).collect(Collectors.toList());
             }
@@ -641,7 +641,7 @@ public enum RegisteredFilters {
                         if ((fileID > 0) && (((Accession)obj).foundInFile(fileID))) {
                             strList.add(((Accession)obj).getDescription(fileID));
                         } else if (fileID == 0) {
-                            strList.addAll(((Accession) obj).getDescriptions().entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
+                            strList.addAll(new ArrayList<>(((Accession) obj).getDescriptions().values()));
                         }
                     } else if (obj instanceof String) {
                         strList.add((String)obj);
@@ -942,7 +942,7 @@ public enum RegisteredFilters {
                         if ((fileID > 0) && (((Accession)obj).foundInFile(fileID))) {
                             strList.add(((Accession)obj).getDescription(fileID));
                         } else if (fileID == 0) {
-                            strList.addAll(((Accession) obj).getDescriptions().entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
+                            strList.addAll(new ArrayList<>(((Accession) obj).getDescriptions().values()));
                         }
                     } else if (obj instanceof String) {
                         strList.add((String)obj);

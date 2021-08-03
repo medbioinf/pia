@@ -114,7 +114,7 @@ public class ReportProteinComparatorFactory {
          * @author julian
          *
          */
-        private class ScoreSort implements Comparator<ReportProtein> {
+        private static class ScoreSort implements Comparator<ReportProtein> {
             @Override
             public int compare(ReportProtein o1, ReportProtein o2) {
                 int compRet;

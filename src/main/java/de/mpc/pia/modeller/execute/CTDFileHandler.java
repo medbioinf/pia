@@ -43,7 +43,7 @@ public class CTDFileHandler {
 			return;
 		}
 
-		String toolName = command.prefix() + command.toString();
+		String toolName = command.prefix() + command;
 		String fileName = pathName + File.separator + toolName + ".ctd";
 
 		try {

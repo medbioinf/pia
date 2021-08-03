@@ -81,7 +81,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
                 if (newFilter != null) {
                     proteinModeller.addReportFilter(newFilter);
-                    LOGGER.info("Filter '" + newFilter.toString()
+                    LOGGER.info("Filter '" + newFilter
                             + "' added to report filters");
                 } else {
                     LOGGER.error("Filter " + filtername
@@ -200,7 +200,7 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
 
                 if (newFilter != null) {
                     proteinModeller.addInferenceFilter(newFilter);
-                    LOGGER.info("Filter '" + newFilter.toString()
+                    LOGGER.info("Filter '" + newFilter
                             + "' added to inference filters");
                 } else {
                     LOGGER.error("Filter " + filtername

@@ -148,7 +148,7 @@ public class PeptideModellerTest {
                 LOGGER.debug("\t\tFDRScore:" + rawPeptide.getFDRScore() + "\t" + rawPeptide.getSequence());
 
                 for (PSMReportItem psm : peptide.getPSMs()) {
-                    LOGGER.debug("\t\t\tFDRScore:" + psm.getFDRScore() + "\t" + psm.toString());
+                    LOGGER.debug("\t\t\tFDRScore:" + psm.getFDRScore() + "\t" + psm);
                 }
             }
         }

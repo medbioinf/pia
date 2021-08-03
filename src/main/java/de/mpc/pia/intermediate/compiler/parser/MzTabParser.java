@@ -655,7 +655,7 @@ public class MzTabParser {
                             transformScore(oldMod.getPositionMap().get(pos)));
 
                 } else {
-                    LOGGER.error("Old modification which is changed: " + oldMod.toString());
+                    LOGGER.error("Old modification which is changed: " + oldMod);
                     PTM ptm = compiler.getModReader().getPTMbyAccession(oldAccession);
                     if (ptm == null && oldMod.getType() == Modification.Type.CHEMMOD) {
                         List<PTM> ptms = compiler.getModReader().getAnchorModification(Modification.Type.CHEMMOD.toString() + ':' +oldAccession, charMod.toString());
@@ -788,7 +788,7 @@ public class MzTabParser {
 
             if ((scoreType == null) || ScoreModelEnum.UNKNOWN_SCORE.equals(scoreType)) {
                 throw new IllegalArgumentException("Type must not be null or of " +
-                        "type UNKNOWN_SCORE: " + searchEngineScoreParam.toString());
+                        "type UNKNOWN_SCORE: " + searchEngineScoreParam);
             }
 
             score = new ScoreModel(null, scoreType);
@@ -904,7 +904,7 @@ public class MzTabParser {
                 ':' +
                 sequence +
                 ':' +
-                Double.toString(PIATools.round(precursorMZ, PIAConstants.MASS_TO_CHARGE_PRECISION)) +
+                PIATools.round(precursorMZ, PIAConstants.MASS_TO_CHARGE_PRECISION) +
                 ':' +
                 ((rt != null) ? Double.toString((int) PIATools.round(rt, PIAConstants.RETENTION_TIME_PRECISION)) : null);
     }

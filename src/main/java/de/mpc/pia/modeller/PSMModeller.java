@@ -626,10 +626,10 @@ public class PSMModeller implements Serializable {
         sb.append(':');
         sb.append(psm.getSpectrum().getSpectrumTitle());
         sb.append(':');
-        sb.append(Double.toString(PIATools.round(psm.getMassToCharge(), PIAConstants.MASS_TO_CHARGE_PRECISION)));
+        sb.append(PIATools.round(psm.getMassToCharge(), PIAConstants.MASS_TO_CHARGE_PRECISION));
         sb.append(':');
         if (psm.getRetentionTime() != null) {
-            sb.append(Double.toString(PIATools.round(psm.getRetentionTime(), PIAConstants.RETENTION_TIME_PRECISION)));
+            sb.append(PIATools.round(psm.getRetentionTime(), PIAConstants.RETENTION_TIME_PRECISION));
         } else {
             sb.append("null");
         }
