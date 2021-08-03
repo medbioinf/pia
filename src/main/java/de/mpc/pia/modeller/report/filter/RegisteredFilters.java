@@ -58,7 +58,6 @@ public enum RegisteredFilters {
             return obj instanceof PSMReportItem;
         }
     },
-
     DELTA_MASS_FILTER(FilterType.numerical, Number.class, "dMass Filter for PSM", "dMass (PSM)") {
         @Override
         public SimpleTypeFilter<Number> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -528,7 +527,6 @@ public enum RegisteredFilters {
             return c instanceof ReportPSMSet;
         }
     },
-
     PSM_SOURCE_ID_FILTER(FilterType.literal, String.class, "Source ID Filter for PSM", "Source ID (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
@@ -605,7 +603,6 @@ public enum RegisteredFilters {
             return strList;
         }
     },
-
     PEPTIDE_DESCRIPTION_FILTER(FilterType.literal_list, String.class, "Description Filter for Peptide", "Description (Peptide)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {

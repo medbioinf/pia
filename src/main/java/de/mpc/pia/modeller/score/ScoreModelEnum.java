@@ -214,7 +214,7 @@ public enum ScoreModelEnum {
             descs.add(getShortName());
             descs.add(getCvAccession());
             descs.add(getCvName());
-            descs.add("q-value_openmsmainscore");
+            descs.add("q-value" + OPENMS_MAINSCORE_PREFIX);
             descs.add("q-value");
 
             return descs;
@@ -431,7 +431,7 @@ public enum ScoreModelEnum {
             descs.add("Mascot Score");
             descs.add("mascot score");
             descs.add("Mascot score");
-            descs.add("Mascot_openmsmainscore");
+            descs.add("Mascot" + OPENMS_MAINSCORE_PREFIX);
             descs.add("Mascot_Mascot_score");
             descs.add(getShortName());
             descs.add(getCvAccession());
@@ -986,7 +986,7 @@ public enum ScoreModelEnum {
             descs.add("tandem hyperscore");
             descs.add("Hyperscore");
             descs.add("hyperscore");
-            descs.add("XTandem_openmsmainscore");
+            descs.add("XTandem" + OPENMS_MAINSCORE_PREFIX);
             descs.add("Mascot_XTandem_score");
             descs.add(getShortName());
             descs.add(getCvAccession());
@@ -1098,7 +1098,7 @@ public enum ScoreModelEnum {
             List<String> descs = new ArrayList<>();
 
             descs.add(getName());
-            descs.add("SpecEValue_openmsmainscore");
+            descs.add("SpecEValue" + OPENMS_MAINSCORE_PREFIX);
             descs.add("MSGFPlus_SpecEValue_score");
             descs.add(getName().toLowerCase());
             descs.add(getShortName());
@@ -1260,34 +1260,6 @@ public enum ScoreModelEnum {
     /**
      * The Comet Scores
      */
-    COMET_DELTA_CN {
-        @Override
-        public String getName() {
-            return "Comet:deltacn";
-        }
-
-        @Override
-        public String getShortName() {
-            return "comet_deltacn";
-        }
-
-        @Override
-        public String getCvAccession() {
-            return OntologyConstants.COMET_DELTA_CN.getPsiAccession();
-        }
-
-        @Override
-        public String getCvName() {
-            return OntologyConstants.COMET_DELTA_CN.getPsiName();
-        }
-
-        @Override
-        public Boolean higherScoreBetter() {
-            return true;
-        }
-
-    },
-
     COMET_XCORR {
         @Override
         public String getName() {
@@ -1316,7 +1288,7 @@ public enum ScoreModelEnum {
 
         @Override
         public Boolean isSearchengineMainScore() {
-            return true;
+            return false;
         }
 
         @Override
@@ -1335,7 +1307,163 @@ public enum ScoreModelEnum {
             return descs;
         }
     },
+    
+    COMET_DELTA_CN {
+        @Override
+        public String getName() {
+            return "Comet:deltacn";
+        }
 
+        @Override
+        public String getShortName() {
+            return "comet_deltacn";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.COMET_DELTA_CN.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.COMET_DELTA_CN.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+    },
+    
+    COMET_DELTA_CN_STAR {
+        @Override
+        public String getName() {
+            return "Comet:deltacnstar";
+        }
+
+        @Override
+        public String getShortName() {
+            return "comet_deltacnstar";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.COMET_DELTA_CN_STAR.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.COMET_DELTA_CN_STAR.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+    },
+    
+    COMET_SPSCORE {
+        @Override
+        public String getName() {
+            return "Comet:spscore";
+        }
+
+        @Override
+        public String getShortName() {
+            return "comet_spscore";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.COMET_SP.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.COMET_SP.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return true;
+        }
+    },
+    
+    COMET_SPRANK {
+        @Override
+        public String getName() {
+            return "Comet:sprank";
+        }
+
+        @Override
+        public String getShortName() {
+            return "comet_sprank";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.COMET_SP_RANK.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.COMET_SP_RANK.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+    },
+    
+    COMET_EXPECTATION {
+        @Override
+        public String getName() {
+            return "Comet expectation value";
+        }
+
+        @Override
+        public String getShortName() {
+            return "comet_expectation";
+        }
+
+        @Override
+        public String getCvAccession() {
+            return OntologyConstants.COMET_EXPECTATION.getPsiAccession();
+        }
+
+        @Override
+        public String getCvName() {
+            return OntologyConstants.COMET_EXPECTATION.getPsiName();
+        }
+
+        @Override
+        public Boolean higherScoreBetter() {
+            return false;
+        }
+
+        @Override
+        public Boolean isSearchengineMainScore() {
+            return true;
+        }
+
+        @Override
+        public List<String> getValidDescriptors() {
+            List<String> descs = new ArrayList<>();
+
+            descs.add(getName());
+            descs.add(getName().toLowerCase());
+            descs.add("Comet Expectation");
+            descs.add("Comet expectation");
+            descs.add("Comet" + OPENMS_MAINSCORE_PREFIX);
+            descs.add(getShortName());
+            descs.add(getCvAccession());
+            descs.add(getCvName());
+            descs.addAll(getAdditionalAccessions());
+
+            return descs;
+        }
+    },
     /* End of COMET Scores **/
 
     /**
@@ -1536,7 +1664,7 @@ public enum ScoreModelEnum {
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<>();
 
-            descs.add("Posterior Error Probability_openmsmainscore");
+            descs.add("Posterior Error Probability" + OPENMS_MAINSCORE_PREFIX);
             descs.add("Posterior Error Probability_score");
             descs.add(getCvAccession());
             descs.add(getName());
@@ -1546,37 +1674,6 @@ public enum ScoreModelEnum {
             return descs;
         }
     },
-
-    /**
-     * The OpenMS Posterior Error Probability
-     */
-    OPENMS_CONSENSUSID_PEP {
-        @Override
-        public String getName() {
-            return "OpenMS:ConsensusID PEP";
-        }
-
-        @Override
-        public String getShortName() {
-            return "OpenMS:ConsensusID_PEP";
-        }
-
-        @Override
-        public String getCvAccession() {
-            return OntologyConstants.OMSSA_P_VALUE.getPsiAccession();
-        }
-
-        @Override
-        public String getCvName() {
-            return OntologyConstants.OMSSA_P_VALUE.getPsiName();
-        }
-
-        @Override
-        public Boolean higherScoreBetter() {
-            return false;
-        }
-    },
-
     /**
      * The OpenMS Posterior Probability
      */
@@ -1610,7 +1707,7 @@ public enum ScoreModelEnum {
         public List<String> getValidDescriptors() {
             List<String> descs = new ArrayList<>();
 
-            descs.add("Posterior Probability_openmsmainscore");
+            descs.add("Posterior Probability" + OPENMS_MAINSCORE_PREFIX);
             descs.add("Posterior Probability_score");
             descs.add(getCvAccession());
             descs.add(getName());
@@ -1654,7 +1751,7 @@ public enum ScoreModelEnum {
             List<String> descs = new ArrayList<>();
 
             descs.add("Consensus_PEPMatrix (Posterior Error Probability)_score");
-            descs.add("Consensus_PEPMatrix (Posterior Error Probability)_openmsmainscore");
+            descs.add("Consensus_PEPMatrix (Posterior Error Probability)" + OPENMS_MAINSCORE_PREFIX);
             descs.add(getCvAccession());
             descs.add(getName());
             descs.add(getName().toLowerCase());
@@ -2315,138 +2412,14 @@ public enum ScoreModelEnum {
         public Boolean higherScoreBetter() {
             return true;
         }
-    },
-
-    /**
-     * The Andromeda PEP
-     */
-    ANDROMEDA_PEPQVALUE {
-        @Override
-        public String getName() {
-            return "Andromeda:PEP";
-        }
-
-        @Override
-        public String getShortName() {
-            return "andromeda_pepvalue";
-        }
-
-        @Override
-        public String getCvAccession() {
-            return OntologyConstants.ANDROMEDA_PEPVALUE.getPsiAccession();
-        }
-
-        @Override
-        public String getCvName() {
-            return OntologyConstants.ANDROMEDA_PEPVALUE.getPsiName();
-        }
-
-        @Override
-        public Boolean higherScoreBetter() {
-            return false;
-        }
-
-    },
-
-    /**
-     * The Andromeda PEP
-     */
-    ANDROMEDA_SCORE {
-        @Override
-        public String getName() {
-            return "Andromeda:score";
-        }
-
-        @Override
-        public String getShortName() {
-            return "andromeda_score";
-        }
-
-        @Override
-        public String getCvAccession() {
-            return OntologyConstants.ANDROMEDA_SCORE.getPsiAccession();
-        }
-
-        @Override
-        public String getCvName() {
-            return OntologyConstants.ANDROMEDA_SCORE.getPsiName();
-        }
-
-        @Override
-        public Boolean higherScoreBetter() {
-            return true;
-        }
-
-    },
-
-    /**
-     * The MaxQuant-DIA PEP
-     */
-    MAXQUANT_DIA_PEPQVALUE {
-        @Override
-        public String getName() {
-            return "MaxQuant-DIA:PEP";
-        }
-
-        @Override
-        public String getShortName() {
-            return "maxquant_dia_pepvalue";
-        }
-
-        @Override
-        public String getCvAccession() {
-            return OntologyConstants.MAXQUANT_DIA_PEPVALUE.getPsiAccession();
-        }
-
-        @Override
-        public String getCvName() {
-            return OntologyConstants.MAXQUANT_DIA_PEPVALUE.getPsiName();
-        }
-
-        @Override
-        public Boolean higherScoreBetter() {
-            return false;
-        }
-
-    },
-
-    /**
-     * The MaxQuant-DIA PEP
-     */
-    MAXQUANT_DIA_SCORE {
-        @Override
-        public String getName() {
-            return "MaxQuant-DIA:score";
-        }
-
-        @Override
-        public String getShortName() {
-            return "maxquant_dia_score";
-        }
-
-        @Override
-        public String getCvAccession() {
-            return OntologyConstants.MAXQUANT_DIA_SCORE.getPsiAccession();
-        }
-
-        @Override
-        public String getCvName() {
-            return OntologyConstants.MAXQUANT_DIA_SCORE.getPsiName();
-        }
-
-        @Override
-        public Boolean higherScoreBetter() {
-            return true;
-        }
-
     };
 
 
-
     // some statics
-    private static final String NO_CV_PREFIX = "NO_CV_";
-    private static final String CV_NAME_NOT_SET_PREFIX = "(cvName not set for ";
-
+    public static final String NO_CV_PREFIX = "NO_CV_";
+    public static final String CV_NAME_NOT_SET_PREFIX = "(cvName not set for ";
+    public static final String OPENMS_MAINSCORE_PREFIX = "_openmsmainscore";
+    
 
     /**
      * These scores are not native searchengine results, but are in some way calculated

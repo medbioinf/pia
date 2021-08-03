@@ -463,9 +463,6 @@ public class IdXMLExporter {
             streamWriter.writeEndElement(); // PeptideIdentification
         }
 
-
-        LOGGER.debug("peptides: " + peptideIdentifications.size());
-
         streamWriter.writeEndElement(); // IdentificationRun
     }
 
