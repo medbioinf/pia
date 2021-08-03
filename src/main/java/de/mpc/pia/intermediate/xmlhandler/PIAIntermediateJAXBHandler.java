@@ -247,7 +247,7 @@ public class PIAIntermediateJAXBHandler implements Serializable {
      */
     private Long parseTag(String tag, XMLStreamReader xmlr)
             throws JAXBException, XMLStreamException {
-        Long progress = 0L;
+        long progress = 0L;
 
         if (XML_TAG_FILES_LIST.equalsIgnoreCase(tag)) {
             LOGGER.info(tag);

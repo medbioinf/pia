@@ -413,9 +413,9 @@ public class ReportProtein implements Rankable, Filterable, FDRComputable, Seria
             return;
         }
 
-        Integer sequenceLength = dbSeq.length();
+        int sequenceLength = dbSeq.length();
 
-        Integer coveredAminoAcids = 0;
+        int coveredAminoAcids = 0;
         for (Map.Entry<Integer, Integer> mapIt : coverageMap.entrySet()) {
             coveredAminoAcids += mapIt.getValue() - mapIt.getKey() + 1;
         }

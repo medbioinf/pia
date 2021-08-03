@@ -284,7 +284,7 @@ public abstract class PIACompiler {
     public final PIAInputFile insertNewFile(String name, String fileName,
             String format) {
         PIAInputFile file;
-        Long id = (long)files.size()+1;
+        long id = (long)files.size()+1;
 
         file = new PIAInputFile(id, name, fileName, format);
         files.put(id, file);

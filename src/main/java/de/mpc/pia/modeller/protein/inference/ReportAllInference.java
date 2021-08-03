@@ -100,7 +100,7 @@ public class ReportAllInference extends AbstractProteinInference {
 
         // put every group with accessions into the map
         // TODO: this COULD be parallelized for speedup, if it is too slow...
-        Double progressStep = 80.0 / groupMap.size();
+        double progressStep = 80.0 / groupMap.size();
         for (Map.Entry<Long, Group> gIt : groupMap.entrySet()) {
 
             if ((gIt.getValue().getAccessions().size() > 0) &&

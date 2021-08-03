@@ -450,7 +450,7 @@ public enum PSMExecuteCommands implements ExecuteModelCommands<PSMModeller> {
 
             String fileName;
             String format;
-            Long fileID;
+            long fileID;
 
             if (commandMap.containsKey(ID_FORMAT_STRING)) {
                 format = commandMap.get(ID_FORMAT_STRING);

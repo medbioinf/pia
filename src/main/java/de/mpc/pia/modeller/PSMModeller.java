@@ -311,7 +311,7 @@ public class PSMModeller implements Serializable {
     private void createReportPSMsFromGroups(Map<Long, Group> groups, int nrAllPSMs) {
         LOGGER.info("createReportPSMsFromGroups started...");
 
-        Integer psmsPerFile = nrAllPSMs / (inputFiles.size()-1);
+        int psmsPerFile = nrAllPSMs / (inputFiles.size()-1);
 
         // reset the PSMs
         spectraPSMs = new HashMap<>();

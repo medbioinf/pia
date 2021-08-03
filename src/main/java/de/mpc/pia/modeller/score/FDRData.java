@@ -465,7 +465,7 @@ public class FDRData implements Serializable {
         nrFDRGoodTargets = 0;
         nrFDRGoodDecoys = 0;
         for (T item : reportItems) {
-            Integer comp;
+            int comp;
 
             comp = comparator.compare(item, lastGoodScoreItem);
 

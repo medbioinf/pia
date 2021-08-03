@@ -187,7 +187,7 @@ public class TideTXTFileParser {
                 String[] columns = line.split(SEPARATOR_STRING);
                 Peptide peptide;
 
-                Integer charge;
+                int charge;
                 try {
                     charge = Integer.parseInt(columns[columnMap.get(HEADER_CHARGE)]);
                 } catch (Exception ex) {
@@ -195,7 +195,7 @@ public class TideTXTFileParser {
                     charge = 0;
                 }
 
-                Double precursorMZ;
+                double precursorMZ;
                 try {
                     precursorMZ = Double.parseDouble(columns[columnMap.get(HEADER_PRECURSOR_MZ)]);
                 } catch (Exception ex) {
@@ -254,7 +254,7 @@ public class TideTXTFileParser {
                  * New versions of XCORR are named REFACTORED XCORR.
                  * Todo: Create the proper CVTerm for it.
                  */
-                Double scoreValue;
+                double scoreValue;
                 if(columnMap.get(HEADER_XCORR) !=null ){
                     scoreValue = Double.parseDouble(columns[columnMap.get(HEADER_XCORR)]);
                     score = new ScoreModel(scoreValue,
@@ -377,7 +377,7 @@ public class TideTXTFileParser {
             int loc = sequence.length();
             String residue = Character.toString(sequence.charAt(loc-1));
 
-            Double massShift;
+            double massShift;
             ModT unimod = null;
             try {
                 massShift = Double.parseDouble(modWeight.toString());

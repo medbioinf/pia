@@ -426,7 +426,7 @@ public class TandemFileParser {
         Tolerance tolerance = new Tolerance();
 
         if (fragmentMonoisotopic) {
-            Double fragmentError;
+            double fragmentError;
             String units;
 
             fragmentError = inputParams.getSpectrumMonoIsoMassError();
@@ -434,13 +434,13 @@ public class TandemFileParser {
 
             CvParam tolParam = MzIdentMLTools.createPSICvParam(
                     OntologyConstants.SEARCH_TOLERANCE_PLUS_VALUE,
-                    String.valueOf(fragmentError.toString()));
+                    String.valueOf(Double.toString(fragmentError)));
             MzIdentMLTools.setUnitParameterFromString(units, tolParam);
             tolerance.getCvParam().add(tolParam);
 
             tolParam = MzIdentMLTools.createPSICvParam(
                     OntologyConstants.SEARCH_TOLERANCE_MINUS_VALUE,
-                    String.valueOf(fragmentError.toString()));
+                    String.valueOf(Double.toString(fragmentError)));
             MzIdentMLTools.setUnitParameterFromString(units, tolParam);
             tolerance.getCvParam().add(tolParam);
 
@@ -879,7 +879,7 @@ public class TandemFileParser {
                 }
             }
 
-            Character residue;
+            char residue;
             if ((loc == 0) || (loc > peptideSequence.length())) {
                 residue = '.';
             } else {

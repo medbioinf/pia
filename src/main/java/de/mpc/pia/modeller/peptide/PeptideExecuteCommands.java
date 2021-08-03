@@ -235,7 +235,7 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
             Map<String, String> commandMap = CommandTools.parseCommands(params);
             String fileName;
             String format;
-            Long fileID;
+            long fileID;
 
             if (commandMap.containsKey(ID_FORMAT_STRING)) {
                 format = commandMap.get(ID_FORMAT_STRING);

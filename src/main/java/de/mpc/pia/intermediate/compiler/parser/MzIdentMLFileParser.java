@@ -913,7 +913,7 @@ class MzIdentMLFileParser {
 
         de.mpc.pia.intermediate.Modification modification;
 
-        Character residue;
+        char residue;
         String description = null;
         String accession = null;
         Double massDelta = mod.getMonoisotopicMassDelta();

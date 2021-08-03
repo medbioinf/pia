@@ -59,7 +59,7 @@ public class GeometricMeanScoring extends AbstractScoring {
 			
 			// calculate the product(scores)^(1/nrScores) respectively -log() of it for higherScoreBetter
 			for (ScoreModel score : scores) {
-				Double signum = 1.0;
+				double signum = 1.0;
 				if ((score.getType().higherScoreBetter() != null) &&
 						!score.getType().higherScoreBetter()) {
 					signum = -1.0;

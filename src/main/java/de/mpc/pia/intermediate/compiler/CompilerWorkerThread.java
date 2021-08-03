@@ -97,7 +97,7 @@ class CompilerWorkerThread extends Thread {
         for (Long accessionId : accessionIDs) {
             Accession accession = parent.getAccession(accessionId);
             accessions.put(accession.getAccession(), accession);
-            Long groupId;
+            long groupId;
 
             if (accession.getGroup() != null) {
                 groupId = accession.getGroup().getID();

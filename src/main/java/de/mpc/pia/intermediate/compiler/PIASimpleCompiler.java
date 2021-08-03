@@ -161,7 +161,7 @@ public class PIASimpleCompiler extends PIACompiler {
             int missed, String sourceID, String spectrumTitle,
             PIAInputFile file, SpectrumIdentification spectrumID, String spectraDataRef) {
         PeptideSpectrumMatch psm;
-        Long id = spectra.size() + 1L;
+        long id = spectra.size() + 1L;
 
         psm = new PeptideSpectrumMatch(id, charge, massToCharge, deltaMass, rt,
                 sequence, missed, sourceID, spectrumTitle,

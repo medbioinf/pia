@@ -54,7 +54,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem>, Serial
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
             Integer o1Nr = 1;
-            Integer o2Nr = 1;
+            int o2Nr = 1;
 
             if (o1 instanceof ReportPSMSet) {
                 o1Nr = ((ReportPSMSet) o1).getPSMs().size();

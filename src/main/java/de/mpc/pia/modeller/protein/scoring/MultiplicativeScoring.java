@@ -51,7 +51,7 @@ public class MultiplicativeScoring extends AbstractScoring {
         Double proteinScore = Double.NaN;
 
         for (ScoreModel score : scores) {
-            Double signum = 1.0;
+            double signum = 1.0;
             if ((score.getType().higherScoreBetter() != null) &&
                     !score.getType().higherScoreBetter()) {
                 signum = -1.0;

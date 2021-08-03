@@ -1199,7 +1199,7 @@ public enum RegisteredFilters {
         public Object getObjectsValue(Object o) {
             Object retObj = null;
             if (o instanceof ReportProtein) {
-                Integer nrUnique = 0;
+                int nrUnique = 0;
 
                 for (ReportPeptide reportPeptide : ((ReportProtein) o).getPeptides()) {
                     for (PSMReportItem psmItem : reportPeptide.getPSMs()) {

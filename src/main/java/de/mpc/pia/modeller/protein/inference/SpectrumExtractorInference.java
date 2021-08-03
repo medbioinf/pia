@@ -254,7 +254,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
 
         LOGGER.info("creating disjoint splits");
 
-        Long splitIDcounter = 0L;
+        long splitIDcounter = 0L;
         Map<Long, Set<Long>> splitIdReportPSMid = new HashMap<>();
         Map<Long, Set<Long>> splitIdAccessions = new HashMap<>();
 
@@ -751,7 +751,7 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
         if (inferenceDone) {
             return 101L;
         } else {
-            Long p;
+            long p;
             if ((nrUsedSpectra == 0) || (nrSpectra == 0) || (nrSplits == 0)) {
                 p = 0L;
             } else {

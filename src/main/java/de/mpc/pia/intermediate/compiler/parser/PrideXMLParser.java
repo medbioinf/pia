@@ -209,7 +209,7 @@ public class PrideXMLParser {
                     PeptideSpectrumMatch psm = keysToPSMs.get(psmKey);
                     if (psm == null) {
                         String mzStr = getValueFromSpectrumPrecursor(spectrumDesc, mzAccessions);
-                        Double precursorMZ;
+                        double precursorMZ;
                         double deltaMass = Double.NaN;
                         if (mzStr != null) {
                             precursorMZ = Double.parseDouble(mzStr);
@@ -399,9 +399,9 @@ public class PrideXMLParser {
 
             for (ModificationItem mod : modificationItem) {
                 Double mass = null;
-                Integer location = mod.getModLocation().intValue();
+                int location = mod.getModLocation().intValue();
 
-                Character residue;
+                char residue;
                 if ((location == 0) || (location > sequence.length())) {
                     residue = '.';
                 } else {
@@ -413,7 +413,7 @@ public class PrideXMLParser {
                 }
 
                 Modification modification;
-                ModT unimod = unimodParser.getModificationByMass(mass, residue.toString());
+                ModT unimod = unimodParser.getModificationByMass(mass, Character.toString(residue));
                 if (unimod != null) {
                     modification = new Modification(
                             residue,

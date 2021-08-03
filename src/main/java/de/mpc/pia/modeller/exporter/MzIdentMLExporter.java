@@ -1497,7 +1497,7 @@ public class MzIdentMLExporter {
             proteinFilters = piaModeller.getProteinModeller().getReportFilters();
         }
 
-        Integer thresholdPassingPAGcount = 0;
+        int thresholdPassingPAGcount = 0;
         for (ReportProtein protein : piaModeller.getProteinModeller().getFilteredReportProteins(null)) {
             if (putProteinIntoDetectionList(protein, filterExport, proteinFilters)) {
                 thresholdPassingPAGcount++;
@@ -1506,7 +1506,7 @@ public class MzIdentMLExporter {
 
         pdList.getCvParam().add(MzIdentMLTools.createPSICvParam(
                 OntologyConstants.COUNT_OF_IDENTIFIED_PROTEINS,
-                thresholdPassingPAGcount.toString()));
+                Integer.toString(thresholdPassingPAGcount)));
 
         // create the ProteinDetection for PIAs protein inference
         ProteinDetection proteinDetection = new ProteinDetection();

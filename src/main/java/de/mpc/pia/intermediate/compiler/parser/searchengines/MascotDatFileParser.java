@@ -545,7 +545,7 @@ public class MascotDatFileParser {
                 if (mods[loc] != null) {
                     Modification modification;
 
-                    Character residue;
+                    char residue;
                     if ((loc == 0) || (loc > psm.getSequence().length())) {
                         residue = '.';
                     } else {
