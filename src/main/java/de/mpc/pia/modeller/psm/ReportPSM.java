@@ -1,11 +1,7 @@
 package de.mpc.pia.modeller.psm;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -121,8 +117,8 @@ public class ReportPSM  implements PSMReportItem {
         if (isDecoy != reportPSM.isDecoy) return false;
         if (isFDRGood != reportPSM.isFDRGood) return false;
         if (!id.equals(reportPSM.id)) return false;
-        if (spectrum != null ? !spectrum.equals(reportPSM.spectrum) : reportPSM.spectrum != null) return false;
-        return accessions != null ? accessions.equals(reportPSM.accessions) : reportPSM.accessions == null;
+        if (!Objects.equals(spectrum, reportPSM.spectrum)) return false;
+        return Objects.equals(accessions, reportPSM.accessions);
     }
 
     @Override

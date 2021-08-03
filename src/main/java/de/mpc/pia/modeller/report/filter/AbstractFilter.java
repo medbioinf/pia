@@ -380,10 +380,7 @@ public abstract class AbstractFilter implements Serializable {
     private boolean satisfiesModificationFilter(List<Modification> o) {
         switch (getFilterComparator()) {
         case has_any_modification:
-            boolean has_any_modification = false;
-            if ((o != null) && (!o.isEmpty())) {
-                has_any_modification = true;
-            }
+            boolean has_any_modification = (o != null) && (!o.isEmpty());
             return getFilterNegate() ^ has_any_modification;
 
         case has_description:

@@ -1,11 +1,7 @@
 package de.mpc.pia.intermediate;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
@@ -153,8 +149,8 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
 
         if (!equalsBasics(objSpectrum)) return false;
 
-        if (sourceID != null ? !sourceID.equals(objSpectrum.sourceID) : objSpectrum.sourceID != null) return false;
-        if (spectrumTitle != null ? !spectrumTitle.equals(objSpectrum.spectrumTitle) : objSpectrum.spectrumTitle != null) return false;
+        if (!Objects.equals(sourceID, objSpectrum.sourceID)) return false;
+        if (!Objects.equals(spectrumTitle, objSpectrum.spectrumTitle)) return false;
 
         if (!scores.equals(objSpectrum.scores)) return false;
         if (!modifications.equals(objSpectrum.modifications)) return false;
@@ -176,10 +172,10 @@ public class PeptideSpectrumMatch implements PSMItem, Serializable {
         if (deltaMass != objSpectrum.deltaMass) return false;
         if (missed != objSpectrum.missed) return false;
 
-        if (isUnique != null ? !isUnique.equals(objSpectrum.isUnique) : objSpectrum.isUnique != null) return false;
-        if (isDecoy != null ? !isDecoy.equals(objSpectrum.isDecoy) : objSpectrum.isDecoy != null) return false;
+        if (!Objects.equals(isUnique, objSpectrum.isUnique)) return false;
+        if (!Objects.equals(isDecoy, objSpectrum.isDecoy)) return false;
 
-        if (retentionTime != null ? !retentionTime.equals(objSpectrum.retentionTime) : objSpectrum.retentionTime != null) return false;
+        if (!Objects.equals(retentionTime, objSpectrum.retentionTime)) return false;
 
         return (sequence.equals(objSpectrum.sequence));
     }

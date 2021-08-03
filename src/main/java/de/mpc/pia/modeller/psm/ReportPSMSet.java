@@ -1,12 +1,6 @@
 package de.mpc.pia.modeller.psm;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
@@ -875,7 +869,7 @@ public class ReportPSMSet implements PSMReportItem {
 
         if (isDecoy != that.isDecoy) return false;
         if (isFDRGood != that.isFDRGood) return false;
-        if (psmsList != null ? !psmsList.equals(that.psmsList) : that.psmsList != null) return false;
+        if (!Objects.equals(psmsList, that.psmsList)) return false;
         if (getSequence() != null ? !getSequence().equals(that.getSequence()) : that.getSequence() != null) return false;
         return getModificationsString() != null ? getModificationsString().equals(that.getModificationsString()) : that.getModificationsString() == null;
     }

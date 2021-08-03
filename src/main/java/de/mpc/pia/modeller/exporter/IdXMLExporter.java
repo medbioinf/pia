@@ -433,7 +433,7 @@ public class IdXMLExporter {
                 // if there is decoy information, write it out
                 boolean writeDecoyInfo = false;
                 if (fileID > 0) {
-                    if (piaModeller.getPSMModeller().getFileHasInternalDecoy(fileID).booleanValue() ||	// file has internal decoy info
+                    if (piaModeller.getPSMModeller().getFileHasInternalDecoy(fileID) ||	// file has internal decoy info
                     		isFDRCalculated) {     														// FDR is calculated for the file
                         writeDecoyInfo = true;
                     }

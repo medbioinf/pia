@@ -1,10 +1,7 @@
 package de.mpc.pia.intermediate;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 public class Peptide implements Serializable {
@@ -51,7 +48,7 @@ public class Peptide implements Serializable {
 
         if (id != peptide.id) return false;
         if (!sequence.equals(peptide.sequence)) return false;
-        if (spectra != null ? !spectra.equals(peptide.spectra) : peptide.spectra != null) return false;
+        if (!Objects.equals(spectra, peptide.spectra)) return false;
         if (pGroup != null ? pGroup.getID() != peptide.pGroup.getID() : peptide.pGroup != null) return false;
         return occurrences.equals(peptide.occurrences);
     }

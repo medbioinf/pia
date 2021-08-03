@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import de.mpc.pia.modeller.score.ScoreModel;
 
@@ -205,12 +206,12 @@ public class Modification implements Serializable {
 
         Modification that = (Modification) o;
 
-        if (residue != null ? !residue.equals(that.residue) : that.residue != null) return false;
-        if (mass != null ? !mass.equals(that.mass) : that.mass != null) return false;
-        if (description != null ? !description.equals(that.description) : that.description != null) return false;
-        if (accession != null ? !accession.equals(that.accession) : that.accession != null) return false;
-        if (cvLabel != null ? !cvLabel.equals(that.cvLabel) : that.cvLabel != null) return false;
-        return probability != null ? probability.equals(that.probability) : that.probability == null;
+        if (!Objects.equals(residue, that.residue)) return false;
+        if (!Objects.equals(mass, that.mass)) return false;
+        if (!Objects.equals(description, that.description)) return false;
+        if (!Objects.equals(accession, that.accession)) return false;
+        if (!Objects.equals(cvLabel, that.cvLabel)) return false;
+        return Objects.equals(probability, that.probability);
     }
 
     @Override

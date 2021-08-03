@@ -2,6 +2,7 @@ package de.mpc.pia.intermediate;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,8 +67,8 @@ public class PIAInputFile implements Serializable {
         PIAInputFile that = (PIAInputFile) o;
 
         if (id != that.id) return false;
-        if (fileName != null ? !fileName.equals(that.fileName) : that.fileName != null) return false;
-        return format != null ? format.equals(that.format) : that.format == null;
+        if (!Objects.equals(fileName, that.fileName)) return false;
+        return Objects.equals(format, that.format);
     }
 
     @Override

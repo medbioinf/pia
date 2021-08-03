@@ -1,10 +1,7 @@
 package de.mpc.pia.intermediate;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -82,15 +79,15 @@ public class Accession implements Serializable {
 
         Accession accession = (Accession) o;
 
-        if (id != null ? !id.equals(accession.id) : accession.id != null) return false;
-        if (accessionStr != null ? !accessionStr.equals(accession.accessionStr) : accession.accessionStr != null) {
+        if (!Objects.equals(id, accession.id)) return false;
+        if (!Objects.equals(accessionStr, accession.accessionStr)) {
             return false;
         }
-        if (descriptions != null ? !descriptions.equals(accession.descriptions) : accession.descriptions != null) {
+        if (!Objects.equals(descriptions, accession.descriptions)) {
             return false;
         }
-        if (dbSequence != null ? !dbSequence.equals(accession.dbSequence) : accession.dbSequence != null) return false;
-        if (searchDatabaseRefs != null ? !searchDatabaseRefs.equals(accession.searchDatabaseRefs) : accession.searchDatabaseRefs != null) {
+        if (!Objects.equals(dbSequence, accession.dbSequence)) return false;
+        if (!Objects.equals(searchDatabaseRefs, accession.searchDatabaseRefs)) {
             return false;
         }
         return pGroup != null ? pGroup.getID() == accession.pGroup.getID() : accession.pGroup == null;

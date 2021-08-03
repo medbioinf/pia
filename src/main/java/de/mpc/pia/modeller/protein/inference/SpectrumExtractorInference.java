@@ -725,12 +725,11 @@ public class SpectrumExtractorInference extends AbstractProteinInference {
                     // the protein is not changed but build, no rebuild necessary
                 }
 
-                return null;
             } else {
                 // TODO: throw exception or something
                 LOGGER.error("The protein iterator is not yet initialized!");
-                return null;
             }
+            return null;
         }
     }
 

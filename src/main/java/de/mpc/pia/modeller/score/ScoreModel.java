@@ -1,6 +1,7 @@
 package de.mpc.pia.modeller.score;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * This class models all scores in PIA.
@@ -177,8 +178,8 @@ public class ScoreModel implements Serializable, Comparable<ScoreModel> {
 
         if (!score.equals(that.score)) return false;
         if (type != that.type) return false;
-        if (cvAccession != null ? !cvAccession.equals(that.cvAccession) : that.cvAccession != null) return false;
-        return name != null ? name.equals(that.name) : that.name == null;
+        if (!Objects.equals(cvAccession, that.cvAccession)) return false;
+        return Objects.equals(name, that.name);
     }
 
     @Override

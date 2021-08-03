@@ -1,6 +1,7 @@
 package de.mpc.pia.intermediate;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * This class describes the occurrence of an Accession's dbSequence of a
@@ -59,8 +60,8 @@ public class AccessionOccurrence implements Serializable {
         AccessionOccurrence that = (AccessionOccurrence) o;
 
         if (accession != null && accession.getID() != null ? !accession.getID().equals(that.accession.getID()) : that.accession != null && that.accession.getID() != null) return false;
-        if (start != null ? !start.equals(that.start) : that.start != null) return false;
-        return end != null ? end.equals(that.end) : that.end == null;
+        if (!Objects.equals(start, that.start)) return false;
+        return Objects.equals(end, that.end);
     }
 
     @Override

@@ -3,6 +3,7 @@ package de.mpc.pia.intermediate;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 
@@ -78,11 +79,11 @@ public class Group implements Serializable {
 
         if (id != group.id) return false;
         if (treeID != group.treeID) return false;
-        if (peptides != null ? !peptides.equals(group.peptides) : group.peptides != null) return false;
-        if (children != null ? !children.equals(group.children) : group.children != null) return false;
-        if (parents != null ? !parents.equals(group.parents) : group.parents != null) return false;
-        if (accessions != null ? !accessions.equals(group.accessions) : group.accessions != null) return false;
-        return allAccessions != null ? allAccessions.equals(group.allAccessions) : group.allAccessions == null;
+        if (!Objects.equals(peptides, group.peptides)) return false;
+        if (!Objects.equals(children, group.children)) return false;
+        if (!Objects.equals(parents, group.parents)) return false;
+        if (!Objects.equals(accessions, group.accessions)) return false;
+        return Objects.equals(allAccessions, group.allAccessions);
     }
 
     /**

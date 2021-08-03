@@ -3,6 +3,7 @@ package de.mpc.pia.tools;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.CodeSource;
+import java.util.Objects;
 
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -27,7 +28,7 @@ public class PIATools {
      * Checks whether both objects are null or are equal.
      */
     public  static boolean bothNullOrEqual(Object x, Object y) {
-        return x == null ? y == null : x.equals(y);
+        return Objects.equals(x, y);
     }
 
 

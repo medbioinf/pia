@@ -59,13 +59,9 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
         public boolean execute(ProteinModeller proteinModeller, PIAModeller piaModeller, String[] params) {
             logParams(params);
 
-            boolean negate = false;
-
-            if ((params.length >= 4)
+            boolean negate = (params.length >= 4)
                     && (params[3] != null)
-                    && ("true".equals(params[3]) || "yes".equals(params[3]))) {
-                negate = true;
-            }
+                    && ("true".equals(params[3]) || "yes".equals(params[3]));
 
             if (params.length >= 3) {
                 String filtername = params[0];
@@ -182,13 +178,9 @@ public enum ProteinExecuteCommands implements ExecuteModelCommands<ProteinModell
         public boolean execute(ProteinModeller proteinModeller, PIAModeller piaModeller, String[] params) {
             logParams(params);
 
-            boolean negate = false;
-
-            if ((params.length >= 4)
+            boolean negate = (params.length >= 4)
                     && (params[3] != null)
-                    && ("true".equals(params[3]) || "yes".equals(params[3]))) {
-                negate = true;
-            }
+                    && ("true".equals(params[3]) || "yes".equals(params[3]));
 
             if (params.length >= 3) {
                 String filtername = params[0];

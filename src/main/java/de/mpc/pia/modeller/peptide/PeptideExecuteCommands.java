@@ -111,12 +111,8 @@ public enum PeptideExecuteCommands implements ExecuteModelCommands<PeptideModell
         public boolean execute(PeptideModeller peptideModeller, PIAModeller piaModeller, String[] params) {
             logParams(params);
 
-            boolean negate = false;
-
-            if ((params.length >= 5) && (params[4] != null)
-                    && ("true".equals(params[4]) || "yes".equals(params[4]))) {
-                negate = true;
-            }
+            boolean negate = (params.length >= 5) && (params[4] != null)
+                    && ("true".equals(params[4]) || "yes".equals(params[4]));
 
             if (params.length >= 4) {
                 String fileID = params[0];

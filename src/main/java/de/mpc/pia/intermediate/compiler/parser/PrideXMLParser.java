@@ -730,7 +730,7 @@ public class PrideXMLParser {
                     fragmentUnit = splitString[1];
                 }else if (splitString.length == 1){ // No Unit
                     fragmentValue = splitString[0];
-                     if(Double.valueOf(splitString[0]) < 0)
+                     if(Double.parseDouble(splitString[0]) < 0)
                          fragmentUnit = "Da";
                 }
                 Tolerance tolerance = MzIdentMLTools.createSearchTolerance(
@@ -751,7 +751,7 @@ public class PrideXMLParser {
                     parentUnit = splitString[1];
                 }else if (splitString.length == 1){ // No Unit
                     parentValue = splitString[0];
-                    if(Double.valueOf(splitString[0]) > 100)
+                    if(Double.parseDouble(splitString[0]) > 100)
                         parentUnit = "Da";
                 }
 

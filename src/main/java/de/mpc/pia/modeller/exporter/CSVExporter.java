@@ -559,13 +559,12 @@ public class CSVExporter {
 
         if (isSet) {
             appendQuoted(outWriter, String.valueOf(((ReportPSMSet) psm).getPSMs().size()));
-            outWriter.append(SEPARATOR);
         } else {
             appendQuoted(outWriter, psm.getSourceID());
             outWriter.append(SEPARATOR);
             appendQuoted(outWriter, psm.getSpectrumTitle());
-            outWriter.append(SEPARATOR);
         }
+        outWriter.append(SEPARATOR);
 
         writeScores(psm, piaModeller.getPSMModeller().getScoreShortNames(exportFileID));
 

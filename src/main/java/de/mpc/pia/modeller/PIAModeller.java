@@ -833,11 +833,8 @@ public class PIAModeller implements Serializable {
      */
     private static void processWriteInformation(String calculateInformationOption, String informationFileName,
             PIAModeller model) {
-        boolean calculateInfo = false;
-        if (("yes".equalsIgnoreCase(calculateInformationOption)
-                || "true".equalsIgnoreCase(calculateInformationOption))) {
-            calculateInfo = true;
-        }
+        boolean calculateInfo = "yes".equalsIgnoreCase(calculateInformationOption)
+                || "true".equalsIgnoreCase(calculateInformationOption);
 
         if ((informationFileName != null) && !informationFileName.trim().isEmpty()) {
             model.getPSMModeller().writePSMInformation(informationFileName, calculateInfo);

@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -35,8 +36,7 @@ public class MzIdentMLParserTest {
     public void testPIACompilerMzidFDRNative() throws IOException {
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
-        assertEquals("X!TAndem file could not be parsed", true,
-                piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
+        assertTrue("X!TAndem file could not be parsed", piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
 
         piaCompiler.buildClusterList();
         piaCompiler.buildIntermediateStructure();
@@ -84,11 +84,9 @@ public class MzIdentMLParserTest {
     public void testPIACompilerMzidFiles() throws IOException {
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
-        assertEquals("X!Tandem file could not be parsed", true,
-                piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
+        assertTrue("X!Tandem file could not be parsed", piaCompiler.getDataFromFile("tandem", mzid55mergeTandem.getAbsolutePath(), null, null));
 
-        assertEquals("OMSSA file could not be parsed", true,
-                piaCompiler.getDataFromFile("tandem", mzid55mergeOmssa.getAbsolutePath(), null, null));
+        assertTrue("OMSSA file could not be parsed", piaCompiler.getDataFromFile("tandem", mzid55mergeOmssa.getAbsolutePath(), null, null));
 
         piaCompiler.buildClusterList();
         piaCompiler.buildIntermediateStructure();
