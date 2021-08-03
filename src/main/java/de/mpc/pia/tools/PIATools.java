@@ -106,7 +106,7 @@ public class PIATools {
                 header + "\nOptions:",
                 options,
                 "\nPIA - Protein Inference Algorithms, version " + PIAConstants.version +
-                "\nCopyright (C) 2013-2018 Medizinisches Proteom-Center, " +
+                "\nCopyright (C) 2013-2021 Medizinisches Proteom-Center, " +
                 "https://github.com/mpc-bioinformatics/pia" +
                 "\nThis is free software; see the source for copying and license conditions. There is ABSOLUTELY NO warranty!",
                 true);
