@@ -20,7 +20,8 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftwareList;
@@ -65,7 +66,7 @@ public class PIAIntermediateJAXBHandler implements Serializable {
 
 
     /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(PIAIntermediateJAXBHandler.class);
+    private static final Logger LOGGER = LogManager.getLogger();
 
 
     /** the name of the project */
@@ -153,8 +154,7 @@ public class PIAIntermediateJAXBHandler implements Serializable {
         groups = new HashMap<>();
 
         if ((progress == null) || (progressArr.length < 1) || (progressArr[0] == null)) {
-            LOGGER.warn("No progress array given, creating one. "
-                    + "But no external supervision will be possible.");
+            LOGGER.warn("No progress array given, creating one. But no external supervision will be possible.");
             progress = new Long[1];
             progress[0] = 0L;
         }
@@ -281,7 +281,7 @@ public class PIAIntermediateJAXBHandler implements Serializable {
             parseGroupsChunked(xmlr);
             progress += 1;
         } else {
-            LOGGER.warn("unknown tag in pia XML: " + xmlr.getLocalName());
+            LOGGER.warn("unknown tag in pia XML: {}", xmlr.getLocalName());
         }
 
         return progress;
@@ -430,14 +430,12 @@ public class PIAIntermediateJAXBHandler implements Serializable {
                         psmXML.getSpectrumIdentificationRef());
 
                 if (spectrumID == null) {
-                    LOGGER.warn("No SpectrumIdentification found for '" +
-                            psmXML.getSpectrumIdentificationRef() + '\'');
+                    LOGGER.warn("No SpectrumIdentification found for '{}'", psmXML.getSpectrumIdentificationRef());
                 }
             }
 
         } else {
-            LOGGER.warn("PSM '" + psmXML.getId() + "' has no valid fileRef '" +
-                    psmXML.getFileRef() + "'.");
+            LOGGER.warn("PSM '{}' has no valid fileRef '{}'.", psmXML.getId(), psmXML.getFileRef());
         }
 
         psm = new PeptideSpectrumMatch(psmXML.getId(),
@@ -638,8 +636,7 @@ public class PIAIntermediateJAXBHandler implements Serializable {
                     // backlink the peptide in the PSM
                     psm.setPeptide(peptide);
                 } else {
-                    LOGGER.warn("No spectrumMatch found for '" +
-                            spectrumRefXML.getSpectrumRefID() + '\'');
+                    LOGGER.warn("No spectrumMatch found for '{}'", spectrumRefXML.getSpectrumRefID());
                 }
             }
             peptide.setSpectra(psmList);
@@ -651,8 +648,7 @@ public class PIAIntermediateJAXBHandler implements Serializable {
                     peptide.addAccessionOccurrence(acc, occXML.getStart(),
                             occXML.getEnd());
                 } else {
-                    LOGGER.warn("No accession found for occurrence '" +
-                            occXML.getAccessionRefID() + '\'');
+                    LOGGER.warn("No accession found for occurrence '{}'", occXML.getAccessionRefID());
                 }
             }
 
@@ -725,7 +721,7 @@ public class PIAIntermediateJAXBHandler implements Serializable {
                     group.addChild(child);
                     child.addParent(group);
                 } else {
-                    LOGGER.warn("No group found for child reference '" + childRef.getChildRefID() + '\'');
+                    LOGGER.warn("No group found for child reference '{}'", childRef.getChildRefID());
                 }
             }
         }
@@ -747,8 +743,7 @@ public class PIAIntermediateJAXBHandler implements Serializable {
                 // now the accession's group can be set
                 accession.setGroup(group);
             } else {
-                LOGGER.warn("No accession found for groups reference '" +
-                        accRef.getAccRefID() + '\'');
+                LOGGER.warn("No accession found for groups reference '{}'", accRef.getAccRefID());
             }
         }
     }
@@ -769,8 +764,7 @@ public class PIAIntermediateJAXBHandler implements Serializable {
                 // now the peptide's group can be set
                 peptide.setGroup(group);
             } else {
-                LOGGER.warn("No peptide found for groups reference '" +
-                        pepRef.getPepRefID() + '\'');
+                LOGGER.warn("No peptide found for groups reference '{}'", pepRef.getPepRefID());
             }
         }
     }
