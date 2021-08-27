@@ -27,13 +27,8 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.compomics.util.experiment.identification.matches.SpectrumMatch;
 import com.sun.xml.txw2.output.IndentingXMLStreamWriter;
@@ -62,7 +57,6 @@ import de.mpc.pia.intermediate.piaxml.SpectrumMatchXML;
 import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
-import de.mpc.pia.tools.matomo.PIAMatomoTracker;
 import de.mpc.pia.tools.obo.OBOMapper;
 import de.mpc.pia.tools.obo.PsiModParser;
 import de.mpc.pia.tools.unimod.UnimodParser;
@@ -77,7 +71,7 @@ import de.mpc.pia.tools.unimod.UnimodParser;
 public abstract class PIACompiler {
 
     /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(PIACompiler.class);
+    private static final Logger LOGGER = LogManager.getLogger();
 
 
     /** just a name for the compilation */
@@ -153,17 +147,10 @@ public abstract class PIACompiler {
     private static String encoding = "UTF-8";
 
 
-    /** helper description */
-    private static final String HELP_DESCRIPTION =
-            "PIACompiler is used to compile (multiple) search engine results "
-            + "into one PIA XML file. Use a high enough amount of memory (e.g. "
-            + "use the Java setting -Xmx8G).";
-
-
     /**
      * Basic constructor
      */
-    public PIACompiler() {
+    protected PIACompiler() {
         compilationName = DEFAULT_PIA_COMPILATION_NAME;
         startDate = new Date();
 
@@ -258,12 +245,13 @@ public abstract class PIACompiler {
                 this, additionalInfoFileName, inputFileType);
 
         if (!fileParsed) {
-            LOGGER.error("Error parsing the file "+fileName);
+            LOGGER.error("Error parsing the file {}", fileName);
         } else {
-            LOGGER.info("have now: \n\t"
-                    + getNrPeptides() + " peptides\n\t"
-                    + getNrPeptideSpectrumMatches() + " peptide spectrum matches\n\t"
-                    + getNrAccessions() + " accessions");
+            LOGGER.info("have now:"
+                    + "\n\t{} peptides"
+                    + "\n\t{} peptide spectrum matches"
+                    + "\n\t{} accessions",
+                    getNrPeptides(), getNrPeptideSpectrumMatches(), getNrAccessions());
         }
 
         return fileParsed;
@@ -698,7 +686,7 @@ public abstract class PIACompiler {
         // the maps are no longer needed
         clearConnectionMap();
 
-        LOGGER.info("clusters sorted: " + clusteredPepAccMap.size());
+        LOGGER.info("clusters sorted: {}", clusteredPepAccMap.size());
     }
 
 
@@ -781,7 +769,7 @@ public abstract class PIACompiler {
             nrThreads = Runtime.getRuntime().availableProcessors();
         }
 
-        LOGGER.info("Using " + nrThreads + " threads.");
+        LOGGER.info("Using {} threads.", nrThreads);
 
         List<CompilerWorkerThread> threads;
 
@@ -916,7 +904,7 @@ public abstract class PIACompiler {
      */
     public final void writeOutXML(File piaFile) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(piaFile)) {
-            LOGGER.info("Writing PIA XML file to " + piaFile.getAbsolutePath());
+            LOGGER.info("Writing PIA XML file to {}", piaFile.getAbsolutePath());
             writeOutXML(fos);
         }
     }
@@ -1195,157 +1183,7 @@ public abstract class PIACompiler {
 
 
     public static void main(String[] args) {
-        CommandLineParser parser = new DefaultParser();
-        Options options = new Options();
-
-        Option outfileOpt = Option.builder("outfile")
-                .required(true)
-                .argName("outputFile")
-                .hasArg()
-                .desc("path to the created PIA XML file")
-                .build();
-        options.addOption(outfileOpt);
-
-        Option nameOpt = Option.builder("name")
-                .argName("name")
-                .hasArg()
-                .desc("name of the PIA compilation")
-                .build();
-        options.addOption(nameOpt);
-
-        Option inputFileOpt = Option.builder("infile")
-                .argName("inputFile")
-                .hasArg()
-                .desc( "input file with possible further information separated by semicolon. This option may be called "
-                        + "multiple times. Any further information not given will be treated as null, the information "
-                        + "is in this order:\n"
-                        + "name of the input file (as shown in the PIA viewers, if not given will be set to the path "
-                        + "of the input file), type of the file (usually guessed, but may also be explicitly given, "
-                        + "possible values are "
-                        + InputFileParserFactory.getAvailableTypeShorts()
-                        + "), additional information file (very seldom used)")
-                .build();
-        options.addOption(inputFileOpt);
-
-        Option disableUsageStatisticsOpt = Option.builder("disableUsageStatistics")
-                .hasArg(false)
-                .desc("set this option to disable the collection of usage statistics for quality control and"
-                        + "funding purposes")
-                .build();
-        options.addOption(disableUsageStatisticsOpt);
-
-        if (args.length < 1) {
-            PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
-                    options, HELP_DESCRIPTION);
-            return;
-        }
-
-        String outFileName = null;
-        String piaName;
-        PIACompiler piaCompiler = new PIASimpleCompiler();
-
-        // parse the command line arguments
-        try {
-            CommandLine line = parser.parse( options, args );
-
-            PIAMatomoTracker.disableTracking(line.hasOption(disableUsageStatisticsOpt.getOpt()));
-
-            PIAMatomoTracker.trackPIAEvent(PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
-                    PIAMatomoTracker.PIA_TRACKING_COMPILER_NAME, PIAMatomoTracker.PIA_TRACKING_COMPILER_STARTED, null);
-            boolean filesOk = false;
-            if (line.hasOption(inputFileOpt.getOpt())) {
-                filesOk = parseCommandLineInfiles(line.getOptionValues(inputFileOpt.getOpt()), piaCompiler);
-            }
-            if (!filesOk) {
-                return;
-            }
-
-            piaCompiler.buildClusterList();
-            piaCompiler.buildIntermediateStructure();
-
-            piaName = line.getOptionValue(nameOpt.getOpt());
-            if (piaName == null) {
-                piaName = outFileName;
-            }
-            piaCompiler.setName(piaName);
-
-            // now write out the file
-            outFileName = line.getOptionValue(outfileOpt.getOpt());
-            piaCompiler.writeOutXML(outFileName);
-            piaCompiler.finish();
-            PIAMatomoTracker.trackPIAEvent(PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
-                    PIAMatomoTracker.PIA_TRACKING_COMPILER_NAME, PIAMatomoTracker.PIA_TRACKING_COMPILER_FINISHED, null);
-        } catch (ParseException e) {
-            LOGGER.error("error parsing the command line: " + e.getMessage());
-            PIATools.printCommandLineHelp(PIACompiler.class.getSimpleName(),
-                    options, HELP_DESCRIPTION);
-            System.exit(-1);
-        } catch (IOException e) {
-            LOGGER.error("Error while writing PIA XML file.", e);
-            PIAMatomoTracker.trackPIAEvent(PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
-                    PIAMatomoTracker.PIA_TRACKING_COMPILER_NAME, PIAMatomoTracker.PIA_TRACKING_COMPILER_ERROR, null);
-        }
-
+    	LOGGER.error("This functionality is moved to PIACli!"
+    			+ "\nPlease call this directly (it is the default class of the JAR file by now.");
     }
-
-
-    /**
-     * Parses the files given from the command line in the String array into the
-     * given {@link PIACompiler}. The files may also contain the name and
-     * additionalFile separated by a semicolon.
-     *
-     * @param inputFiles
-     * @param piaCompiler
-     * @return true, if all files were parsed correctly, otherwise false
-     */
-    private static boolean parseCommandLineInfiles(String[] inputFiles, PIACompiler piaCompiler) {
-        for (String inputFile : inputFiles) {
-            if (!parseCommandLineInfile(inputFile, piaCompiler)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Parses one file from the command line into the given {@link PIACompiler}.
-     * The file string may also contain the name and additionalFile separated by
-     * a semicolon.
-     *
-     * @param inputFile
-     * @param piaCompiler
-     * @return true, if the file was parsed correctly, otherwise false
-     */
-    private static boolean parseCommandLineInfile(String inputFile, PIACompiler piaCompiler) {
-        String[] values = inputFile.split(";");
-        String file = values[0];
-        String name = values[0];
-        String additionalInfoFile = null;
-        String type = null;
-
-        if (values.length > 1) {
-            name = (values[1].trim().length() > 0) ? values[1].trim() : null;
-
-            if (values.length > 2) {
-                type = (values[2].length() > 0) ? values[2] : null;
-            }
-            if (values.length > 3) {
-                additionalInfoFile = (values[3].length() > 0) ? values[3] : null;
-            }
-        } else {
-            if (file.contains(File.separator)) {
-                // take the filename-only as name, if none is given
-                name = new File(file).getName();
-            }
-        }
-
-        LOGGER.info("file: " + file +
-                "\n\tname: " + name +
-                "\n\ttype: " + type +
-                "\n\tadditional info file: " + additionalInfoFile);
-
-        return piaCompiler.getDataFromFile(name, file, additionalInfoFile, type);
-    }
-
 }

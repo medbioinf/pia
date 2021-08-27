@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import com.google.gson.JsonParseException;
 
+import de.mpc.pia.JsonAnalysis;
 import de.mpc.pia.PIACli;
 import de.mpc.pia.modeller.PIAModellerTest;
 

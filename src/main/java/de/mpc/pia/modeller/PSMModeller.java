@@ -14,7 +14,6 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -24,13 +23,12 @@ import org.apache.logging.log4j.Logger;
 import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
 
+import de.mpc.pia.JsonAnalysis;
 import de.mpc.pia.intermediate.Group;
 import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.xmlhandler.PIAIntermediateJAXBHandler;
-import de.mpc.pia.modeller.execute.JsonAnalysis;
-import de.mpc.pia.modeller.psm.PSMExecuteCommands;
 import de.mpc.pia.modeller.psm.PSMReportItem;
 import de.mpc.pia.modeller.psm.PSMReportItemComparator;
 import de.mpc.pia.modeller.psm.ReportPSM;
@@ -2006,46 +2004,6 @@ public class PSMModeller implements Serializable {
 
         writer.flush();
     }
-
-
-    /**
-     * Processes the command line on the PSM level
-     * @param commands
-     * @return
-     */
-    public static boolean processCLI(PSMModeller psmModeller, PIAModeller piaModeller, String[] commands) {
-        if (psmModeller == null) {
-            LOGGER.error("No PSM modeller given while processing CLI commands");
-            return false;
-        }
-
-        if (piaModeller == null) {
-            LOGGER.error("No PIA modeller given while processing CLI commands");
-            return false;
-        }
-
-        Pattern pattern = Pattern.compile("^([^=]+)=(.*)");
-        Matcher commandParamMatcher;
-
-        for (String command : commands) {
-            String[] params = null;
-            commandParamMatcher = pattern.matcher(command);
-
-            if (commandParamMatcher.matches()) {
-                command = commandParamMatcher.group(1);
-                params = commandParamMatcher.group(2).split(",");
-            }
-
-            try {
-                PSMExecuteCommands.valueOf(command).execute(psmModeller, piaModeller, params);
-            } catch (IllegalArgumentException e) {
-                LOGGER.error("Could not process unknown call to {}", command, e);
-            }
-        }
-
-        return true;
-    }
-    
     
 
     /**

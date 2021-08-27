@@ -4,9 +4,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.CodeSource;
 
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-
 
 /**
  * Some handy functions.
@@ -54,7 +51,7 @@ public class PIATools {
      * @param o2
      * @return
      */
-    public static <T extends Comparable<T>> int CompareProbableNulls(T o1, T o2) {
+    public static <T extends Comparable<T>> int compareProbableNulls(T o1, T o2) {
         if (o1 == null) {
             if (o2 == null) {
                 return 0;
@@ -92,24 +89,6 @@ public class PIATools {
         }
 
         return fullPath;
-    }
-
-
-    /**
-     * Print out the help, given the options
-     * @param options
-     */
-    public static void printCommandLineHelp(String className, Options options, String header) {
-        HelpFormatter formatter = new HelpFormatter();
-
-        formatter.printHelp(className,
-                header + "\nOptions:",
-                options,
-                "\nPIA - Protein Inference Algorithms, version " + PIAConstants.version +
-                "\nCopyright (C) 2013-2021 Medizinisches Proteom-Center, " +
-                "https://github.com/mpc-bioinformatics/pia" +
-                "\nThis is free software; see the source for copying and license conditions. There is ABSOLUTELY NO warranty!",
-                true);
     }
 
 

@@ -8,16 +8,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.mpc.pia.JsonAnalysis;
 import de.mpc.pia.intermediate.PIAInputFile;
-import de.mpc.pia.modeller.execute.JsonAnalysis;
-import de.mpc.pia.modeller.peptide.PeptideExecuteCommands;
 import de.mpc.pia.modeller.peptide.ReportPeptide;
 import de.mpc.pia.modeller.peptide.ReportPeptideComparatorFactory;
 import de.mpc.pia.modeller.psm.PSMReportItem;
@@ -369,46 +367,6 @@ public class PeptideModeller implements Serializable {
                         fileReportPeptides.get(fileID),
                         filters, fileID),
                 new ScoreComparator<>(rankableShortName));
-    }
-
-
-    /**
-     * Processes the command line on the peptide level.
-     *
-     * @param commands
-     * @return
-     */
-    public static boolean processCLI(PeptideModeller peptideModeller, PIAModeller piaModeller, String[] commands) {
-        if (peptideModeller == null) {
-            LOGGER.error("No peptide modeller given while processing CLI commands");
-            return false;
-        }
-
-        if (piaModeller == null) {
-            LOGGER.error("No PIA modeller given while processing CLI commands");
-            return false;
-        }
-
-        Pattern pattern = Pattern.compile("^([^=]+)=(.*)");
-        Matcher commandParamMatcher;
-
-        for (String command : commands) {
-            String[] params = null;
-            commandParamMatcher = pattern.matcher(command);
-
-            if (commandParamMatcher.matches()) {
-                command = commandParamMatcher.group(1);
-                params = commandParamMatcher.group(2).split(",");
-            }
-
-            try {
-                PeptideExecuteCommands.valueOf(command).execute(peptideModeller, piaModeller, params);
-            } catch (IllegalArgumentException e) {
-                LOGGER.error("Could not process unknown call to {}", command, e);
-            }
-        }
-
-        return true;
     }
 
 

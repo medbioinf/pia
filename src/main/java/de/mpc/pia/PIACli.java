@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
 import de.mpc.pia.modeller.PIAModeller;
-import de.mpc.pia.modeller.execute.JsonAnalysis;
 import de.mpc.pia.tools.matomo.PIAMatomoTracker;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -224,7 +223,29 @@ public class PIACli implements Runnable{
         	}
     		
     		if (filesExist) {
-    			processPIAAnalysis(infiles[0], infiles[1]);
+    			PIAMatomoTracker.disableTracking(doNotTrack);
+    			
+	            PIAMatomoTracker.trackPIAEvent(
+	            		PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
+	                    PIAMatomoTracker.PIA_TRACKING_MODELLER_NAME,
+	                    PIAMatomoTracker.PIA_TRACKING_MODELLER_CLI_STARTED,
+	                    null);
+	            
+    			boolean processOK = processPIAAnalysis(infiles[0], infiles[1]);
+    			
+    			if (processOK) {
+    	            PIAMatomoTracker.trackPIAEvent(
+    	            		PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
+    	                    PIAMatomoTracker.PIA_TRACKING_MODELLER_NAME,
+    	                    PIAMatomoTracker.PIA_TRACKING_MODELLER_FINISHED,
+    	                    null);
+    			} else {
+    	            PIAMatomoTracker.trackPIAEvent(
+    	            		PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
+    	                    PIAMatomoTracker.PIA_TRACKING_MODELLER_NAME,
+    	                    PIAMatomoTracker.PIA_TRACKING_MODELLER_ERROR,
+    	                    null);
+    			}
     		}
     	}
     }
