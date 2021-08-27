@@ -2,21 +2,24 @@ package de.mpc.pia.modeller;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import de.mpc.pia.JsonAnalysis;
 import de.mpc.pia.intermediate.Group;
-import de.mpc.pia.modeller.protein.ProteinExecuteCommands;
 import de.mpc.pia.modeller.protein.ReportProtein;
 import de.mpc.pia.modeller.protein.ReportProteinComparatorFactory;
 import de.mpc.pia.modeller.protein.inference.AbstractProteinInference;
+import de.mpc.pia.modeller.protein.inference.ProteinInferenceFactory;
 import de.mpc.pia.modeller.protein.scoring.AbstractScoring;
+import de.mpc.pia.modeller.protein.scoring.ProteinScoringFactory;
 import de.mpc.pia.modeller.report.SortOrder;
 import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterFactory;
@@ -38,7 +41,7 @@ public class ProteinModeller  implements Serializable {
 
 
     /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(ProteinModeller.class);
+    private static final Logger LOGGER = LogManager.getLogger();
 
 
     /** List of the report proteins */
@@ -330,7 +333,7 @@ public class ProteinModeller  implements Serializable {
             return;
         }
 
-        LOGGER.info("applying scoring method: " + scoring.getName());
+        LOGGER.info("applying scoring method: {}", scoring.getName());
         scoring.calculateProteinScores(reportProteins);
         LOGGER.info("scoring done");
         appliedScoringMethod = scoring;
@@ -357,7 +360,7 @@ public class ProteinModeller  implements Serializable {
      */
     public Boolean getInternalDecoysExist() {
         for (Long fileID : psmModeller.getFiles().keySet()) {
-            if ((fileID > 0) && psmModeller.getFileHasInternalDecoy(fileID)) {
+            if ((fileID > 0) && psmModeller.getFileHasInternalDecoy(fileID).booleanValue()) {
                 return true;
             }
         }
@@ -378,11 +381,9 @@ public class ProteinModeller  implements Serializable {
         fdrData.setFDRThreshold(fdrThreshold);
         fdrData.setScoreShortName(ScoreModelEnum.PROTEIN_SCORE.getShortName());
 
-        LOGGER.info("Protein FDRData set to: " +
-                fdrData.getDecoyStrategy() + ", " +
-                fdrData.getDecoyPattern() + ", " +
-                fdrData.getFDRThreshold() + ", " +
-                fdrData.getScoreShortName());
+        LOGGER.info("Protein FDRData set to: {}, {}, {}, {}",
+                fdrData.getDecoyStrategy(), fdrData.getDecoyPattern(),
+                fdrData.getFDRThreshold(), fdrData.getScoreShortName());
     }
 
 
@@ -451,6 +452,33 @@ public class ProteinModeller  implements Serializable {
 
         return null;
     }
+    
+    
+    /**
+     * Adds the filters given by the array derived from parsing the json
+     * 
+     * @param filters
+     * @param fileID
+     * @return
+     */
+	public boolean addReportFiltersFromJSONStrings(String[] filters) {
+		boolean allOk = true;
+		
+		for (String filter : filters) {
+			StringBuilder messageBuffer = new StringBuilder();
+			AbstractFilter newFilter = FilterFactory.createInstanceFromString(filter, messageBuffer);
+			
+			if (newFilter != null) {
+				LOGGER.info("Adding filter: {}", newFilter);
+				allOk |= addReportFilter(newFilter);
+			} else {
+				LOGGER.error("Could not create filter from string '{}': {}", filter, messageBuffer);
+				allOk = false;
+			}
+		}
+		
+		return allOk;
+	}
 
 
     /**
@@ -474,45 +502,62 @@ public class ProteinModeller  implements Serializable {
     public boolean addInferenceFilter(AbstractFilter newFilter) {
         return newFilter != null && getInferenceFilters().add(newFilter);
     }
-
-
+    
+    
     /**
-     * Processes the command line on the protein level.
-     *
-     * @param commands
-     * @return
+     * Execute analysis on protein level, getting the settings from JSON.
+     * <p>
+     * If a required setting is not given, the default value is used.
      */
-    public static boolean processCLI(ProteinModeller proteinModeller, PIAModeller piaModeller, String[] commands) {
-        if (proteinModeller == null) {
-            LOGGER.error("No protein modeller given while processing CLI " +
-                    "commands");
-            return false;
-        }
-
-        if (piaModeller == null) {
-            LOGGER.error("No PIA modeller given while processing CLI commands");
-            return false;
-        }
-
-        Pattern pattern = Pattern.compile("^([^=]+)=(.*)");
-        Matcher commandParamMatcher;
-
-        for (String command : commands) {
-            String[] params = null;
-            commandParamMatcher = pattern.matcher(command);
-
-            if (commandParamMatcher.matches()) {
-                command = commandParamMatcher.group(1);
-                params = commandParamMatcher.group(2).split(",");
+    public boolean executeProteinOperations(JsonAnalysis json) {
+    	boolean allOk = true;
+    	
+    	AbstractProteinInference proteinInference =
+                ProteinInferenceFactory.createInstanceOf(json.getInferenceMethod());
+    	
+    	if (proteinInference == null) {
+    		LOGGER.error("Could not create inference method '{}'", json.getInferenceMethod());
+    		allOk = false;
+    	} else {
+    		LOGGER.info("selected inference method: {}", proteinInference.getName());
+    	}
+    	
+    	if (allOk) {
+    		allOk = proteinInference.addFiltersFromJSONStrings(json.getInferenceFilters());
+    	}
+    	
+    	AbstractScoring proteinScoring = null;
+    	if (allOk) {
+        	proteinScoring = ProteinScoringFactory.getNewInstanceByName(
+        			json.getScoringMethod(), Collections.emptyMap());
+        	
+        	if (proteinScoring == null) {
+        		LOGGER.error("Could not create scoring method '{}'", json.getScoringMethod());
+        		allOk = false;
+        	} else {
+        		LOGGER.info("selected scoring method: {}", proteinScoring.getName());
+        		
+        		proteinScoring.setSetting(AbstractScoring.SCORING_SETTING_ID, json.getScoringBaseScore());
+                proteinScoring.setSetting(AbstractScoring.SCORING_SPECTRA_SETTING_ID, json.getScoringPSMs());
+        		
+        		proteinInference.setScoring(proteinScoring);
+        	}
+    	}
+    	
+    	if (allOk) {
+    		infereProteins(proteinInference);
+    		
+    		if (json.isCalculateAllFDR()
+            		&& json.isCalculateCombinedFDRScore()) {
+    			
+                DecoyStrategy decoyStrategy = DecoyStrategy.getStrategyByString(json.getDecoyPattern());
+                updateFDRData(decoyStrategy, json.getDecoyPattern(), 0.01);
+    			
+    			updateDecoyStates();
+                calculateFDR();
             }
-
-            try {
-                ProteinExecuteCommands.valueOf(command).execute(proteinModeller, piaModeller, params);
-            } catch (IllegalArgumentException e) {
-                LOGGER.error("Could not process unknown call to " + command, e);
-            }
-        }
-
-        return true;
+    	}
+    	
+    	return allOk;
     }
 }

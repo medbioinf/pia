@@ -415,11 +415,15 @@ public class FDRData implements Serializable {
         for (T item : reportItems) {
             if (!rankScore.equals(item.getScore(scoreShortName))) {
                 // this is a new rank, calculate FDR
-                if (!rankScore.equals(Double.NaN) && (nrTargets < 1)) {
+                if ((nrTargets < 1) && !rankScore.equals(Double.NaN)) {
                     // only decoys until now -> set FDR to infinity
                     fdr = Double.POSITIVE_INFINITY;
                 } else {
-                    fdr = (double)nrDecoys / nrTargets;
+                	if (nrTargets < 1) {
+                        fdr = Double.POSITIVE_INFINITY;
+                	} else {
+                		fdr = (double)nrDecoys / nrTargets;
+                	}
                 }
 
                 if (fdr <= fdrThreshold) {

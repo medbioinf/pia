@@ -290,4 +290,42 @@ public class FilterFactory {
 
         return satisfiesAllFilters;
     }
+    
+    
+    /**
+     * Creates a filter instance from the given string representation (e.g. from 
+     * the analysis JSON)
+     * 
+     * @param filterStr
+     * @return
+     */
+	public static AbstractFilter createInstanceFromString(String filterStr, StringBuilder messageBuffer) {
+		AbstractFilter filter = null;
+		String[] splits = filterStr.split("\\s+", 3);
+		
+		if (splits.length > 2) {
+			boolean negate = false;
+			
+			if (splits[1].startsWith("!") || "not".equals(splits[1])) {
+				negate = true;
+				splits[1] = splits[1].substring(1);
+			}
+			if ("not".equals(splits[1])) {
+				splits[1] = splits[2];
+				splits[2] = (splits.length > 3) ? splits[3] : null;
+			}
+			
+			filter = FilterFactory.newInstanceOf(
+					splits[0],
+	                FilterComparator.getFilterComparatorByString(splits[1]),
+	                splits[2],
+	                negate,
+	                messageBuffer);
+		} else {
+			messageBuffer.append("Too few parameters in filter definition '" + filterStr + "'");
+		}
+		
+		return filter; 
+	}
+
 }

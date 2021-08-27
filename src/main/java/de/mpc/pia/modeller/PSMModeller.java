@@ -14,21 +14,21 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import de.mpc.pia.modeller.score.*;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
 
+import de.mpc.pia.JsonAnalysis;
 import de.mpc.pia.intermediate.Group;
 import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.xmlhandler.PIAIntermediateJAXBHandler;
-import de.mpc.pia.modeller.psm.PSMExecuteCommands;
 import de.mpc.pia.modeller.psm.PSMReportItem;
 import de.mpc.pia.modeller.psm.PSMReportItemComparator;
 import de.mpc.pia.modeller.psm.ReportPSM;
@@ -44,6 +44,7 @@ import de.mpc.pia.modeller.score.comparator.ScoreComparator;
 import de.mpc.pia.tools.OntologyConstants;
 import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
+import de.mpc.pia.tools.obo.AbstractOBOMapper;
 import de.mpc.pia.tools.obo.OBOMapper;
 
 
@@ -59,7 +60,7 @@ public class PSMModeller implements Serializable {
 
 
     /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(PSMModeller.class);
+    private static final Logger LOGGER = LogManager.getLogger();
 
 
     /** maps from the fileID to the {@link PIAInputFile}s, they are straight from the intermediateHandler */
@@ -377,7 +378,7 @@ public class PSMModeller implements Serializable {
 
                             if (spectraPSMs.put(spec.getID(), psm) != null) {
                                 // TODO: better warning
-                                LOGGER.warn("psm with ID '"+spec.getID()+"' already in map");
+                                LOGGER.warn("psm with ID '{}' already in map", spec.getID());
                             }
 
 
@@ -429,7 +430,7 @@ public class PSMModeller implements Serializable {
                                         scoreShortToScoreName.put(score.getShortName(),
                                                 score.getName());
 
-                                        LOGGER.debug("Added to scoremap: " + score.getShortName() + " -> " + score.getName());
+                                        LOGGER.debug("Added to scoremap: {} -> {}", score.getShortName(), score.getName());
                                     }
 
                                     // add score to the available sortings
@@ -465,7 +466,7 @@ public class PSMModeller implements Serializable {
                                             Set<Triple> tripleSet = getOBOMapper().getTriples(oboTerm, null, null);
 
                                             for (Triple triple : tripleSet) {
-                                                if (triple.getPredicate().getName().equals(OBOMapper.OBO_IS_A)) {
+                                                if (triple.getPredicate().getName().equals(AbstractOBOMapper.OBO_IS_A)) {
                                                     if (triple.getObject().getName().equals(OntologyConstants.PSM_LEVEL_PVALUE.getPsiAccession())
                                                             || triple.getObject().getName().equals(OntologyConstants.PSM_LEVEL_EVALUE.getPsiAccession())
                                                             || triple.getObject().getName().equals(OntologyConstants.PSM_LEVEL_QVALUE.getPsiAccession())
@@ -474,7 +475,7 @@ public class PSMModeller implements Serializable {
                                                             || triple.getObject().getName().equals(OntologyConstants.PEPTIDE_LEVEL_EVALUE.getPsiAccession())) {
                                                         higherscorebetter = false;
                                                     }
-                                                } else if (triple.getPredicate().getName().equals(OBOMapper.OBO_RELATIONSHIP)) {
+                                                } else if (triple.getPredicate().getName().equals(AbstractOBOMapper.OBO_RELATIONSHIP)) {
                                                     if (triple.getObject().getName().equals(OBOMapper.OBO_HAS_ORDER_HIGHERSCOREBETTER)) {
                                                         higherscorebetter = true;
                                                     } else if (triple.getObject().getName().equals(OBOMapper.OBO_HAS_ORDER_LOWERSCOREBETTER)) {
@@ -500,7 +501,7 @@ public class PSMModeller implements Serializable {
                                         comp = new ScoreComparator<>(score.getShortName(), higherscorebetter);
                                     }
 
-                                    LOGGER.debug("adding score comparator for " + score.getShortName() + ": " + comp);
+                                    LOGGER.debug("adding score comparator for {}: {}", score.getShortName(), comp);
 
                                     scoreShortToComparator.put(score.getShortName(), comp);
                                 }
@@ -511,15 +512,14 @@ public class PSMModeller implements Serializable {
                             }
 
 
-                            if (!fileHasInternalDecoy.get(fileID) &&
-                                    (spec.getIsDecoy() != null) &&
-                                    spec.getIsDecoy()) {
+                            if (!fileHasInternalDecoy.get(fileID).booleanValue() &&
+                                    (spec.getIsDecoy() != null) && spec.getIsDecoy().booleanValue()) {
                                 fileHasInternalDecoy.put(fileID, true);
                             }
 
                             nrPSMs++;
                             if (nrPSMs % 100000 == 0) {
-                                LOGGER.info(nrPSMs + " PSMs done");
+                                LOGGER.info("{} PSMs done", nrPSMs);
                             }
                         }
                     }
@@ -730,7 +730,7 @@ public class PSMModeller implements Serializable {
             return FilterFactory.applyFilters(fileReportPSMs.get(fileID),
                     filters, fileID);
         } else {
-            LOGGER.error("There are no ReportPSMs for the fileID " + fileID);
+            LOGGER.error("There are no ReportPSMs for the fileID {}", fileID);
             return new ArrayList<>(1);
         }
     }
@@ -801,18 +801,17 @@ public class PSMModeller implements Serializable {
      */
     public void setHigherScoreBetter(String scoreShort,
             Boolean higherScoreBetter) {
-        if (scoreShortToHigherScoreBetterChangeable.get(scoreShort)) {
+        if (scoreShortToHigherScoreBetterChangeable.get(scoreShort).booleanValue()) {
             scoreShortToHigherScoreBetter.put(scoreShort, higherScoreBetter);
 
             scoreShortToComparator.put(scoreShort,
                     new ScoreComparator<>(
                             scoreShort, higherScoreBetter));
 
-            LOGGER.debug("setHigherScoreBetter: " + scoreShortToComparator.get(scoreShort));
+            LOGGER.debug("setHigherScoreBetter: {}", scoreShortToComparator.get(scoreShort));
         } else {
-            LOGGER.warn("The comparator for " + scoreShort + '(' +
-                    scoreShortToScoreName.get(scoreShort) +
-                    ") may not be changed!");
+            LOGGER.warn("The comparator for {} ({}) may not be changed!",
+            		scoreShort, scoreShortToScoreName.get(scoreShort));
         }
     }
 
@@ -828,7 +827,7 @@ public class PSMModeller implements Serializable {
             return scoreShortToComparator.get(scoreShort);
         }
 
-        LOGGER.warn("no comparator found for " + scoreShort);
+        LOGGER.warn("no comparator found for {}", scoreShort);
         return null;
     }
 
@@ -954,6 +953,17 @@ public class PSMModeller implements Serializable {
         }
     }
 
+    
+    /**
+     * Sets the FDR threshold for all files to the given value
+     * @param thr
+     */
+    public void setAllFDRThresholds(Double thr) {
+        for (FDRData fdrData : fileFDRData.values()) {
+        	fdrData.setFDRThreshold(thr);
+        }
+    }
+    
 
     /**
      * Updates the {@link FDRData} for the given file.
@@ -974,14 +984,12 @@ public class PSMModeller implements Serializable {
 
             setFilesTopIdentifications(fileID, topIdentifications);
 
-            LOGGER.info(fileID + "'s FDRData set to: " +
-                    fdrData.getDecoyStrategy() + ", " +
-                    fdrData.getDecoyPattern() + ", " +
-                    fdrData.getFDRThreshold() + ", " +
-                    fdrData.getScoreShortName() + ", " +
+            LOGGER.info("{}'s FDRData set to: {}, {}, {}, {}, {}", fileID,
+                    fdrData.getDecoyStrategy(), fdrData.getDecoyPattern(),
+                    fdrData.getFDRThreshold(), fdrData.getScoreShortName(),
                     getFilesTopIdentifications(fileID));
         } else {
-            LOGGER.error("No FDRData for file with ID " + fileID);
+            LOGGER.error("No FDRData for file with ID {}", fileID);
         }
     }
 
@@ -1003,7 +1011,7 @@ public class PSMModeller implements Serializable {
                 // FDR score is not available for FDR calculation
                 fdrScoreNames.addAll(scoreShorts.stream().filter(scoreShort -> !ScoreModelEnum.PSM_LEVEL_FDR_SCORE.isValidDescriptor(scoreShort)).collect(Collectors.toList()));
             } else {
-                LOGGER.error("No scores available for FDR calculation for the file with ID "+fileID);
+                LOGGER.error("No scores available for FDR calculation for the file with ID {}", fileID);
             }
         }
 
@@ -1023,7 +1031,7 @@ public class PSMModeller implements Serializable {
         for (PIAInputFile file : inputFiles.values()) {
             if (file.getID() != 0L) {
                 String scoreName;
-                Boolean fdrCalculated = fileFDRCalculated.get(file.getID());
+                boolean fdrCalculated = fileFDRCalculated.get(file.getID());
                 if (fdrCalculated) {
                     FDRData fdrData = fileFDRData.get(file.getID());
                     scoreName = ScoreModelEnum.getName(fdrData.getScoreShortName());
@@ -1098,11 +1106,11 @@ public class PSMModeller implements Serializable {
     public void updateDecoyStates(Long fileID) {
         FDRData fdrData = fileFDRData.get(fileID);
 
-        LOGGER.info("updateDecoyStates " + fileID);
+        LOGGER.info("updateDecoyStates {}", fileID);
 
         // select either the PSMs from the given file or all and calculate the fdr
         if (fdrData == null) {
-            LOGGER.error("No FDR settings given for file with ID=" + fileID);
+            LOGGER.error("No FDR settings given for file with ID={}", fileID);
             // TODO: throw an exception or something
         } else {
             Pattern p = Pattern.compile(fdrData.getDecoyPattern());
@@ -1112,7 +1120,7 @@ public class PSMModeller implements Serializable {
                 List<ReportPSM> listForFDR = fileReportPSMs.get(fileID);
 
                 if (listForFDR == null) {
-                    LOGGER.error("No PSMs found for the file with ID=" + fileID);
+                    LOGGER.error("No PSMs found for the file with ID={}", fileID);
                     // TODO: throw an exception
                     return;
                 }
@@ -1152,19 +1160,19 @@ public class PSMModeller implements Serializable {
 
         // select either the PSMs from the given file or all and calculate the fdr
         if (fdrData == null) {
-            LOGGER.error("No FDR settings given for file with ID=" + fileID);
+            LOGGER.error("No FDR settings given for file with ID={}", fileID);
             // TODO: throw an exception
         } else {
             fdrData.setScoreShortName(getFilesPreferredFDRScore(fileID));
-            LOGGER.info("set the score for FDR calculation for fileID="
-                    + fileID + ": " + fdrData.getScoreShortName());
+            LOGGER.info("set the score for FDR calculation for fileID={}: {}",
+            		fileID, fdrData.getScoreShortName());
 
             // recalculate the decoy status (especially important, if decoy pattern was changed)
             updateDecoyStates(fileID);
 
 
             if (fileReportPSMs.get(fileID) == null) {
-                LOGGER.error("No PSMs found for the file with ID=" + fileID);
+                LOGGER.error("No PSMs found for the file with ID={}", fileID);
                 // TODO: throw an exception
                 return;
             }
@@ -1175,9 +1183,8 @@ public class PSMModeller implements Serializable {
             if ((fileTopIdentifications.get(fileID) != null) &&
                     (fileTopIdentifications.get(fileID) > 0)) {
 
-                LOGGER.info("applying topIdentification filter: top " +
-                        fileTopIdentifications.get(fileID) + " for " +
-                        fdrData.getScoreShortName());
+                LOGGER.info("applying topIdentification filter: top {} for {}",
+                		fileTopIdentifications.get(fileID), fdrData.getScoreShortName());
 
                 // as the used ReportPSMs may change with the filter, clear all prior FDR information
                 listForFDR.forEach(FDRComputable::dumpFDRCalculation);
@@ -1231,9 +1238,7 @@ public class PSMModeller implements Serializable {
      * @param fileID
      */
     private void addPSMLevelFDRSCoreToFilesScores(Long fileID) {
-        if (!fileScoreShortNames.containsKey(fileID)) {
-            fileScoreShortNames.put(fileID, new ArrayList<>());
-        }
+        fileScoreShortNames.computeIfAbsent(fileID, k -> new ArrayList<>());
 
         List<String> scoreShorts = fileScoreShortNames.get(fileID);
         if (!scoreShorts.contains(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName())) {
@@ -1333,7 +1338,7 @@ public class PSMModeller implements Serializable {
         // if no score is set in the preferred, look for searchengine main scores
         if (fileScoreShortNames.containsKey(fileID)) {
             for (String scoreShort : fileScoreShortNames.get(fileID)) {
-                if (ScoreModelEnum.getModelByDescription(scoreShort).isSearchengineMainScore()) {
+                if (ScoreModelEnum.getModelByDescription(scoreShort).isSearchengineMainScore().booleanValue()) {
                     return scoreShort;
                 }
             }
@@ -1396,7 +1401,7 @@ public class PSMModeller implements Serializable {
 
         // go through the search-engine-sets, sort by AFS and calculate combined FDR Score
         for (Map.Entry<String, List<ReportPSMSet>> seSetIt : fileLists.entrySet()) {
-            LOGGER.info("Calculation of Combined FDR Score for " + seSetIt.getKey());
+            LOGGER.info("Calculation of Combined FDR Score for {}", seSetIt.getKey());
 
             (seSetIt.getValue()).sort(new ScoreComparator<>(ScoreModelEnum.AVERAGE_FDR_SCORE.getShortName()));
 
@@ -1491,7 +1496,7 @@ public class PSMModeller implements Serializable {
             if (comp != null) {
                 compares.add( comp);
             } else {
-                LOGGER.error("no comparator found for " + sortKey);
+                LOGGER.error("no comparator found for {}", sortKey);
             }
         }
 
@@ -1517,7 +1522,7 @@ public class PSMModeller implements Serializable {
         }
 
         if (rankingScoreNames.isEmpty() && (fileID > 0)) {
-            LOGGER.error("No scores available for ranking for the file with ID " + fileID);
+            LOGGER.error("No scores available for ranking for the file with ID {}", fileID);
         }
 
         return rankingScoreNames;
@@ -1543,7 +1548,7 @@ public class PSMModeller implements Serializable {
             reports = reportPSMSets;
         }
         if (reports != null) {
-            reports.stream().filter(obj -> obj instanceof PSMReportItem).forEach(obj -> ((PSMReportItem) obj).setRank(-1L));
+            reports.stream().filter(PSMReportItem.class::isInstance).forEach(obj -> ((PSMReportItem) obj).setRank(-1L));
         }
 
         if (fileID > 0) {
@@ -1595,11 +1600,38 @@ public class PSMModeller implements Serializable {
 
         return null;
     }
+    
+    
+    /**
+     * Adds the filters given by the array derived from parsing the json
+     * 
+     * @param filters
+     * @param fileID
+     * @return
+     */
+	public boolean addPSMFiltersFromJSONStrings(String[] filters, long fileID) {
+		boolean allOk = true;
+		
+		for (String filter : filters) {
+			StringBuilder messageBuffer = new StringBuilder();
+			AbstractFilter newFilter = FilterFactory.createInstanceFromString(filter, messageBuffer);
+			
+			if (newFilter != null) {
+				LOGGER.info("Adding filter: {}", newFilter);
+				allOk |= addFilter(fileID, newFilter);
+			} else {
+				LOGGER.error("Could not create filter from string '{}': {}", filter, messageBuffer);
+				allOk = false;
+			}
+		}
+		
+		return allOk;
+	}
 
 
 
     public double[] getPPMDeviationData(Long fileID, boolean fdrGood) {
-        if (fdrGood && !isFDRCalculated(fileID)) {
+        if (fdrGood && !isFDRCalculated(fileID).booleanValue()) {
             return new double[0];
         }
 
@@ -1635,7 +1667,7 @@ public class PSMModeller implements Serializable {
      * @return
      */
     public List<List<Integer>> getPPMs(Long fileID, boolean fdrGood) {
-        if (fdrGood && !isFDRCalculated(fileID)) {
+        if (fdrGood && !isFDRCalculated(fileID).booleanValue()) {
             List<List<Integer>> labelled = new ArrayList<>();
             labelled.add(new ArrayList<>());
             labelled.add(new ArrayList<>());
@@ -1798,20 +1830,10 @@ public class PSMModeller implements Serializable {
      * @throws IOException
      */
     public void writePSMInformation(String fileName, boolean calculate) {
-        Writer writer = null;
-        try {
-            writer = new FileWriter(fileName, false);
+        try (Writer writer = new FileWriter(fileName, false)) {
             writePSMInformation(writer, calculate);
         } catch (IOException e) {
-            LOGGER.error("Could not write PSM information to " + fileName, e);
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException e) {
-                    LOGGER.error("Cannot close file " + fileName, e);
-                }
-            }
+            LOGGER.error("Could not write PSM information to {}", fileName, e);
         }
     }
 
@@ -1982,43 +2004,93 @@ public class PSMModeller implements Serializable {
 
         writer.flush();
     }
-
+    
 
     /**
-     * Processes the command line on the PSM level
-     * @param commands
+     * Execute analysis on PSM level, getting the settings from JSON.
+     * <p>
+     * If a required setting is not given, the default value is used.
+     */
+    public boolean executePSMOperations(JsonAnalysis json) {
+    	boolean allOk = true;
+    	
+    	applyGeneralSettings(json.isCreatePSMsets());
+    	
+        // FDR strategy and pattern
+        setAllDecoyPattern(json.getDecoyPattern());
+
+    	// as it is used only internally, hard code the FDR threshold to 0.01 for now
+        setAllFDRThresholds(0.01);
+        
+        // set the top identifications
+        setAllTopIdentifications(json.getTopIdentifications());
+        
+        // set the preferred scores for FDR calculation
+        resetPreferredFDRScores();
+        for (String fdrScore : json.getPreferredFDRScores()) {
+            addPreferredFDRScore(fdrScore);
+        }
+
+        // at least set the decoy state of the selected file
+        updateDecoyStates(json.getPsmLevelFileID());
+
+        // calculate the FDR
+        if (json.isCalculateAllFDR()) {
+            // all FDR should be calculated
+            calculateAllFDR();
+            
+	        if (json.isErrorOnNoDecoys()) {
+	        	allOk = checkPSMsForDecoys();
+	        }
+        }
+
+        if (allOk) {
+	        if (json.isCreatePSMsets()
+	                && json.isCalculateAllFDR()
+	                && json.isCalculateCombinedFDRScore()) {
+	            // calculate the Combined FDR Score only if there are PSM sets and calculated FDRs
+	            calculateCombinedFDRScore();
+	        } else if ( json.isCalculateAllFDR()) {
+	            // PSM sets are not created, but all FDRs are calculated -> set decoy level on PSM overview
+	            updateDecoyStates(0L);
+	        }
+        }
+
+        return allOk;
+    }
+    
+    
+    /**
+     * Checks in all the FDRData of each file, whether at least one decoy was
+     * found and whether the FDR could be calculated. Must be called after
+     * calculating the FDR on all files.
+     * 
      * @return
      */
-    public static boolean processCLI(PSMModeller psmModeller, PIAModeller piaModeller, String[] commands) {
-        if (psmModeller == null) {
-            LOGGER.error("No PSM modeller given while processing CLI commands");
-            return false;
-        }
+	private boolean checkPSMsForDecoys() {
+		boolean isOk = true;
 
-        if (piaModeller == null) {
-            LOGGER.error("No PIA modeller given while processing CLI commands");
-            return false;
-        }
+		long allDecoys = 0;
+		boolean oneFdrNotNull = false;
+		for (Map.Entry<Long, FDRData> fdrDataIt : getFileFDRData().entrySet()) {
+			if (fdrDataIt.getKey() != 0L) {
+				FDRData fdrData = fdrDataIt.getValue();
+				if (fdrData != null) {
+					oneFdrNotNull = true;
+					allDecoys += fdrData.getNrDecoys();
+				}
+			}
+		}
 
-        Pattern pattern = Pattern.compile("^([^=]+)=(.*)");
-        Matcher commandParamMatcher;
-
-        for (String command : commands) {
-            String[] params = null;
-            commandParamMatcher = pattern.matcher(command);
-
-            if (commandParamMatcher.matches()) {
-                command = commandParamMatcher.group(1);
-                params = commandParamMatcher.group(2).split(",");
-            }
-
-            try {
-                PSMExecuteCommands.valueOf(command).execute(psmModeller, piaModeller, params);
-            } catch (IllegalArgumentException e) {
-                LOGGER.error("Could not process unknown call to " + command, e);
-            }
-        }
-
-        return true;
-    }
+		if (!oneFdrNotNull) {
+			LOGGER.error("FDR could not be calculated for any of the given files.");
+			isOk = false;
+		}
+		if (allDecoys < 1) {
+			LOGGER.error("No decoy was found, check the pattern used for decoy detection.");
+			isOk = false;
+		}
+		
+		return isOk;
+	}
 }

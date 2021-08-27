@@ -97,7 +97,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem>, Serial
     SOURCE_ID_SORT {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
-            return PIATools.CompareProbableNulls(o1.getSourceID(),
+            return PIATools.compareProbableNulls(o1.getSourceID(),
                     o2.getSourceID());
         }
 
@@ -109,7 +109,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem>, Serial
     SPECTRUM_TITLE_SORT {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
-            return PIATools.CompareProbableNulls(o1.getSpectrumTitle(),
+            return PIATools.compareProbableNulls(o1.getSpectrumTitle(),
                     o2.getSpectrumTitle());
         }
 
@@ -143,7 +143,7 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem>, Serial
     RETENTION_TIME_SORT {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
-            return PIATools.CompareProbableNulls(o1.getRetentionTime(),
+            return PIATools.compareProbableNulls(o1.getRetentionTime(),
                     o2.getRetentionTime());
         }
 

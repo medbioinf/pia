@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -128,10 +130,12 @@ public class PIAMatomoTracker {
                 if (!settingsFile.exists()) {
                     createNewConfigFile(settingsFile);
                 }
-
+                
                 Properties properties = new Properties();
-                properties.load(new FileInputStream(settingsFile));
-                visitorCid = properties.getProperty("visitorCid");
+                try (InputStream inStream = new FileInputStream(settingsFile)) {
+                	properties.load(inStream);
+                    visitorCid = properties.getProperty("visitorCid");
+                }
             } catch (IOException e) {
                 // silently ignore that no properties file was created
                 LOGGER.debug("problems with matomo properties file", e);
@@ -161,7 +165,9 @@ public class PIAMatomoTracker {
 
         Properties properties = new Properties();
         properties.setProperty("visitorCid", visitorCid);
-        properties.store(new FileOutputStream(configFile), "config file for PIA");
+        try (OutputStream outStream = new FileOutputStream(configFile)) {
+            properties.store(outStream, "config file for PIA");
+        }
     }
 
 

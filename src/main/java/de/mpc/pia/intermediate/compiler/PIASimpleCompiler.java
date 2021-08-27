@@ -6,7 +6,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentification;
 import de.mpc.pia.intermediate.Accession;
@@ -18,7 +19,7 @@ import de.mpc.pia.intermediate.PeptideSpectrumMatch;
  * This class is used to read in one or several input files and compile them
  * into one PIA XML intermediate file.
  *
- * @author julian
+ * @author julianu
  *
  */
 public class PIASimpleCompiler extends PIACompiler {
@@ -46,7 +47,7 @@ public class PIASimpleCompiler extends PIACompiler {
 
 
     /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(PIASimpleCompiler.class);
+    private static final Logger LOGGER = LogManager.getLogger();
 
     /**
      * Basic constructor
@@ -174,8 +175,7 @@ public class PIASimpleCompiler extends PIACompiler {
     @Override
     public void insertCompletePeptideSpectrumMatch(PeptideSpectrumMatch psm) {
         if (spectra.put(psm.getID(), psm) != null) {
-            LOGGER.warn("spectrum was already in list, this should not have happened! "
-                    + psm.getSequence());
+            LOGGER.warn("spectrum was already in list, this should not have happened! {}", psm.getSequence());
         }
     }
 

@@ -11,8 +11,6 @@ import org.junit.Test;
 
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
-import de.mpc.pia.modeller.PIAModeller;
-import de.mpc.pia.modeller.PIAModellerTest;
 import de.mpc.pia.modeller.exporter.IdXMLExporter;
 import de.mpc.pia.modeller.protein.inference.SpectrumExtractorInference;
 import de.mpc.pia.modeller.protein.scoring.AbstractScoring;
