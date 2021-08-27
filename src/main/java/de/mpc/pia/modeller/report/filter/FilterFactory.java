@@ -301,7 +301,7 @@ public class FilterFactory {
      */
 	public static AbstractFilter createInstanceFromString(String filterStr, StringBuilder messageBuffer) {
 		AbstractFilter filter = null;
-		String[] splits = filterStr.split("\s+", 3);
+		String[] splits = filterStr.split("\\s+", 3);
 		
 		if (splits.length > 2) {
 			boolean negate = false;
