@@ -58,20 +58,22 @@ public class PIACli implements Runnable{
             + "\n\tname of the input file (if not given will be set to the path of the input file),"
             + "\n\ttype of the file (usually guessed, but may also be explicitly given, possible values are e.g. mzid, xtandem),"
             + "\n\tadditional information file (very seldom used)")
-    private String[] infiles; 
-
+    private String[] infiles;
+    
     
     /**
      * Performs the actual work of the CLI call
      */
     @Override
-    public void run() { 
+    public void run() {
     	if (compile) {
     		processCompile();
     	} else if (processExample) {
     		processExample();
-    	} else {
+    	} else if(infiles != null) {
     		processAnalysis();
+    	} else {
+    		System.out.println("No arguments provided, try --help.");
     	}
     }
     
@@ -202,11 +204,12 @@ public class PIACli implements Runnable{
      * Starts a PIA analysis using the input parameters
      */
     private void processAnalysis() {
-    	if (infiles.length < 2) {
+    	if ((infiles == null) || (infiles.length < 2)) {
     		LOGGER.error("There must be two files, one JSON analysis file and one "
     				+ "PIA intermediate file, given for a PIA analysis. "
     				+ "Use --example to see an example file, create the intermediate "
-    				+ "file from search engine results using --compile.");
+    				+ "file from search engine results using --compile."
+    				+ "\nFor general help use --help");
     	} else {
     		if (infiles.length > 2) {
     			LOGGER.warn("Only the first two parameters are used as file paths for JSON and intermediate file.");
