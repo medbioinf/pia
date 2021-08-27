@@ -264,7 +264,7 @@ public enum FilterComparator {
 
 
     /**
-     * gets the FilterArgument given by the CLI short, or null, if the short is
+     * gets the FilterComparator given by the CLI short, or null, if the short is
      * not found.
      *
      * @return
@@ -276,6 +276,49 @@ public enum FilterComparator {
                     return comp;
                 }
             }
+        }
+        return null;
+    }
+
+
+    /**
+     * gets the FilterComparator given by the label, or null, if the label is
+     * not found.
+     *
+     * @return
+     */
+    public static FilterComparator getFilterComparatorByLabel(String compLabel) {
+        if (compLabel != null) {
+            for (FilterComparator comp : values()) {
+                if (compLabel.equals(comp.getLabel())) {
+                    return comp;
+                }
+            }
+        }
+        return null;
+    }
+    
+    
+    /**
+     * Compares all values (name, label, CLIShort) to find the comparator.
+     * 
+     * @param str
+     * @return
+     */
+    public static FilterComparator getFilterComparatorByString(String str) {
+        if (str != null) {
+        	FilterComparator comp = getFilterComparatorByLabel(str);
+        	if (comp != null) {
+        		return comp;
+        	}
+        	comp = getFilterComparatorByName(str);
+        	if (comp != null) {
+        		return comp;
+        	}
+        	comp = getFilterComparatorByCLI(str);
+        	if (comp != null) {
+        		return comp;
+        	}
         }
         return null;
     }

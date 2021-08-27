@@ -24,7 +24,9 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.log4j.Logger;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.mpc.pia.intermediate.Group;
 import de.mpc.pia.intermediate.PIAInputFile;
@@ -34,6 +36,9 @@ import de.mpc.pia.intermediate.xmlhandler.PIAIntermediateJAXBHandler;
 import de.mpc.pia.modeller.execute.xmlparams.CTDTool;
 import de.mpc.pia.modeller.execute.xmlparams.NODEType;
 import de.mpc.pia.modeller.execute.xmlparams.PARAMETERSType;
+import de.mpc.pia.modeller.exporter.CSVExporter;
+import de.mpc.pia.modeller.exporter.MzIdentMLExporter;
+import de.mpc.pia.modeller.exporter.MzTabExporter;
 import de.mpc.pia.modeller.peptide.PeptideExecuteCommands;
 import de.mpc.pia.modeller.protein.ProteinExecuteCommands;
 import de.mpc.pia.modeller.psm.PSMExecuteCommands;
@@ -89,7 +94,7 @@ public class PIAModeller implements Serializable {
 
 
     /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(PIAModeller.class);
+    private static final Logger LOGGER = LogManager.getLogger();
 
     /**
      * Very basic constructor.
@@ -159,7 +164,7 @@ public class PIAModeller implements Serializable {
      * @return true, if a new file was loaded
      */
     public boolean loadFileName(String filename, Long[] progress) {
-        LOGGER.info("start loading file " + filename);
+        LOGGER.info("start loading file {}", filename);
 
         boolean loadOk = false;
 
@@ -295,13 +300,19 @@ public class PIAModeller implements Serializable {
         intermediateHandler = new PIAIntermediateJAXBHandler();
         intermediateHandler.parse(fileName, progress);
 
-        LOGGER.info(fileName + " successfully parsed.\n" +
-                '\t' + intermediateHandler.getFiles().size() + " files\n" +
-                '\t' + intermediateHandler.getGroups().size() + " groups\n" +
-                '\t' + intermediateHandler.getAccessions().size() + " accessions\n" +
-                '\t' + intermediateHandler.getPeptides().size() + " peptides\n" +
-                '\t' + intermediateHandler.getPSMs().size() + " peptide spectrum matches\n" +
-                '\t' + intermediateHandler.getNrTrees() + " trees");
+        LOGGER.info("{} successfully parsed.\n" +
+                "\t {} files\n" +
+                "\t {} groups\n" +
+                "\t {} accessions\n" +
+                "\t {} peptides\n" +
+                "\t {} peptide spectrum matches\n" +
+                "\t {} trees",
+                fileName, intermediateHandler.getFiles().size(),
+                intermediateHandler.getGroups().size(),
+                intermediateHandler.getAccessions().size(),
+                intermediateHandler.getPeptides().size(),
+                intermediateHandler.getPSMs().size(),
+                intermediateHandler.getNrTrees());
 
         LOGGER.info("loadIntermediate done.");
 
@@ -443,7 +454,7 @@ public class PIAModeller implements Serializable {
      * @param paramFileName
      */
     public static void processPipelineFile(String paramFileName, PIAModeller model) {
-        LOGGER.info("starting parse parameter file " + paramFileName);
+        LOGGER.info("starting parse parameter file {}", paramFileName);
 
         try {
             JAXBContext context = JAXBContext.newInstance(CTDTool.class);
@@ -455,12 +466,12 @@ public class PIAModeller implements Serializable {
                 processNodeInPipelineFile(model, node);
             }
         } catch (JAXBException e) {
-            LOGGER.error("Error parsing the file " + paramFileName, e);
+            LOGGER.error("Error parsing the file {}", paramFileName, e);
         } catch (FileNotFoundException e) {
-            LOGGER.error("Could not find the file " + paramFileName, e);
+            LOGGER.error("Could not find the file {}", paramFileName, e);
         }
 
-        LOGGER.info("finished parsing of parameter file " + paramFileName);
+        LOGGER.info("finished parsing of parameter file {}", paramFileName);
     }
 
 
@@ -474,7 +485,7 @@ public class PIAModeller implements Serializable {
     private static void processNodeInPipelineFile(PIAModeller model, NODEType node) {
         String nodeName = node.getName();
 
-        LOGGER.debug("parsing node " + nodeName);
+        LOGGER.debug("parsing node {}", nodeName);
 
         if (nodeName.startsWith(PSMExecuteCommands.getPrefix())) {
             PSMExecuteCommands execute = PSMExecuteCommands.valueOf(
@@ -489,7 +500,7 @@ public class PIAModeller implements Serializable {
                     nodeName.substring(ProteinExecuteCommands.getPrefix().length()));
             execute.executeXMLParameters(node, model.getProteinModeller(), model);
         } else {
-            LOGGER.error("Could not execute " + nodeName);
+            LOGGER.error("Could not execute {}", nodeName);
         }
     }
 
@@ -502,7 +513,7 @@ public class PIAModeller implements Serializable {
      * @param fileName
      */
     public static void initialisePipelineXML(String fileName, String name) {
-        LOGGER.info("initialising parameter file for " + name);
+        LOGGER.info("initialising parameter file for {}", name);
 
         CTDTool pipelineXML = new CTDTool();
 
@@ -521,10 +532,10 @@ public class PIAModeller implements Serializable {
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             m.marshal(pipelineXML, new File(fileName));
         } catch (JAXBException e) {
-            LOGGER.error("Error while creating file:", e);
+            LOGGER.error("Error while creating file: ", e);
         }
 
-        LOGGER.info("initial parameter file written to " + fileName);
+        LOGGER.info("initial parameter file written to {}", fileName);
     }
 
 
@@ -570,9 +581,9 @@ public class PIAModeller implements Serializable {
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             m.marshal(execution, new File(newFileName));
         } catch (JAXBException e) {
-            LOGGER.error("Error parsing the file " + fileName, e);
+            LOGGER.error("Error parsing the file {}", fileName, e);
         } catch (FileNotFoundException e) {
-            LOGGER.error("Could not find the file " + fileName, e);
+            LOGGER.error("Could not find the file {}", fileName, e);
         }
     }
 
@@ -747,7 +758,7 @@ public class PIAModeller implements Serializable {
                         options, PIAConstants.HELP_DESCRIPTION);
                 System.exit(-1);
             } catch (Exception e) {
-                LOGGER.error("Error while executing " + PIAModeller.class.getSimpleName(), e);
+                LOGGER.error("Error while executing {}", PIAModeller.class.getSimpleName(), e);
                 PIAMatomoTracker.trackPIAEvent(PIAMatomoTracker.PIA_TRACKING_COMMAND_LINE_CATEGORY,
                         PIAMatomoTracker.PIA_TRACKING_MODELLER_NAME,
                         PIAMatomoTracker.PIA_TRACKING_MODELLER_ERROR, null);
@@ -971,7 +982,93 @@ public class PIAModeller implements Serializable {
         }
     }
 
+	
+	/**
+	 * Exports the PSM level to the given file name. If the format is given, this
+	 * will be used for export, otherwise it will be guessed from the filename
+	 * 
+	 * @param exportFilename export filename, extension will be used for format
+	 * guessing, if the format is not specifically given.
+	 * @param format format for the export
+	 * @param fileID the PIA file (0 for overview) for the export
+	 */
+    public boolean exportPSMLevel(String exportFilename, String format, long fileID) {
+    	if (format == null) {
+    		format = FilenameUtils.getExtension(exportFilename);
+    	}
+    	boolean exportOK = true;
+    	
+		LOGGER.info("Performing PSM export to {} (format: {}, fileID: {})", exportFilename, format, fileID);
+    	if ("mzIdentML".equalsIgnoreCase(format) || "mzid".equalsIgnoreCase(format)) {
+            MzIdentMLExporter exporter = new MzIdentMLExporter(this);
+            exportOK = exporter.exportToMzIdentML(fileID, exportFilename, false, true);
+        } else if ("mztab".equalsIgnoreCase(format)) {
+            MzTabExporter exporter = new MzTabExporter(this);
+            exportOK = exporter.exportToMzTab(fileID, exportFilename, false, false, true);
+        } else if ("csv".equalsIgnoreCase(format)) {
+            CSVExporter exporter = new CSVExporter(this);
+            exportOK = exporter.exportToCSV(fileID, exportFilename, true, false, false, true);
+        } else {
+        	LOGGER.error("Could not guess export for {} ({})", exportFilename, format);
+        	exportOK = false;
+        }
+    	
+    	return exportOK;
+    }
+    
+    
+	/**
+	 * Exports the peptide level to the given file name.
+	 * <p>
+	 * The format for now is always CSV.
+	 */
+    public boolean exportPeptideLevel(String exportFilename, boolean psmLevel, long fileID) {
+		LOGGER.info("Performing peptide export to {} (psmLevel: {}, fileID: {})",
+				exportFilename, psmLevel, fileID);
+    	CSVExporter exporter = new CSVExporter(this);
+    	return exporter.exportToCSV(fileID, exportFilename, psmLevel, true, false, true);
+    }
+    
+    
+	/**
+	 * Exports the protein level to the given file name. If the format is given,
+	 * this will be used for export, otherwise it will be guessed from the
+	 * filename
+	 * 
+	 * @param exportFilename export filename, extension will be used for format
+	 * guessing, if the format is not specifically given.
+	 * @param format format for the export
+	 * @param exportPSMs whether to export PSM information (format dependent)
+	 * @param exportPeptides whether to export peptide information (format dependent)
+	 * @param exportProteinSequences whether to export protein sequences (format dependent)
+	 */
+    public boolean exportProteinLevel(String exportFilename, String format,
+    		boolean exportPSMs, boolean exportPeptides, boolean exportProteinSequences) {
+    	if (format == null) {
+    		format = FilenameUtils.getExtension(exportFilename);
+    	}
+    	boolean exportOK = true;
 
+		LOGGER.info("Performing protein export to {} (format: {}, exportPSMs: {}, exportPeptides: {}, exportProteinSequences: {})",
+				exportFilename, format, exportPSMs, exportPeptides, exportProteinSequences);
+        if ("mzTab".equalsIgnoreCase(format)) {
+            MzTabExporter exporter = new MzTabExporter(this);
+            exportOK = exporter.exportToMzTab(0L, exportFilename, true, exportPeptides, true, exportProteinSequences);
+        } else if ("mzIdentML".equalsIgnoreCase(format) || "mzid".equalsIgnoreCase(format)) {
+            MzIdentMLExporter exporter = new MzIdentMLExporter(this);
+            exportOK = exporter.exportToMzIdentML(0L, exportFilename, true, true);
+        } else if ("csv".equalsIgnoreCase(format)) {
+            CSVExporter exporter = new CSVExporter(this);
+            exportOK = exporter.exportToCSV(0L, exportFilename, exportPSMs, exportPeptides, true, true);
+        } else {
+        	LOGGER.error("Could not guess export for {} ({})", exportFilename, format);
+        	exportOK = false;
+        }
+
+        return exportOK;
+    }
+
+    
     /**
      * Writes the complete processed model to the file given by the name.
      *
@@ -993,16 +1090,16 @@ public class PIAModeller implements Serializable {
      * @throws IOException
      */
     public static void serializeToFile(PIAModeller piaModeller, File file) throws IOException {
-        LOGGER.info("Serializing data to " + file.getAbsolutePath());
+        LOGGER.info("Serializing data to {}", file.getAbsolutePath());
         try (FileOutputStream fos = new FileOutputStream(file);
                 GZIPOutputStream gzo = new GZIPOutputStream(fos);
                 ObjectOutputStream oos = new ObjectOutputStream(gzo)) {
             oos.writeObject(piaModeller);
         } catch (StackOverflowError se) {
-            LOGGER.error("Could not write whole PIA model to " + file.getAbsolutePath(), se);
+            LOGGER.error("Could not write whole PIA model to {}", file.getAbsolutePath(), se);
             throw new IOException("Could not serialize whole PIA model, too complex.");
         } catch (Exception e) {
-            LOGGER.error("Could not write PIA model to " + file.getAbsolutePath(), e);
+            LOGGER.error("Could not write PIA model to {}", file.getAbsolutePath(), e);
             throw new IOException(e);
         }
     }
@@ -1029,7 +1126,7 @@ public class PIAModeller implements Serializable {
      * @throws IOException
      */
     public static PIAModeller deSerializeFromFile(File file) throws IOException {
-        LOGGER.info("reading modeller from " + file.getAbsolutePath());
+        LOGGER.info("reading modeller from {}", file.getAbsolutePath());
 
         PIAModeller piaModeller;
 
@@ -1045,7 +1142,7 @@ public class PIAModeller implements Serializable {
                 throw new IOException(msg);
             }
         } catch (IOException e) {
-            LOGGER.error("Could not read PIA model from " + file.getAbsolutePath(), e);
+            LOGGER.error("Could not read PIA model from {}", file.getAbsolutePath(), e);
             throw e;
         } catch (ClassNotFoundException e) {
             String msg = "Could not read PIA model from " + file.getAbsolutePath();

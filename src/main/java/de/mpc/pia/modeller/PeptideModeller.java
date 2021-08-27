@@ -12,9 +12,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.mpc.pia.intermediate.PIAInputFile;
+import de.mpc.pia.modeller.execute.JsonAnalysis;
 import de.mpc.pia.modeller.peptide.PeptideExecuteCommands;
 import de.mpc.pia.modeller.peptide.ReportPeptide;
 import de.mpc.pia.modeller.peptide.ReportPeptideComparatorFactory;
@@ -43,7 +45,7 @@ public class PeptideModeller implements Serializable {
 
 
     /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(PeptideModeller.class);
+    private static final Logger LOGGER = LogManager.getLogger();
 
 
     /** the used {@link PSMModeller} */
@@ -146,8 +148,8 @@ public class PeptideModeller implements Serializable {
      * @param fileID
      */
     private void inferePeptides(Long fileID) {
-        LOGGER.info("Inferring peptides for " + fileID  +
-                " considerModifications=" + considerModifications);
+        LOGGER.info("Inferring peptides for {} considerModifications={}",
+        		fileID, considerModifications);
         // first put the PSMs sorted by their stringID (this defines a peptide) into a Map
         Map<String, ReportPeptide> peptides = new HashMap<>();
 
@@ -177,7 +179,7 @@ public class PeptideModeller implements Serializable {
         fileReportPeptides.put(fileID, repList);
         // this file is set
         inferePeptides.put(fileID, false);
-        LOGGER.info("Inferred " + repList.size() + " peptides for " + fileID);
+        LOGGER.info("Inferred {} peptides for {}", repList.size(), fileID);
 
 
         // peptides are changed -> reset the FDR data
@@ -302,7 +304,7 @@ public class PeptideModeller implements Serializable {
             return FilterFactory.applyFilters(fileReportPeptides.get(fileID),
                     filters, fileID);
         } else {
-            LOGGER.error("There are no ReportPeptides for the fileID " + fileID);
+            LOGGER.error("There are no ReportPeptides for the fileID {}", fileID);
             return new ArrayList<>(0);
         }
     }
@@ -335,7 +337,7 @@ public class PeptideModeller implements Serializable {
         List<String> rankingScoreNames = getScoreShortNames(fileID);
 
         if (rankingScoreNames.isEmpty()) {
-            LOGGER.error("No scores available for ranking for the file with ID "+fileID);
+            LOGGER.error("No scores available for ranking for the file with ID {}", fileID);
         }
 
         return rankingScoreNames;
@@ -402,7 +404,7 @@ public class PeptideModeller implements Serializable {
             try {
                 PeptideExecuteCommands.valueOf(command).execute(peptideModeller, piaModeller, params);
             } catch (IllegalArgumentException e) {
-                LOGGER.error("Could not process unknown call to " + command, e);
+                LOGGER.error("Could not process unknown call to {}", command, e);
             }
         }
 
@@ -433,14 +435,14 @@ public class PeptideModeller implements Serializable {
         }
 
         fdrData.setScoreShortName(baseScoreShort);
-        LOGGER.info("set the score for peptide FDR calculation for fileID=" +
-                fileID + ": " + fdrData.getScoreShortName());
+        LOGGER.info("set the score for peptide FDR calculation for fileID={}: {}",
+        		fileID, fdrData.getScoreShortName());
 
         // recalculate the decoy status (especially important, if decoy pattern was changed)
         updateDecoyStates(fileID);
 
         if (fileReportPeptides.get(fileID) == null) {
-            LOGGER.error("No peptides found for the file with ID=" + fileID);
+            LOGGER.error("No peptides found for the file with ID={}", fileID);
             return;
         }
 
@@ -515,7 +517,7 @@ public class PeptideModeller implements Serializable {
     private String getBaseFDRScorePSMLevel(Long fileID) {
         if ((fileID == 0L) && psmModeller.isCombinedFDRScoreCalculated()) {
             return ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName();
-        } else if (psmModeller.isFDRCalculated(fileID)) {
+        } else if (psmModeller.isFDRCalculated(fileID).booleanValue()) {
             return ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName();
         }
 
@@ -555,12 +557,12 @@ public class PeptideModeller implements Serializable {
      */
     private void updateDecoyStates(Long fileID) {
         FDRData fdrData = fileFDRData.get(fileID);
-        LOGGER.debug("updateDecoyStates for peptides on file " + fileID);
+        LOGGER.debug("updateDecoyStates for peptides on file {}", fileID);
 
         // select either the PSMs from the given file or all and calculate the fdr
         if (fdrData == null) {
-            LOGGER.error("No FDR settings given for file with ID=" + fileID
-                    + " this function must be called after getFDRDataFromPSMLevel");
+            LOGGER.error("No FDR settings given for file with ID={}, "
+                    + "this function must be called after getFDRDataFromPSMLevel", fileID);
         } else {
             Pattern p = Pattern.compile(fdrData.getDecoyPattern());
 
@@ -573,4 +575,56 @@ public class PeptideModeller implements Serializable {
             }
         }
     }
+    
+    
+    /**
+     * Execute analysis on protein level, getting the settings from JSON.
+     * <p>
+     * If a required setting is not given, the default value is used.
+     */
+    public boolean executePeptideOperations(JsonAnalysis json) {
+    	boolean allOk = true;
+    	
+    	setConsiderModifications(json.isConsiderModifications());
+        removeAllFilters();
+        
+        allOk = addPeptideFiltersFromJSONStrings(json.getPeptideFilters(), json.getPeptideLevelFileID());
+        
+        if (allOk
+        		&& json.isCalculateAllFDR()
+        		&& json.isCalculateCombinedFDRScore()) {
+            calculateFDR(json.getPeptideLevelFileID());
+        }
+        
+        return allOk;
+    }
+    
+    
+    /**
+     * Adds the filters given by the array derived from parsing the json
+     * 
+     * @param filters
+     * @param fileID
+     * @return
+     */
+	public boolean addPeptideFiltersFromJSONStrings(String[] filters, long fileID) {
+		boolean allOk = true;
+		
+		for (String filter : filters) {
+			StringBuilder messageBuffer = new StringBuilder();
+			AbstractFilter newFilter = FilterFactory.createInstanceFromString(filter, messageBuffer);
+			
+			if (newFilter != null) {
+				LOGGER.info("Adding filter: {}", newFilter);
+				addFilter(fileID, newFilter);
+			} else {
+				LOGGER.error("Could not create filter from string '{}': {}", filter, messageBuffer);
+				allOk = false;
+			}
+		}
+		
+		return allOk;
+	}
+
+
 }

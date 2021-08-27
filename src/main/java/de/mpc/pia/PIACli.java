@@ -3,10 +3,13 @@ package de.mpc.pia;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
+import de.mpc.pia.modeller.PIAModeller;
+import de.mpc.pia.modeller.execute.JsonAnalysis;
 import de.mpc.pia.tools.matomo.PIAMatomoTracker;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -24,20 +27,19 @@ import picocli.CommandLine.Parameters;
 public class PIACli implements Runnable{
 	
     /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(PIACli.class);
+    private static final Logger LOGGER = LogManager.getLogger();
 
     
     @Option(names = { "-c", "--compile" },
     		description = "perform a compilation, otherwise perform analysis") 
     boolean compile = false;
     
-    @Option(names = { "--processExample" },
+    @Option(names = { "--example" },
     		description = "returns an example json for a PIA analysis") 
     boolean processExample = false;
     
     @Option(names = { "-o", "--outfile" },
-    		description = "output file name (e.g. intermediate PIA file)",
-    		required = true) 
+    		description = "output file name (e.g. intermediate PIA file)") 
     private String outfile;
 
     @Option(names = { "-n", "--name" },
@@ -51,7 +53,7 @@ public class PIACli implements Runnable{
     private boolean doNotTrack;
 
     @Parameters(paramLabel = "<infile>",
-            description = "input file(s): search results for the compilation, json for analysis."
+            description = "input file(s): search results for the compilation, json and intermediate file for analysis."
             		+ "For the search results, possible further information can be passed, separated"
             		+ "by semicolon. The information is in this order:"
             + "\n\tname of the input file (if not given will be set to the path of the input file),"
@@ -69,6 +71,8 @@ public class PIACli implements Runnable{
     		processCompile();
     	} else if (processExample) {
     		processExample();
+    	} else {
+    		processAnalysis();
     	}
     }
     
@@ -188,9 +192,98 @@ public class PIACli implements Runnable{
      * Just returns an example json for the PIA analysis
      */
     private void processExample() {
+    	JsonAnalysis json = new JsonAnalysis();
+    	json.setToDefaults();
+    	System.out.println("Example for PIA analysis JSON:");
+    	System.out.println(json.toString());
+    }
+    
+    
+    /**
+     * Starts a PIA analysis using the input parameters
+     */
+    private void processAnalysis() {
+    	if (infiles.length < 2) {
+    		LOGGER.error("There must be two files, one JSON analysis file and one "
+    				+ "PIA intermediate file, given for a PIA analysis. "
+    				+ "Use --example to see an example file, create the intermediate "
+    				+ "file from search engine results using --compile.");
+    	} else {
+    		if (infiles.length > 2) {
+    			LOGGER.warn("Only the first two parameters are used as file paths for JSON and intermediate file.");
+    		}
+    		
+    		boolean filesExist = true;
+    		if (!(new File(infiles[0])).exists()) {
+        		LOGGER.error("File '{}' for analysis described in JSON does not exist", infiles[0]);
+        		filesExist = false;
+    		}
+    		if (!(new File(infiles[1])).exists()) {
+        		LOGGER.error("File '{}' for PIA intermediate file does not exist", infiles[1]);
+        		filesExist = false;
+        	}
+    		
+    		if (filesExist) {
+    			processPIAAnalysis(infiles[0], infiles[1]);
+    		}
+    	}
+    }
+
+    
+    /**
+     * Performs the actual PIA analysis parsing the JSON file for the PIA
+     * intermediate file.
+     * 
+     * @param jsonFileName
+     * @param piaFileName
+     */
+    public static boolean processPIAAnalysis(String jsonFileName, String piaFileName) {
+		PIAModeller modeller = new PIAModeller(piaFileName);
+    	JsonAnalysis json = JsonAnalysis.readFromFile(new File(jsonFileName));
+		
+    	boolean processOK = modeller.getPSMModeller().executePSMOperations(json);
     	
+    	if (processOK) {
+    		processOK = modeller.getPSMModeller().addPSMFiltersFromJSONStrings(json.getPsmFilters(), json.getPsmLevelFileID());
+    	}
     	
+    	if (processOK && (json.getPsmExportFile() != null)) {
+    		// export on PSM level (if file given)
+    		processOK = modeller.exportPSMLevel(json.getPsmExportFile(), null, json.getPsmLevelFileID());
+    	}
     	
+    	if (processOK && json.isInferePeptides()) {
+    		// peptide level
+    		processOK = modeller.getPeptideModeller().executePeptideOperations(json);
+    	}
+    	
+    	if (processOK && (json.getPeptideExportFile() != null)) {
+    		// export on peptide level (if file given)
+    		processOK = modeller.exportPeptideLevel(json.getPeptideExportFile(), json.isPeptideExportWithPSMs(), json.getPeptideLevelFileID());
+    	}
+    	
+    	if (processOK && json.isInfereProteins()) {
+    		// protein level
+    		processOK = modeller.getProteinModeller().executeProteinOperations(json);
+    	}
+    	
+    	if (processOK && (json.getProteinExportFile() != null)) {
+    		//filters and export for proteins
+    		processOK = modeller.getProteinModeller().addReportFiltersFromJSONStrings(json.getProteinFilters());
+    		
+    		if (processOK) {
+    			processOK = modeller.exportProteinLevel(json.getProteinExportFile(), null,
+    					json.isProteinExportWithPSMs(), json.isProteinExportWithPeptides(), json.isProteinExportWithProteinSequences());
+    		}
+    	}
+    	
+    	if (processOK) {
+    		LOGGER.info("Analysis completed without errors.");
+    	} else {
+    		LOGGER.error("There were errors while performing the analysis.");
+    	}
+    	
+    	return processOK;
     }
 
 }

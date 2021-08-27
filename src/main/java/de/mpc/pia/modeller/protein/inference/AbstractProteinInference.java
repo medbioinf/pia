@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.mpc.pia.intermediate.Group;
 import de.mpc.pia.intermediate.Peptide;
@@ -49,7 +50,7 @@ public abstract class AbstractProteinInference implements Serializable {
     private int allowedThreads;
 
     /** the logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(AbstractProteinInference.class);
+    private static final Logger LOGGER = LogManager.getLogger(AbstractProteinInference.class);
 
 
     public AbstractProteinInference() {
@@ -205,7 +206,33 @@ public abstract class AbstractProteinInference implements Serializable {
     public boolean addFilter(AbstractFilter newFilter) {
         return filters.add(newFilter);
     }
-
+    
+    
+    /**
+     * Adds the filters derived from the json strings
+     * 
+     * @param filters
+     * @param fileID
+     * @return
+     */
+	public boolean addFiltersFromJSONStrings(String[] filters) {
+		boolean allOk = true;
+		
+		for (String filter : filters) {
+			StringBuilder messageBuffer = new StringBuilder();
+			AbstractFilter newFilter = FilterFactory.createInstanceFromString(filter, messageBuffer);
+			
+			if (newFilter != null) {
+				LOGGER.info("Adding inference filter: {}", newFilter);
+				addFilter(newFilter);
+			} else {
+				LOGGER.error("Could not create inference filter from string '{}': {}", filter, messageBuffer);
+				allOk = false;
+			}
+		}
+		
+		return allOk;
+	}
 
     /**
      * Returns a {@link List} of all filter settings for this inference filter.
@@ -315,9 +342,8 @@ public abstract class AbstractProteinInference implements Serializable {
                                     psm.getIdentificationKey(psmSetSettings));
                     if (repSet == null) {
                         // TODO: better error
-                        LOGGER.warn("no PSMSet found for " +
-                                psm.getIdentificationKey(psmSetSettings) +
-                                "! createFilteredReportPeptides");
+                        LOGGER.warn("no PSMSet found for {} ! createFilteredReportPeptides",
+                        		psm.getIdentificationKey(psmSetSettings));
                         continue;
                     }
 
@@ -329,9 +355,8 @@ public abstract class AbstractProteinInference implements Serializable {
                     }
                     if (reportPSM == null) {
                         // TODO: better error
-                        LOGGER.warn("no PSM found for " +
-                                psm.getIdentificationKey(psmSetSettings) +
-                                "! createFilteredReportPeptides");
+                        LOGGER.warn("no PSM found for {}! createFilteredReportPeptides",
+                        		psm.getIdentificationKey(psmSetSettings));
                         continue;
                     }
 
@@ -357,8 +382,8 @@ public abstract class AbstractProteinInference implements Serializable {
                         if (setList != null) {
                             if (setList.size() > 1) {
                                 // TODO: better error
-                                LOGGER.warn("more than one ReportPSMSet in setList for "
-                                        + reportPSM.getSourceID() + '!');
+                                LOGGER.warn("more than one ReportPSMSet in setList for {}",
+                                		reportPSM.getSourceID());
                             }
 
                             for (PSMReportItem psmItem : setList) {
@@ -469,7 +494,7 @@ public abstract class AbstractProteinInference implements Serializable {
     public Map<String, ReportPeptide> sortPeptidesInMap(Collection<ReportPeptide> reportPeptides) {
         Map<String, ReportPeptide> peptideMap = new HashMap<>();
 
-        reportPeptides.stream().filter(peptide -> peptideMap.put(peptide.getStringID(), peptide) != null).forEach(peptide -> LOGGER.warn("Added a peptide with identical ID into the map: " + peptide.getStringID()));
+        reportPeptides.stream().filter(peptide -> peptideMap.put(peptide.getStringID(), peptide) != null).forEach(peptide -> LOGGER.warn("Added a peptide with identical ID into the map: {}", peptide.getStringID()));
 
         return peptideMap;
     }
@@ -570,8 +595,7 @@ public abstract class AbstractProteinInference implements Serializable {
             Map<Long, Set<Long>> subGroups) {
         ReportProtein protein = new ReportProtein(id);
         if (proteins.put(id, protein) != null) {
-            LOGGER.warn("protein " + id + " was already in the map! "
-                    + protein.getAccessions());
+            LOGGER.warn("protein {} was already in the map! {}", id, protein.getAccessions());
         }
 
         // add direct peptides
