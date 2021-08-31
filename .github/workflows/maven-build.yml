@@ -52,7 +52,6 @@ jobs:
       with:
         path: |
           staging/*.zip
-          staging/*.jar
         upload-release-files: true
         release-upload-url: ${{ steps.get_current_release.outputs.upload_url }}
       env:
