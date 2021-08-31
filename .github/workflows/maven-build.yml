@@ -5,6 +5,8 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -36,3 +38,22 @@ jobs:
       with:
         flags: unittests # optional
         name: codecov-umbrella # optional
+    
+    - name: Get Current Release
+      if: ${{ github.event_name == 'release' }}
+      id: get_current_release
+      uses: joutvhu/get-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload artifact and release
+      if: ${{ github.event_name == 'release' }}
+      uses: nanoufo/action-upload-artifacts-and-release-assets@v1.4
+      with:
+        path: |
+          staging/*.zip
+          staging/*.jar
+        upload-release-files: true
+        release-upload-url: ${{ steps.get_current_release.outputs.upload_url }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
