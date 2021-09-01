@@ -71,7 +71,7 @@ jobs:
       if: ${{ github.event_name != 'release' }}
       working-directory: docker
       run: |
-        docker build . --file Dockerfile --tag julianusz/pia:dev
+        docker build -t --tag julianusz/pia:dev ./
         echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
         docker push julianusz/pia:dev
     
@@ -82,7 +82,7 @@ jobs:
         version=${{ github.ref }}
         version=(${version//\// })
         version=${version[2]}
-        docker build . --file Dockerfile --tag julianusz/pia:${version}
+        docker build -t --tag julianusz/pia:${version} ./
         echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
         docker tag  julianusz/pia:${version} julianusz/pia:latest
         docker push julianusz/pia:${version}
