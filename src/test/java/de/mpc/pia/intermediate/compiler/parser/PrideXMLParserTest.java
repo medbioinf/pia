@@ -7,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.ac.ebi.pride.jaxb.xml.PrideXmlReader;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -42,10 +44,12 @@ public class PrideXMLParserTest {
     public void getDataFromPrideXMLFileTest() throws IOException {
         PIACompiler compiler = new PIASimpleCompiler();
 
-        compiler.getDataFromFile(prideXMLFile.getName(),
-                prideXMLFile.getAbsolutePath(),
-                null,
-                InputFileParserFactory.InputFileTypes.PRIDEXML_INPUT.getFileTypeShort());
+        assertTrue(
+        		compiler.getDataFromFile(prideXMLFile.getName(),
+	                prideXMLFile.getAbsolutePath(),
+	                null,
+	                InputFileParserFactory.InputFileTypes.PRIDEXML_INPUT.getFileTypeShort())
+        		);
 
         compiler.buildClusterList();
 
@@ -55,33 +59,6 @@ public class PrideXMLParserTest {
 
         compiler.writeOutXML(piaIntermediateFile);
         compiler.finish();
-
-        /*
-        PIAModeller piaModeller = new PIAModeller(piaIntermediateFile.getAbsolutePath());
-
-        // PSM level
-        piaModeller.setCreatePSMSets(true);
-        assertEquals("createPSMSets should be true", true, piaModeller.getCreatePSMSets());
-
-        piaModeller.getPSMModeller().setAllDecoyPattern(FDRData.DecoyStrategy.SEARCHENGINE.toString());
-
-        piaModeller.getPSMModeller().calculateAllFDR();
-        piaModeller.getPSMModeller().calculateCombinedFDRScore();
-
-        SpectrumExtractorInference seInference = new SpectrumExtractorInference();
-
-        seInference.addFilter(new PSMScoreFilter(FilterComparator.less_equal, false, 0.01, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName()));
-
-        seInference.setScoring(new MultiplicativeScoring(new HashMap<String, String>()));
-        seInference.getScoring().setSetting(AbstractScoring.scoringSettingID, ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName());
-        seInference.getScoring().setSetting(AbstractScoring.scoringSpectraSettingID, PSMForScoring.ONLY_BEST.getShortName());
-
-        piaModeller.getProteinModeller().infereProteins(seInference);
-
-        List<ReportProtein> proteins = piaModeller.getProteinModeller().getFilteredReportProteins(null);
-
-        Assert.assertTrue(reader.getIdentIds().size() - 1 == proteins.size());
-        */
     }
 
 }
