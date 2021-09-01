@@ -5,7 +5,6 @@ import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.intermediate.PIAInputFile;
 import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
-import de.mpc.pia.intermediate.compiler.PIACachedCompiler;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
@@ -172,11 +171,6 @@ public class MzTabParser {
      */
     public static boolean getDataFromMzTabFile(String name, String fileName, PIACompiler compiler) {
         boolean retOk;
-
-        if (compiler instanceof PIACachedCompiler) {
-            LOGGER.error("Parsing of mzTab files does not work with this compiler, as the complete PSM cannot be inserted at once.");
-            return false;
-        }
 
         MzTabParser parser = new MzTabParser(compiler, fileName);
 
