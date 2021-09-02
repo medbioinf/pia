@@ -70,9 +70,6 @@ jobs:
     - name: Check out the repo
       uses: actions/checkout@v2
       
-    - name: nothing
-      run: echo "${DOCKERHUB_USERNAME}" | sed -e 's/\(.\)/\1 /g'
-    
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
       with:
