@@ -4,7 +4,7 @@
 
 	<groupId>de.mpc.pia</groupId>
 	<artifactId>pia</artifactId>
-	<version>1.4.0</version>
+	<version>1.4.1</version>
 	<name>PIA - Protein Inference Algorithms</name>
 	<url>https://github.com/mpc-bioinformatics/pia</url>
 
@@ -51,11 +51,10 @@
 		<xtandem-parser.version>1.13.0</xtandem-parser.version>
 		<compomics-utilities.version>5.0.24</compomics-utilities.version>
 		<biojava-ontology.version>4.2.8</biojava-ontology.version>
-		<gson.version>2.8.1</gson.version>
+		<gson.version>2.8.2</gson.version>
 		<picocli.version>4.6.1</picocli.version>
 		<sqlite4java.version>1.0.392</sqlite4java.version>
 		<sqlite-jdbc.version>3.20.1</sqlite-jdbc.version>
-		<ehcache.version>3.1.1</ehcache.version>
 		<xercesImpl.version>2.12.0</xercesImpl.version>
 
 		<!-- these are "internal" dependencies, the jar files are delivered together with the source -->
@@ -236,12 +235,6 @@
 			<version>${sqlite-jdbc.version}</version>
 		</dependency>
 		<!-- End SQlite support for MSF files -->
-
-		<dependency>
-			<groupId>org.ehcache</groupId>
-			<artifactId>ehcache</artifactId>
-			<version>${ehcache.version}</version>
-		</dependency>
 
 		<!--  needed by some testcases and testscenarios -->
 		<dependency>

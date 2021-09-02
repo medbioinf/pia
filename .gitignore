@@ -52,5 +52,3 @@ log/
 logs/
 target/
 .idea/
-/docker/
-Dockerfile

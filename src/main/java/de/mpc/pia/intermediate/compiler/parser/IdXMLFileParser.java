@@ -94,7 +94,7 @@ public class IdXMLFileParser {
 
 
     /** the modification pattern like "Carbamidomethyl (C)" */
-    private static final Pattern MODIFICATION_PATTERN_NAME_RESIDUE = Pattern.compile("^(.+)\\(([^)]+)\\)$");
+    private static final Pattern MODIFICATION_PATTERN_NAME_RESIDUE = Pattern.compile("^([^)]+)\\(([^)]+)\\)$");
 
     /** the modification pattern like "C+57.0215" */
     private static final Pattern MODIFICATION_PATTERN_RESIDUE_SHIFT = Pattern.compile("^(.*)([+-]\\d*\\.\\d*)$");

@@ -64,7 +64,7 @@ public class FastaHeaderInfos {
 			@Override
 			public FastaHeaderInfos parseHeader(String header) {
 				Matcher matcher;
-				Pattern pattern = Pattern.compile("^>?((?:[OPQ][0-9][A-Z0-9]{3}[0-9])|(?:[A-NR-Z][0-9](?:[A-Z][A-Z0-9]{2}[0-9]){1,2}))\\|([^ ]+_[^ ]+).*$");
+				Pattern pattern = Pattern.compile("^>?((?:[OPQ][0-9][A-Z0-9]{3}[0-9])|(?:[A-NR-Z][0-9](?:[A-Z][A-Z0-9]{2}[0-9]){1,2}))\\|([^_]+_[^ ]+) .*$");
 				
 				matcher = pattern.matcher(header);
 				
