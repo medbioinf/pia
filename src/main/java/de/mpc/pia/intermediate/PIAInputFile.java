@@ -118,7 +118,7 @@ public class PIAInputFile implements Serializable {
      * Adds the given {@link SpectrumIdentification} to the analysisCollection.
      */
     public String addSpectrumIdentification(SpectrumIdentification si) {
-        String strID = PIAConstants.spectrum_identification_prefix + this.id +
+        String strID = PIAConstants.SPECTRUM_IDENTIFICATION_PREFIX + this.id +
                 '_' + (analysisCollection.getSpectrumIdentification().size() + 1L);
         si.setId(strID);
         // we don't have any SpectrumIdentificationList in the PIA file
@@ -160,7 +160,7 @@ public class PIAInputFile implements Serializable {
      * @param sip
      */
     public String addSpectrumIdentificationProtocol(SpectrumIdentificationProtocol sip) {
-        String strID = PIAConstants.identification_protocol_prefix + this.id +
+        String strID = PIAConstants.IDENTIFICATION_PROTOCOL_PREFIX + this.id +
                 '_' + (analysisProtocolCollection.getSpectrumIdentificationProtocol().size() + 1L);
         String ref = sip.getId();
         sip.setId(strID);
@@ -173,7 +173,7 @@ public class PIAInputFile implements Serializable {
         int idx = 1;
         if (sip.getEnzymes() != null) {
             for (Enzyme enzyme : sip.getEnzymes().getEnzyme()) {
-                enzyme.setId(PIAConstants.enzyme_prefix + this.id + '_' + idx);
+                enzyme.setId(PIAConstants.ENZYME_PREFIX + this.id + '_' + idx);
                 idx++;
             }
         }

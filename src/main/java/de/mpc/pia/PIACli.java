@@ -9,9 +9,11 @@ import org.apache.logging.log4j.Logger;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
 import de.mpc.pia.modeller.PIAModeller;
+import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.matomo.PIAMatomoTracker;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.IVersionProvider;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
@@ -21,8 +23,10 @@ import picocli.CommandLine.Parameters;
  * @author julianu
  *
  */
-@Command(name = "pia", mixinStandardHelpOptions = true, 
-	description = "PIA - Protein Inference Algorithms.")
+@Command(name = "PIACli",
+	description = "PIA - Protein Inference Algorithms.",
+	mixinStandardHelpOptions = true,
+	versionProvider = PIACli.ManifestVersionProvider.class)
 public class PIACli implements Runnable{
 	
     /** logger for this class */
@@ -310,4 +314,16 @@ public class PIACli implements Runnable{
     	return processOK;
     }
 
+    
+    /**
+     * {@link IVersionProvider} implementation that returns version information.
+     */
+    static class ManifestVersionProvider implements IVersionProvider {
+        public String[] getVersion() {
+        	return new String[] { "PIA - Protein Inference Algorithms, version " + PIAConstants.VERSION,
+        			"Ruhr University Bochum, Medical Proteome Center",
+        			"https://github.com/mpc-bioinformatics/pia"};
+        }
+
+    }
 }
