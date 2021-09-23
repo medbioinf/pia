@@ -518,7 +518,7 @@ public abstract class PIACompiler {
             }
         }
 
-        String strID = PIAConstants.software_prefix + (softwareMap.size() + 1L);
+        String strID = PIAConstants.SOFTWARE_PREFIX + (softwareMap.size() + 1L);
         softwareMap.put(strID, software);
         software.setId(strID);
         return software;
@@ -605,7 +605,7 @@ public abstract class PIACompiler {
             }
         }
 
-        String strID = PIAConstants.databases_prefix +
+        String strID = PIAConstants.DATABASE_PREFIX +
                 (searchDatabasesMap.size() + 1L);
         searchDatabasesMap.put(strID, database);
         database.setId(strID);
@@ -646,7 +646,7 @@ public abstract class PIACompiler {
             }
         }
 
-        String strID = PIAConstants.spectra_data_prefix +
+        String strID = PIAConstants.SPECTRA_DATA_PREFIX +
                 (spectraDataMap.size() + 1L);
         spectraDataMap.put(strID, spectra);
         spectra.setId(strID);

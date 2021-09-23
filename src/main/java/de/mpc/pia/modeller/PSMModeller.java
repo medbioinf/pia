@@ -484,7 +484,7 @@ public class PSMModeller implements Serializable {
                                                 }
                                             }
                                         }
-
+                                        
                                         if (higherscorebetter != null) {
                                             // the status of higherScoreBetter is not to be changed by the user
                                             scoreShortToHigherScoreBetterChangeable.put(
@@ -1338,7 +1338,7 @@ public class PSMModeller implements Serializable {
         // if no score is set in the preferred, look for searchengine main scores
         if (fileScoreShortNames.containsKey(fileID)) {
             for (String scoreShort : fileScoreShortNames.get(fileID)) {
-                if (ScoreModelEnum.getModelByDescription(scoreShort).isSearchengineMainScore().booleanValue()) {
+                if (ScoreModelEnum.getModelByDescription(scoreShort).isSearchengineMainScore()) {
                     return scoreShort;
                 }
             }

@@ -247,7 +247,7 @@ public class MzTabExporter {
             piaParam = new CVParam(OntologyConstants.CV_PSI_MS_LABEL,
                     OntologyConstants.PIA.getPsiAccession(),
                     OntologyConstants.PIA.getPsiName(),
-                    PIAConstants.version);
+                    PIAConstants.VERSION);
 
             // Setting version, mode, and type in MZTabDescription
             MZTabDescription tabDescription;

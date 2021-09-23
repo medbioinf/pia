@@ -221,7 +221,7 @@ public class PIAMatomoTracker {
             String customVariablesString = "&cvar="
                     + URLEncoder.encode('{'
                             + "\"1\":[\"operating_system\",\"" + System.getProperty("os.name") + "\"],"
-                            + "\"2\":[\"pia_version\",\"" + PIAConstants.version + "\"]"
+                            + "\"2\":[\"pia_version\",\"" + PIAConstants.VERSION + "\"]"
                             + '}', UTF8);
             getRequest += customVariablesString;
 

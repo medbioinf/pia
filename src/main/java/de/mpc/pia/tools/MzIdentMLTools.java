@@ -57,7 +57,7 @@ public class MzIdentMLTools {
 
         piaAnalysisSoftware.setName("PIA");
         piaAnalysisSoftware.setId("software_PIA");
-        piaAnalysisSoftware.setVersion(PIAConstants.version);
+        piaAnalysisSoftware.setVersion(PIAConstants.VERSION);
         Param tempParam = new Param();
         tempParam.setParam(createPSICvParam(OntologyConstants.PIA, null));
         piaAnalysisSoftware.setSoftwareName(tempParam);

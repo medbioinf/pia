@@ -217,7 +217,7 @@ public class IdXMLExporter {
         // only one IdentificationRun will be written (for the consensus)
         // TODO: change the search engine to the correct engine
         searchEngine = "PIA";
-        searchEngineVersion = PIAConstants.version;
+        searchEngineVersion = PIAConstants.VERSION;
 
         proteinScore = OntologyConstants.PIA_PROTEIN_SCORE.getPsiName();
         proteinScoreHigherBetter = true;

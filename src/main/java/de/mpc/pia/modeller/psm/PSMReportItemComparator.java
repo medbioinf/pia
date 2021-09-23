@@ -15,42 +15,20 @@ import de.mpc.pia.tools.PIATools;
 
 public enum PSMReportItemComparator implements Comparator<PSMReportItem>, Serializable {
 
-    RANK_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            RankComparator<PSMReportItem> comparator = new RankComparator<>();
-
-            return comparator.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return "rank";
-        }
-    },
-    SEQUENCE_SORT {
+    RANK_SORT(new RankComparator<>(), "rank"),
+    SEQUENCE_SORT(null, "sequence") {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
             return o1.getSequence().compareTo(o2.getSequence());
         }
-
-        @Override
-        public String toString() {
-            return "sequence";
-        }
     },
-    CHARGE_SORT {
+    CHARGE_SORT(null, "charge") {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
             return Integer.compare(o1.getCharge(), o2.getCharge());
         }
-
-        @Override
-        public String toString() {
-            return "charge";
-        }
     },
-    NR_PSMS_SORT {
+    NR_PSMS_SORT(null, "nr_psms") {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
             Integer o1Nr = 1;
@@ -66,388 +44,156 @@ public enum PSMReportItemComparator implements Comparator<PSMReportItem>, Serial
 
             return o1Nr.compareTo(o2Nr);
         }
-
-        @Override
-        public String toString() {
-            return "nr_psms";
-        }
     },
-    MASS_TO_CHARGE_SORT {
+    MASS_TO_CHARGE_SORT(null, "masstocharge") {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
             return Double.compare(o1.getMassToCharge(), o2.getMassToCharge());
         }
-
-        @Override
-        public String toString() {
-            return "masstocharge";
-        }
     },
-    MISSED_SORT {
+    MISSED_SORT(null, "missed") {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
             return Integer.compare(o1.getMissedCleavages(), o2.getMissedCleavages());
         }
-
-        @Override
-        public String toString() {
-            return "missed";
-        }
     },
-    SOURCE_ID_SORT {
+    SOURCE_ID_SORT(null, "source_id") {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
-            return PIATools.compareProbableNulls(o1.getSourceID(),
-                    o2.getSourceID());
-        }
-
-        @Override
-        public String toString() {
-            return "source_id";
+            return PIATools.compareProbableNulls(o1.getSourceID(), o2.getSourceID());
         }
     },
-    SPECTRUM_TITLE_SORT {
+    SPECTRUM_TITLE_SORT(null, "spectrum_title") {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
             return PIATools.compareProbableNulls(o1.getSpectrumTitle(),
                     o2.getSpectrumTitle());
         }
-
-        @Override
-        public String toString() {
-            return "spectrum_title";
-        }
     },
-    DELTA_MASS_SORT {
+    DELTA_MASS_SORT(null, "deltamass") {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
             return Double.compare(o1.getDeltaMass(), o2.getDeltaMass());
         }
-
-        @Override
-        public String toString() {
-            return "deltamass";
-        }
     },
-    DELTA_PPM_SORT {
+    DELTA_PPM_SORT(null, "deltappm") {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
             return Double.compare(o1.getDeltaPPM(), o2.getDeltaPPM());
         }
-
-        @Override
-        public String toString() {
-            return "deltappm";
-        }
     },
-    RETENTION_TIME_SORT {
+    RETENTION_TIME_SORT(null, "retention_time") {
         @Override
         public int compare(PSMReportItem o1, PSMReportItem o2) {
-            return PIATools.compareProbableNulls(o1.getRetentionTime(),
-                    o2.getRetentionTime());
-        }
-
-        @Override
-        public String toString() {
-            return "retention_time";
+            return PIATools.compareProbableNulls(o1.getRetentionTime(), o2.getRetentionTime());
         }
     },
 
     // the scores
-    PSM_FDR_SCORE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName());
-            return comp.compare(o1, o2);
-        }
+    AMANDA_SCORE_SORT(ScoreModelEnum.AMANDA_SCORE),
+    AVERAGE_FDR_SCORE_SORT(ScoreModelEnum.AVERAGE_FDR_SCORE),
+    BYONIC_ABSLOGPROB2D_SCORE_SORT(ScoreModelEnum.BYONIC_ABSLOGPROB2D_SCORE),
+    BYONIC_BEST_SCORE_SORT(ScoreModelEnum.BYONIC_BEST_SCORE),
+    BYONIC_DELTA_MOD_SCORE_SORT(ScoreModelEnum.BYONIC_DELTA_MOD_SCORE),
+    BYONIC_DELTA_SCORE_SORT(ScoreModelEnum.BYONIC_DELTA_SCORE),
+    BYONIC_SCORE_SORT(ScoreModelEnum.BYONIC_SCORE),
+    COMET_DELTA_CN_SORT(ScoreModelEnum.COMET_DELTA_CN),
+    COMET_DELTA_CN_STAR_SORT(ScoreModelEnum.COMET_DELTA_CN_STAR),
+    COMET_EXPECTATION_SORT(ScoreModelEnum.COMET_EXPECTATION),
+    COMET_SPRANK_SORT(ScoreModelEnum.COMET_SPRANK),
+    COMET_SPSCORE_SORT(ScoreModelEnum.COMET_SPSCORE),
+    COMET_XCORR_SORT(ScoreModelEnum.COMET_XCORR),
+    MASCOT_EXPECT_SORT(ScoreModelEnum.MASCOT_EXPECT),
+    MASCOT_HOMOLOGOY_THRESHOLD_SORT(ScoreModelEnum.MASCOT_HOMOLOGOY_THRESHOLD),
+    MASCOT_IDENTITY_THRESHOLD_SORT(ScoreModelEnum.MASCOT_IDENTITY_THRESHOLD),
+    MASCOT_PTM_SITE_CONFIDENT_SORT(ScoreModelEnum.MASCOT_PTM_SITE_CONFIDENT),
+    MASCOT_SCORE_SORT(ScoreModelEnum.MASCOT_SCORE),
+    MSGF_DENOVOSCORE_SORT(ScoreModelEnum.MSGF_DENOVOSCORE),
+    MSGF_EVALUE_SORT(ScoreModelEnum.MSGF_EVALUE),
+    MSGF_PEPQVALUE_SORT(ScoreModelEnum.MSGF_PEPQVALUE),
+    MSGF_QVALUE_SORT(ScoreModelEnum.MSGF_QVALUE),
+    MSGF_RAWSCORE_SORT(ScoreModelEnum.MSGF_RAWSCORE),
+    MSGF_SPECEVALUE_SORT(ScoreModelEnum.MSGF_SPECEVALUE),
+    MYRIMATCH_MVH_SORT(ScoreModelEnum.MYRIMATCH_MVH),
+    MYRIMATCH_MZFIDELITY_SORT(ScoreModelEnum.MYRIMATCH_MZFIDELITY),
+    OMSSA_E_VALUE_SORT(ScoreModelEnum.OMSSA_E_VALUE),
+    OMSSA_P_VALUE_SORT(ScoreModelEnum.OMSSA_P_VALUE),
+    OPENMS_CONSENSUS_PEPMATRIX_PEP_SORT(ScoreModelEnum.OPENMS_CONSENSUS_PEPMATRIX_POSTERIOR_ERROR_PROBABILITY),
+    OPENMS_POSTERIOR_ERROR_PROBABILITY_SORT(ScoreModelEnum.OPENMS_POSTERIOR_ERROR_PROBABILITY),
+    OPENMS_POSTERIOR_PROBABILITY_SORT(ScoreModelEnum.OPENMS_POSTERIOR_PROBABILITY),
+    PEAKS_PEPTIDE_SCORE_SORT(ScoreModelEnum.PEAKS_PEPTIDE_SCORE),
+    PEPTIDESHAKER_PSM_CONFIDENCE_SCORE_SORT(ScoreModelEnum.PEPTIDESHAKER_PSM_CONFIDENCE_SCORE),
+    PEPTIDESHAKER_PSM_SCORE_SORT(ScoreModelEnum.PEPTIDESHAKER_PSM_SCORE),
+    PERCOLATOR_POSTERIOR_ERROR_PROBABILITY_SORT(ScoreModelEnum.PERCOLATOR_POSTERIOR_ERROR_PROBABILITY),
+    PERCOLATOR_Q_VALUE_SORT(ScoreModelEnum.PERCOLATOR_Q_VALUE),
+    PHENYX_P_VALUE_SORT(ScoreModelEnum.PHENYX_P_VALUE),
+    PHENYX_PEPTIDE_Z_SCORE_SORT(ScoreModelEnum.PHENYX_PEPTIDE_Z_SCORE),
+    PHENYX_SCORE_SORT(ScoreModelEnum.PHENYX_SCORE),
+    PSM_COMBINED_FDR_SCORE_SORT(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE),
+    PSM_FDR_SCORE_SORT(ScoreModelEnum.PSM_LEVEL_FDR_SCORE),
+    PSM_Q_VALUE_SCORE_SORT(ScoreModelEnum.PSM_LEVEL_Q_VALUE),
+    SEQUEST_DELTACN_SORT(ScoreModelEnum.SEQUEST_DELTACN),
+    SEQUEST_PROBABILITY_SORT(ScoreModelEnum.SEQUEST_PROBABILITY),
+    SEQUEST_SPSCORE_SORT(ScoreModelEnum.SEQUEST_SPSCORE),
+    SEQUEST_XCORR_SORT(ScoreModelEnum.SEQUEST_XCORR),
+    SPECTRUM_MILL_SCORE_SORT(ScoreModelEnum.SPECTRUM_MILL_SCORE),
+    XTANDEM_EXPECT_SORT(ScoreModelEnum.XTANDEM_EXPECT),
+    XTANDEM_HYPERSCORE_SORT(ScoreModelEnum.XTANDEM_HYPERSCORE),
 
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.PSM_LEVEL_FDR_SCORE.getShortName();
-        }
-    },
-    PSM_Q_VALUE_SCORE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.PSM_LEVEL_Q_VALUE.getShortName());
-            return comp.compare(o1, o2);
-        }
+    // special "scores"
+    NUMBER_OF_MATCHED_PEAKS_SORT(ScoreModelEnum.NUMBER_OF_MATCHED_PEAKS),
 
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.PSM_LEVEL_Q_VALUE.getShortName();
-        }
-    },
-    AVERAGE_FDR_SCORE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.AVERAGE_FDR_SCORE.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.AVERAGE_FDR_SCORE.getShortName();
-        }
-    },
-    COMBINED_FDR_SCORE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.PSM_LEVEL_COMBINED_FDR_SCORE.getShortName();
-        }
-    },
-    MASCOT_SCORE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.MASCOT_SCORE.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.MASCOT_SCORE.getShortName();
-        }
-    },
-    MASCOT_EXPECT_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.MASCOT_EXPECT.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.MASCOT_EXPECT.getShortName();
-        }
-    },
-    SEQUEST_PROBABILITY_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.SEQUEST_PROBABILITY.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.SEQUEST_PROBABILITY.getShortName();
-        }
-    },
-    SEQUEST_SPSCORE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.SEQUEST_SPSCORE.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.SEQUEST_SPSCORE.getShortName();
-        }
-    },
-    SEQUEST_XCORR_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.SEQUEST_XCORR.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.SEQUEST_XCORR.getShortName();
-        }
-    },
-    XTANDEM_EXPECT_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.XTANDEM_EXPECT.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.XTANDEM_EXPECT.getShortName();
-        }
-    },
-    XTANDEM_HYPERSCORE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.XTANDEM_HYPERSCORE.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.XTANDEM_HYPERSCORE.getShortName();
-        }
-    },
-    MSGF_RAWSCORE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.MSGF_RAWSCORE.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.MSGF_RAWSCORE.getShortName();
-        }
-    },
-    MSGF_DENOVOSCORE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.MSGF_DENOVOSCORE.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.MSGF_DENOVOSCORE.getShortName();
-        }
-    },
-    MSGF_SPECEVALUE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.MSGF_SPECEVALUE.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.MSGF_SPECEVALUE.getShortName();
-        }
-    },
-    MSGF_EVALUE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.MSGF_EVALUE.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.MSGF_EVALUE.getShortName();
-        }
-    },
-    MYRIMATCH_MVH_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.MYRIMATCH_MVH.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.MYRIMATCH_MVH.getShortName();
-        }
-    },
-    AMANDA_SCORE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.AMANDA_SCORE.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.AMANDA_SCORE.getShortName();
-        }
-    },
-    OPENMS_POSTERIOR_ERROR_PROBABILITY_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.OPENMS_POSTERIOR_ERROR_PROBABILITY.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.OPENMS_POSTERIOR_ERROR_PROBABILITY.getShortName();
-        }
-    },
-    OPENMS_POSTERIOR_PROBABILITY_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.OPENMS_POSTERIOR_PROBABILITY.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.OPENMS_POSTERIOR_PROBABILITY.getShortName();
-        }
-    },
-    OPENMS_CONSENSUS_PEPMATRIX_PEP_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.OPENMS_CONSENSUS_PEPMATRIX_POSTERIOR_ERROR_PROBABILITY.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.OPENMS_CONSENSUS_PEPMATRIX_POSTERIOR_ERROR_PROBABILITY.getShortName();
-        }
-    },
-
-
-    FASTA_SEQUENCE_COUNT_SCORE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.FASTA_SEQUENCE_COUNT.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.FASTA_SEQUENCE_COUNT.getShortName();
-        }
-    },
-    FASTA_ACCESSION_COUNT_SCORE_SORT {
-        @Override
-        public int compare(PSMReportItem o1, PSMReportItem o2) {
-            ScoreComparator<PSMReportItem> comp =
-                    new ScoreComparator<>(ScoreModelEnum.FASTA_ACCESSION_COUNT.getShortName());
-            return comp.compare(o1, o2);
-        }
-
-        @Override
-        public String toString() {
-            return SCORE_PREFIX + ScoreModelEnum.FASTA_ACCESSION_COUNT.getShortName();
-        }
-    },
+    // fasta "scores"
+    FASTA_ACCESSION_COUNT_SCORE_SORT(ScoreModelEnum.FASTA_ACCESSION_COUNT),
+    FASTA_SEQUENCE_COUNT_SCORE_SORT(ScoreModelEnum.FASTA_SEQUENCE_COUNT),
     ;
-
 
     /** the prefix before all score tags */
     public static final String SCORE_PREFIX = "score_";
-
+    
+    /** the default comparator */
+    private Comparator<PSMReportItem> comp = null;
+    
+    /** the toString result */
+    private String stringName = null;
+    
+    
+    /**
+     * The default constructor
+     */
+    private PSMReportItemComparator(Comparator<PSMReportItem> comp, String stringName) {
+    	this.comp = comp;
+    	this.stringName = stringName;
+    }
+    
+    
+    /**
+     * Constructs the comparator for a score comparison
+     *
+     * @param psiName
+     * @param psiAccession
+     */
+    private PSMReportItemComparator(ScoreModelEnum scoreModel) {
+    	this.comp = new ScoreComparator<>(scoreModel.getShortName());
+    	this.stringName = SCORE_PREFIX + scoreModel.getShortName();
+    }
+    
+    
+    /**
+     * The default is a score comparator. All other compares should be overriden
+     * in the  declaration.
+     */
+    @Override
+    public int compare(PSMReportItem o1, PSMReportItem o2) {
+        return comp.compare(o1, o2);
+    }
+    
+    
+    @Override
+    public String toString() {
+    	return stringName;
+    }
+    
 
     /**
      * invert the ordering
