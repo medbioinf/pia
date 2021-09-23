@@ -13,7 +13,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
 import uk.ac.ebi.jmzidml.model.mzidml.CvParam;
@@ -44,6 +45,7 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.CleavageAgent;
 import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.OntologyConstants;
+import de.mpc.pia.tools.PIAConstants;
 import de.mpc.pia.tools.PIATools;
 import de.mpc.pia.tools.openms.IdXMLParser;
 import de.mpc.pia.tools.openms.jaxb.DigestionEnzyme;
@@ -71,7 +73,7 @@ import de.mpc.pia.tools.unimod.jaxb.ModT;
 public class IdXMLFileParser {
 
     /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(IdXMLFileParser.class);
+    private static final Logger LOGGER = LogManager.getLogger();
 
 
     /** name of the UserParam indicating the target_decoy */
@@ -122,7 +124,7 @@ public class IdXMLFileParser {
         try {
             idXMLFile = new IdXMLParser(fileName);
         } catch (Exception e) {
-            LOGGER.error("could not read '" + fileName + "'.", e);
+            LOGGER.error("could not read '{}'", fileName, e);
             return false;
         }
 
@@ -271,10 +273,10 @@ public class IdXMLFileParser {
             }
         }
 
-        LOGGER.info("inserted new: \n\t" +
-                pepNr + " peptides\n\t" +
-                specNr + " peptide spectrum matches\n\t" +
-                accNr + " accessions");
+        LOGGER.info("inserted new:"
+        		+ "\n\t{} peptides"
+        		+ "\n\t{} peptide spectrum matches"
+        		+ "\n\t{} accessions", pepNr, specNr, accNr);
         return true;
     }
 
@@ -351,7 +353,7 @@ public class IdXMLFileParser {
         for (PeptideHit pepHit : pepID.getPeptideHit()) {
             if (pepHit.getProteinRefs().isEmpty()) {
                 // identifications without proteins have no value (for now)
-                LOGGER.error("No protein linked to the peptide identification, dropped PeptideHit for " +
+                LOGGER.error("No protein linked to the peptide identification, dropped PeptideHit for {}",
                         pepHit.getSequence());
                 continue;
             }
@@ -439,7 +441,7 @@ public class IdXMLFileParser {
             try {
                 sourceID = "index=" + Long.parseLong(param.getValue());
             } catch (NumberFormatException e) {
-                LOGGER.warn("could not parse sourceID: " + param.getValue());
+                LOGGER.warn("could not parse sourceID: {}", param.getValue());
                 sourceID = null;
             }
         }
@@ -480,12 +482,12 @@ public class IdXMLFileParser {
         ScoreModelEnum scoreModel = ScoreModelEnum.UNKNOWN_SCORE;
         
         if (searchEngine != null) {
-        	scoreModel = ScoreModelEnum.getModelByDescription(searchEngine + ScoreModelEnum.OPENMS_MAINSCORE_PREFIX);
+        	scoreModel = ScoreModelEnum.getModelByDescription(searchEngine + PIAConstants.OPENMS_MAINSCORE_PREFIX);
         }
         
         if (scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
         	// first way did not work, try this
-        	scoreModel = ScoreModelEnum.getModelByDescription(pepID.getScoreType() + ScoreModelEnum.OPENMS_MAINSCORE_PREFIX);
+        	scoreModel = ScoreModelEnum.getModelByDescription(pepID.getScoreType() + PIAConstants.OPENMS_MAINSCORE_PREFIX);
         }
         
         if (!scoreModel.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
@@ -507,7 +509,7 @@ public class IdXMLFileParser {
             } else {
                 score = new ScoreModel(
                         Double.parseDouble(String.valueOf(pepHit.getScore())),
-                        pepID.getScoreType() + ScoreModelEnum.OPENMS_MAINSCORE_PREFIX,
+                        pepID.getScoreType() + PIAConstants.OPENMS_MAINSCORE_PREFIX,
                         pepID.getScoreType());
                 psm.addScore(score);
             }
@@ -624,7 +626,7 @@ public class IdXMLFileParser {
             long fileID, String searchDbID) {
         FastaHeaderInfos fastaInfo = FastaHeaderInfos.parseHeaderInfos(protHit.getAccession());
         if (fastaInfo == null) {
-            LOGGER.error("Could not parse '" + protHit.getAccession() + '\'');
+            LOGGER.error("Could not parse '{}'", protHit.getAccession());
             return 0;
         }
 
@@ -710,7 +712,7 @@ public class IdXMLFileParser {
             if (variableSearchMod != null) {
                 modParams.getSearchModification().add(variableSearchMod);
             } else {
-                LOGGER.error("Could not parse variable modification: " + variableMod.getName());
+                LOGGER.error("Could not parse variable modification: {}", variableMod.getName());
             }
         }
 
@@ -720,7 +722,7 @@ public class IdXMLFileParser {
             if (fixedSearchMod != null) {
                 modParams.getSearchModification().add(fixedSearchMod);
             } else {
-                LOGGER.error("Could not parse fixed modification: " + fixedMod.getName());
+                LOGGER.error("Could not parse fixed modification: {}", fixedMod.getName());
             }
         }
 
@@ -862,8 +864,7 @@ public class IdXMLFileParser {
                 try {
                     deltaMass = Double.parseDouble(userParam.getValue());
                 } catch (NumberFormatException e) {
-                    LOGGER.warn("Could not parse '" + userParam.getValue()
-                            + "' as deltaMass", e);
+                    LOGGER.warn("Could not parse '{}' as deltaMass", userParam.getValue(), e);
                     deltaMass = Double.NaN;
                 }
 
@@ -939,7 +940,7 @@ public class IdXMLFileParser {
 
                 modifications.put(sequence.length(), mod);
             } else {
-                LOGGER.error("Could not get information for modification " + modName + " in " + sequence);
+                LOGGER.error("Could not get information for modification {} in {}", modName, sequence);
             }
 
             modificationsSequence =
@@ -1017,7 +1018,7 @@ public class IdXMLFileParser {
         }
 
         if (startSites.isEmpty()) {
-            LOGGER.warn("no occurrences for " + peptideSeq + "    dbSeq: " + proteinSeq);
+            LOGGER.warn("no occurrences for {}     dbSeq: {}", peptideSeq,proteinSeq);
         }
 
         return startSites;
@@ -1074,7 +1075,7 @@ public class IdXMLFileParser {
 
                     enzyme.setSiteRegexp(cleavageAgent.getSiteRegexp());
                 } else {
-                    LOGGER.warn("Unknown enzyme specification: " + openMsEnzyme);
+                    LOGGER.warn("Unknown enzyme specification: {}", openMsEnzyme);
                 }
             }
 
@@ -1095,7 +1096,7 @@ public class IdXMLFileParser {
      */
     public static boolean checkFileType(String fileName) {
         boolean isIdXMLFile = false;
-        LOGGER.debug("checking whether this is an idXML file: " + fileName);
+        LOGGER.debug("checking whether this is an idXML file: {}", fileName);
 
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
             // read in the first 10, not empty lines
@@ -1108,23 +1109,23 @@ public class IdXMLFileParser {
 
             // optional declaration
             if (lines.get(idx).trim().matches("<\\?xml version=\"[0-9.]+\"( encoding=\"[^\"]+\"){0,1}\\?>")) {
-                LOGGER.debug("file has the XML declaration line:" + lines.get(idx));
+                LOGGER.debug("file has the XML declaration line: {}", lines.get(idx));
                 idx++;
             }
 
             // optional stylesheet declaration
             if (lines.get(idx).trim().matches("<\\?xml-stylesheet.+\\?>")) {
-                LOGGER.debug("file has the XML stylesheet line:" + lines.get(idx));
+                LOGGER.debug("file has the XML stylesheet line: {}", lines.get(idx));
                 idx++;
             }
 
             // now the IdXML element must be next
             if (lines.get(idx).trim().matches("<IdXML .+")) {
                 isIdXMLFile = true;
-                LOGGER.debug("file has the idXML element: " + lines.get(idx));
+                LOGGER.debug("file has the idXML element: {}", lines.get(idx));
             }
         } catch (Exception e) {
-            LOGGER.debug("Could not check file " + fileName, e);
+            LOGGER.debug("Could not check file {}", fileName, e);
         }
 
         return isIdXMLFile;

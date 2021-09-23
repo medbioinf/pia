@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 public class PIAConstants {
 
     /** the logger for this class */
-    private static final Logger LOGGER = LogManager.getLogger(PIAConstants.class);
+    private static final Logger LOGGER = LogManager.getLogger();
 
 
     /** the current version of PIA */
@@ -41,6 +41,10 @@ public class PIAConstants {
     /** precision for rounding the mass to charge (e.g. for PSM set generation) */
     public static final Integer MASS_TO_CHARGE_PRECISION = 3;
 
+    // prefixes for ScoreModelEnum
+    public static final String NO_CV_PREFIX = "NO_CV_";
+    public static final String CV_NAME_NOT_SET_PREFIX = "(cvName not set for ";
+    public static final String OPENMS_MAINSCORE_PREFIX = "_openmsmainscore";
 
     // prefixes for the IDs from mzIdentML
     public static final String SOFTWARE_PREFIX = "software_";
