@@ -209,4 +209,24 @@ public class PSMFiltersTest {
         psmSetList = piaModeller.getPSMModeller().getFilteredReportPSMSets(filters);
         assertEquals("Number of PSM sets with Combined FDR Score filter not correct", 15, psmSetList.size());
     }
+    
+    
+
+    @Test
+    public void testPSMDecoyFilter() {
+    	ArrayList<AbstractFilter> filters = new ArrayList<>();
+
+        filters.add(RegisteredFilters.PSM_DECOY_FILTER.newInstanceOf(FilterComparator.equal, true, false));
+        List<ReportPSM> psmList = piaModeller.getPSMModeller().getFilteredReportPSMs(1L, filters);
+        for (ReportPSM psm : psmList) {
+            assertFalse("There should be no decoys left in PSMs", psm.getIsDecoy());
+        }
+        
+        filters.clear();
+        filters.add(RegisteredFilters.PSM_DECOY_FILTER.newInstanceOf(FilterComparator.equal, false, false));
+        psmList = piaModeller.getPSMModeller().getFilteredReportPSMs(1L, filters);
+        for (ReportPSM psm : psmList) {
+            assertTrue("There should be only decoys in PSMs", psm.getIsDecoy());
+        }
+    }
 }
