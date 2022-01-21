@@ -180,6 +180,30 @@ public enum RegisteredFilters {
         }
     },
 
+    PSM_DECOY_FILTER(FilterType.bool, Boolean.class, "Decoy Filter for PSM (true for targets)", "Decoy (filters out decoys, PSM)") {
+    	@Override
+        public SimpleTypeFilter<Boolean> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
+            return new SimpleTypeFilter<>(arg, this, negate, (Boolean) value);
+        }
+
+        @Override
+        public Object getObjectsValue(Object o) {
+            if (o instanceof PSMReportItem) {
+                return !((PSMReportItem) o).getIsDecoy();
+            } else if (o instanceof Boolean) {
+                return o;
+            }
+
+            // nothing supported
+            return null;
+        }
+
+        @Override
+        public boolean supportsClass(Object c) {
+            return c instanceof PSMReportItem;
+        }
+    },
+    
     PSM_DESCRIPTION_FILTER(FilterType.literal_list, String.class, "Description Filter for PSM", "Description (PSM)") {
         @Override
         public SimpleTypeFilter<String> newInstanceOf(FilterComparator arg, Object value, boolean negate) {
