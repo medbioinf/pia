@@ -1381,6 +1381,7 @@ public enum RegisteredFilters {
             MZ_FILTER,
             PSM_ACCESSIONS_FILTER,
             PSM_DESCRIPTION_FILTER,
+            PSM_DECOY_FILTER,
             PSM_FILE_LIST_FILTER,
             PSM_MISSED_CLEAVAGES_FILTER,
             PSM_MODIFICATIONS_FILTER,
