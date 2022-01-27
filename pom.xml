@@ -55,7 +55,7 @@
 		<picocli.version>4.6.1</picocli.version>
 		<sqlite4java.version>1.0.392</sqlite4java.version>
 		<sqlite-jdbc.version>3.20.1</sqlite-jdbc.version>
-		<xercesImpl.version>2.12.0</xercesImpl.version>
+		<xercesImpl.version>2.12.2</xercesImpl.version>
 
 		<!-- these are "internal" dependencies, the jar files are delivered together with the source -->
 		<BaseLib.version>0.0.1-SNAPSHOT</BaseLib.version>
