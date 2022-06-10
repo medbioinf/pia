@@ -185,11 +185,29 @@
 			<groupId>de.proteinms.xtandemparser</groupId>
 			<artifactId>xtandem-parser</artifactId>
 			<version>${xtandem-parser.version}</version>
+			<exclusions>
+			<!-- these packages break Java 17 dependencies -->
+				<exclusion> 
+					<groupId>xpp3</groupId>
+					<artifactId>xpp3</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.compomics</groupId>
 			<artifactId>utilities</artifactId>
 			<version>${compomics-utilities.version}</version>
+			<exclusions>
+			<!-- these packages break Java 17 dependencies -->
+				<exclusion> 
+					<groupId>org.ogce</groupId>
+					<artifactId>xpp3</artifactId>
+				</exclusion>
+				<exclusion> 
+					<groupId>org.apache.axis</groupId>
+					<artifactId>axis-jaxrpc</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<dependency>
@@ -248,7 +266,6 @@
 			<version>${xercesImpl.version}</version>
       		<scope>test</scope>
 		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -265,8 +282,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<release>17</release>
 				</configuration>
 			</plugin>
 
@@ -315,7 +331,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.4</version>
+				<version>0.8.8</version>
 				<executions>
 					<execution>
 						<goals>
@@ -331,11 +347,11 @@
 					</execution>
 				</executions>
 			</plugin>
-
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.0.0-M3</version>
+				<version>3.0.0-M7</version>
 				<configuration>
 					<argLine>${argLine} -Xmx2560m</argLine>
 				</configuration>
