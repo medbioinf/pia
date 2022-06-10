@@ -10,7 +10,8 @@ import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.OntologyConstants;
 import de.mpc.pia.tools.obo.AbstractOBOMapper;
 import de.mpc.pia.tools.obo.OBOMapper;
-import org.apache.commons.lang3.StringEscapeUtils;
+
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
@@ -22,7 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -144,8 +144,8 @@ class MzIdentMLFileParser {
                 specIdListIDtoSpecIdID.put(specIdListID, id);
 
                 neededSpectrumIdentificationProtocols.add(si.getSpectrumIdentificationProtocolRef());
-                neededSpectraData.addAll(si.getInputSpectra().stream().map(InputSpectra::getSpectraDataRef).collect(Collectors.toList()));
-                neededSearchDatabases.addAll(si.getSearchDatabaseRef().stream().map(SearchDatabaseRef::getSearchDatabaseRef).collect(Collectors.toList()));
+                neededSpectraData.addAll(si.getInputSpectra().stream().map(InputSpectra::getSpectraDataRef).toList());
+                neededSearchDatabases.addAll(si.getSearchDatabaseRef().stream().map(SearchDatabaseRef::getSearchDatabaseRef).toList());
             } else {
                 LOGGER.warn("file contains SpectrumIdentification ("
                         + si.getId() + ") without SpectrumIdentificationList!");
@@ -280,7 +280,7 @@ class MzIdentMLFileParser {
         List<SpectrumIdentificationProtocol> idProtocols =
                 analysisProtocolCollection.getSpectrumIdentificationProtocol().stream()
                         .filter(idProtocol -> neededSpectrumIdentificationProtocols.contains(idProtocol.getId()))
-                        .collect(Collectors.toList());
+                        .toList();
 
         for (SpectrumIdentificationProtocol idProtocol : idProtocols) {
             // this protocol is needed, add it to the PIAFile
@@ -313,8 +313,8 @@ class MzIdentMLFileParser {
         if ((enzyme.getSiteRegexp() == null) && (enzymeName != null)) {
             List<AbstractParam> paramGroup = enzymeName.getParamGroup();
             for (AbstractParam param : paramGroup) {
-                if (param instanceof CvParam) {
-                    String oboID = ((CvParam) param).getAccession();
+                if (param instanceof CvParam cvParam) {
+                    String oboID = cvParam.getAccession();
                     getAndSetEnzymeRegexFromOBO(oboID, enzyme);
                 } else {
                     // TODO: parse the enzyme regex from a userParam
@@ -345,7 +345,7 @@ class MzIdentMLFileParser {
                         Term regExpTerm = compiler.getOBOMapper().getTerm(regExpID);
                         return StringEscapeUtils.unescapeJava(regExpTerm.getDescription());
                     })
-                    .collect(Collectors.toList());
+                    .toList();
 
             // set the regex
             if (!regexes.isEmpty()) {
@@ -372,7 +372,7 @@ class MzIdentMLFileParser {
         for (SpectrumIdentification specID : file.getAnalysisCollection().getSpectrumIdentification()) {
             if (specID.getId().equals(specIdListIDtoSpecIdID.get(specIDList.getId()))  ) {
                 // this is the SpectrumIdentification for this list
-                specIDListsDBRefs.addAll(specID.getSearchDatabaseRef().stream().map(SearchDatabaseRef::getSearchDatabaseRef).collect(Collectors.toList()));
+                specIDListsDBRefs.addAll(specID.getSearchDatabaseRef().stream().map(SearchDatabaseRef::getSearchDatabaseRef).toList());
                 spectrumID = specID;
 
                 // get the enzymes
@@ -422,7 +422,7 @@ class MzIdentMLFileParser {
         // stores the not specially parsed cvParams
         ParamList resultParams = new ParamList();
         specIdResult.getParamGroup().stream()
-                .filter(param -> !((param instanceof CvParam) && parsedSpecIdResultCVParams.contains(((CvParam)param).getAccession())))
+                .filter(param -> !((param instanceof CvParam cvParam) && parsedSpecIdResultCVParams.contains((cvParam).getAccession())))
                 .forEach(resultParams.getParamGroup()::add);
 
         boolean ok = true;
@@ -461,7 +461,7 @@ class MzIdentMLFileParser {
                     .map(AbstractParam::getValue)
                     .sorted()
                     .distinct()
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (!scanNumbers.isEmpty()) {
                 sourceID = "index=" + scanNumbers.get(0);
@@ -484,7 +484,7 @@ class MzIdentMLFileParser {
         // get the "scan start time" cvParams
         List<CvParam> spectrumTitleCvParams = specIdResult.getCvParam().stream()
             .filter(cvParam -> cvParam.getAccession().equals(OntologyConstants.SPECTRUM_TITLE.getPsiAccession()))
-            .collect(Collectors.toList());
+            .toList();
 
         if (!spectrumTitleCvParams.isEmpty() && spectrumTitleCvParams.get(0).getValue().contains("scan")) {
             spectrumTitle = spectrumTitleCvParams.get(0).getValue();
@@ -514,7 +514,7 @@ class MzIdentMLFileParser {
         // get the "scan start time" cvParams
         List<CvParam> scanStartCvParams = specIdResult.getCvParam().stream()
             .filter(cvParam -> cvParam.getAccession().equals(OntologyConstants.SCAN_START_TIME.getPsiAccession()))
-            .collect(Collectors.toList());
+            .toList();
 
         for (CvParam cvParam : scanStartCvParams) {
             try {
@@ -1071,7 +1071,7 @@ class MzIdentMLFileParser {
             // read in the first 10, not empty lines
             List<String> lines = stream.filter(line -> !line.trim().isEmpty())
                     .limit(10)
-                    .collect(Collectors.toList());
+                    .toList();
 
             // check, if first lines are ok
             int idx = 0;
