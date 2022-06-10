@@ -64,6 +64,7 @@
 
 		<!-- check for these dependencies the available KNIME deps. If these are ok, take them, even if they are older. -->
 		<commons-lang3.version>3.9</commons-lang3.version>
+		<commons-text.version>1.9</commons-text.version>
 	</properties>
 
 	<dependencies>
@@ -104,6 +105,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>${commons-lang3.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>${commons-text.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
