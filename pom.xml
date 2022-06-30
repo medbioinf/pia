@@ -64,6 +64,9 @@
 
 		<!-- check for these dependencies the available KNIME deps. If these are ok, take them, even if they are older. -->
 		<commons-text.version>1.9</commons-text.version>
+		
+		<!-- override dependencies from some packages to avoid vulnarabilities  -->
+		<logback.version>1.2.11</logback.version>
 	</properties>
 
 	<dependencies>
@@ -265,6 +268,18 @@
 			<artifactId>xercesImpl</artifactId>
 			<version>${xercesImpl.version}</version>
       		<scope>test</scope>
+		</dependency>
+		
+		<!-- override dependencies to avoid vulnarabilities -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>${logback.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback.version}</version>
 		</dependency>
 	</dependencies>
 
