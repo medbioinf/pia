@@ -57,11 +57,10 @@ For the command line you can download the latest released version
 ## Tutorial
 
 The tutorial as PDF can be downloaded
-[here](https://github.com/julianu/pia-tutorial/blob/master/pia_tutorial.pdf),
-the required data are available [here](https://github.com/julianu/pia-tutorial/tree/master/data)
-and the workflows [here](https://github.com/julianu/pia-tutorial/tree/master/workflows)
-(all data is also available in the tutorial repository at
-https://github.com/julianu/pia-tutorial/).
+[here](https://github.com/mpc-bioinformatics/pia-tutorial/blob/master/pia_tutorial.pdf),
+the required data are available [here](https://github.com/mpc-bioinformatics/pia-tutorial/tree/master/data)
+and the workflows [here](https://github.com/mpc-bioinformatics/pia-tutorial/tree/master/workflows)
+(all data is also available in the tutorial repository at https://github.com/mpc-bioinformatics/pia-tutorial/).
 
 
 ## Documentation
@@ -72,7 +71,7 @@ For further documentation please refer to the Wiki (https://github.com/mpc-bioin
 ## Problems, Bugs and Issues
 
 If you have any problems with PIA or find bugs and other issues, please use the
-issue tracker of github (https://github.com/mpc-bioinformatics/pia/issues).
+issue tracker of GitHub (https://github.com/mpc-bioinformatics/pia/issues).
 
 
 ## Citation and Publication
@@ -84,23 +83,9 @@ https://www.ncbi.nlm.nih.gov/pubmed/25938255
 https://www.ncbi.nlm.nih.gov/pubmed/30474983
 
 
-## Usage Statistics
-
-The PIA team is collecting usage statistics for quality control and funding
-purposes. To ensure further funding, it is required to be able tu guess, how
-often PIA is used by the community, so please do not deactivate the tracking. 
-Please read the data_privacy.txt for more information on what data is
-transmitted and stored and the legal notices.
-
-We will never give out your personal data. You may disable the tracking
-functionality by setting the appropriate settings for the command line versions
-or inside the KNIME preferences. 
-
-
 ## Funding
 
-The development of PIA is funded by the BMBF as part of de.NBI, the German
-Network for Bioinformatics Infrastructure.
+The development of PIA is funded by ELIXIR / de.NBI, the German Network for Bioinformatics Infrastructure.
 
 [![de.NBI logo](https://www.denbi.de/templates/nbimaster/img/denbi-logo-color.svg)](https://www.denbi.de/)
 
