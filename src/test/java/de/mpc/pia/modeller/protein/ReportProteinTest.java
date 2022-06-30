@@ -17,7 +17,6 @@ import org.junit.Test;
 
 import de.mpc.pia.intermediate.Accession;
 import de.mpc.pia.modeller.PIAModeller;
-import de.mpc.pia.modeller.protein.ReportProtein;
 import de.mpc.pia.modeller.protein.inference.SpectrumExtractorInference;
 import de.mpc.pia.modeller.protein.scoring.AbstractScoring;
 import de.mpc.pia.modeller.protein.scoring.MultiplicativeScoring;

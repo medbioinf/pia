@@ -19,7 +19,6 @@ import de.mpc.pia.modeller.report.filter.AbstractFilter;
 import de.mpc.pia.modeller.report.filter.FilterComparator;
 import de.mpc.pia.modeller.report.filter.impl.PSMScoreFilter;
 import de.mpc.pia.modeller.report.filter.impl.PeptideScoreFilter;
-import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.PIAConstants;
 
 /**
@@ -105,7 +104,7 @@ public class FDRScoreTest {
         if (!peptides.isEmpty()) {
             Double sameFDRScore = peptides.get(0).getScore(ScoreModelEnum.PEPTIDE_LEVEL_Q_VALUE.getShortName());
 
-            assertEquals("Wrong FDR Score for peptides", sameFDRScore, 0.008746355685131196, 0.0000001);
+            assertEquals("Wrong FDR Score for peptides", 0.008746355685131196, sameFDRScore, 0.0000001);
 
             peptides.forEach(pep -> assertEquals("All peptides should have the same FDR (which should also equal the q-value)",
                     sameFDRScore, pep.getScore(ScoreModelEnum.PEPTIDE_LEVEL_FDR_SCORE.getShortName())));

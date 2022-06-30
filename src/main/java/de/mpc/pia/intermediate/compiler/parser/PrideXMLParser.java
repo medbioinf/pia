@@ -376,7 +376,7 @@ public class PrideXMLParser {
                 model = ScoreModelEnum.getModelByDescription(cvParam.getName());
             }
             if ((model != null) && (model != ScoreModelEnum.UNKNOWN_SCORE)) {
-                Double value = new Double(cvParam.getValue());
+                Double value = Double.valueOf(cvParam.getValue());
                 scoreModels.add(new ScoreModel(value, model));
             }
         }
@@ -408,7 +408,7 @@ public class PrideXMLParser {
                 }
 
                 if ((mod.getModMonoDelta() != null) && (mod.getModMonoDelta().get(0) != null)) {
-                    mass = new Double(mod.getModMonoDelta().get(0));
+                    mass = Double.valueOf(mod.getModMonoDelta().get(0));
                 }
 
                 Modification modification;
