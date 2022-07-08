@@ -67,6 +67,8 @@
 		
 		<!-- override dependencies from some packages to avoid vulnarabilities  -->
 		<logback.version>1.2.11</logback.version>
+		<jackson-annotations.version>2.13.3</jackson-annotations.version>
+		<poi.version>5.2.2</poi.version>
 	</properties>
 
 	<dependencies>
@@ -281,6 +283,16 @@
 			<artifactId>logback-classic</artifactId>
 			<version>${logback.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>${poi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${jackson-annotations.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -300,7 +312,7 @@
 					<release>17</release>
 				</configuration>
 			</plugin>
-
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
