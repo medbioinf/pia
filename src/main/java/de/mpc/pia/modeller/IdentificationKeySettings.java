@@ -153,7 +153,7 @@ public enum IdentificationKeySettings {
         Map<String, Boolean> settings = new HashMap<>(psmSetSettings);
 
         if (settings.containsKey(IdentificationKeySettings.SOURCE_ID.toString()) &&
-                settings.get(IdentificationKeySettings.SOURCE_ID.toString())) {
+                Boolean.TRUE.equals(settings.get(IdentificationKeySettings.SOURCE_ID.toString()))) {
             // with SOURCE_ID given, m/z, RT and spectrumTitle are unnecessary (or even failure bearing)
             // these are removed
             settings.remove(IdentificationKeySettings.MASSTOCHARGE.toString());

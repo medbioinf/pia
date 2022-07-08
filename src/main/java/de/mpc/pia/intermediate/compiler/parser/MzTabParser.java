@@ -51,7 +51,6 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -366,7 +365,7 @@ public class MzTabParser {
             searchModification.getCvParam().add(PRIDETools.convertCvParam(modParam));
 
             float valueDeltaMass = (modParam.getValue() != null) ?
-                    new Float(modParam.getValue()) : new Float(-1.0) ;
+                    Float.valueOf(modParam.getValue()) : Float.valueOf(-1.0f) ;
             searchModification.setMassDelta(valueDeltaMass);
 
             searchModificationList.add(searchModification);
@@ -647,22 +646,6 @@ public class MzTabParser {
             }
         }
         return modifications;
-    }
-
-
-    private static boolean isCHEMODMOD(String accession){
-        return accession.toUpperCase().contains("CHEMOD");
-    }
-
-
-    private static Double parseDeltaMassCHEMOD(String chemodAccession){
-        if(isCHEMODMOD(chemodAccession)){
-            String[] chemodList = chemodAccession.split(":");
-            if(chemodList.length == 2){
-                return Double.parseDouble(chemodList[1]);
-            }
-        }
-        return null;
     }
 
 
@@ -967,7 +950,7 @@ public class MzTabParser {
             // read in the first 10, not empty lines
             List<String> lines = stream.filter(line -> !line.trim().isEmpty())
                     .limit(100)
-                    .collect(Collectors.toList());
+                    .toList();
 
             // check, if first lines are ok
             int countCOM = 0;

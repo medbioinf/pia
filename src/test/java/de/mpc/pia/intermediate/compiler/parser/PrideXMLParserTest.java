@@ -2,7 +2,6 @@ package de.mpc.pia.intermediate.compiler.parser;
 
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import uk.ac.ebi.pride.jaxb.xml.PrideXmlReader;
@@ -17,9 +16,6 @@ import java.net.URI;
  * @author Yasset Perez-Riverol (ypriverol@gmail.com)
  */
 public class PrideXMLParserTest {
-
-    /** logger for this class */
-    private static final Logger logger = Logger.getLogger(PrideXMLParser.class);
 
     private File prideXMLFile;
 

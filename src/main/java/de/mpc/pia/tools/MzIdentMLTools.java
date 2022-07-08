@@ -5,10 +5,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
 
+import de.mpc.pia.tools.obo.AbstractOBOMapper;
 import de.mpc.pia.tools.obo.OBOMapper;
 import uk.ac.ebi.jmzidml.model.mzidml.AbstractParam;
 import uk.ac.ebi.jmzidml.model.mzidml.AnalysisSoftware;
@@ -546,26 +547,25 @@ public class MzIdentMLTools {
                 if ((regExp == null) && (enzymeName != null)) {
                     // no siteRegexp given, but enzymeName
                     List<AbstractParam> paramList = enzymeName.getParamGroup();
-                    if (!paramList.isEmpty()) {
-                        if (paramList.get(0) instanceof CvParam) {
-                            String oboID = ((CvParam)(paramList.get(0))).getAccession();
-                            regExp = enzymesToRegexes.get(oboID);
+                    if (!paramList.isEmpty() &&
+                    		(paramList.get(0) instanceof CvParam)) {
+                        String oboID = ((CvParam)(paramList.get(0))).getAccession();
+                        regExp = enzymesToRegexes.get(oboID);
 
-                            if (regExp == null) {
-                                // try to get the regular expression for this enzyme and put it into the map
-                                Term oboTerm = oboMapper.getTerm(oboID);
-                                if (oboTerm != null) {
-                                    Set<Triple> tripleSet = oboMapper.getTriples(oboTerm, null, null);
+                        if (regExp == null) {
+                            // try to get the regular expression for this enzyme and put it into the map
+                            Term oboTerm = oboMapper.getTerm(oboID);
+                            if (oboTerm != null) {
+                                Set<Triple> tripleSet = oboMapper.getTriples(oboTerm, null, null);
 
-                                    for (Triple triple : tripleSet) {
-                                        if (triple.getPredicate().getName().equals(OBOMapper.OBO_RELATIONSHIP) &&
-                                                triple.getObject().getName().startsWith(OBOMapper.OBO_HAS_REGEXP)) {
-                                            String regExpID = triple.getObject().getName().substring(11).trim();
-                                            Term regExpTerm = oboMapper.getTerm(regExpID);
-                                            if (regExpTerm != null) {
-                                                regExp = StringEscapeUtils.unescapeJava(regExpTerm.getDescription());
-                                                enzymesToRegexes.put(oboID, regExp);
-                                            }
+                                for (Triple triple : tripleSet) {
+                                    if (triple.getPredicate().getName().equals(AbstractOBOMapper.OBO_RELATIONSHIP) &&
+                                            triple.getObject().getName().startsWith(OBOMapper.OBO_HAS_REGEXP)) {
+                                        String regExpID = triple.getObject().getName().substring(11).trim();
+                                        Term regExpTerm = oboMapper.getTerm(regExpID);
+                                        if (regExpTerm != null) {
+                                            regExp = StringEscapeUtils.unescapeJava(regExpTerm.getDescription());
+                                            enzymesToRegexes.put(oboID, regExp);
                                         }
                                     }
                                 }

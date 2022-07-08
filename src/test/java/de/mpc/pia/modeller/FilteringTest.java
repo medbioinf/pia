@@ -19,6 +19,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -79,7 +80,7 @@ public class FilteringTest{
 
         List<ReportPSMSet> peptides = piaModeller.getPSMModeller().getFilteredReportPSMSets(
                 piaModeller.getPSMModeller().getFilters(0L));
-
+        assertNotNull(peptides);
 
         MzTabExporter exporter = new MzTabExporter(piaModeller);
         File exportFile = File.createTempFile("control_exo_rep1_high_mol_weight", "mzTab");

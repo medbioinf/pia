@@ -21,8 +21,8 @@ public class ModificationTest {
 
     @Test
     public void testGetters() {
-        assertEquals(new Character('M'), oxidationM.getResidue());
-        assertEquals(new Double(15.994915), oxidationM.getMass());
+        assertEquals(Character.valueOf('M'), oxidationM.getResidue());
+        assertEquals(Double.valueOf(15.994915), oxidationM.getMass());
         assertEquals("15.9949", oxidationM.getMassString());
         assertEquals("Oxidation", oxidationM.getDescription());
         assertEquals("UNIMOD:35", oxidationM.getAccession());

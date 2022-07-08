@@ -90,7 +90,7 @@ public class MzTabExporterTest {
         PIAModeller piaModeller = new PIAModeller(piaFile.getAbsolutePath());
 
         Map<String, Boolean> psmSetSettings = piaModeller.getPSMModeller().getMaximalPSMSetSettings();
-        psmSetSettings.remove(IdentificationKeySettings.SOURCE_ID);
+        psmSetSettings.remove(IdentificationKeySettings.SOURCE_ID.toString());
 
         piaModeller.getPSMModeller().applyGeneralSettings(true);
 

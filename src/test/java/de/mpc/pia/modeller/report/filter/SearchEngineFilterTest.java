@@ -6,7 +6,6 @@ import java.util.List;
 
 import de.mpc.pia.modeller.psm.ReportPSMSet;
 
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,8 +13,6 @@ import org.junit.Test;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
 import de.mpc.pia.modeller.PIAModeller;
-import de.mpc.pia.modeller.report.filter.FilterComparator;
-import de.mpc.pia.modeller.report.filter.RegisteredFilters;
 import de.mpc.pia.modeller.score.ScoreModelEnum;
 
 import static org.junit.Assert.*;
@@ -27,8 +24,6 @@ public class SearchEngineFilterTest {
     private File idXMLmsgfFile;
 
     private String piaIntermediateFileName = "SearchEngineFilterTest.pia.xml";
-
-    private static final Logger LOGGER = Logger.getLogger(SearchEngineFilterTest.class);
 
 
     @Before

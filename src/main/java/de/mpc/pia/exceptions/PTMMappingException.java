@@ -15,7 +15,9 @@ package de.mpc.pia.exceptions;
  */
 public class PTMMappingException extends Exception {
 
-    public PTMMappingException(String oldAccession){
+    private static final long serialVersionUID = 2853072612087354902L;
+
+	public PTMMappingException(String oldAccession){
         super("An error has been produced mapping the following PTM: " + oldAccession);
     }
 }
