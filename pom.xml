@@ -63,7 +63,7 @@
 		<PDLibrary.version>0.0.1-SNAPSHOT</PDLibrary.version>
 
 		<!-- check for these dependencies the available KNIME deps. If these are ok, take them, even if they are older. -->
-		<commons-text.version>1.9</commons-text.version>
+		<commons-text.version>1.10.0</commons-text.version>
 		
 		<!-- override dependencies from some packages to avoid vulnarabilities  -->
 		<logback.version>1.2.11</logback.version>
