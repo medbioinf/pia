@@ -547,9 +547,7 @@ public class ProteinModeller  implements Serializable {
     	if (allOk) {
     		infereProteins(proteinInference);
     		
-    		if (json.isCalculateAllFDR()
-            		&& json.isCalculateCombinedFDRScore()) {
-    			
+    		if (json.isCalculateProteinFDR()) {
                 DecoyStrategy decoyStrategy = DecoyStrategy.getStrategyByString(json.getDecoyPattern());
                 updateFDRData(decoyStrategy, json.getDecoyPattern(), 0.01);
     			

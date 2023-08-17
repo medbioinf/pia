@@ -549,9 +549,8 @@ public class PeptideModeller implements Serializable {
         allOk = addPeptideFiltersFromJSONStrings(json.getPeptideFilters(), json.getPeptideLevelFileID());
         
         if (allOk
-        		&& json.isCalculateAllFDR()
-        		&& json.isCalculateCombinedFDRScore()) {
-            calculateFDR(json.getPeptideLevelFileID());
+        		&& (json.isCalculateAllFDR() || (json.getCalculateFDRFileIDs().length > 0)) ) {
+        	calculateFDR(json.getPeptideLevelFileID());
         }
         
         return allOk;
