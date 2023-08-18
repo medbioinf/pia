@@ -35,6 +35,9 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: julianusz/pia
+          labels: |
+            org.opencontainers.image.title=PIA
+            org.opencontainers.image.description=PIA - Protein Inference Algorithms
 
       # Build and push Docker image with Buildx (only push on release)
       # https://github.com/docker/build-push-action
@@ -46,4 +49,3 @@ jobs:
           push: ${{ github.event_name == 'release' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
