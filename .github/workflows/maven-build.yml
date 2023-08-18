@@ -15,12 +15,6 @@ on:
     branches: [ "master" ]
   release:
     types: [ "published" ]
-  workflow_dispatch:
-    inputs:
-      trigger_release_build:
-        description: "Rebuild release"
-        required: true
-        type: boolean
 
 jobs:
   build:
@@ -53,7 +47,7 @@ jobs:
         name: codecov-umbrella
         verbose: true
     - name: Release
-      if: ${{ github.event_name == 'release' || inputs.trigger_release_build }}
+      if: ${{ github.event_name == 'release' }}
       uses: softprops/action-gh-release@v1
       with:
         files: |
