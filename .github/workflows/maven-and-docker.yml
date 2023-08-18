@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Java CI with Maven and Docker
+name: Maven and Docker build
 
 on:
   push:
@@ -17,7 +17,7 @@ on:
     types: [ "published" ]
 
 jobs:
-  build:
+  mavewn_build:
     runs-on: ubuntu-latest
     
     permissions:
@@ -55,7 +55,9 @@ jobs:
   
   build_and_push_docker:
     runs-on: ubuntu-latest
+    
     if: ${{ github.event_name == 'release' }}
+    
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
