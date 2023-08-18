@@ -27,13 +27,14 @@ public class JsonAnalysis {
 	private boolean considerModifications = false;
 	private boolean createPSMsets = true;
 	private boolean errorOnNoDecoys = true;
+	private Long[] calculateFDRFileIDs;
+	private boolean calculateAllFDR = true;
+	private String decoyPattern;
+	private int topIdentifications = 0;
 
 	// PSM settings
 	private long psmLevelFileID = 0L;
-	private boolean calculateAllFDR = true;
 	private boolean calculateCombinedFDRScore = true;
-	private String decoyPattern;
-	private int topIdentifications = 0;
 	private String[] preferredFDRScores;
 	private String[] psmFilters;
 	private String psmExportFile;
@@ -47,6 +48,7 @@ public class JsonAnalysis {
 	
 	// protein settings
 	private boolean infereProteins = true;
+	private boolean calculateProteinFDR = true;
 	private String inferenceMethod;
 	private String[] inferenceFilters;
 	private String scoringMethod;
@@ -97,12 +99,13 @@ public class JsonAnalysis {
 		considerModifications = false;
 		createPSMsets = true;
 		errorOnNoDecoys = true;
-
-		psmLevelFileID = 0;
+		calculateFDRFileIDs =new Long[] {1L};
 		calculateAllFDR = true;
-		calculateCombinedFDRScore = true;
 		decoyPattern = "DECOY_.*";
 		topIdentifications = 0;
+
+		psmLevelFileID = 0;
+		calculateCombinedFDRScore = true;
 		preferredFDRScores = new String[] {};
 		psmFilters = new String[] {"psm_score_filter_psm_combined_fdr_score <= 0.01"};
 		psmExportFile = "/tmp/piaExport-PSMs.mzTab";
@@ -115,6 +118,7 @@ public class JsonAnalysis {
 		
 		// protein settings
 		infereProteins = true;
+		calculateProteinFDR = true;
 		inferenceMethod = ProteinInferenceMethod.REPORT_OCCAMS_RAZOR.getShortName();
 		inferenceFilters = new String[] {"psm_score_filter_psm_combined_fdr_score <= 0.01"};
 		scoringMethod = ProteinScoringFactory.ScoringType.MULTIPLICATIVE_SCORING.getShortName();
@@ -278,5 +282,18 @@ public class JsonAnalysis {
 
 	public boolean isProteinExportWithProteinSequences() {
 		return proteinExportWithProteinSequences;
+	}
+
+
+	public Long[] getCalculateFDRFileIDs() {
+		if (calculateFDRFileIDs == null) {
+			calculateFDRFileIDs = new Long[] {};
+		}
+		return calculateFDRFileIDs;
+	}
+
+
+	public boolean isCalculateProteinFDR() {
+		return calculateProteinFDR;
 	}
 }

@@ -2035,22 +2035,30 @@ public class PSMModeller implements Serializable {
         updateDecoyStates(json.getPsmLevelFileID());
 
         // calculate the FDR
+        boolean fdrCalculated =false;
         if (json.isCalculateAllFDR()) {
             // all FDR should be calculated
             calculateAllFDR();
-            
-	        if (json.isErrorOnNoDecoys()) {
-	        	allOk = checkPSMsForDecoys();
-	        }
+            fdrCalculated = true;
+        } else if (json.getCalculateFDRFileIDs().length > 0) {
+        	// calculate FDRs for single files
+        	for (long id : json.getCalculateFDRFileIDs()) {
+        		calculateFDR(id);
+                fdrCalculated = true;
+        	}
         }
-
+            
+        if (json.isErrorOnNoDecoys()) {
+        	allOk = checkPSMsForDecoys();
+        }
+        
         if (allOk) {
 	        if (json.isCreatePSMsets()
-	                && json.isCalculateAllFDR()
+	                && fdrCalculated
 	                && json.isCalculateCombinedFDRScore()) {
 	            // calculate the Combined FDR Score only if there are PSM sets and calculated FDRs
 	            calculateCombinedFDRScore();
-	        } else if ( json.isCalculateAllFDR()) {
+	        } else if (json.isCalculateAllFDR()) {
 	            // PSM sets are not created, but all FDRs are calculated -> set decoy level on PSM overview
 	            updateDecoyStates(0L);
 	        }
