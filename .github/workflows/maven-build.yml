@@ -19,7 +19,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
+    permissions:
+      contents: write    # needed by softprops/action-gh-release
+    
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 17
