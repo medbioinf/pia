@@ -17,7 +17,7 @@ on:
     types: [ "published" ]
 
 jobs:
-  mavewn_build:
+  maven_build:
     runs-on: ubuntu-latest
     
     permissions:
@@ -54,9 +54,8 @@ jobs:
           staging/*.zip
   
   build_and_push_docker:
+    needs: maven_build
     runs-on: ubuntu-latest
-    
-    if: ${{ github.event_name == 'release' }}
     
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
