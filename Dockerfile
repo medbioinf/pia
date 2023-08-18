@@ -1,4 +1,4 @@
-FROM eclipse-temurin:8-jre-focal
+FROM eclipse-temurin:17-jre-jammy
 
 LABEL MAINTAINERS="Julian Uszkoreit <julian.uszkoreit@rub.de>"\
       description="Docker image for command line execution of PIA - Protein Inference Algorithms"
@@ -13,7 +13,7 @@ RUN mkdir -p /data/in; mkdir -p /data/out; mkdir -p /opt/pia;
     
 # download latest PIA zip and uncompress
 RUN cd /opt/pia; \
-    curl -s https://api.github.com/repos/mpc-bioinformatics/pia/releases/latest | grep -oP '"browser_download_url": "\K(.*pia.*.zip)(?=")' | wget -qi - -O pia.zip; \
+    curl -s https://api.github.com/repos/medbioinf/pia/releases/latest | grep -oP '"browser_download_url": "\K(.*pia.*.zip)(?=")' | wget -qi - -O pia.zip; \
     unzip pia.zip; \
     rm pia.zip; \
     mv pia*.jar pia.jar;
