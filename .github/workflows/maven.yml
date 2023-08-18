@@ -31,7 +31,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --settings ./.mvn/unblock-mirrors.xml --update-snapshots verify --file pom.xml
     # package as artifact
-    - run: mkdir staging && cp target/*.jar staging
+    - run: mkdir staging && cp target/*.jar staging  && cp target/*.zip staging
     - uses: actions/upload-artifact@v3
       with:
         name: Package
