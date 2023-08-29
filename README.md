@@ -11,7 +11,7 @@ you to inspect your peptide spectrum matches, calculate FDR values across
 different search engine results and visualize the correspondence between PSMs,
 peptides and proteins.
 
-![PIA - Logo](https://github.com/mpc-bioinformatics/pia/wiki/pia_logo.png)
+![PIA - Logo](https://github.com/medbioinf/pia/wiki/pia_logo.png)
 
 
 ## PIA in a nutshell
@@ -38,7 +38,7 @@ PIA can be called via the command line (also in Docker containers) or in the
 workflow environment KNIME, which allows a seamless integration into OpenMS
 workflows.
 
-![The PIA Analysis Viewer in KNIME](https://github.com/mpc-bioinformatics/pia/wiki/KNIME_analysis_view.png)
+![The PIA Analysis Viewer in KNIME](https://github.com/medbioinf/pia/wiki/KNIME_analysis_view.png)
 
 
 ## Download
@@ -48,10 +48,10 @@ community contributions repository, which is available in all newer KNIME
 versions. Please use always the newest version of KNIME before submitting any
 bugs or issues.
 More information on how to install and run PIA inside KNIME can be found in 
-[the wiki about PIA in KNIME](https://github.com/mpc-bioinformatics/pia/wiki/Running-PIA-via-KNIME).
+[the wiki about PIA in KNIME](https://github.com/medbioinf/pia/wiki/Running-PIA-via-KNIME).
 
 For the command line you can download the latest released version
-[here](https://github.com/mpc-bioinformatics/pia/releases/latest).
+[here](https://github.com/medbioinf/pia/releases/latest).
 
 
 ## Tutorial
@@ -65,13 +65,13 @@ and the workflows [here](https://github.com/mpc-bioinformatics/pia-tutorial/tree
 
 ## Documentation
 
-For further documentation please refer to the Wiki (https://github.com/mpc-bioinformatics/pia/wiki) on github.
+For further documentation please refer to the Wiki (https://github.com/medbioinf/pia/wiki) on github.
 
 
 ## Problems, Bugs and Issues
 
 If you have any problems with PIA or find bugs and other issues, please use the
-issue tracker of GitHub (https://github.com/mpc-bioinformatics/pia/issues).
+issue tracker of GitHub (https://github.com/medbioinf/pia/issues).
 
 
 ## Citation and Publication
