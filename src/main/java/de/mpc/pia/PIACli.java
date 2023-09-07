@@ -263,8 +263,8 @@ public class PIACli implements Runnable{
 	static class ManifestVersionProvider implements IVersionProvider {
 		public String[] getVersion() {
 			return new String[] { "PIA - Protein Inference Algorithms, version " + PIAConstants.VERSION,
-					"Ruhr University Bochum, Medical Proteome Center",
-					"https://github.com/mpc-bioinformatics/pia" };
+					"Ruhr University Bochum, Medical Bioinformatics",
+					"https://github.com/medbioinf/pia" };
 		}
 	}
 }
