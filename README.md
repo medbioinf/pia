@@ -1,5 +1,8 @@
 # PIA - Protein Inference Algorithms
 
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/pia/README.html)
+[![BSD 3 clause](https://anaconda.org/bioconda/pia/badges/license.svg)](https://raw.githubusercontent.com/medbioinf/pia/master/LICENSE)
+
 PIA is a toolbox for MS based protein inference and identification analysis.
 
 PIA allows you to inspect the results of common proteomics spectrum
@@ -43,15 +46,18 @@ workflows.
 
 ## Download
 
-PIA is fully integrated into KNIME. You can easily install it from the trusted
+For the command line you can download the latest released version
+using Conda (respectively Bioconda)
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/pia/README.html)
+or download the build
+[here](https://github.com/medbioinf/pia/releases/latest).
+
+PIA is also integrated into KNIME. You can easily install it from the trusted
 community contributions repository, which is available in all newer KNIME
 versions. Please use always the newest version of KNIME before submitting any
 bugs or issues.
 More information on how to install and run PIA inside KNIME can be found in 
 [the wiki about PIA in KNIME](https://github.com/medbioinf/pia/wiki/Running-PIA-via-KNIME).
-
-For the command line you can download the latest released version
-[here](https://github.com/medbioinf/pia/releases/latest).
 
 
 ## Tutorial
@@ -93,5 +99,5 @@ The development of PIA is funded by ELIXIR / de.NBI, the German Network for Bioi
 ## Authors of PIA
  
 The programming work on PIA was performed by Julian Uszkoreit (Ruhr University
-Bochum, Medizinisches Proteom-Center), and Yasset Perez-Riverol  (European
+Bochum, Medical Bioinformatics), and Yasset Perez-Riverol  (European
 Bioinformatics Institute (EMBL-EBI), Cambridge)
