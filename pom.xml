@@ -66,7 +66,7 @@
 		<commons-text.version>1.10.0</commons-text.version>
 		
 		<!-- override dependencies from some packages to avoid vulnarabilities  -->
-		<logback.version>1.2.11</logback.version>
+		<logback.version>1.3.12</logback.version>
 		<jackson-annotations.version>2.13.3</jackson-annotations.version>
 		<poi.version>5.2.2</poi.version>
 	</properties>
