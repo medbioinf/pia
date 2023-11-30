@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.mpc.pia.intermediate.compiler.PIACompiler;
-import de.mpc.pia.intermediate.compiler.parser.searchengines.CometCSVFileParser;
+import de.mpc.pia.intermediate.compiler.parser.searchengines.CometTSVFileParser;
 import de.mpc.pia.intermediate.compiler.parser.searchengines.MascotDatFileParser;
 import de.mpc.pia.intermediate.compiler.parser.searchengines.TandemFileParser;
 import de.mpc.pia.intermediate.compiler.parser.searchengines.ThermoMSFFileParser;
@@ -21,38 +21,6 @@ public class InputFileParserFactory {
 	private static final Logger LOGGER = LogManager.getLogger();
 
     public enum InputFileTypes {
-
-        /**
-         * the input file is a Tide TXT file
-         */
-        COMET_CSV_INPUT {
-            @Override
-            public String getFileSuffix() {
-                return "csv";
-            }
-
-            @Override
-            public String getFileTypeName() {
-                return "Comet CSV";
-            }
-
-            @Override
-            public String getFileTypeShort() {
-                return "comet";
-            }
-
-            @Override
-            public boolean checkFileType(String fileName) {
-                return CometCSVFileParser.checkFileType(fileName);
-            }
-
-            @Override
-            public boolean parseFile(String name, String fileName,
-                    PIACompiler compiler, String additionalInfoFileName) {
-                return CometCSVFileParser.getDataFromCometCSVFile(name, fileName, compiler);
-            }
-        },
-
         /**
          * the input file is a FASTA database file
          */
