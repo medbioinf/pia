@@ -1,9 +1,12 @@
 package de.mpc.pia.intermediate.compiler.parser;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.intermediate.compiler.parser.searchengines.MascotDatFileParser;
@@ -14,10 +17,9 @@ import de.mpc.pia.intermediate.compiler.parser.searchengines.TideTXTFileParser;
 public class InputFileParserFactory {
 
     /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(InputFileParserFactory.class);
+	private static final Logger LOGGER = LogManager.getLogger();
 
     public enum InputFileTypes {
-
         /**
          * the input file is a FASTA database file
          */
@@ -441,27 +443,28 @@ public class InputFileParserFactory {
     public static boolean getDataFromFile(String name, String fileName,
             PIACompiler compiler, String additionalInfoFileName,
             String fileType) {
+    	
+    	if (!Files.exists(Path.of(fileName))) {
+    		LOGGER.error("'{}' does not exist, or is not accessible", fileName);
+    		return false;
+    	}
 
         if (fileType == null) {
             InputFileTypes type = getFileTypeByContent(fileName);
             if (type != null) {
-                LOGGER.info('\'' + fileName + "' seems to be a " +
-                        type.getFileTypeName()+" file");
+                LOGGER.info("'{}' seems to be a {} file", fileName, type.getFileTypeName());
                 return type.parseFile(name, fileName, compiler, additionalInfoFileName);
             }
 
-            LOGGER.error("File '" + fileName + "' could not be parsed, " +
-                    "fileType could not be guessed, please specify.");
+            LOGGER.error("File '{}' could not be parsed, fileType could not be guessed, please specify.", fileName);
         } else {
             InputFileTypes type = getFileTypeByShortName(fileType);
             if (type != null) {
-                LOGGER.info('\'' + fileName + "' should be a " +
-                        type.getFileTypeName()+" file");
+                LOGGER.info("'{}' should be a {} file", fileName, type.getFileTypeName());
                 return type.parseFile(name, fileName, compiler, additionalInfoFileName);
             }
 
-            LOGGER.error("File '" + fileName + "' could not be parsed, fileType '" +
-                    fileType + "' unknown.");
+            LOGGER.error("File '{}' could not be parsed, fileType '{}' unknown.", fileName, fileType);
         }
         return false;
     }
