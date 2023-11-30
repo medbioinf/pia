@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.mpc.pia.intermediate.compiler.PIACompiler;
-import de.mpc.pia.intermediate.compiler.parser.searchengines.CometTSVFileParser;
 import de.mpc.pia.intermediate.compiler.parser.searchengines.MascotDatFileParser;
 import de.mpc.pia.intermediate.compiler.parser.searchengines.TandemFileParser;
 import de.mpc.pia.intermediate.compiler.parser.searchengines.ThermoMSFFileParser;
