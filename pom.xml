@@ -59,7 +59,7 @@
 		<xercesImpl.version>2.12.2</xercesImpl.version>
 		
 		<!-- override dependencies from some packages to avoid vulnarabilities  -->
-		<logback.version>1.4.13</logback.version>
+		<logback.version>1.4.14</logback.version>
 		<jackson-annotations.version>2.16.0</jackson-annotations.version>
 		<poi.version>5.2.5</poi.version>
 
