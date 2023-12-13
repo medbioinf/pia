@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:21-jre-jammy
 
 LABEL MAINTAINERS="Julian Uszkoreit <julian.uszkoreit@rub.de>"\
       description="Docker image for command line execution of PIA - Protein Inference Algorithms"
