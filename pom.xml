@@ -4,7 +4,7 @@
 
 	<groupId>de.mpc.pia</groupId>
 	<artifactId>pia</artifactId>
-	<version>1.4.10</version>
+	<version>1.4.11</version>
 	<name>PIA - Protein Inference Algorithms</name>
 	<url>https://github.com/mpc-bioinformatics/pia</url>
 
@@ -43,9 +43,9 @@
 		<junit.version>4.13.2</junit.version>
 		<commons-collections.version>4.4</commons-collections.version>
 		<commons-text.version>1.11.0</commons-text.version>
-		<jmzidentml.version>1.2.11</jmzidentml.version>
+		<jmzidentml.version>1.2.13</jmzidentml.version>
 		<jmztab.version>3.0.8</jmztab.version>
-		<pride-mod.version>2.1.8</pride-mod.version>
+		<pride-mod.version>2.1.12</pride-mod.version>
 		<pride-jaxb.version>1.0.22</pride-jaxb.version>
 		<xxindex.version>0.23</xxindex.version>
 		<mascotdatfile.version>3.6.1</mascotdatfile.version>
@@ -146,6 +146,12 @@
 			<groupId>uk.ac.ebi.pride.utilities</groupId>
 			<artifactId>pride-mod</artifactId>
 			<version>${pride-mod.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>it.unimi.dsi</groupId>
+			<artifactId>fastutil</artifactId>
+			<version>8.5.12</version>
 		</dependency>
 		<!-- End pride mod dependency -->
 
@@ -327,6 +333,9 @@
 						<exclude>src/test/*.class</exclude>
 					</excludes>
 					<archive>
+						<manifestEntries>
+							<Add-Opens>java.base/sun.reflect.annotation</Add-Opens>
+						</manifestEntries>
 						<index>true</index>
 						<manifest>
 							<!-- Adds the classpath to the created manifest -->
@@ -384,7 +393,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.2.2</version>
 				<configuration>
-					<argLine>${argLine} -Xmx2560m</argLine>
+					<argLine>${argLine} -Xmx2560m --add-opens java.base/sun.reflect.annotation=ALL-UNNAMED</argLine>
 				</configuration>
 			</plugin>
 		</plugins>
