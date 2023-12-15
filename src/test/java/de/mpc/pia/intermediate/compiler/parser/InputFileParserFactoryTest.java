@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.mpc.pia.intermediate.compiler.PIACompilerTest;
+import de.mpc.pia.intermediate.compiler.parser.searchengines.CometTSVFileParser;
 import de.mpc.pia.intermediate.compiler.parser.searchengines.MascotDatFileParser;
 import de.mpc.pia.intermediate.compiler.parser.searchengines.TandemFileParser;
 import de.mpc.pia.intermediate.compiler.parser.searchengines.ThermoMSFFileParser;
@@ -26,7 +27,7 @@ public class InputFileParserFactoryTest {
     private File xTandemXMLFile;
     private File msfFile;
     private File tideTXTFile;
-
+    private File cometTSVFile;
 
     @Before
     public void setUp() {
@@ -39,6 +40,7 @@ public class InputFileParserFactoryTest {
         xTandemXMLFile = new File(PIACompilerTest.class.getResource("/Set1_A1.tandem.xml").getPath());
         msfFile = new File(PIACompilerTest.class.getResource("/QExHF04458.msf").getPath());
         tideTXTFile = new File(PIACompilerTest.class.getResource("/tide-search-cut.txt").getPath());
+        cometTSVFile = new File(PIACompilerTest.class.getResource("/comet-tsv-cut.txt").getPath());
     }
 
 
@@ -97,5 +99,10 @@ public class InputFileParserFactoryTest {
         assertFalse(TideTXTFileParser.checkFileType(mzTabFile.getAbsolutePath()));
         assertEquals(InputFileParserFactory.InputFileTypes.TIDE_TXT_INPUT,
                 InputFileParserFactory.getFileTypeByContent(tideTXTFile.getAbsolutePath()));
+        
+        assertTrue(CometTSVFileParser.checkFileType(cometTSVFile.getAbsolutePath()));
+        assertFalse(CometTSVFileParser.checkFileType(mzTabFile.getAbsolutePath()));
+        assertEquals(InputFileParserFactory.InputFileTypes.COMET_TSV_INPUT,
+                InputFileParserFactory.getFileTypeByContent(cometTSVFile.getAbsolutePath()));
     }
 }
