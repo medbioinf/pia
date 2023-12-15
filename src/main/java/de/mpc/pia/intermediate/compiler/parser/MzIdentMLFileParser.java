@@ -135,6 +135,12 @@ class MzIdentMLFileParser {
 
         // get the AnalysisCollection:SpectrumIdentification for the SpectrumIdentificationLists
         AnalysisCollection analysisCollection = unmarshaller.unmarshal(AnalysisCollection.class);
+        
+        LOGGER.debug("scanning analysisCollection: " + analysisCollection
+        		+ "\n\tgetSpectrumIdentification " + analysisCollection.getSpectrumIdentification()
+        		+ "\n\tgetProteinDetection " + analysisCollection.getProteinDetection()
+        		);
+        
         for (SpectrumIdentification si : analysisCollection.getSpectrumIdentification()) {
             if (specIdLists.keySet().contains(si.getSpectrumIdentificationListRef())) {
                 // if the SpectrumIdentification's SpectrumIdentificationList is in the file, we need the SpectrumIdentification
@@ -165,8 +171,6 @@ class MzIdentMLFileParser {
                     spectraDataRefs.put(ref, sd);
                 });
 
-        LOGGER.debug("Number of spectraData in inputs: " + inputs.getSpectraData().size());
-
         // get the necessary inputs:SearchDBs
         inputs.getSearchDatabase().stream()
                 .filter(searchDB -> neededSearchDatabases.contains(searchDB.getId()))
@@ -189,23 +193,37 @@ class MzIdentMLFileParser {
         // update the PIAFile's references for SpectraData, SearchDBs and AnalysisSoftwares
         file.updateReferences(spectraDataRefs, searchDBRefs, analysisSoftwareRefs);
 
-        // get/hash the SequenceCollection:PeptideEvidences
         SequenceCollection sc = unmarshaller.unmarshal(SequenceCollection.class);
-        peptideEvidences = new HashMap<>();
-        for (PeptideEvidence pepEvidence : sc.getPeptideEvidence()) {
-            peptideEvidences.put(pepEvidence.getId(), pepEvidence);
-        }
 
         // get/hash the SequenceCollection:DBSequences
         dbSequences = new HashMap<>();
         for (DBSequence dbSeq : sc.getDBSequence()) {
             dbSequences.put(dbSeq.getId(), dbSeq);
+            
+            LOGGER.debug("added dbSequence: " + dbSeq.getId() + " -> " + dbSequences.get(dbSeq.getId()));
         }
 
         // get/hash the SequenceCollection:Peptides
         peptides = new HashMap<>();
         for (uk.ac.ebi.jmzidml.model.mzidml.Peptide peptide: sc.getPeptide()) {
             peptides.put(peptide.getId(), peptide);
+            
+            LOGGER.debug("added peptide: " + peptide.getId()
+            		+ " -> " + peptides.get(peptide.getId())
+            		+ "\n\tpeptideSequence " + peptide.getPeptideSequence()
+    		);
+        }
+
+        // get/hash the SequenceCollection:PeptideEvidences
+        peptideEvidences = new HashMap<>();
+        for (PeptideEvidence pepEvidence : sc.getPeptideEvidence()) {
+            peptideEvidences.put(pepEvidence.getId(), pepEvidence);
+            
+            LOGGER.debug("added pepEvidence: " + pepEvidence.getId()
+            		+ " -> " + peptideEvidences.get(pepEvidence.getId())
+            		+ "\n\tdbSequenceRef " + pepEvidence.getDBSequenceRef()
+            		+ "\n\tdbSequence " + pepEvidence.getDBSequence()
+            		);
         }
 
 
@@ -667,7 +685,8 @@ class MzIdentMLFileParser {
 
             DBSequence dbSeq = dbSequences.get(pepEvidence.getDBSequenceRef());
             if (dbSeq == null) {
-                LOGGER.error("DBSequence " + pepEvidence.getDBSequenceRef() + " not found!");
+                LOGGER.error("DBSequence " + pepEvidence.getDBSequenceRef()
+                		+ " for pepEvidence " + pepEvidence.getId() + " not found!");
                 return null;
             }
 
