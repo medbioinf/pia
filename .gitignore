@@ -53,3 +53,9 @@ logs/
 target/
 .idea/
 .externalToolBuilders/
+/.apt_generated/
+/.apt_generated_tests/
+
+# VSCode files #
+###########################
+/.vscode

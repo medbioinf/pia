@@ -39,10 +39,10 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<log4j2.version>2.22.0</log4j2.version>
+		<log4j2.version>2.23.1</log4j2.version>
 		<junit.version>4.13.2</junit.version>
 		<commons-collections.version>4.4</commons-collections.version>
-		<commons-text.version>1.11.0</commons-text.version>
+		<commons-text.version>1.12.0</commons-text.version>
 		<jmzidentml.version>1.2.13</jmzidentml.version>
 		<jmztab.version>3.0.8</jmztab.version>
 		<pride-mod.version>2.1.12</pride-mod.version>
@@ -50,19 +50,22 @@
 		<xxindex.version>0.23</xxindex.version>
 		<mascotdatfile.version>3.6.1</mascotdatfile.version>
 		<xtandem-parser.version>1.13.0</xtandem-parser.version>
-		<compomics-utilities.version>5.1.5</compomics-utilities.version>
-		<biojava-ontology.version>7.0.2</biojava-ontology.version>
-		<gson.version>2.10.1</gson.version>
-		<picocli.version>4.7.5</picocli.version>
+		<compomics-utilities.version>5.1.12</compomics-utilities.version>
+		<biojava-ontology.version>7.1.1</biojava-ontology.version>
+		<gson.version>2.11.0</gson.version>
+		<picocli.version>4.7.6</picocli.version>
 		<sqlite4java.version>1.0.392</sqlite4java.version>
-		<sqlite-jdbc.version>3.44.1.0</sqlite-jdbc.version>
+		<sqlite-jdbc.version>3.46.0.0</sqlite-jdbc.version>
 		<xercesImpl.version>2.12.2</xercesImpl.version>
 		
 		<!-- override dependencies from some packages to avoid vulnarabilities  -->
-		<logback.version>1.4.14</logback.version>
-		<jackson-annotations.version>2.16.0</jackson-annotations.version>
-		<poi.version>5.2.5</poi.version>
-		<guava.version>32.1.3-jre</guava.version>
+		<logback.version>1.5.6</logback.version>
+		<jackson-annotations.version>2.17.1</jackson-annotations.version>
+		<guava.version>33.2.1-jre</guava.version>
+		<commons-codec.version>1.17.0</commons-codec.version>
+		<commons-compress.version>1.26.2</commons-compress.version>
+		<commons-io.version>2.16.1</commons-io.version>
+		<aircompressor.version>0.27</aircompressor.version>
 
 		<!-- these are "internal" dependencies, the jar files are delivered together with the source -->
 		<BaseLib.version>0.0.1-SNAPSHOT</BaseLib.version>
@@ -124,20 +127,20 @@
 		<!-- JAXB needs to be added for Java >= 9 -->
     	<dependency>
 			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<version>2.3.1</version>
+   			<artifactId>jaxb-api</artifactId>
+    		<version>2.3.1</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
 			<artifactId>jaxb-impl</artifactId>
-			<version>2.3.1</version>
+			<version>2.3.9</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
 			<artifactId>jaxb-core</artifactId>
-			<version>2.3.0</version>
+			<version>4.0.5</version>
 		</dependency>
 		<!-- JAXB additions --> 
 
@@ -208,7 +211,7 @@
 			<artifactId>utilities</artifactId>
 			<version>${compomics-utilities.version}</version>
 			<exclusions>
-			<!-- these packages break Java 17 dependencies -->
+				<!-- these packages break Java 17 dependencies -->
 				<exclusion> 
 					<groupId>org.ogce</groupId>
 					<artifactId>xpp3</artifactId>
@@ -216,6 +219,11 @@
 				<exclusion> 
 					<groupId>org.apache.axis</groupId>
 					<artifactId>axis-jaxrpc</artifactId>
+				</exclusion>
+				<!-- not needed (only visualization) and highly deprecated -->
+				<exclusion>
+					<groupId>umontreal.iro.lecuyer.gof</groupId>
+					<artifactId>ssj</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -289,11 +297,6 @@
 			<version>${logback.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi</artifactId>
-			<version>${poi.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
 			<version>${jackson-annotations.version}</version>
@@ -302,6 +305,26 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>${guava.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>${commons-codec.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>${commons-compress.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commons-io.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.airlift</groupId>
+			<artifactId>aircompressor</artifactId>
+			<version>${aircompressor.version}</version>
 		</dependency>
 	</dependencies>
 
