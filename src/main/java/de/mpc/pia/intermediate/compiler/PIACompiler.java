@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -21,6 +22,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLOutputFactory;
@@ -135,13 +137,13 @@ public abstract class PIACompiler {
     private static String nsjPiaXML = "http://www.medizinisches-proteom-center.de/PIA/piaintermediate";
 
     /** prefixdeclaration for jPiaXML */
-    private static String prefixjPiaXML = "ns3";
+    private static String prefixjPiaXML = "pia";
 
     /** namespace declaration for mzIdentML */
     private static String nsMzIdentML = "http://psidev.info/psi/pi/mzIdentML/1.1";
 
     /** prefix declaration for mzIdentML */
-    private static String prefixMzIdentML = "ns2";
+    private static String prefixMzIdentML = "mzid";
 
     /** encoding specification */
     private static String encoding = "UTF-8";
@@ -932,6 +934,26 @@ public abstract class PIACompiler {
 
             XMLOutputFactory xmlof = XMLOutputFactory.newInstance();
             XMLStreamWriter xmlOut = new IndentingXMLStreamWriter(xmlof.createXMLStreamWriter(out));
+
+            // take care of the namespace in the PIA XML files -> basically set them fixed to PIA and mzid 1.1
+            xmlOut.setNamespaceContext(new NamespaceContext() {
+                public Iterator<String> getPrefixes(String namespaceURI) {
+                    return null;
+                }
+    
+                public String getPrefix(String namespaceURI) {
+                    if (namespaceURI.equals(nsjPiaXML)) {
+                        return prefixjPiaXML;
+                    } else if (namespaceURI.contains("mzIdentML")) {
+                        return prefixMzIdentML;
+                    }
+                    return "";
+                }
+    
+                public String getNamespaceURI(String prefix) {
+                    return "";
+                }
+            });
 
             // xml header
             xmlOut.writeStartDocument(encoding, "1.0");
