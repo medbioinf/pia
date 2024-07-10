@@ -339,6 +339,9 @@ class MzIdentMLFileParser {
                     LOGGER.error("unsupported enzyme: " + param.getName() + " / " + param.getValue());
                 }
             }
+        } else if ((enzyme.getSiteRegexp() != null) && enzyme.getSiteRegexp().contains(" ")) {
+            // if there are blanks in the regexp, remove them
+            enzyme.setSiteRegexp(enzyme.getSiteRegexp().replaceAll("\\s", ""));
         }
     }
 
