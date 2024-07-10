@@ -12,7 +12,8 @@ import de.mpc.pia.tools.obo.AbstractOBOMapper;
 import de.mpc.pia.tools.obo.OBOMapper;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.biojava.nbio.ontology.Term;
 import org.biojava.nbio.ontology.Triple;
 import uk.ac.ebi.jmzidml.model.mzidml.*;
@@ -35,7 +36,7 @@ import java.util.stream.Stream;
 class MzIdentMLFileParser {
 
     /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(MzIdentMLFileParser.class);
+    private static final Logger LOGGER = LogManager.getLogger();
 
 
     /** the used PIA compiler */
@@ -136,10 +137,10 @@ class MzIdentMLFileParser {
         // get the AnalysisCollection:SpectrumIdentification for the SpectrumIdentificationLists
         AnalysisCollection analysisCollection = unmarshaller.unmarshal(AnalysisCollection.class);
         
-        LOGGER.debug("scanning analysisCollection: " + analysisCollection
-        		+ "\n\tgetSpectrumIdentification " + analysisCollection.getSpectrumIdentification()
-        		+ "\n\tgetProteinDetection " + analysisCollection.getProteinDetection()
-        		);
+        LOGGER.debug("scanning analysisCollection: {} "
+                + "\n\tgetSpectrumIdentification {}" 
+        		+ "\n\tgetProteinDetection {}" ,
+                analysisCollection, analysisCollection.getSpectrumIdentification(), analysisCollection.getProteinDetection());
         
         for (SpectrumIdentification si : analysisCollection.getSpectrumIdentification()) {
             if (specIdLists.keySet().contains(si.getSpectrumIdentificationListRef())) {
@@ -153,8 +154,7 @@ class MzIdentMLFileParser {
                 neededSpectraData.addAll(si.getInputSpectra().stream().map(InputSpectra::getSpectraDataRef).toList());
                 neededSearchDatabases.addAll(si.getSearchDatabaseRef().stream().map(SearchDatabaseRef::getSearchDatabaseRef).toList());
             } else {
-                LOGGER.warn("file contains SpectrumIdentification ("
-                        + si.getId() + ") without SpectrumIdentificationList!");
+                LOGGER.warn("file contains SpectrumIdentification ({}) without SpectrumIdentificationList!", si.getId());
             }
         }
 
@@ -199,33 +199,19 @@ class MzIdentMLFileParser {
         dbSequences = new HashMap<>();
         for (DBSequence dbSeq : sc.getDBSequence()) {
             dbSequences.put(dbSeq.getId(), dbSeq);
-            
-            LOGGER.debug("added dbSequence: " + dbSeq.getId() + " -> " + dbSequences.get(dbSeq.getId()));
         }
 
         // get/hash the SequenceCollection:Peptides
         peptides = new HashMap<>();
         for (uk.ac.ebi.jmzidml.model.mzidml.Peptide peptide: sc.getPeptide()) {
             peptides.put(peptide.getId(), peptide);
-            
-            LOGGER.debug("added peptide: " + peptide.getId()
-            		+ " -> " + peptides.get(peptide.getId())
-            		+ "\n\tpeptideSequence " + peptide.getPeptideSequence()
-    		);
         }
 
         // get/hash the SequenceCollection:PeptideEvidences
         peptideEvidences = new HashMap<>();
         for (PeptideEvidence pepEvidence : sc.getPeptideEvidence()) {
             peptideEvidences.put(pepEvidence.getId(), pepEvidence);
-            
-            LOGGER.debug("added pepEvidence: " + pepEvidence.getId()
-            		+ " -> " + peptideEvidences.get(pepEvidence.getId())
-            		+ "\n\tdbSequenceRef " + pepEvidence.getDBSequenceRef()
-            		+ "\n\tdbSequence " + pepEvidence.getDBSequence()
-            		);
         }
-
 
         boolean ok = true;
 
@@ -238,10 +224,10 @@ class MzIdentMLFileParser {
             }
         }
 
-        LOGGER.info("inserted new: \n\t" +
-                pepNr + " peptides\n\t" +
-                specNr + " peptide spectrum matches\n\t" +
-                accNr + " accessions");
+        LOGGER.info("inserted new: \n"
+                + "\t{} peptides\n"
+                + "\t{} peptide spectrum matches\n"
+                + "\t{} accessions", pepNr, specNr, accNr);
         return ok;
     }
 
@@ -258,7 +244,7 @@ class MzIdentMLFileParser {
         File mzidFile = new File(fileName);
 
         if (!mzidFile.canRead()) {
-            LOGGER.error("could not read '" + fileName + "'.");
+            LOGGER.error("could not read '{}'.", fileName);
             return false;
         }
 
@@ -266,7 +252,7 @@ class MzIdentMLFileParser {
                 InputFileParserFactory.InputFileTypes.MZIDENTML_INPUT.getFileSuffix());
 
         unmarshaller = new MzIdentMLUnmarshaller(mzidFile);
-        LOGGER.debug("Version of mzIdentML file: " + unmarshaller.getMzIdentMLVersion());
+        LOGGER.debug("Version of mzIdentML file: {}", unmarshaller.getMzIdentMLVersion());
         return true;
     }
 
@@ -336,7 +322,7 @@ class MzIdentMLFileParser {
                     getAndSetEnzymeRegexFromOBO(oboID, enzyme);
                 } else {
                     // TODO: parse the enzyme regex from a userParam
-                    LOGGER.error("unsupported enzyme: " + param.getName() + " / " + param.getValue());
+                    LOGGER.error("unsupported enzyme: {} / {}", param.getName(), param.getValue());
                 }
             }
         } else if ((enzyme.getSiteRegexp() != null) && enzyme.getSiteRegexp().contains(" ")) {
@@ -410,7 +396,7 @@ class MzIdentMLFileParser {
         }
 
         // go through all the SpectrumIdentificationResults and build the PSMs
-        LOGGER.debug("Processing " + specIDList.getSpectrumIdentificationResult().size() + " specIdResults");
+        LOGGER.debug("Processing {} specIdResults", specIDList.getSpectrumIdentificationResult().size());
         boolean ok = true;
         for (SpectrumIdentificationResult specIdRes : specIDList.getSpectrumIdentificationResult()) {
             ok = addSpectrumIdentificationResult(specIdRes, spectrumID, specIDListsDBRefs, specIDListsEnzymes,
@@ -637,8 +623,7 @@ class MzIdentMLFileParser {
                 processModification(mod, sequence, psm);
             }
         } else {
-            LOGGER.warn("no peptide for the peptide_ref " + specIdItem.getPeptideRef() +
-                    " in the SequenceCollection -> can't get Modifications for it.");
+            LOGGER.warn("no peptide for the peptide_ref {} in the SequenceCollection -> can't get Modifications for it.", specIdItem.getPeptideRef());
         }
 
         // the PSM is finished here
@@ -682,14 +667,13 @@ class MzIdentMLFileParser {
             PeptideEvidence pepEvidence = peptideEvidences.get(pepEvRef.getPeptideEvidenceRef());
 
             if (pepEvidence == null) {
-                LOGGER.error("PeptideEvidence " + pepEvRef.getPeptideEvidenceRef() + " not found!");
+                LOGGER.error("PeptideEvidence {} not found!", pepEvRef.getPeptideEvidenceRef());
                 return null;
             }
 
             DBSequence dbSeq = dbSequences.get(pepEvidence.getDBSequenceRef());
             if (dbSeq == null) {
-                LOGGER.error("DBSequence " + pepEvidence.getDBSequenceRef()
-                		+ " for pepEvidence " + pepEvidence.getId() + " not found!");
+                LOGGER.error("DBSequence {} for pepEvidence {} not found!", pepEvidence.getDBSequenceRef(), pepEvidence.getId());
                 return null;
             }
 
@@ -703,7 +687,7 @@ class MzIdentMLFileParser {
                 sequence = pepEvSequence;
             } else {
                 if (!sequence.equals(pepEvSequence)) {
-                    LOGGER.error("Different sequences found for a PSM: " + sequence + " != " + pepEvSequence);
+                    LOGGER.error("Different sequences found for a PSM: {} != {}", sequence, pepEvSequence);
                     return null;
                 }
             }
@@ -739,7 +723,7 @@ class MzIdentMLFileParser {
             LOGGER.error("No peptide sequence found for a peptide!");
         }
 
-        if ((proteinSequence != null) && (peptide != null) && proteinSequence.trim().length() > 0) {
+        if ((start != null) && (end != null) && (proteinSequence != null) && (peptide != null) && proteinSequence.trim().length() > 0) {
             // some exporters get the start and stop of sequences wrong
             if (start-1 < 0) {
                 start++;
@@ -747,8 +731,7 @@ class MzIdentMLFileParser {
             String dbEvSeq = proteinSequence.substring(start-1, end);
 
             if ((dbEvSeq != null) && !dbEvSeq.equals(pepEvSequence)) {
-                LOGGER.warn("PSM sequence fromSearchDB differs to sequence from Peptide: " +
-                        dbEvSeq + " != " + pepEvSequence + ". Only sequence from Peptide is used.");
+                LOGGER.warn("PSM sequence fromSearchDB differs to sequence from Peptide: {} != {}. Only sequence from Peptide is used.", dbEvSeq, pepEvSequence);
             }
         }
 
@@ -785,10 +768,10 @@ class MzIdentMLFileParser {
         if (proteinSequence != null) {
             if ((acc.getDbSequence() != null) &&
                     !proteinSequence.equals(acc.getDbSequence())) {
-                LOGGER.warn("Different DBSequences found for same Accession, this is not suported!\n" +
-                        "\t Accession: " + acc.getAccession() +
-                        '\t' + dbSeq.getSeq() + '\n' +
-                        '\t' + acc.getDbSequence());
+                LOGGER.warn("Different DBSequences found for same Accession, this is not suported!\n"
+                        + "\tAccession: {}"
+                        + "\t{}\n"
+                        + "\t!= {}", acc.getAccession(), dbSeq.getSeq(), acc.getDbSequence());
             } else if (acc.getDbSequence() == null) {
                 // found a sequence now
                 acc.setDbSequence(proteinSequence);
@@ -1087,7 +1070,7 @@ class MzIdentMLFileParser {
      */
     public static boolean checkFileType(String fileName) {
         boolean isMzIdentMLFile = false;
-        LOGGER.debug("checking whether this is an mzIdentML file: " + fileName);
+        LOGGER.debug("checking whether this is an mzIdentML file: {}", fileName);
 
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
             // read in the first 10, not empty lines
@@ -1099,24 +1082,27 @@ class MzIdentMLFileParser {
             int idx = 0;
 
             // optional declaration
-            if (lines.get(idx).trim().matches("<\\?xml version=\"[0-9.]+\"( encoding=\"[^\"]+\"){0,1}( standalone=\\\"[^\\\"]+\\\"){0,1}\\?>")) {
-                LOGGER.debug("file has the XML declaration line:" + lines.get(idx));
+            String line = lines.get(idx);
+            if (line.trim().matches("<\\?xml version=\"[0-9.]+\"( encoding=\"[^\"]+\")?( standalone=\\\"[^\\\"]+\\\")?\\?>")) {
+                LOGGER.debug("file has the XML declaration line: {}", line);
                 idx++;
             }
 
             // optional stylesheet declaration
-            if (lines.get(idx).trim().matches("<\\?xml-stylesheet.+\\?>")) {
-                LOGGER.debug("file has the XML stylesheet line:" + lines.get(idx));
+            line = lines.get(idx);
+            if (line.trim().matches("<\\?xml-stylesheet.+\\?>")) {
+                LOGGER.debug("file has the XML stylesheet line: {}", line);
                 idx++;
             }
 
             // now the MzIdentML element must be next
-            if (lines.get(idx).trim().matches("<MzIdentML .+")) {
+            line = lines.get(idx);
+            if (line.trim().matches("<MzIdentML .+")) {
                 isMzIdentMLFile = true;
-                LOGGER.debug("file has the MzIdentML element: " + lines.get(idx));
+                LOGGER.debug("file has the MzIdentML element: {}", line);
             }
         } catch (Exception e) {
-            LOGGER.error("Could not check file " + fileName, e);
+            LOGGER.error("Could not check file {}", fileName, e);
         }
 
         return isMzIdentMLFile;
