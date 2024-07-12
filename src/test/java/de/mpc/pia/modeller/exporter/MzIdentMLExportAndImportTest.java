@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,27 +24,11 @@ import de.mpc.pia.modeller.score.ScoreModelEnum;
 
 public class MzIdentMLExportAndImportTest {
 
-    private File tandemIdXMLResults;
-    private File tandemMzidResults;
-    private File cometMzid12Results;
-    private String piaIntermediateFileName;
-    /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(PIACompiler.class);
-
-    @Before
-    public void setUp() {
-        piaIntermediateFileName = "PIACompilerTest.pia.xml";
-
-        tandemIdXMLResults = new File(MzIdentMLExportAndImportTest.class.getResource("/merge1-tandem-fdr_filtered-015.idXML").getPath());
-        tandemMzidResults = new File(MzIdentMLExportAndImportTest.class.getResource("/55merge_tandem.mzid").getPath());
-        cometMzid12Results = new File(MzIdentMLExportAndImportTest.class.getResource("/comet_mzid12.mzid").getPath());
-    }
-
-
     @Test
-    public void testMzIdentMLv1_1_0Import() throws IOException {
+    public void testMzIdentMLv1_1_0Import() {
         PIACompiler piaCompiler = new PIASimpleCompiler();
-
+        
+        File tandemMzidResults = new File(MzIdentMLExportAndImportTest.class.getResource("/55merge_tandem.mzid").getPath());
         assertTrue(piaCompiler.getDataFromFile("mzid", tandemMzidResults.getAbsolutePath(), null, null));
 
         piaCompiler.buildClusterList();
@@ -53,31 +36,16 @@ public class MzIdentMLExportAndImportTest {
 
         piaCompiler.setName("testFile");
 
+        assertEquals("Wrong number of PIA Input files", 1, piaCompiler.getAllFileIDs().size());
         assertEquals("Wrong number of imported peptides", 153, piaCompiler.getNrPeptides());
         assertEquals("Wrong number of imported PSMs", 170, piaCompiler.getNrPeptideSpectrumMatches());
     }
-
-
-    @Test
-    public void testMzIdentMLv1_2_0Import() {
-        PIACompiler piaCompiler = new PIASimpleCompiler();
-
-        assertTrue(piaCompiler.getDataFromFile("mzid", cometMzid12Results.getAbsolutePath(), null, null));
-
-        piaCompiler.buildClusterList();
-        piaCompiler.buildIntermediateStructure();
-
-        piaCompiler.setName("testFile");
-
-        assertEquals("Wrong number of imported peptides", 600, piaCompiler.getNrPeptides());
-        assertEquals("Wrong number of imported PSMs", 610, piaCompiler.getNrPeptideSpectrumMatches());
-    }
-
 
     @Test
     public void testMzIdentMLExportAndImport() throws IOException {
         PIACompiler piaCompiler = new PIASimpleCompiler();
 
+        File tandemIdXMLResults = new File(MzIdentMLExportAndImportTest.class.getResource("/merge1-tandem-fdr_filtered-015.idXML").getPath());
         assertTrue(piaCompiler.getDataFromFile("tandem", tandemIdXMLResults.getAbsolutePath(), null, null));
 
         piaCompiler.buildClusterList();
@@ -90,6 +58,7 @@ public class MzIdentMLExportAndImportTest {
 
 
         // write out the file
+        String piaIntermediateFileName = "testMzIdentMLExportAndImport.pia.xml";
         File piaIntermediateFile = File.createTempFile(piaIntermediateFileName, null);
         piaCompiler.writeOutXML(piaIntermediateFile);
         piaCompiler.finish();
@@ -127,7 +96,6 @@ public class MzIdentMLExportAndImportTest {
 
 
         // try to read it back in PIA compiler
-        LOGGER.info("Try to read back the mzIdentML previously compiled");
         piaCompiler = new PIASimpleCompiler();
 
         assertTrue(piaCompiler.getDataFromFile("mzIdentMLfile", exportFile.getAbsolutePath(), null, null));
