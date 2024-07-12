@@ -877,8 +877,6 @@ class MzIdentMLFileParser {
             }
         }
 
-        LOGGER.debug("parsing term {} -> {}", oboTerm, score);
-
         return score;
     }
 
