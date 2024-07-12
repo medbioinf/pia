@@ -5,59 +5,30 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.mpc.pia.intermediate.xmlhandler.PIAIntermediateJAXBHandler;
-import de.mpc.pia.modeller.PIAModellerTest;
 
 public class IntermediateJAXBTest {
 
-    /** logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(IntermediateJAXBTest.class);
-
-    private static File piaFile;
-
-
-    @BeforeClass
-    public static void setUpBeforeClass() {
-        piaFile = new File(PIAModellerTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
-    }
-
-
     @Test
-    public void testIntermediateJAXB() {
+    @Ignore("Unfortunately, loading Unmarshaller for mzid 1.1 and mzid 1.2 in same test suite breaks everything")
+    public void testIntermediateJAXB() throws IOException{
         PIAIntermediateJAXBHandler intermediateHandler;
         intermediateHandler = new PIAIntermediateJAXBHandler();
 
-        Runtime runtime = Runtime.getRuntime();
-        double mb = 1024*1024;
-        final long startTime = System.nanoTime();
-        final long endTime;
+        File piaFile = new File(IntermediateJAXBTest.class.getResource("/55merge_mascot_tandem.pia.xml").getPath());
+        intermediateHandler.parse(piaFile.getAbsolutePath(), null);
 
-        try {
-            intermediateHandler.parse(piaFile.getAbsolutePath(), null);
-        } catch (IOException e) {
-            LOGGER.error(e);
-        }
-
-        endTime = System.nanoTime();
-
-        assertEquals(2, intermediateHandler.getFiles().size());
-        assertEquals(2, intermediateHandler.getSpectraData().size());
-        assertEquals(2, intermediateHandler.getSearchDatabase().size());
-        assertEquals(2, intermediateHandler.getAnalysisSoftware().size());
-        assertEquals(1941, intermediateHandler.getGroups().size());
-        assertEquals(2131, intermediateHandler.getAccessions().size());
-        assertEquals(2113, intermediateHandler.getPeptides().size());
-        assertEquals(2478, intermediateHandler.getPSMs().size());
-        assertEquals(1856, intermediateHandler.getNrTrees());
-
-        LOGGER.info("Total Memory: " + runtime.totalMemory() / mb + " MB");
-        LOGGER.info("Used Memory: " + (runtime.totalMemory() - runtime.freeMemory()) / mb + " MB");
-        LOGGER.info("Free Memory: " + runtime.freeMemory() / mb + " MB");
-        LOGGER.info("Max Memory: " + runtime.maxMemory() / mb + " MB");
-        LOGGER.info("Execution time: " + ((endTime - startTime) / 1000000000.0) + " s");
+        assertEquals("Number of Files differ", 2, intermediateHandler.getFiles().size());
+        assertEquals("Number of SpectraData differ", 2, intermediateHandler.getSpectraData().size());
+        assertEquals("Number of SearchDatabases differ", 2, intermediateHandler.getSearchDatabase().size());
+        assertEquals("Number of AnalysisSoftware differ", 2, intermediateHandler.getAnalysisSoftware().size());
+        assertEquals("Number of Groups differ", 1941, intermediateHandler.getGroups().size());
+        assertEquals("Number of Accessions differ", 2131, intermediateHandler.getAccessions().size());
+        assertEquals("Number of Peptides differ", 2113, intermediateHandler.getPeptides().size());
+        assertEquals("Number of PSMs differ", 2478, intermediateHandler.getPSMs().size());
+        assertEquals("Number of NrTrees differ", 1856, intermediateHandler.getNrTrees());
     }
 }

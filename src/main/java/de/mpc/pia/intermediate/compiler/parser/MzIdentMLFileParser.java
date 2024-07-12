@@ -6,6 +6,7 @@ import de.mpc.pia.intermediate.Peptide;
 import de.mpc.pia.intermediate.PeptideSpectrumMatch;
 import de.mpc.pia.intermediate.compiler.PIACompiler;
 import de.mpc.pia.modeller.score.ScoreModel;
+import de.mpc.pia.modeller.score.ScoreModelEnum;
 import de.mpc.pia.tools.MzIdentMLTools;
 import de.mpc.pia.tools.OntologyConstants;
 import de.mpc.pia.tools.obo.AbstractOBOMapper;
@@ -854,17 +855,24 @@ class MzIdentMLFileParser {
         ScoreModel score = null;
 
         if (oboTerm != null) {
-            // the score is in the OBO file, get the relations etc.
-            Set<Triple> tripleSet = compiler.getOBOMapper().getTriples(oboTerm, null, null);
+            ScoreModelEnum scEnum = ScoreModelEnum.getModelByAccession(oboTerm.getName());
+            if ((scEnum != null) && !scEnum.equals(ScoreModelEnum.UNKNOWN_SCORE)) {
+                // the term is a recognized / hard coded score
+                double doubleValue = Double.parseDouble(value);
+                score = new ScoreModel(doubleValue, scEnum);
+            } else {
+                // the score is in the OBO file, try to get the relations etc.
+                Set<Triple> tripleSet = compiler.getOBOMapper().getTriples(oboTerm, null, null);
 
-            for (Triple triple : tripleSet) {
-                if (triple.getPredicate().getName().equals(AbstractOBOMapper.OBO_IS_A) &&
-                        triple.getObject().getName().equals(OntologyConstants.SEARCH_ENGINE_PSM_SCORE.getPsiAccession())) {
-                    // subject is a "search engine specific score for PSM"
-                    double doubleValue = Double.parseDouble(value);
-                    score = new ScoreModel(doubleValue,
-                            StringEscapeUtils.unescapeJava(oboTerm.getName()),
-                            StringEscapeUtils.unescapeJava(oboTerm.getDescription()));
+                for (Triple triple : tripleSet) {
+                    if (triple.getPredicate().getName().equals(AbstractOBOMapper.OBO_IS_A) &&
+                            triple.getObject().getName().equals(OntologyConstants.SEARCH_ENGINE_PSM_SCORE.getPsiAccession())) {
+                        // subject is a "search engine specific score for PSM"
+                        double doubleValue = Double.parseDouble(value);
+                        score = new ScoreModel(doubleValue,
+                                StringEscapeUtils.unescapeJava(oboTerm.getName()),
+                                StringEscapeUtils.unescapeJava(oboTerm.getDescription()));
+                    }
                 }
             }
         }
