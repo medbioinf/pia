@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.mpc.pia.intermediate.compiler.PIACompiler;
-import de.mpc.pia.intermediate.compiler.PIACompilerTest;
 import de.mpc.pia.intermediate.compiler.PIASimpleCompiler;
 import de.mpc.pia.modeller.PIAModeller;
 import de.mpc.pia.modeller.protein.inference.SpectrumExtractorInference;
@@ -28,6 +27,7 @@ public class MzIdentMLExportAndImportTest {
 
     private File tandemIdXMLResults;
     private File tandemMzidResults;
+    private File cometMzid12Results;
     private String piaIntermediateFileName;
     /** logger for this class */
     private static final Logger LOGGER = Logger.getLogger(PIACompiler.class);
@@ -36,8 +36,9 @@ public class MzIdentMLExportAndImportTest {
     public void setUp() {
         piaIntermediateFileName = "PIACompilerTest.pia.xml";
 
-        tandemIdXMLResults = new File(PIACompilerTest.class.getResource("/merge1-tandem-fdr_filtered-015.idXML").getPath());
-        tandemMzidResults = new File(PIACompilerTest.class.getResource("/55merge_tandem.mzid").getPath());
+        tandemIdXMLResults = new File(MzIdentMLExportAndImportTest.class.getResource("/merge1-tandem-fdr_filtered-015.idXML").getPath());
+        tandemMzidResults = new File(MzIdentMLExportAndImportTest.class.getResource("/55merge_tandem.mzid").getPath());
+        cometMzid12Results = new File(MzIdentMLExportAndImportTest.class.getResource("/comet_mzid12.mzid").getPath());
     }
 
 
@@ -54,6 +55,22 @@ public class MzIdentMLExportAndImportTest {
 
         assertEquals("Wrong number of imported peptides", 153, piaCompiler.getNrPeptides());
         assertEquals("Wrong number of imported PSMs", 170, piaCompiler.getNrPeptideSpectrumMatches());
+    }
+
+
+    @Test
+    public void testMzIdentMLv1_2_0Import() {
+        PIACompiler piaCompiler = new PIASimpleCompiler();
+
+        assertTrue(piaCompiler.getDataFromFile("mzid", cometMzid12Results.getAbsolutePath(), null, null));
+
+        piaCompiler.buildClusterList();
+        piaCompiler.buildIntermediateStructure();
+
+        piaCompiler.setName("testFile");
+
+        assertEquals("Wrong number of imported peptides", 600, piaCompiler.getNrPeptides());
+        assertEquals("Wrong number of imported PSMs", 610, piaCompiler.getNrPeptideSpectrumMatches());
     }
 
 
