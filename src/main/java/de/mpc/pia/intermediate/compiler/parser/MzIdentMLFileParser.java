@@ -520,11 +520,33 @@ class MzIdentMLFileParser {
         Double rt = null;
 
         // get the "scan start time" cvParams
-        List<CvParam> scanStartCvParams = specIdResult.getCvParam().stream()
+        List<CvParam> rtCvParams = specIdResult.getCvParam().stream()
             .filter(cvParam -> cvParam.getAccession().equals(OntologyConstants.SCAN_START_TIME.getPsiAccession()))
             .toList();
+        rt = extractRTfromCVs(rtCvParams);
 
-        for (CvParam cvParam : scanStartCvParams) {
+        if (rt == null) {
+            // did not find the RT with this param, try "retention time"
+            rtCvParams = specIdResult.getCvParam().stream()
+                .filter(cvParam -> cvParam.getAccession().equals(OntologyConstants.RETENTION_TIME.getPsiAccession()))
+                .toList();
+                rt = extractRTfromCVs(rtCvParams);
+        }
+
+        return rt;
+    }
+
+
+    /**
+     * Extract scan time in seconds from the the retention time / scan start time CV params.
+     * 
+     * @param scanTimeCvParams
+     * @return
+     */
+    private static Double extractRTfromCVs(List<CvParam> scanTimeCvParams) {
+        Double rt = null;
+
+        for (CvParam cvParam : scanTimeCvParams) {
             try {
                 rt = Double.parseDouble(cvParam.getValue());
 
