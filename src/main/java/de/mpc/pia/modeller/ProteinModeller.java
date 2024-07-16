@@ -509,17 +509,19 @@ public class ProteinModeller  implements Serializable {
      * <p>
      * If a required setting is not given, the default value is used.
      */
-    public boolean executeProteinOperations(JsonAnalysis json) {
+    public boolean executeProteinOperations(JsonAnalysis json, int threads) {
     	boolean allOk = true;
     	
     	AbstractProteinInference proteinInference =
                 ProteinInferenceFactory.createInstanceOf(json.getInferenceMethod());
-    	
+        
     	if (proteinInference == null) {
     		LOGGER.error("Could not create inference method '{}'", json.getInferenceMethod());
     		allOk = false;
     	} else {
     		LOGGER.info("selected inference method: {}", proteinInference.getName());
+            proteinInference.setAllowedThreads(threads);
+            LOGGER.debug("Protein inference using {} threads (0=all available)", proteinInference.getAllowedThreads());
     	}
     	
     	if (allOk) {
@@ -557,5 +559,15 @@ public class ProteinModeller  implements Serializable {
     	}
     	
     	return allOk;
+    }
+
+
+    /**
+     * Execute analysis on protein level, getting the settings from JSON, using all available CPUs
+     * <p>
+     * If a required setting is not given, the default value is used.
+     */
+    public boolean executeProteinOperations(JsonAnalysis json) {
+        return executeProteinOperations(json, 0);
     }
 }

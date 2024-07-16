@@ -42,6 +42,11 @@ public class PIACli implements Runnable{
 	@Option(names = { "-o", "--outfile" },
 			description = "output file name (e.g. intermediate PIA file)") 
 	private String outfile;
+
+	@Option(names = { "-t", "--threads" },
+			description = "maximum number of used threads for compilation (0 for use all)",
+			defaultValue = "0") 
+	private String threads;
 	
 	@Option(names = { "-n", "--name" },
 			description = "name of the compilation",
@@ -89,12 +94,16 @@ public class PIACli implements Runnable{
 	private void processCompile() {
 		PIACompiler piaCompiler = new PIASimpleCompiler();
 		
+		int iThreads = parseThreads();
+		LOGGER.debug("Compiler uses {} CPUs", iThreads);
+		piaCompiler.setNrThreads(iThreads);
+
 		// parse the command line arguments
 		try {
 			if (!parseCommandLineInfiles(piaCompiler)) {
 				return;
 			}
-			
+
 			piaCompiler.buildClusterList();
 			piaCompiler.buildIntermediateStructure();
 			
@@ -106,6 +115,24 @@ public class PIACli implements Runnable{
 		} catch (IOException e) {
 			LOGGER.error("Error while writing PIA XML file.", e);
 		}
+	}
+
+	/**
+	 * Parses the threads from the CLI into an integer value.
+	 * 
+	 * @return integer value of CLI argument threads, 0 if errored (stands for use all CPUs)
+	 */
+	private int parseThreads() {
+		int iThreads = 0;
+		if (!threads.equals("0")) {
+			try {
+				iThreads = Integer.parseInt(threads);
+			} catch (NumberFormatException e) {
+				LOGGER.error("Could not parse the maximal number of threads, using all available CPUs");
+				iThreads = 0;
+			}
+		}
+		return iThreads;
 	}
 
 	/**
@@ -193,7 +220,8 @@ public class PIACli implements Runnable{
 			}
 
 			if (filesExist) {
-				processPIAAnalysis(infiles[0], infiles[1]);
+				int iThreads = parseThreads();
+				processPIAAnalysis(infiles[0], infiles[1], iThreads);
 			}
 		}
 	}
@@ -205,7 +233,7 @@ public class PIACli implements Runnable{
 	 * @param jsonFileName
 	 * @param piaFileName
 	 */
-	public static boolean processPIAAnalysis(String jsonFileName, String piaFileName) {
+	public static boolean processPIAAnalysis(String jsonFileName, String piaFileName, int threads) {
 		PIAModeller modeller = new PIAModeller(piaFileName);
 		JsonAnalysis json = JsonAnalysis.readFromFile(new File(jsonFileName));
 
@@ -234,7 +262,7 @@ public class PIACli implements Runnable{
 
 		if (processOK && json.isInfereProteins()) {
 			// protein level
-			processOK = modeller.getProteinModeller().executeProteinOperations(json);
+			processOK = modeller.getProteinModeller().executeProteinOperations(json, threads);
 		}
 
 		if (processOK && (json.getProteinExportFile() != null)) {
@@ -255,6 +283,18 @@ public class PIACli implements Runnable{
 		}
 
 		return processOK;
+	}
+
+
+	/**
+	 * Performs the actual PIA analysis parsing the JSON file for the PIA
+	 * intermediate file.
+	 * 
+	 * @param jsonFileName
+	 * @param piaFileName
+	 */
+	public static boolean processPIAAnalysis(String jsonFileName, String piaFileName) {
+		return processPIAAnalysis(jsonFileName, piaFileName, 0);
 	}
 
 	/**
