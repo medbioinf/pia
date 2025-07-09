@@ -15,7 +15,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: medbioinf/pia
+        images: quay.io/medbioinf/pia
         labels: |
           org.opencontainers.image.title=PIA
           org.opencontainers.image.description=PIA - Protein Inference Algorithms
@@ -25,7 +25,7 @@ jobs:
       uses: redhat-actions/buildah-build@v2
       with:
         image: pia
-        tags: medbioinf/pia:latest medbioinf/pia:${{ github.sha }} ${{ steps.meta.outputs.tags }}
+        tags: quay.io/medbioinf/pia:latest quay.io/medbioinf/pia:${{ github.sha }} ${{ steps.meta.outputs.tags }}
         containerfiles: |
           ./Dockerfile
 
