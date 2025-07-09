@@ -62,13 +62,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: medbioinf/pia
+          images: quay.io/medbioinf/pia
           labels: |
             org.opencontainers.image.title=PIA
             org.opencontainers.image.description=PIA - Protein Inference Algorithms
@@ -78,17 +76,14 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: pia
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: quay.io/medbioinf/pia:latest quay.io/medbioinf/pia:${{ github.sha }} ${{ steps.meta.outputs.tags }}
           containerfiles: |
             ./Dockerfile
       
-      - name: Push To quay.io
+      - name: Push to quay.io
         id: push-to-quay
         uses: redhat-actions/push-to-registry@v2
         with:
-          image: ${{ steps.build-image.outputs.image }}
           tags: ${{ steps.build-image.outputs.tags }}
-          registry: quay.io/medbioinf
           username: ${{ secrets.QUAY_ROBOT_ID }}
           password: ${{ secrets.QUAY_ROBOT_PW }}
