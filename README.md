@@ -52,13 +52,7 @@ using Conda (respectively Bioconda)
 or download the build
 [here](https://github.com/medbioinf/pia/releases/latest).
 
-PIA is also integrated into KNIME. You can easily install it from the trusted
-community contributions repository, which is available in all newer KNIME
-versions. Please use always the newest version of KNIME before submitting any
-bugs or issues.
-More information on how to install and run PIA inside KNIME can be found in 
-[the wiki about PIA in KNIME](https://github.com/medbioinf/pia/wiki/Running-PIA-via-KNIME).
-
+Running PIA in KNIME is now deprecated and no longer maintained
 
 ## Tutorial
 
@@ -87,6 +81,9 @@ If you found PIA useful for your work, please cite the following publications:
 https://www.ncbi.nlm.nih.gov/pubmed/25938255
 
 https://www.ncbi.nlm.nih.gov/pubmed/30474983
+
+If you are using PIA, please fill in the following survey - this helps us to continue the funding:
+https://www.surveymonkey.de/r/denbi-service?sc=bioinfra-prot&tool=pia 
 
 
 ## Funding

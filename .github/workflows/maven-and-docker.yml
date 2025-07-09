@@ -24,23 +24,23 @@ jobs:
       contents: write    # needed by softprops/action-gh-release
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up JDK 21
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
-        java-version: '21'
         distribution: 'temurin'
+        java-version: '21'
         cache: maven
     - name: Build with Maven
       run: mvn -B package --settings ./.mvn/unblock-mirrors.xml --update-snapshots verify --file pom.xml
     # package as artifact
     - run: mkdir staging && cp target/*.jar staging  && cp target/*.zip staging
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
-        name: Package
+        name: pia-package
         path: staging
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         flags: unittests
@@ -48,7 +48,7 @@ jobs:
         verbose: true
     - name: Release
       if: ${{ github.event_name == 'release' }}
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: |
           staging/*.zip
@@ -58,29 +58,26 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'release' }}
     
-    env:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
-      - name: Log into Docker Hub
-        uses: docker/login-action@v2
+      - name: Log into Quay.io
+        uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: quay.io
+          username: ${{ secrets.QUAY_ROBOT_ID }}
+          password: ${{ secrets.QUAY_ROBOT_PW }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
-          images: julianusz/pia
+          images: medbioinf/pia
           labels: |
             org.opencontainers.image.title=PIA
             org.opencontainers.image.description=PIA - Protein Inference Algorithms
@@ -89,7 +86,7 @@ jobs:
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
         id: build-and-push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: ${{ github.event_name == 'release' }}
