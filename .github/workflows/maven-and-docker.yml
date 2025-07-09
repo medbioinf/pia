@@ -56,7 +56,7 @@ jobs:
   build_and_push_docker:
     needs: maven_build
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'release' }}
     
     steps:
       - name: Checkout repository
@@ -76,7 +76,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: pia
-          tags: quay.io/medbioinf/pia:latest quay.io/medbioinf/pia:${{ github.sha }} ${{ steps.meta.outputs.tags }}
+          tags: quay.io/medbioinf/pia:latest ${{ steps.meta.outputs.tags }}
           containerfiles: |
             ./Dockerfile
       
