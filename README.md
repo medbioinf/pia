@@ -37,9 +37,9 @@ and reports consistent and thus comparable results. None of the parameters, like
 filtering or scoring, are fixed as in prior approaches, but held as flexible as
 possible, to allow for any adjustments needed by the user.
 
-PIA can be called via the command line (also in Docker containers) or in the
-workflow environment KNIME, which allows a seamless integration into OpenMS
-workflows.
+PIA can be called via the command line (also in Docker containers, available at
+https://quay.io/repository/medbioinf/pia) or in the workflow environment KNIME,
+which allows a seamless integration into OpenMS workflows.
 
 ![The PIA Analysis Viewer in KNIME](https://github.com/medbioinf/pia/wiki/KNIME_analysis_view.png)
 
