@@ -25,7 +25,7 @@ jobs:
       uses: redhat-actions/buildah-build@v2
       with:
         image: pia
-        tags: latest ${{ github.sha }} ${{ steps.meta.outputs.tags }}
+        tags: medbioinf/pia:latest medbioinf/pia:${{ github.sha }} ${{ steps.meta.outputs.tags }}
         containerfiles: |
           ./Dockerfile
 
