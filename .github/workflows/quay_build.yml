@@ -1,23 +1,31 @@
 
-name: quay.io poush
+name: quay.io push
 
 on:
   push:
     branches: [ "main" ]
-
 
 jobs:
   build_and_push_docker:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-
+    
+    - name: Extract Docker metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: medbioinf/pia
+        labels: |
+          org.opencontainers.image.title=PIA
+          org.opencontainers.image.description=PIA - Protein Inference Algorithms
+      
     - name: Build Image
       id: build-image
       uses: redhat-actions/buildah-build@v2
       with:
         image: pia
-        tags: latest ${{ github.sha }}
+        tags: latest ${{ github.sha }} ${{ steps.meta.outputs.tags }}
         containerfiles: |
           ./Dockerfile
 
