@@ -4,9 +4,9 @@
 
 	<groupId>de.mpc.pia</groupId>
 	<artifactId>pia</artifactId>
-	<version>1.5.5</version>
+	<version>1.5.6</version>
 	<name>PIA - Protein Inference Algorithms</name>
-	<url>https://github.com/mpc-bioinformatics/pia</url>
+	<url>https://github.com/medbioinf/pia</url>
 
 	<organization>
 		<url>http://www.ruhr-uni-bochum.de/mpc/medical_bioinformatics</url>
@@ -17,8 +17,8 @@
 		<developer>
 			<id>julianu</id>
 			<name>Julian Uszkoreit</name>
-			<organization>Medizinisches Proteom-Center, Medical Bioinformatics</organization>
-			<organizationUrl>http://www.ruhr-uni-bochum.de/mpc/medical_bioinformatics</organizationUrl>
+			<organization>Ruhr UNiversity Bochum, Medical Bioinformatics</organization>
+			<organizationUrl>https://medbioinf.ruhr-uni-bochum.de/</organizationUrl>
 			<roles>
 				<role>developer</role>
 			</roles>
@@ -50,16 +50,16 @@
 		<xxindex.version>0.23</xxindex.version>
 		<mascotdatfile.version>3.6.1</mascotdatfile.version>
 		<xtandem-parser.version>1.13.0</xtandem-parser.version>
-		<compomics-utilities.version>5.1.12</compomics-utilities.version>
+		<compomics-utilities.version>5.1.15</compomics-utilities.version>
 		<biojava-ontology.version>7.1.1</biojava-ontology.version>
 		<gson.version>2.11.0</gson.version>
-		<picocli.version>4.7.6</picocli.version>
+		<picocli.version>4.7.7</picocli.version>
 		<sqlite4java.version>1.0.392</sqlite4java.version>
 		<sqlite-jdbc.version>3.46.0.0</sqlite-jdbc.version>
 		<xercesImpl.version>2.12.2</xercesImpl.version>
 		
 		<!-- override dependencies from some packages to avoid vulnarabilities  -->
-		<logback.version>1.5.6</logback.version>
+		<logback.version>1.5.13</logback.version>
 		<jackson-annotations.version>2.17.1</jackson-annotations.version>
 		<guava.version>33.2.1-jre</guava.version>
 		<commons-codec.version>1.17.0</commons-codec.version>
