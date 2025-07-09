@@ -2,6 +2,7 @@
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/pia/README.html)
 [![BSD 3 clause](https://anaconda.org/bioconda/pia/badges/license.svg)](https://raw.githubusercontent.com/medbioinf/pia/master/LICENSE)
+[![Docker Repository on Quay](https://quay.io/repository/medbioinf/pia/status "Docker Repository on Quay")](https://quay.io/repository/medbioinf/pia)
 
 PIA is a toolbox for MS based protein inference and identification analysis.
 
@@ -50,7 +51,8 @@ For the command line you can download the latest released version
 using Conda (respectively Bioconda)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/pia/README.html)
 or download the build
-[here](https://github.com/medbioinf/pia/releases/latest).
+[here](https://github.com/medbioinf/pia/releases/latest). Alternatively,
+you can use the Docker image on Quay.io [![Docker Repository on Quay](https://quay.io/repository/medbioinf/pia/status "Docker Repository on Quay")](https://quay.io/repository/medbioinf/pia)
 
 Running PIA in KNIME is now deprecated and no longer maintained
 
