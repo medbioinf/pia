@@ -4,7 +4,7 @@
 
 	<groupId>de.mpc.pia</groupId>
 	<artifactId>pia</artifactId>
-	<version>1.5.6</version>
+	<version>1.5.7</version>
 	<name>PIA - Protein Inference Algorithms</name>
 	<url>https://github.com/medbioinf/pia</url>
 
@@ -17,7 +17,7 @@
 		<developer>
 			<id>julianu</id>
 			<name>Julian Uszkoreit</name>
-			<organization>Ruhr UNiversity Bochum, Medical Bioinformatics</organization>
+			<organization>Ruhr University Bochum, Medical Bioinformatics</organization>
 			<organizationUrl>https://medbioinf.ruhr-uni-bochum.de/</organizationUrl>
 			<roles>
 				<role>developer</role>
@@ -59,7 +59,7 @@
 		<xercesImpl.version>2.12.2</xercesImpl.version>
 		
 		<!-- override dependencies from some packages to avoid vulnarabilities  -->
-		<logback.version>1.5.13</logback.version>
+		<logback.version>1.5.21</logback.version>
 		<jackson-annotations.version>2.17.1</jackson-annotations.version>
 		<guava.version>33.2.1-jre</guava.version>
 		<commons-codec.version>1.17.0</commons-codec.version>
