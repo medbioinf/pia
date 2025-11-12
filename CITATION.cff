@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Uszkoreit"
+  given-names: "Julian"
+  orcid: "https://orcid.org/0000-0001-7522-4007"
+- family-names: "Perez-Riverol"
+  given-names: "Yasset"
+  orcid: "https://orcid.org/0000-0001-6579-6941"
+title: "PIA - Protein Inference Algorithms"
+url: "https://github.com/medbioinf/pia"
+preferred-citation:
+  title: "PIA: An Intuitive Protein Inference Engine with a Web-Based User Interface"
+  doi: 10.1021/acs.jproteome.5b00121
+  type: article
+  authors: 
+    - family-names: Uszkoreit
+      given-names: Julian
+    - family-names: Maerkens
+      given-names: Alexandra
+    - family-names: Perez-Riverol
+      given-names: Yasset
+    - family-names: Meyer
+      given-names: Helmut E.
+    - family-names: Marcus
+      given-names: Katrin
+    - family-names: Stephan
+      given-names: Christian
+    - family-names: Kohlbacher
+      given-names: Oliver
+    - family-names: Eisenacher
+      given-names: Martin
+  journal: J. Proteome Res.
+  url: https://pubs.acs.org/doi/10.1021/acs.jproteome.5b00121
