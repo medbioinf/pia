@@ -1,19 +1,33 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+title: PIA - Protein Inference Algorithms
+message: 'If you use this software, please cite it as below.'
+type: software
 authors:
-- family-names: "Uszkoreit"
-  given-names: "Julian"
-  orcid: "https://orcid.org/0000-0001-7522-4007"
-- family-names: "Perez-Riverol"
-  given-names: "Yasset"
-  orcid: "https://orcid.org/0000-0001-6579-6941"
-title: "PIA - Protein Inference Algorithms"
-url: "https://github.com/medbioinf/pia"
+  - family-names: Uszkoreit
+    given-names: Julian
+    orcid: 'https://orcid.org/0000-0001-7522-4007'
+  - family-names: Perez-Riverol
+    given-names: Yasset
+    orcid: 'https://orcid.org/0000-0001-6579-6941'
+identifiers:
+  - type: doi
+    value: 10.1021/acs.jproteome.5b00121
+    description: The main publication
+  - type: doi
+    value: 10.1021/acs.jproteome.8b00723
+    description: Additional publication
+repository-code: 'https://github.com/medbioinf/pia'
+keywords:
+  - protein inference
+  - protein identification
+  - proteomics
+  - mass spectrometry
+license: BSD-3-Clause
 preferred-citation:
-  title: "PIA: An Intuitive Protein Inference Engine with a Web-Based User Interface"
+  title: 'PIA: An Intuitive Protein Inference Engine with a Web-Based User Interface'
   doi: 10.1021/acs.jproteome.5b00121
   type: article
-  authors: 
+  authors:
     - family-names: Uszkoreit
       given-names: Julian
     - family-names: Maerkens
@@ -31,4 +45,4 @@ preferred-citation:
     - family-names: Eisenacher
       given-names: Martin
   journal: J. Proteome Res.
-  url: https://pubs.acs.org/doi/10.1021/acs.jproteome.5b00121
+  url: 'https://pubs.acs.org/doi/10.1021/acs.jproteome.5b00121'
