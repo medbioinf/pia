@@ -194,7 +194,7 @@
 			<artifactId>mascotdatfile</artifactId>
 			<version>${mascotdatfile.version}</version>
 			<exclusions>
-				<!-- axis is EOL with unpatched critical vulnerabilities (SSRF, RCE) -->
+				<!-- axis 1.x is EOL with unpatched critical vulnerabilities (SSRF, RCE) -->
 				<exclusion>
 					<groupId>org.apache.axis</groupId>
 					<artifactId>axis</artifactId>
@@ -231,7 +231,7 @@
 					<groupId>org.apache.axis</groupId>
 					<artifactId>axis-jaxrpc</artifactId>
 				</exclusion>
-				<!-- axis is EOL with unpatched critical vulnerabilities (SSRF, RCE) -->
+				<!-- axis 1.x is EOL with unpatched critical vulnerabilities (SSRF, RCE) -->
 				<exclusion>
 					<groupId>org.apache.axis</groupId>
 					<artifactId>axis</artifactId>
