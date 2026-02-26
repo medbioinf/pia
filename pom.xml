@@ -4,13 +4,13 @@
 
 	<groupId>de.mpc.pia</groupId>
 	<artifactId>pia</artifactId>
-	<version>1.5.7</version>
+	<version>1.5.8</version>
 	<name>PIA - Protein Inference Algorithms</name>
 	<url>https://github.com/medbioinf/pia</url>
 
 	<organization>
-		<url>http://www.ruhr-uni-bochum.de/mpc/medical_bioinformatics</url>
-		<name>Medizinisches Proteom-Center, Medical Bioinformatics</name>
+		<url>https://medbioinf.ruhr-uni-bochum.de/</url>
+		<name>Ruhr University Bochum, Medical Bioinformatics</name>
 	</organization>
 
 	<developers>
@@ -42,7 +42,7 @@
 		<log4j2.version>2.25.3</log4j2.version>
 		<junit.version>4.13.2</junit.version>
 		<commons-collections.version>4.4</commons-collections.version>
-		<commons-text.version>1.12.0</commons-text.version>
+		<commons-text.version>1.15.0</commons-text.version>
 		<jmzidentml.version>1.2.13</jmzidentml.version>
 		<jmztab.version>3.0.8</jmztab.version>
 		<pride-mod.version>2.1.12</pride-mod.version>
@@ -50,7 +50,7 @@
 		<xxindex.version>0.23</xxindex.version>
 		<mascotdatfile.version>3.6.1</mascotdatfile.version>
 		<xtandem-parser.version>1.13.0</xtandem-parser.version>
-		<compomics-utilities.version>5.1.15</compomics-utilities.version>
+		<compomics-utilities.version>5.1.17</compomics-utilities.version>
 		<biojava-ontology.version>7.1.1</biojava-ontology.version>
 		<gson.version>2.11.0</gson.version>
 		<picocli.version>4.7.7</picocli.version>
@@ -59,11 +59,11 @@
 		<xercesImpl.version>2.12.2</xercesImpl.version>
 		
 		<!-- override dependencies from some packages to avoid vulnarabilities  -->
-		<logback.version>1.5.25</logback.version>
+		<logback.version>1.5.32</logback.version>
 		<jackson-annotations.version>2.17.1</jackson-annotations.version>
 		<guava.version>33.2.1-jre</guava.version>
 		<commons-codec.version>1.17.0</commons-codec.version>
-		<commons-compress.version>1.26.2</commons-compress.version>
+		<commons-compress.version>1.28.0</commons-compress.version>
 		<aircompressor.version>2.0.3</aircompressor.version>
 
 		<!-- these are "internal" dependencies, the jar files are delivered together with the source -->

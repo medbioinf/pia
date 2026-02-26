@@ -58,6 +58,8 @@ Running PIA in KNIME is now deprecated and no longer maintained
 
 ## Tutorial
 
+WARNING: These tutorial are not updated at teh moment. KNIME support ist dropped!
+
 The tutorial as PDF can be downloaded
 [here](https://github.com/mpc-bioinformatics/pia-tutorial/blob/master/pia_tutorial.pdf),
 the required data are available [here](https://github.com/mpc-bioinformatics/pia-tutorial/tree/master/data)
