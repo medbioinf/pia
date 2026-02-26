@@ -65,7 +65,6 @@
 		<commons-codec.version>1.17.0</commons-codec.version>
 		<commons-compress.version>1.26.2</commons-compress.version>
 		<aircompressor.version>2.0.3</aircompressor.version>
-		<commons-io.version>2.15.1</commons-io.version>
 
 		<!-- these are "internal" dependencies, the jar files are delivered together with the source -->
 		<BaseLib.version>0.0.1-SNAPSHOT</BaseLib.version>
@@ -336,11 +335,6 @@
 			<groupId>io.airlift</groupId>
 			<artifactId>aircompressor</artifactId>
 			<version>${aircompressor.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>${commons-io.version}</version>
 		</dependency>
 	</dependencies>
 
