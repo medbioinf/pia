@@ -65,6 +65,7 @@
 		<commons-codec.version>1.17.0</commons-codec.version>
 		<commons-compress.version>1.26.2</commons-compress.version>
 		<aircompressor.version>2.0.3</aircompressor.version>
+		<commons-io.version>2.16.1</commons-io.version>
 
 		<!-- these are "internal" dependencies, the jar files are delivered together with the source -->
 		<BaseLib.version>0.0.1-SNAPSHOT</BaseLib.version>
@@ -192,6 +193,17 @@
 			<groupId>com.compomics</groupId>
 			<artifactId>mascotdatfile</artifactId>
 			<version>${mascotdatfile.version}</version>
+			<exclusions>
+				<!-- axis is EOL with unpatched critical vulnerabilities (SSRF, RCE) -->
+				<exclusion>
+					<groupId>org.apache.axis</groupId>
+					<artifactId>axis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.axis</groupId>
+					<artifactId>axis-jaxrpc</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>de.proteinms.xtandemparser</groupId>
@@ -218,6 +230,11 @@
 				<exclusion> 
 					<groupId>org.apache.axis</groupId>
 					<artifactId>axis-jaxrpc</artifactId>
+				</exclusion>
+				<!-- axis is EOL with unpatched critical vulnerabilities (SSRF, RCE) -->
+				<exclusion>
+					<groupId>org.apache.axis</groupId>
+					<artifactId>axis</artifactId>
 				</exclusion>
 				<!-- not needed (only visualization) and highly deprecated -->
 				<exclusion>
@@ -319,6 +336,11 @@
 			<groupId>io.airlift</groupId>
 			<artifactId>aircompressor</artifactId>
 			<version>${aircompressor.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commons-io.version}</version>
 		</dependency>
 	</dependencies>
 
