@@ -192,6 +192,17 @@
 			<groupId>com.compomics</groupId>
 			<artifactId>mascotdatfile</artifactId>
 			<version>${mascotdatfile.version}</version>
+			<exclusions>
+				<!-- axis 1.x is EOL with unpatched critical vulnerabilities (SSRF, RCE) -->
+				<exclusion>
+					<groupId>org.apache.axis</groupId>
+					<artifactId>axis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.axis</groupId>
+					<artifactId>axis-jaxrpc</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>de.proteinms.xtandemparser</groupId>
@@ -218,6 +229,11 @@
 				<exclusion> 
 					<groupId>org.apache.axis</groupId>
 					<artifactId>axis-jaxrpc</artifactId>
+				</exclusion>
+				<!-- axis 1.x is EOL with unpatched critical vulnerabilities (SSRF, RCE) -->
+				<exclusion>
+					<groupId>org.apache.axis</groupId>
+					<artifactId>axis</artifactId>
 				</exclusion>
 				<!-- not needed (only visualization) and highly deprecated -->
 				<exclusion>
