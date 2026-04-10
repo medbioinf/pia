@@ -39,7 +39,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<log4j2.version>2.25.3</log4j2.version>
+		<log4j2.version>2.25.4</log4j2.version>
 		<junit.version>4.13.2</junit.version>
 		<commons-collections.version>4.4</commons-collections.version>
 		<commons-text.version>1.15.0</commons-text.version>
