@@ -24,9 +24,9 @@ jobs:
       contents: write    # needed by softprops/action-gh-release
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Set up JDK 21
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
         java-version: '21'
@@ -35,12 +35,12 @@ jobs:
       run: mvn -B package --settings ./.mvn/unblock-mirrors.xml --update-snapshots verify --file pom.xml
     # package as artifact
     - run: mkdir staging && cp target/*.jar staging  && cp target/*.zip staging
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: pia-package
         path: staging
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         flags: unittests
@@ -48,7 +48,7 @@ jobs:
         verbose: true
     - name: Release
       if: ${{ github.event_name == 'release' }}
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         files: |
           staging/*.zip
@@ -60,11 +60,11 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: quay.io/medbioinf/pia
           labels: |
