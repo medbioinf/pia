@@ -58,7 +58,7 @@ Running PIA in KNIME is now deprecated and no longer maintained
 
 ## Tutorial
 
-WARNING: These tutorial are not updated at teh moment. KNIME support ist dropped!
+WARNING: These tutorial are not updated at the moment. KNIME support ist dropped! Currently, only the CLI version is maintained.
 
 The tutorial as PDF can be downloaded
 [here](https://github.com/mpc-bioinformatics/pia-tutorial/blob/master/pia_tutorial.pdf),
@@ -95,6 +95,9 @@ https://www.surveymonkey.de/r/denbi-service?sc=bioinfra-prot&tool=pia
 The development of PIA is funded by ELIXIR / de.NBI, the German Network for Bioinformatics Infrastructure.
 
 [![de.NBI logo](https://www.denbi.de/templates/nbimaster/img/denbi-logo-color.svg)](https://www.denbi.de/)
+
+Your feedback matters! Take our quick user satisfaction survey:
+[de.NBI service survey](https://www.surveymonkey.de/r/denbi-service?sc=bioinfra-prot&tool=PIA)
 
 
 ## Authors of PIA
